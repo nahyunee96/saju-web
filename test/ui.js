@@ -1422,6 +1422,37 @@ if (picker) {
 
   // --- 아래부터는 결과창의 체크 옵션 변경 시 updateFortune()를 다시 호출하도록 이벤트 등록 ---
   // (calcBtn 클릭 시 결과창의 radio 버튼이 이미 DOM에 생성되었다고 가정합니다.)
+  const resultRadios = document.querySelectorAll('#checkOption input[type="radio"]');
+  // 기존에 이벤트가 중복 등록되지 않도록 (필요하면) 기존 이벤트를 제거하는 로직을 추가할 수 있습니다.
+  resultRadios.forEach(function(radio) {
+    radio.addEventListener("change", function () {
+      // 결과창의 선택값에 따라 입력 화면의 라디오 버튼 상태도 동기화
+      // (입력 화면에 value 속성이 지정되어 있다고 가정합니다.)
+      const selectedTime1 = document.querySelector('input[name="timeChk01"]:checked').value;
+      const selectedTime2 = document.querySelector('input[name="timeChk02"]:checked').value;
+
+      // 입력 화면의 "time1" 그룹 업데이트
+      document.querySelectorAll('input[name="time1"]').forEach(el => el.checked = false);
+      if (selectedTime1 === "standard") {
+        document.getElementById("defaultTime").checked = true;
+      } else if (selectedTime1 === "sun") {
+        document.getElementById("sunTime").checked = true;
+      }
+      
+      // 입력 화면의 "time2" 그룹 업데이트
+      document.querySelectorAll('input[name="time2"]').forEach(el => el.checked = false);
+      if (selectedTime2 === "jasi") {
+        document.getElementById("jasi").checked = true;
+      } else if (selectedTime2 === "yajojasi") {
+        document.getElementById("yajojasi").checked = true;
+      } else if (selectedTime2 === "insi") {
+        document.getElementById("insi").checked = true;
+      }
+      
+      // 전체 재계산 및 UI 업데이트
+      updateFortune();
+    });
+  });
   
     
 });

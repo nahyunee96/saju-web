@@ -540,7 +540,6 @@ const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
 	 let hourDayPillar;
 		if (hourBranchIndex === 0) {
 		 if (solarTime < boundaryDate) {
-			 console.log('확인감사영');
 			hourBranchIndex = 11;
 		  } else {
 			 hourDayPillar = getDayGanZhi(nominalBirthDate);
@@ -581,7 +580,6 @@ const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
     } 
 
     if (isInsi && correctedDate.getHours() < 3){
-      console.log('ㅐㅅㅅ');
     const dayPillar = getDayGanZhi(nominalBirthDatePrev);
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}시, ${getDaewoonDataStr(birthPlace, gender)}`;
 		} else {
