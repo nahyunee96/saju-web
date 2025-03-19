@@ -475,18 +475,16 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 			  hourDayPillar = getDayGanZhi(nominalBirthDate);
 		  } 
 		
-		if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3.5) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3.5)){
-			 hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-		}else if (hourBranchIndex !== 0 && correctedDate.getHours() >= 21.5 && correctedDate.getHours() < 23.5) {
-			console.log('oo');
-			hourBranchIndex = 11;
-			hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-		} else if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() < 24) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
-
-			hourDayPillar = getDayGanZhi(nominalBirthDate);
-		}  else {
-			hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-		}
+    if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3.5) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3.5)){
+        hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+    }else if (hourBranchIndex !== 0 && correctedDate.getHours() >= 21.5 && correctedDate.getHours() < 23.5 || hourBranchIndex === 0 && correctedDate.getHours() >= 21.5 && correctedDate.getHours() < 23.5) {
+       hourBranchIndex = 11;
+       hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+    } else if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() < 24) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
+       hourDayPillar = getDayGanZhi(nominalBirthDate);
+    } else {
+       hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+    }
 
 		const hourStemArithmetic = getHourStemArithmetic(hourDayPillar, hourBranchIndex);
 		  const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
