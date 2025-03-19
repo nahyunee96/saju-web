@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>묘운 만세력</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="info_wrapper">
+        <form class="input_wrap" id="inputWrap">
+          <div class="input_group">
+            <label for="inputName">명주이름</label>
+            <input type="text" id="inputName" maxlength="10" placeholder="10글자 이내로 이름 입력" />
+          </div>
+          <div class="input_group">
+            <label for="inputBirthday">출생일</label>
+            <div class="flex_input">
+              <input type="tel" id="inputBirthday" maxlength="8" placeholder="예) 19900101" />
+              <select name="monthType" id="monthType">
+                <option value="양력">양력</option>
+                <option value="음력">음력</option>
+                <option value="음력(윤달)">음력(윤달)</option>
+              </select>
+            </div>
+          </div>
+          <div class="input_group">
+            <label for="inputBirthtime">출생시간선택</label>
+            <input type="time" id="inputBirthtime"  />
+          </div>
+          <div class="input_group">
+            <label>성별</label>
+            <div class="radio_box">
+              <span><input type="radio" id="genderMan" name="gender" /><label for="genderMan">남성</label></span>
+              <span><input type="radio" id="genderWoman" name="gender" /><label for="genderWoman">여성</label></span>
+            </div>
+          </div>
+          <div class="input_group">
+            <label for="inputBirthPlace">출생지선택</label>
+            <select id="inputBirthPlace">
+              <option value="출생지 선택" style="display: none;">출생지 선택</option>
+              <option value="서울특별시">서울특별시</option>
+              <option value="부산광역시">부산광역시</option>
+              <option value="대구광역시">대구광역시</option>
+              <option value="인천광역시">인천광역시</option>
+              <option value="광주광역시">광주광역시</option>
+              <option value="대전광역시">대전광역시</option>
+              <option value="울산광역시">울산광역시</option>
+              <option value="세종특별자치시">세종특별자치시</option>
+              <optgroup label="경기도">
+                <option value="수원시">수원시</option>
+                <option value="고양시">고양시</option>
+                <option value="용인시">용인시</option>
+                <option value="성남시">성남시</option>
+                <option value="부천시">부천시</option>
+                <option value="안산시">안산시</option>
+                <option value="안양시">안양시</option>
+                <option value="남양주시">남양주시</option>
+                <option value="화성시">화성시</option>
+                <option value="평택시">평택시</option>
+                <option value="시흥시">시흥시</option>
+                <option value="김포시">김포시</option>
+                <option value="파주시">파주시</option>
+                <option value="의정부시">의정부시</option>
+                <option value="광명시">광명시</option>
+                <option value="광주시">광주시</option>
+                <option value="군포시">군포시</option>
+                <option value="이천시">이천시</option>
+                <option value="양주시">양주시</option>
+                <option value="오산시">오산시</option>
+                <option value="구리시">구리시</option>
+                <option value="안성시">안성시</option>
+                <option value="포천시">포천시</option>
+                <option value="의왕시">의왕시</option>
+                <option value="하남시">하남시</option>
+                <option value="여주시">여주시</option>
+                <option value="동두천시">동두천시</option>
+                <option value="과천시">과천시</option>
+                <option value="가평군">가평군</option>
+                <option value="양평군">양평군</option>
+                <option value="연천군">연천군</option>
+              </optgroup>
+              <optgroup label="강원도">
+                <option value="춘천시">춘천시</option>
+                <option value="원주시">원주시</option>
+                <option value="강릉시">강릉시</option>
+                <option value="동해시">동해시</option>
+                <option value="태백시">태백시</option>
+                <option value="속초시">속초시</option>
+                <option value="삼척시">삼척시</option>
+                <option value="홍천군">홍천군</option>
+                <option value="횡성군">횡성군</option>
+                <option value="영월군">영월군</option>
+                <option value="평창군">평창군</option>
+                <option value="정선군">정선군</option>
+                <option value="철원군">철원군</option>
+                <option value="화천군">화천군</option>
+                <option value="양구군">양구군</option>
+                <option value="인제군">인제군</option>
+                <option value="고성군">고성군</option>
+                <option value="양양군">양양군</option>
+              </optgroup>
+              <optgroup label="충청북도">
+                <option value="청주시">청주시</option>
+                <option value="충주시">충주시</option>
+                <option value="제천시">제천시</option>
+                <option value="보은군">보은군</option>
+                <option value="옥천군">옥천군</option>
+                <option value="영동군">영동군</option>
+                <option value="진천군">진천군</option>
+                <option value="괴산군">괴산군</option>
+                <option value="음성군">음성군</option>
+                <option value="단양군">단양군</option>
+                <option value="증평군">증평군</option>
+              </optgroup>
+              <optgroup label="충청남도">
+                <option value="천안시">천안시</option>
+                <option value="공주시">공주시</option>
+                <option value="보령시">보령시</option>
+                <option value="아산시">아산시</option>
+                <option value="서산시">서산시</option>
+                <option value="논산시">논산시</option>
+                <option value="계룡시">계룡시</option>
+                <option value="당진시">당진시</option>
+                <option value="금산군">금산군</option>
+                <option value="부여군">부여군</option>
+                <option value="서천군">서천군</option>
+                <option value="청양군">청양군</option>
+                <option value="홍성군">홍성군</option>
+                <option value="예산군">예산군</option>
+                <option value="태안군">태안군</option>
+              </optgroup>
+              <optgroup label="전라북도">
+                <option value="전주시">전주시</option>
+                <option value="군산시">군산시</option>
+                <option value="익산시">익산시</option>
+                <option value="정읍시">정읍시</option>
+                <option value="남원시">남원시</option>
+                <option value="김제시">김제시</option>
+                <option value="완주군">완주군</option>
+                <option value="진안군">진안군</option>
+                <option value="무주군">무주군</option>
+                <option value="장수군">장수군</option>
+                <option value="임실군">임실군</option>
+                <option value="순창군">순창군</option>
+                <option value="고창군">고창군</option>
+                <option value="부안군">부안군</option>
+              </optgroup>
+              <optgroup label="전라남도">
+                <option value="목포시">목포시</option>
+                <option value="여수시">여수시</option>
+                <option value="순천시">순천시</option>
+                <option value="나주시">나주시</option>
+                <option value="광양시">광양시</option>
+                <option value="담양군">담양군</option>
+                <option value="곡성군">곡성군</option>
+                <option value="구례군">구례군</option>
+                <option value="고흥군">고흥군</option>
+                <option value="보성군">보성군</option>
+                <option value="화순군">화순군</option>
+                <option value="장흥군">장흥군</option>
+                <option value="강진군">강진군</option>
+                <option value="해남군">해남군</option>
+                <option value="영암군">영암군</option>
+                <option value="무안군">무안군</option>
+                <option value="함평군">함평군</option>
+                <option value="영광군">영광군</option>
+                <option value="장성군">장성군</option>
+                <option value="완도군">완도군</option>
+                <option value="진도군">진도군</option>
+                <option value="신안군">신안군</option>
+              </optgroup>
+              <optgroup label="경상북도">
+                <option value="포항시">포항시</option>
+                <option value="경주시">경주시</option>
+                <option value="김천시">김천시</option>
+                <option value="안동시">안동시</option>
+                <option value="구미시">구미시</option>
+                <option value="영주시">영주시</option>
+                <option value="영천시">영천시</option>
+                <option value="상주시">상주시</option>
+                <option value="문경시">문경시</option>
+                <option value="경산시">경산시</option>
+                <option value="군위군">군위군</option>
+                <option value="의성군">의성군</option>
+                <option value="청송군">청송군</option>
+                <option value="영양군">영양군</option>
+                <option value="영덕군">영덕군</option>
+                <option value="청도군">청도군</option>
+                <option value="고령군">고령군</option>
+                <option value="성주군">성주군</option>
+                <option value="칠곡군">칠곡군</option>
+                <option value="예천군">예천군</option>
+                <option value="봉화군">봉화군</option>
+                <option value="울진군">울진군</option>
+                <option value="울릉군">울릉군</option>
+              </optgroup>
+              <optgroup label="경상남도">
+                <option value="창원시">창원시</option>
+                <option value="김해시">김해시</option>
+                <option value="진주시">진주시</option>
+                <option value="양산시">양산시</option>
+                <option value="거제시">거제시</option>
+                <option value="사천시">사천시</option>
+                <option value="밀양시">밀양시</option>
+                <option value="통영시">통영시</option>
+                <option value="거창군">거창군</option>
+                <option value="고성군">고성군</option>
+                <option value="남해군">남해군</option>
+                <option value="산청군">산청군</option>
+                <option value="창녕군">창녕군</option>
+                <option value="하동군">하동군</option>
+                <option value="함안군">함안군</option>
+                <option value="함양군">함양군</option>
+                <option value="합천군">합천군</option>
+                <option value="의령군">의령군</option>
+              </optgroup>
+              <optgroup label="제주특별자치도">
+                <option value="제주시">제주시</option>
+                <option value="서귀포시">서귀포시</option>
+              </optgroup>
+            </select>
+          </div>
+		  <div class="input_group">
+            <label>시간기준지정 (표준시 / 태양시)</label>
+            <div class="radio_box">
+              <span><input type="radio" id="defaultTime" name="time1" checked /><label for="defaultTime">표준시 (기존어플들과 동일)</label></span>
+              <span><input type="radio" id="sunTime" name="time1" /><label for="sunTime">태양시 (+30분)</label></span>
+            </div>
+          </div>
+          <div class="input_group">
+            <label>시간 기준 지정 (자시 / 야 · 조자시 / 인시)</label>
+            <div class="radio_box">
+              <!-- <span><input type="radio" id="yajasi" name="time2" /><label for="yajasi">야자시</label></span>
+              			  <span><input type="radio" id="jojasi" name="time2" /><label for="jojasi">조자시</label></span> -->
+			  <span><input type="radio" id="jasi" name="time2" /><label for="jasi">자시</label></span>
+			  <span><input type="radio" id="yajojasi"  name="time2"><label for="yajojasi">야 · 조자시</label></span>
+              <span><input type="radio" id="insi" name="time2" checked /><label for="insi">인시</label></span>
+            </div>
+          </div>
+          <div class="btn_box">
+            <button type="button" id="calcBtn">산출하기</button>
+          </div>
+        </form>
+        <div class="result_wrapper" id="resultWrapper" style="display: none;">
+          <div class="head btn_box mt0">
+            <button id="backBtn" class="black_btn">명식 입력으로 돌아가기</button>
+          </div>
+          <div class="info_box">
+            <span>
+              <b id="resName"></b>
+              (<b id="resGender"></b>)
+            </span>
+            <span>
+              <b id="resBirth"></b> (양)
+              <b id="resBirth2"></b> (음)
+              <b id="resTime"></b> /
+              <b id="resAddr"></b> /
+              보정시 : <b id="resbjTime"></b>
+            </span>
+          </div>
+          <div class="btn_box">
+            <button type="button" class="black_btn" id="myowoonMore">묘운력(운 전체) 상세보기</button>
+          </div>
+          <div class="wongook_lucky" id="wongookLM">
+            <div class="woonkuk">
+              
+              <p class="buga_title"><span>원국</span></p>
+              <ul class="grid_box grid_box_1">
+			    <!-- 천간 -->
+                <li>
+                  <p>시주</p>
+                  <div class="hanja_con">
+					<p id="HtEumyang" class="eum_yang"></p> 
+					<b id="HtHanja"></b> 
+				  </div>
+                  <p id="HtHanguel"></p>
+                  
+                  <p id="Ht10sin" class="ten_sin"></p>
+                </li>
+                <li>
+                  <p>일주</p>
+                  <div class="hanja_con">
+					<p id="DtEumyang" class="eum_yang"></p> 
+					<b id="DtHanja"></b> 
+				  </div>
+                  <p id="DtHanguel"></p>      
+                  <p id="Dt10sin" class="ten_sin"></p>
+                </li>
+                <li>
+                  <p>월주</p>
+                  <div class="hanja_con">
+					<p id="MtEumyang" class="eum_yang"></p> 
+					<b id="MtHanja"></b> 
+				  </div>
+                  <p id="MtHanguel"></p>
+                  <p id="Mt10sin" class="ten_sin"></p>
+                </li>
+                <li>
+                  <p>연주</p>
+                  <div class="hanja_con">
+					<p id="YtEumyang" class="eum_yang"></p> 
+					<b id="YtHanja"></b> 
+				  </div>
+                  <p id="YtHanguel"></p>
+                  <p id="Yt10sin" class="ten_sin"></p>
+                </li>
+				<!-- 지지 -->
+                <li>
+                  <div class="hanja_con">
+					<p id="HbEumyang" class="eum_yang"></p> 
+					<b id="HbHanja"></b> 
+				  </div>
+                  <p id="HbHanguel"></p>
+                  <ul class="jijanggan" id="HbJj">
+                    <li id="HbJj1"></li>
+                    <li id="HbJj2"></li>
+                    <li id="HbJj3"></li>
+                  </ul>
+                  <p id="Hb10sin" class="ten_sin"></p>
+                  <p id="Hb12ws" class="woon_seong"></p>
+                  <p id="Hb12ss" class="sin_sal"></p>
+                </li>
+                <li>
+                  <div class="hanja_con">
+					<p id="DbEumyang" class="eum_yang"></p> 
+					<b id="DbHanja"></b> 
+				  </div>
+                  <p id="DbHanguel"></p>
+                  <ul class="jijanggan" id="DbJj">
+                    <li id="DbJj1"></li>
+                    <li id="DbJj2"></li>
+                    <li id="DbJj3"></li>
+                  </ul>
+                  <p id="Db10sin" class="ten_sin"></p>
+                  <p id="Db12ws" class="woon_seong"></p>
+                  <p id="Db12ss" class="sin_sal"></p>
+                </li>
+                <li>
+                  <div class="hanja_con">
+					<p id="MbEumyang" class="eum_yang"></p> 
+					<b id="MbHanja"></b> 
+				  </div>
+                  <p id="MbHanguel"></p>
+                  <ul class="jijanggan" id="MbJj">
+                    <li id="MbJj1"></li>
+                    <li id="MbJj2"></li>
+                    <li id="MbJj3"></li>
+                  </ul>
+                  <p id="Mb10sin" class="ten_sin"></p>
+                  <p id="Mb12ws" class="woon_seong"></p>
+                  <p id="Mb12ss" class="sin_sal"></p>
+                </li>
+                <li>
+                  <div class="hanja_con">
+					<p id="YbEumyang" class="eum_yang"></p> 
+					<b id="YbHanja"></b> 
+				  </div>
+                  <p id="YbHanguel"></p>
+                  <ul class="jijanggan" id="YbJj">
+                    <li id="YbJj1"></li>
+                    <li id="YbJj2"></li>
+                    <li id="YbJj3"></li>
+                  </ul>
+                  <p id="Yb10sin" class="ten_sin"></p>
+                  <p id="Yb12ws" class="woon_seong"></p>
+                  <p id="Yb12ss" class="sin_sal"></p>
+                </li>
+              </ul>
+            </div>
+            <div class="lucky_wrap" id="luckyWrap">
+              <p class="buga_title"><span>운</span></p>
+              <div class="lucky_box">
+                <div class="lucky dawoon">
+                  <div class="ganji">
+                    <p>대운</p>
+                    <div class="hanja_con">
+					  <p id="DwtEumyang" class="eum_yang"></p> 
+					  <b id="DwtHanja"></b> 
+				    </div>
+                    <p id="DwtHanguel"></p>
+                    <p id="Dwt10sin" class="ten_sin"></p>
+                  </div>
+                  <div class="ganji">
+                    <div class="hanja_con">
+					  <p id="DwbEumyang" class="eum_yang"></p> 
+					  <b id="DwbHanja"></b> 
+				    </div>
+                    <p id="DwbHanguel"></p>
+                    <ul class="jijanggan" id="DwJj">
+                      <li id="DwJj1"></li>
+                      <li id="DwJj2"></li>
+                      <li id="DwJj3"></li>
+                    </ul>
+                    <p id="Dwb10sin" class="ten_sin"></p>
+                    <p id="DWb12ws" class="woon_seong"></p>
+                    <p id="DWb12ss" class="sin_sal"></p>
+                  </div>
+                </div>
+                <div class="lucky sewoon">
+                  <div class="ganji">
+                    <p>세운</p>
+                    <div class="hanja_con">
+					  <p id="SwtEumyang" class="eum_yang"></p> 
+					  <b id="SwtHanja"></b> 
+				    </div>
+                    <p id="SwtHanguel"></p>
+                    <p id="Swt10sin" class="ten_sin"></p>
+                  </div>
+                  <div class="ganji">
+                    <div class="hanja_con">
+					  <p id="SwbEumyang" class="eum_yang"></p> 
+					  <b id="SwbHanja"></b> 
+				    </div>
+                    <p id="SwbHanguel"></p>
+                    <ul class="jijanggan" id="SwJj">
+                      <li id="SwJj1"></li>
+                      <li id="SwJj2"></li>
+                      <li id="SwJj3"></li>
+                    </ul>
+                    <p id="Swb10sin" class="ten_sin"></p>
+                    <p id="SWb12ws" class="woon_seong"></p>
+                    <p id="SWb12ss" class="sin_sal"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="woon_container" id="woonContainer" style="display: none;">
+            <div class="myowoon w50">
+              <p class="buga_title"><span>묘운 (대운팔자)</span></p>
+              <ul class="grid_box grid_box_1">
+			    <!-- 천간 -->
+                <li>
+                  <p>시주</p>
+                  <div class="hanja_con">
+					<p id="MyoHtEumyang" class="eum_yang"></p> 
+					<b id="MyoHtHanja"></b> 
+				  </div>
+                  <p id="MyoHtHanguel"></p>
+                  <p id="MyoHt10sin" class="ten_sin"></p>
+                </li>
+                <li>
+                  <p>일주</p>
+                  <div class="hanja_con">
+					<p id="MyoDtEumyang" class="eum_yang"></p> 
+					<b id="MyoDtHanja"></b> 
+				  </div>
+                  <p id="MyoDtHanguel"></p>
+                  <p id="MyoDt10sin" class="ten_sin"></p>
+                </li>
+                <li>
+                  <p>월주</p>
+                  <div class="hanja_con">
+					<p id="MyoMtEumyang" class="eum_yang"></p> 
+					<b id="MyoMtHanja"></b> 
+				  </div>
+                  <p id="MyoMtHanguel"></p>
+                  <p id="MyoMt10sin" class="ten_sin"></p>
+                </li>
+                <li>
+                  <p>연주</p>
+                  <div class="hanja_con">
+					<p id="MyoYtEumyang" class="eum_yang"></p> 
+					<b id="MyoYtHanja"></b> 
+				  </div>
+                  <p id="MyoYtHanguel"></p>
+                  <p id="MyoYt10sin" class="ten_sin"></p>
+                </li>
+				<!-- 지지 -->
+                <li>
+                  <div class="hanja_con">
+					<p id="MyoHbEumyang" class="eum_yang"></p> 
+					<b id="MyoHbHanja"></b> 
+				  </div>
+                  <p id="MyoHbHanguel"></p>
+                  <ul class="jijanggan" id="MyoHbJj">
+                    <li id="MyoHbJj1"></li>
+                    <li id="MyoHbJj2"></li>
+                    <li id="MyoHbJj3"></li>
+                  </ul>
+                  <p id="MyoHb10sin" class="ten_sin"></p>
+                  <p id="MyoHb12ws" class="woon_seong"></p>
+                  <p id="MyoHb12ss" class="sin_sal"></p>
+                </li>
+                <li>
+                  <div class="hanja_con">
+					<p id="MyoDbEumyang" class="eum_yang"></p> 
+					<b id="MyoDbHanja"></b> 
+				  </div>
+                  <p id="MyoDbHanguel"></p>
+                  <ul class="jijanggan" id="MyoDbJj">
+                    <li id="MyoDbJj1"></li>
+                    <li id="MyoDbJj2"></li>
+                    <li id="MyoDbJj3"></li>
+                  </ul>
+                  <p id="MyoDb10sin" class="ten_sin"></p>
+                  <p id="MyoDb12ws" class="woon_seong"></p>
+                  <p id="MyoDb12ss" class="sin_sal"></p>
+                </li>
+                <li>
+                  <div class="hanja_con">
+					<p id="MyoMbEumyang" class="eum_yang"></p> 
+					<b id="MyoMbHanja"></b> 
+				  </div>
+                  <p id="MyoMbHanguel"></p>
+                  <ul class="jijanggan" id="MyoMbJj">
+                    <li id="MyoMbJj1"></li>
+                    <li id="MyoMbJj2"></li>
+                    <li id="MyoMbJj3"></li>
+                  </ul>
+                  <p id="MyoMb10sin" class="ten_sin"></p>
+                  <p id="MyoMb12ws" class="woon_seong"></p>
+                  <p id="MyoMb12ss" class="sin_sal"></p>
+                </li>
+                <li>
+                  <div class="hanja_con">
+					<p id="MyoYbEumyang" class="eum_yang"></p> 
+					<b id="MyoYbHanja"></b> 
+				  </div>
+                  <p id="MyoYbHanguel"></p>
+                  <ul class="jijanggan" id="MyoYbJj">
+                    <li id="MyoYbJj1"></li>
+                    <li id="MyoYbJj2"></li>
+                    <li id="MyoYbJj3"></li>
+                  </ul>
+                  <p id="MyoYb10sin" class="ten_sin"></p>
+                  <p id="MyoYb12ws" class="woon_seong"></p>
+                  <p id="MyoYb12ss" class="sin_sal"></p>
+                </li>
+              </ul>
+            </div>
+            <div class="woon_wrap w50" id="woonWrap">
+              <p class="buga_title"><span>세운/월운/일운/시운</span></p>
+              <ul class="grid_box grid_box_1">
+			    <!-- 천간 -->
+                <li>
+                  <p>세운</p>
+                  <div class="hanja_con">
+					<p id="WSwtEumyang" class="eum_yang"></p> 
+					<b id="WSwtHanja"></b> 
+				  </div>
+                  <p id="WSwtHanguel"></p>
+                  <p id="WSwt10sin" class="ten_sin"></p>
+                </li>
+                <li>
+                  <p>월운</p>
+                  <div class="hanja_con">
+					<p id="WMtEumyang" class="eum_yang"></p> 
+					<b id="WMtHanja"></b> 
+				  </div>
+                  <p id="WMtHanguel"></p>
+                  <p id="WMt10sin" class="ten_sin"></p>
+                </li>
+                <li>
+                  <p>일운</p>
+                  <div class="hanja_con">
+					<p id="WDtEumyang" class="eum_yang"></p> 
+					<b id="WDtHanja"></b> 
+				  </div>
+                  <p id="WDtHanguel"></p>
+                  <p id="WDt10sin" class="ten_sin"></p>
+                </li>
+                <li>
+                  <p>시운</p>
+                  <div class="hanja_con">
+					<p id="WTtEumyang" class="eum_yang"></p> 
+					<b id="WTtHanja"></b> 
+				  </div>
+                  <p id="WTtHanguel"></p>
+                  <p id="WTt10sin" class="ten_sin"></p>
+                </li>
+				<!-- 지지 -->
+                <li>
+                  <div class="hanja_con">
+					<p id="WSwbEumyang" class="eum_yang"></p> 
+					<b id="WSwbHanja"></b> 
+				  </div>
+                  <p id="WSwbHanguel"></p>
+                  <ul class="jijanggan" id="WHbJj">
+                    <li id="WSwJj1"></li>
+                    <li id="WSwJj2"></li>
+                    <li id="WSwJj3"></li>
+                  </ul>
+                  <p id="WSwb10sin" class="ten_sin"></p>
+                  <p id="WSWb12ws" class="woon_seong"></p>
+                  <p id="WSWb12ss" class="sin_sal"></p>
+                </li>
+                <li>
+                  <div class="hanja_con">
+					<p id="WMbEumyang" class="eum_yang"></p> 
+					<b id="WMbHanja"></b> 
+				  </div>
+                  <p id="WMbHanguel"></p>
+                  <ul class="jijanggan" id="WDbJj">
+                    <li id="WMbJj1"></li>
+                    <li id="WMbJj2"></li>
+                    <li id="WMbJj3"></li>
+                  </ul>
+                  <p id="WMb10sin" class="ten_sin"></p>
+                  <p id="WMb12ws" class="woon_seong"></p>
+                  <p id="WMb12ss" class="sin_sal"></p>
+                </li>
+                <li>
+                  <div class="hanja_con">
+					<p id="WDbEumyang" class="eum_yang"></p> 
+					<b id="WDbHanja"></b> 
+				  </div>
+                  <p id="WDbHanguel"></p>
+                  <ul class="jijanggan" id="WMbJj">
+                    <li id="WDbJj1"></li>
+                    <li id="WDbJj2"></li>
+                    <li id="WDbJj3"></li>
+                  </ul>
+                  <p id="WDb10sin" class="ten_sin"></p>
+                  <p id="WDb12ws" class="woon_seong"></p>
+                  <p id="WDb12ss" class="sin_sal"></p>
+                </li>
+                <li>
+                 <div class="hanja_con">
+					<p id="WTbEumyang" class="eum_yang"></p> 
+					<b id="WTbHanja"></b> 
+				  </div>
+                  <p id="WTbHanguel"></p>
+                  <ul class="jijanggan" id="WYbJj">
+                    <li id="WTbJj1"></li>
+                    <li id="WTbJj2"></li>
+                    <li id="WTbJj3"></li>
+                  </ul>
+                  <p id="WTb10sin" class="ten_sin"></p>
+                  <p id="WTb12ws" class="woon_seong"></p>
+                  <p id="WTb12ss" class="sin_sal"></p>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="cal_area" id="calArea">
+            <input type="datetime-local" id="woonTimeSetPicker" />
+            <div class="btn_box mb40">
+              <button class="black_btn" id="woonChangeBtn">날짜 변경하기</button>
+            </div>
+          </div>
+          <div class="woon_area" id="woonArea">
+            <p class="buga_title"><span>대운 (대운의 월주)</span></p>
+            <div class="scroll_x">
+              <ul class="grid_box grid_box_10 fortune_section reverse" id="daewoonList">
+                <li id="daewoon_1" data-index="1">
+                  <div class="dt10sin1 w" id="dt10sin1"></div>
+                  <div class="ganji_w" id="DC_1"></div>
+                  <div class="ganji_w" id="DJ_1"></div>
+                  <div class="db10sin1 w" id="db10sin1"></div>
+                  <div class="dwoo1 w" id="DwW1"></div>
+                  <div class="dsin1 w" id="Ds1"></div>
+                  <div class="dage w" id="Da1"></div>
+                </li>
+                <li id="daewoon_2" data-index="2">
+                  <div class="dt10sin2 w" id="dt10sin2"></div>
+                  <div class="ganji_w" id="DC_2"></div>
+                  <div class="ganji_w" id="DJ_2"></div>
+                  <div class="db10sin2 w" id="db10sin2"></div>
+                  <div class="dwoo2 w" id="DwW2"></div>
+                  <div class="dsin2 w" id="Ds2"></div>
+                  <div class="dage w" id="Da2"></div>
+                </li>
+                <li id="daewoon_3" data-index="3">
+                  <div class="dt10sin3 w" id="dt10sin3"></div>
+                  <div class="ganji_w" id="DC_3"></div>
+                  <div class="ganji_w" id="DJ_3"></div>
+                  <div class="db10sin3 w" id="db10sin3"></div>
+                  <div class="dwoo3 w" id="DwW3"></div>
+                  <div class="dsin3 w" id="Ds3"></div>
+                  <div class="dage w" id="Da3"></div>
+                </li>
+                <li id="daewoon_4" data-index="4">
+                  <div class="dt10sin4 w" id="dt10sin4"></div>
+                  <div class="ganji_w" id="DC_4"></div>
+                  <div class="ganji_w" id="DJ_4"></div>
+                  <div class="db10sin4 w" id="db10sin4"></div>
+                  <div class="dwoo4 w" id="DwW4"></div>
+                  <div class="dsin4 w" id="Ds4"></div>
+                  <div class="dage w" id="Da4"></div>
+                </li>
+                <li id="daewoon_5" data-index="5">
+                  <div class="dt10sin3 w" id="dt10sin5"></div>
+                  <div class="ganji_w" id="DC_5"></div>
+                  <div class="ganji_w" id="DJ_5"></div>
+                  <div class="db10sin5 w" id="db10sin5"></div>
+                  <div class="dwoo5 w" id="DwW5"></div>
+                  <div class="dsin5 w" id="Ds5"></div>
+                  <div class="dage w" id="Da5"></div>
+                </li>
+                <li id="daewoon_6" data-index="6">
+                  <div class="dt10sin3 w" id="dt10sin6"></div>
+                  <div class="ganji_w" id="DC_6"></div>
+                  <div class="ganji_w" id="DJ_6"></div>
+                  <div class="db10sin6 w" id="db10sin6"></div>
+                  <div class="dwoo6 w" id="DwW6"></div>
+                  <div class="dsin6 w" id="Ds6"></div>
+                  <div class="dage w" id="Da6"></div>
+                </li>
+                <li id="daewoon_7" data-index="7">
+                  <div class="dt10sin3 w" id="dt10sin7"></div>
+                  <div class="ganji_w" id="DC_7"></div>
+                  <div class="ganji_w" id="DJ_7"></div>
+                  <div class="db10sin7 w" id="db10sin7"></div>
+                  <div class="dwoo7 w" id="DwW7"></div>
+                  <div class="dsin7 w" id="Ds7"></div>
+                  <div class="dage w" id="Da7"></div>
+                </li>
+                <li id="daewoon_8" data-index="8">
+                  <div class="dt10sin3 w" id="dt10sin8"></div>
+                  <div class="ganji_w" id="DC_8"></div>
+                  <div class="ganji_w" id="DJ_8"></div>
+                  <div class="db10sin8 w" id="db10sin8"></div>
+                  <div class="dwoo8 w" id="DwW8"></div>
+                  <div class="dsin8 w" id="Ds8"></div>
+                  <div class="dage w" id="Da8"></div>
+                </li>
+                <li id="daewoon_9" data-index="9">
+                  <div class="dt10sin3 w" id="dt10sin9"></div>
+                  <div class="ganji_w" id="DC_9"></div>
+                  <div class="ganji_w" id="DJ_9"></div>
+                  <div class="db10sin9 w" id="db10sin9"></div>
+                  <div class="dwoo9 w" id="DwW9"></div>
+                  <div class="dsin9 w" id="Ds9"></div>
+                  <div class="dage w" id="Da9"></div>
+                </li>
+                <li id="daewoon_10" data-index="10">
+                  <div class="dt10sin3 w" id="dt10sin10"></div>
+                  <div class="ganji_w" id="DC_10"></div>
+                  <div class="ganji_w" id="DJ_10"></div>
+                  <div class="db10sin10 w" id="db10sin10"></div>
+                  <div class="dwoo10 w" id="DwW10"></div>
+                  <div class="dsin10 w" id="Ds10"></div>
+                  <div class="dage w" id="Da10"></div>
+                </li>
+              </ul>
+            </div>
+            <div class="sewoon_area">
+              <p class="buga_title"><span>세운</span></p>
+              <div class="scroll_x">
+                <ul class="grid_box grid_box_10 fortune_section reverse" id="sewoonList">
+                  <li id="Sewoon_1" data-index2="1">
+                    <div class="st10sin1 w" id="st10sin1"></div>
+                    <div class="ganji_w" id="SC_1"></div>
+                    <div class="ganji_w" id="SJ_1"></div>
+                    <div class="sb10sin1 w" id="sb10sin1"></div>
+                    <div class="swoo1 w" id="SwW1"></div>
+                    <div class="ssin1 w" id="Ss1"></div>
+                    <div class="dyear w" id="Dy1"></div>
+                  </li>
+                  <li id="Sewoon_2" data-index2="2">
+                    <div class="st10sin2 w" id="st10sin2"></div>
+                    <div class="ganji_w" id="SC_2"></div>
+                    <div class="ganji_w" id="SJ_2"></div>
+                    <div class="sb10sin2 w" id="sb10sin2"></div>
+                    <div class="swoo1 w" id="SwW2"></div>
+                    <div class="ssin1 w" id="Ss2"></div>
+                    <div class="dyear w" id="Dy2"></div>
+                  </li>
+                  <li id="Sewoon_3" data-index2="3">
+                    <div class="st10sin3 w" id="st10sin3"></div>
+                    <div class="ganji_w" id="SC_3"></div>
+                    <div class="ganji_w" id="SJ_3"></div>
+                    <div class="sb10sin3 w" id="sb10sin3"></div>
+                    <div class="swoo1 w" id="SwW3"></div>
+                    <div class="ssin1 w" id="Ss3"></div>
+                    <div class="dyear w" id="Dy3"></div>
+                  </li>
+                  <li id="Sewoon_4" data-index2="4">
+                    <div class="st10sin4 w" id="st10sin4"></div>
+                    <div class="ganji_w" id="SC_4"></div>
+                    <div class="ganji_w" id="SJ_4"></div>
+                    <div class="sb10sin4 w" id="sb10sin4"></div>
+                    <div class="swoo1 w" id="SwW4"></div>
+                    <div class="ssin1 w" id="Ss4"></div>
+                    <div class="dyear w" id="Dy4"></div>
+                  </li>
+                  <li id="Sewoon_5" data-index2="5">
+                    <div class="st10sin5 w" id="st10sin5"></div>
+                    <div class="ganji_w" id="SC_5"></div>
+                    <div class="ganji_w" id="SJ_5"></div>
+                    <div class="sb10sin5 w" id="sb10sin5"></div>
+                    <div class="swoo1 w" id="SwW5"></div>
+                    <div class="ssin1 w" id="Ss5"></div>
+                    <div class="dyear w" id="Dy5"></div>
+                  </li>
+                  <li id="Sewoon_6" data-index2="6">
+                    <div class="st10sin6 w" id="st10sin6"></div>
+                    <div class="ganji_w" id="SC_6"></div>
+                    <div class="ganji_w" id="SJ_6"></div>
+                    <div class="sb10sin6 w" id="sb10sin6"></div>
+                    <div class="swoo1 w" id="SwW6"></div>
+                    <div class="ssin1 w" id="Ss6"></div>
+                    <div class="dyear w" id="Dy6"></div>
+                  </li>
+                  <li id="Sewoon_7" data-index2="7">
+                    <div class="st10sin7 w" id="st10sin7"></div>
+                    <div class="ganji_w" id="SC_7"></div>
+                    <div class="ganji_w" id="SJ_7"></div>
+                    <div class="sb10sin7 w" id="sb10sin7"></div>
+                    <div class="swoo1 w" id="SwW7"></div>
+                    <div class="ssin1 w" id="Ss7"></div>
+                    <div class="dyear w" id="Dy7"></div>
+                  </li>
+                  <li id="Sewoon_8" data-index2="8">
+                    <div class="st10sin8 w" id="st10sin8"></div>
+                    <div class="ganji_w" id="SC_8"></div>
+                    <div class="ganji_w" id="SJ_8"></div>
+                    <div class="sb10sin8 w" id="sb10sin8"></div>
+                    <div class="swoo1 w" id="SwW8"></div>
+                    <div class="ssin1 w" id="Ss8"></div>
+                    <div class="dyear w" id="Dy8"></div>
+                  </li>
+                  <li id="Sewoon_9" data-index2="9">
+                    <div class="st10sin9 w" id="st10sin9"></div>
+                    <div class="ganji_w" id="SC_9"></div>
+                    <div class="ganji_w" id="SJ_9"></div>
+                    <div class="sb10sin9 w" id="sb10sin9"></div>
+                    <div class="swoo1 w" id="SwW9"></div>
+                    <div class="ssin1 w" id="Ss9"></div>
+                    <div class="dyear w" id="Dy9"></div>
+                  </li>
+                  <li id="Sewoon_10" data-index2="10">
+                    <div class="st10sin10 w" id="st10sin10"></div>
+                    <div class="ganji_w" id="SC_10"></div>
+                    <div class="ganji_w" id="SJ_10"></div>
+                    <div class="sb10sin10 w" id="sb10sin10"></div>
+                    <div class="swoo1 w" id="SwW10"></div>
+                    <div class="ssin1 w" id="Ss10"></div>
+                    <div class="dyear w" id="Dy10"></div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="walwoon_area" id="walwoonArea">
+              <p class="buga_title"><span>월운</span></p>
+              <div class="scroll_x">
+                <ul class="grid_box grid_box_12 fortune_section reverse" id="mowoonList">
+                  <li id="Mowoon_1" data-index3="2" data-solar-term="입춘">
+                    <div class="t10sin1 w" id="Mot10sin1"></div>
+                    <div class="ganji_w" id="MC_1"></div>
+                    <div class="ganji_w" id="MJ_1"></div>
+                    <div class="mb10sin1 w" id="Mob10sin1"></div>
+                    <div class="mwoo1 w" id="MwW1"></div>
+                    <div class="msin1 w" id="Ms1"></div>
+                    <div class="dmonth w" id="Dm1"></div>
+                  </li>
+                  <li id="Mowoon_2" data-index3="3" data-solar-term="경칩">
+                    <div class="mt20sin2 w" id="Mot10sin2"></div>
+                    <div class="ganji_w" id="MC_2"></div>
+                    <div class="ganji_w" id="MJ_2"></div>
+                    <div class="mb20sin2 w" id="Mob10sin2"></div>
+                    <div class="mwoo2 w" id="MwW2"></div>
+                    <div class="msin2 w" id="Ms2"></div>
+                    <div class="dmonth w" id="Dm2"></div>
+                  </li>
+                  <li id="Mowoon_3" data-index3="4" data-solar-term="청명">
+                    <div class="mt30sin3 w" id="Mot10sin3"></div>
+                    <div class="ganji_w" id="MC_3"></div>
+                    <div class="ganji_w" id="MJ_3"></div>
+                    <div class="mb30sin3 w" id="Mob10sin3"></div>
+                    <div class="mwoo3 w" id="MwW3"></div>
+                    <div class="msin3 w" id="Ms3"></div>
+                    <div class="dmonth w" id="Dm3"></div>
+                  </li>
+                  <li id="Mowoon_4" data-index3="5" data-solar-term="입하">
+                    <div class="mt40sin4 w" id="Mot10sin4"></div>
+                    <div class="ganji_w" id="MC_4"></div>
+                    <div class="ganji_w" id="MJ_4"></div>
+                    <div class="mb40sin4 w" id="Mob10sin4"></div>
+                    <div class="mwoo4 w" id="MwW4"></div>
+                    <div class="msin4 w" id="Ms4"></div>
+                    <div class="dmonth w" id="Dm4"></div>
+                  </li>
+                  <li id="Mowoon_5" data-index3="6" data-solar-term="망종">
+                    <div class="mt50sin5 w" id="Mot10sin5"></div>
+                    <div class="ganji_w" id="MC_5"></div>
+                    <div class="ganji_w" id="MJ_5"></div>
+                    <div class="mb50sin5 w" id="Mob10sin5"></div>
+                    <div class="mwoo5 w" id="MwW5"></div>
+                    <div class="msin5 w" id="Ms5"></div>
+                    <div class="dmonth w" id="Dm5"></div>
+                  </li>
+                  <li id="Mowoon_6" data-index3="7" data-solar-term="소서">
+                    <div class="mt60sin6 w" id="Mot10sin6"></div>
+                    <div class="ganji_w" id="MC_6"></div>
+                    <div class="ganji_w" id="MJ_6"></div>
+                    <div class="mb60sin6 w" id="Mob10sin6"></div>
+                    <div class="mwoo6 w" id="MwW6"></div>
+                    <div class="msin6 w" id="Ms6"></div>
+                    <div class="dmonth w" id="Dm6"></div>
+                  </li>
+                  <li id="Mowoon_7" data-index3="8" data-solar-term="입추">
+                    <div class="mt70sin7 w" id="Mot10sin7"></div>
+                    <div class="ganji_w" id="MC_7"></div>
+                    <div class="ganji_w" id="MJ_7"></div>
+                    <div class="mb70sin7 w" id="Mob10sin7"></div>
+                    <div class="mwoo7 w" id="MwW7"></div>
+                    <div class="msin7 w" id="Ms7"></div>
+                    <div class="dmonth w" id="Dm7"></div>
+                  </li>
+                  <li id="Mowoon_8" data-index3="9" data-solar-term="백로">
+                    <div class="mt80sin8 w" id="Mot10sin8"></div>
+                    <div class="ganji_w" id="MC_8"></div>
+                    <div class="ganji_w" id="MJ_8"></div>
+                    <div class="mb80sin8 w" id="Mob10sin8"></div>
+                    <div class="mwoo8 w" id="MwW8"></div>
+                    <div class="msin8 w" id="Ms8"></div>
+                    <div class="dmonth w" id="Dm8"></div>
+                  </li>
+                  <li id="Mowoon_9" data-index3="10" data-solar-term="한로">
+                    <div class="mt90sin9 w" id="Mot10sin9"></div>
+                    <div class="ganji_w" id="MC_9"></div>
+                    <div class="ganji_w" id="MJ_9"></div>
+                    <div class="mb90sin9 w" id="Mob10sin9"></div>
+                    <div class="mwoo9 w" id="MwW9"></div>
+                    <div class="msin9 w" id="Ms9"></div>
+                    <div class="dmonth w" id="Dm9"></div>
+                  </li>
+                  <li id="Mowoon_10" data-index3="11" data-solar-term="입동">
+                    <div class="mt100sin10 w" id="Mot10sin10"></div>
+                    <div class="ganji_w" id="MC_10"></div>
+                    <div class="ganji_w" id="MJ_10"></div>
+                    <div class="mb100sin10 w" id="Mob10sin10"></div>
+                    <div class="mwoo10 w" id="MwW10"></div>
+                    <div class="msin10 w" id="Ms10"></div>
+                    <div class="dmonth w" id="Dm10"></div>
+                  </li>
+                  <li id="Mowoon_11" data-index3="12" data-solar-term="대설">
+                    <div class="mt110sin11 w" id="Mot10sin11"></div>
+                    <div class="ganji_w" id="MC_11"></div>
+                    <div class="ganji_w" id="MJ_11"></div>
+                    <div class="mb110sin11 w" id="Mob10sin11"></div>
+                    <div class="mwoo11 w" id="MwW11"></div>
+                    <div class="msin11 w" id="Ms11"></div>
+                    <div class="dmonth w" id="Dm11"></div>
+                  </li>
+                  <li id="Mowoon_12" data-index3="1" data-solar-term="소한">
+                    <div class="mt120sin12 w" id="Mot10sin12"></div>
+                    <div class="ganji_w" id="MC_12"></div>
+                    <div class="ganji_w" id="MJ_12"></div>
+                    <div class="mb120sin12 w" id="Mob10sin12"></div>
+                    <div class="mwoo12 w" id="MwW12"></div>
+                    <div class="msin12 w" id="Ms12"></div>
+                    <div class="dmonth w" id="Dm12"></div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div id="iljuCalender" class="ilju_calender"></div>
+            <div id="daewoonPaljaDetailed"></div>
+          </div>
+        </div>
+      </div>
+      <script src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"></script>
+	  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+      <script src="./common.js"></script>
+      <script src="./ui.js"></script>
+    </div>
+  </body>
+</html>
