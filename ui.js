@@ -1095,21 +1095,32 @@ document.getElementById("calcBtn").addEventListener("click", function () {
   }
 
   function updateHourWoon(refDate) {
+    // 시운 업데이트: 시간 관련 데이터 계산
     let hourBranch = getHourBranchUsingArray(refDate);
     let hourBranchIndex = Jiji.indexOf(hourBranch);
     let daySplit = window.daySplit || splitPillar(getDayGanZhi(refDate));
-    let hourStem = getHourStem(daySplit.gan, hourBranchIndex);
-    setText("WTtHanja", stemMapping[hourStem]?.hanja || "-");
-    setText("WTtHanguel", stemMapping[hourStem]?.hanguel || "-");
-    setText("WTtEumyang", stemMapping[hourStem]?.eumYang || "-");
-    setText("WTt10sin", getTenGodForStem(hourStem, daySplit.gan) || "-");
+    // 원래 시주 천간 계산 (원국용)
+    let baseHourStem = getHourStem(daySplit.gan, hourBranchIndex);
+    // 시운에서는 천간만 한 칸 앞당기기 (즉, -1 인덱스; 모듈로 10 적용)
+    let fortuneHourStem = Cheongan[(Cheongan.indexOf(baseHourStem) + 8) % 10];
+    
+    // 시운 천간 관련 업데이트: WTt* 요소에 fortuneHourStem 사용
+    setText("WTtHanja", stemMapping[fortuneHourStem]?.hanja || "-");
+    setText("WTtHanguel", stemMapping[fortuneHourStem]?.hanguel || "-");
+    setText("WTtEumyang", stemMapping[fortuneHourStem]?.eumYang || "-");
+    setText("WTt10sin", getTenGodForStem(fortuneHourStem, daySplit.gan) || "-");
+    
+    // 시운 지지 관련은 그대로 사용 (WTb* 요소)
     setText("WTbHanja", branchMapping[hourBranch]?.hanja || "-");
     setText("WTbHanguel", branchMapping[hourBranch]?.hanguel || "-");
     setText("WTbEumyang", branchMapping[hourBranch]?.eumYang || "-");
     setText("WTb10sin", getTenGodForBranch(hourBranch, daySplit.gan) || "-");
     updateHiddenStems(hourBranch, "WTb");
     setText("WTb12ws", getTwelveUnseong(daySplit.gan, hourBranch) || "-");
-    setText("WTb12ss", getTwelveShinsal(yearSplit.ji, hourBranch) || "-");
+    // yearSplit가 전역이나 updateFortune()에서 정의되어 있다면 사용하고,
+    // 없으면 적절한 값을 전달해야 합니다.
+    setText("WTb12ss", (window.yearSplit ? getTwelveShinsal(window.yearSplit.ji, hourBranch) : "-"));
+    
     updateColorClasses();
   }
   updateHourWoon(refDate);
