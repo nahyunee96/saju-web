@@ -8,30 +8,34 @@
   body, html {
     min-width: 320px;
   }
+
+  body {
+    background-color: #011627;
+  }
+
   ol, ul { list-style: none; }
 
 
-input {
-	webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
+  input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
 
- select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background: none; /* 기본 드롭다운 아이콘 제거 */
-  border: 1px solid #ccc;
-  padding: 10px;
-  font-size: 16px;
-  color: #333;
-  cursor: pointer;
-  box-shadow: none;
-  -webkit-tap-highlight-color: transparent;
-  border-radius: 5px;
-}
-
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: none; /* 기본 드롭다운 아이콘 제거 */
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    box-shadow: none;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 5px;
+  }
 
   .mb10 {
     margin-bottom: 10px;
@@ -105,14 +109,14 @@ input {
     display: block; 
     width: 100%; 
     height: 50px;
-	line-height: 50px;
-	padding: 0 10px;
+    line-height: 50px;
+    padding: 0 10px;
     background-color: #fff; 
     border: none; 
     outline: none; 
     font-size: 20px;
-	border-radius: 5px;
-	color: #353535;
+    border-radius: 5px;
+    color: #353535;
   }
   .input_group select {
 	line-height: normal !important;
@@ -154,6 +158,10 @@ input {
     margin-top: 0;
   }
 
+  .btn_box.mt20 {
+    margin-top: 20px;
+  }
+
   .btn_box button {
     padding: 20px 100px; 
     background-color: #EED36C; 
@@ -161,7 +169,7 @@ input {
     outline: none; 
     font-size: 25px; 
     cursor: pointer;
-	color: #353535;
+	  color: #353535;
   }
 
   .result_wrapper .info_box {
@@ -194,9 +202,6 @@ input {
 	direction: rtl;
   }
 
-  /*.grid_box_1 {
-    margin-bottom: 10px;
-  }*/
   .grid_box_2 {
     margin-top: 10px;
   }
@@ -308,7 +313,7 @@ input {
   .jijanggan {
     display: flex; 
     justify-content: center; 
-	align-items: center;
+	  align-items: center;
     gap: 5px; 
     margin: 0 0 5px;
     padding: 5px;
@@ -528,13 +533,70 @@ input {
   .b_white { background-color: #a5a5a5 !important; color: #fff;}
   .b_black { background-color: #252525 !important; color: #fff;}
 
+  .check_option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
+  .check_option li {
+    display: flex;
+    align-items: center;
+  }
+  
+  .check_option li span {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+  }
+
+  .check_option li input[type='radio'] {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    
+  }
+
+  .check_option li input[type='radio']::before {
+    display: none;
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background-color: #EED36C;
+    border-radius: 50%;
+  }
+
+  .check_option li input[type='radio']:checked::before {
+    display: block;
+  }
+
+  .check_option li label {
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .footer {
+    max-width: 700px; 
+    width: 100%; 
+    margin: auto;
+    padding: 0px 10px 40px;
+    background-color: #011627; 
+    text-align: center;
+    color: #EED36C;
+    font-size: 12px;
+  }
 
   /* 모바일 대응 */
   @media screen and (max-width:991px){
-    body {
-      background-color: #011627;
-    }
 
     .container {
       padding: 0vw;
@@ -553,10 +615,10 @@ input {
     }
     .input_group input[type='text'],
     .input_group input[type='tel'],
-	.input_group input[type='time'],
+    .input_group input[type='time'],
     .input_group select {
-	  height: 10.8vw;
-	  line-height: 10.8vw;
+      height: 10.8vw;
+      line-height: 10.8vw;
       font-size:3.244vw; 
       padding:0 3.242vw;
     }
@@ -568,6 +630,10 @@ input {
       margin-top:8.224vw;
     }
 
+    .btn_box.mt20 {
+      margin-top: 4vw;
+    }
+
     .btn_box.mt {
       margin-top:5.224vw;
     }
@@ -576,9 +642,9 @@ input {
       font-size:3.628vw;
     }
 
-	.btn_box.mb40 {
-		margin-bottom: 12vw;
-	 }
+    .btn_box.mb40 {
+      margin-bottom: 12vw;
+    }
 
     .btn_box .black_btn {
       padding: 2vw 10vw;
@@ -607,9 +673,9 @@ input {
       margin-bottom: 2vw;
     }
 
-	.woon_container {
-		gap: 2vw;
-	}
+    .woon_container {
+      gap: 2vw;
+    }
 
     .grid_box {
       gap: 2vw;
@@ -629,7 +695,7 @@ input {
     }
 
     .grid_box_1 li .hanja_con,
-	.ganji .hanja_con {
+	  .ganji .hanja_con {
       font-size:8.848vw;
       padding: 2vw;
     }
@@ -655,7 +721,7 @@ input {
     .w50 .grid_box_1 li .hanja_con,
     .w50 .ganji .hanja_con {
       font-size:5.848vw;
-	  padding: 0.8vw;
+	    padding: 0.8vw;
     }
 
 
@@ -770,19 +836,41 @@ input {
       font-size: 2.8vw;
     }
 
-	.cal_area {
-		margin-top: 8vw;
-		text-align: center;
-	  }
+    .cal_area {
+      margin-top: 8vw;
+      text-align: center;
+      }
 
-	  .cal_area input {
-		width: 100%;
-		height: 10.8vw;
-		line-height: 10.8vw;
-		color: #353535;
-		background-color: #fff;
-	  }
+    .cal_area input {
+      width: 100%;
+      height: 10.8vw;
+      line-height: 10.8vw;
+      color: #353535;
+      background-color: #fff;
+    }
 
+    .check_option li span {
+      margin: 0 0.8vw;
+    }
+  
+    .check_option li input[type='radio'] {
+      width: 2.4vw;
+      height: 2.4vw;
+      margin-right: 1.2vw;
+    }
+  
+    .check_option li input[type='radio']::before {
+      width: 2vw;
+      height: 2vw;
+    }
+
+    .check_option li label {
+      font-size: 2.8vw;
+    }
+
+    .footer {
+      padding: 0 1.2vw 4vw;
+      font-size: 2.4vw;
+    }
     
-
   }

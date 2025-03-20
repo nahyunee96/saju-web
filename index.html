@@ -2,7 +2,10 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
     <title>묘운 만세력</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
@@ -12,12 +15,22 @@
         <form class="input_wrap" id="inputWrap">
           <div class="input_group">
             <label for="inputName">명주이름</label>
-            <input type="text" id="inputName" maxlength="10" placeholder="10글자 이내로 이름 입력" />
+            <input
+              type="text"
+              id="inputName"
+              maxlength="10"
+              placeholder="10글자 이내로 이름 입력"
+            />
           </div>
           <div class="input_group">
             <label for="inputBirthday">출생일</label>
             <div class="flex_input">
-              <input type="tel" id="inputBirthday" maxlength="8" placeholder="예) 19900101" />
+              <input
+                type="tel"
+                id="inputBirthday"
+                maxlength="8"
+                placeholder="예) 19900101"
+              />
               <select name="monthType" id="monthType">
                 <option value="양력">양력</option>
                 <option value="음력">음력</option>
@@ -27,13 +40,19 @@
           </div>
           <div class="input_group">
             <label for="inputBirthtime">출생시간선택</label>
-            <input type="time" id="inputBirthtime"  />
+            <input type="time" id="inputBirthtime" />
           </div>
           <div class="input_group">
             <label>성별</label>
             <div class="radio_box">
-              <span><input type="radio" id="genderMan" name="gender" /><label for="genderMan">남성</label></span>
-              <span><input type="radio" id="genderWoman" name="gender" /><label for="genderWoman">여성</label></span>
+              <span>
+                <input type="radio" id="genderMan" name="gender" />
+                <label for="genderMan">남성</label>
+              </span>
+              <span>
+                <input type="radio" id="genderWoman" name="gender" />
+                <label for="genderWoman">여성</label>
+              </span>
             </div>
           </div>
           <div class="input_group">
@@ -222,21 +241,46 @@
               </optgroup>
             </select>
           </div>
-		  <div class="input_group">
+          <div class="input_group">
             <label>시간기준지정 (표준시 / 태양시)</label>
             <div class="radio_box">
-              <span><input type="radio" id="defaultTime" name="time1" checked /><label for="defaultTime">표준시 (기존어플들과 동일)</label></span>
-              <span><input type="radio" id="sunTime" name="time1" /><label for="sunTime">태양시 (+30분)</label></span>
+              <span>
+                <input
+                  type="radio"
+                  id="defaultTime"
+                  name="time1"
+                  checked
+                  value="standard"
+                />
+                <label for="defaultTime">표준시 (기존어플들과 동일)</label>
+              </span>
+              <span>
+                <input type="radio" id="sunTime" name="time1" value="sun" />
+                <label for="sunTime">태양시 (+30분)</label>
+              </span>
             </div>
           </div>
           <div class="input_group">
             <label>시간 기준 지정 (자시 / 야 · 조자시 / 인시)</label>
             <div class="radio_box">
-              <!-- <span><input type="radio" id="yajasi" name="time2" /><label for="yajasi">야자시</label></span>
-              			  <span><input type="radio" id="jojasi" name="time2" /><label for="jojasi">조자시</label></span> -->
-			  <span><input type="radio" id="jasi" name="time2" /><label for="jasi">자시</label></span>
-			  <span><input type="radio" id="yajojasi"  name="time2"><label for="yajojasi">야 · 조자시</label></span>
-              <span><input type="radio" id="insi" name="time2" checked /><label for="insi">인시</label></span>
+              <span>
+                <input type="radio" id="jasi" name="time2" value="jasi" />
+                <label for="jasi">자시</label>
+              </span>
+              <span>
+                <input type="radio" id="yajojasi" name="time2" value="yajojasi" />
+                <label for="yajojasi">야 · 조자시</label>
+              </span>
+              <span>
+                <input
+                  type="radio"
+                  id="insi"
+                  name="time2"
+                  value="insi"
+                  checked
+                />
+                <label for="insi">인시</label>
+              </span>
             </div>
           </div>
           <div class="btn_box">
@@ -244,9 +288,11 @@
           </div>
         </form>
         <div class="result_wrapper" id="resultWrapper" style="display: none;">
-          <div class="head btn_box mt0">
-            <button id="backBtn" class="black_btn">명식 입력으로 돌아가기</button>
-          </div>
+          <header class="head btn_box mt0">
+            <button id="backBtn" class="black_btn">
+              명식 입력으로 돌아가기
+            </button>
+          </header>
           <div class="info_box">
             <span>
               <b id="resName"></b>
@@ -260,58 +306,108 @@
               보정시 : <b id="resbjTime"></b>
             </span>
           </div>
+          <ul class="check_option" id="checkOption">
+            <li class="time_chk01">
+              <span>
+                <input
+                  type="radio"
+                  name="timeChk01"
+                  id="timeChk01_01"
+                  value="standard"
+                />
+                <label for="timeChk01_01">표준시</label>
+              </span>
+              <span>
+                <input
+                  type="radio"
+                  name="timeChk01"
+                  id="timeChk01_02"
+                  value="sun"
+                />
+                <label for="timeChk01_02">태양시</label>
+              </span>
+            </li>
+            <li class="time_chk02">
+              <span>
+                <input
+                  type="radio"
+                  name="timeChk02"
+                  id="timeChk02_01"
+                  value="jasi"
+                />
+                <label for="timeChk02_01">자시</label>
+              </span>
+              <span>
+                <input
+                  type="radio"
+                  name="timeChk02"
+                  id="timeChk02_02"
+                  value="yajojasi"
+                />
+                <label for="timeChk02_02">야 · 자시</label>
+              </span>
+              <span>
+                <input
+                  type="radio"
+                  name="timeChk02"
+                  id="timeChk02_03"
+                  value="insi"
+                  checked
+                />
+                <label for="timeChk02_03">인시</label>
+              </span>
+            </li>
+          </ul>
           <div class="btn_box">
-            <button type="button" class="black_btn" id="myowoonMore">묘운력(운 전체) 상세보기</button>
+            <button type="button" class="black_btn" id="myowoonMore">
+              묘운력(운 전체) 상세보기
+            </button>
           </div>
           <div class="wongook_lucky" id="wongookLM">
             <div class="woonkuk">
-              
               <p class="buga_title"><span>원국</span></p>
               <ul class="grid_box grid_box_1">
-			    <!-- 천간 -->
                 <li>
                   <p>시주</p>
                   <div class="hanja_con">
-					<p id="HtEumyang" class="eum_yang"></p> 
-					<b id="HtHanja"></b> 
-				  </div>
+                    <p id="HtEumyang" class="eum_yang"></p>
+                    <b id="HtHanja"></b>
+                  </div>
                   <p id="HtHanguel"></p>
-                  
                   <p id="Ht10sin" class="ten_sin"></p>
                 </li>
                 <li>
                   <p>일주</p>
                   <div class="hanja_con">
-					<p id="DtEumyang" class="eum_yang"></p> 
-					<b id="DtHanja"></b> 
-				  </div>
-                  <p id="DtHanguel"></p>      
+                    <p id="DtEumyang" class="eum_yang"></p>
+                    <b id="DtHanja"></b>
+                  </div>
+                  <p id="DtHanguel"></p>
                   <p id="Dt10sin" class="ten_sin"></p>
                 </li>
                 <li>
                   <p>월주</p>
                   <div class="hanja_con">
-					<p id="MtEumyang" class="eum_yang"></p> 
-					<b id="MtHanja"></b> 
-				  </div>
+                    <p id="MtEumyang" class="eum_yang"></p>
+                    <b id="MtHanja"></b>
+                  </div>
                   <p id="MtHanguel"></p>
                   <p id="Mt10sin" class="ten_sin"></p>
                 </li>
                 <li>
                   <p>연주</p>
                   <div class="hanja_con">
-					<p id="YtEumyang" class="eum_yang"></p> 
-					<b id="YtHanja"></b> 
-				  </div>
+                    <p id="YtEumyang" class="eum_yang"></p>
+                    <b id="YtHanja"></b>
+                  </div>
                   <p id="YtHanguel"></p>
                   <p id="Yt10sin" class="ten_sin"></p>
                 </li>
-				<!-- 지지 -->
                 <li>
                   <div class="hanja_con">
-					<p id="HbEumyang" class="eum_yang"></p> 
-					<b id="HbHanja"></b> 
-				  </div>
+                    <p id="HbEumyang" class="eum_yang"></p>
+                    <b id="HbHanja"></b>
+                  </div>
                   <p id="HbHanguel"></p>
                   <ul class="jijanggan" id="HbJj">
                     <li id="HbJj1"></li>
@@ -324,9 +420,9 @@
                 </li>
                 <li>
                   <div class="hanja_con">
-					<p id="DbEumyang" class="eum_yang"></p> 
-					<b id="DbHanja"></b> 
-				  </div>
+                    <p id="DbEumyang" class="eum_yang"></p>
+                    <b id="DbHanja"></b>
+                  </div>
                   <p id="DbHanguel"></p>
                   <ul class="jijanggan" id="DbJj">
                     <li id="DbJj1"></li>
@@ -339,9 +435,9 @@
                 </li>
                 <li>
                   <div class="hanja_con">
-					<p id="MbEumyang" class="eum_yang"></p> 
-					<b id="MbHanja"></b> 
-				  </div>
+                    <p id="MbEumyang" class="eum_yang"></p>
+                    <b id="MbHanja"></b>
+                  </div>
                   <p id="MbHanguel"></p>
                   <ul class="jijanggan" id="MbJj">
                     <li id="MbJj1"></li>
@@ -354,9 +450,9 @@
                 </li>
                 <li>
                   <div class="hanja_con">
-					<p id="YbEumyang" class="eum_yang"></p> 
-					<b id="YbHanja"></b> 
-				  </div>
+                    <p id="YbEumyang" class="eum_yang"></p>
+                    <b id="YbHanja"></b>
+                  </div>
                   <p id="YbHanguel"></p>
                   <ul class="jijanggan" id="YbJj">
                     <li id="YbJj1"></li>
@@ -372,21 +468,21 @@
             <div class="lucky_wrap" id="luckyWrap">
               <p class="buga_title"><span>운</span></p>
               <div class="lucky_box">
-                <div class="lucky dawoon">
+                <div class="lucky daewoony">
                   <div class="ganji">
                     <p>대운</p>
                     <div class="hanja_con">
-					  <p id="DwtEumyang" class="eum_yang"></p> 
-					  <b id="DwtHanja"></b> 
-				    </div>
+                      <p id="DwtEumyang" class="eum_yang"></p>
+                      <b id="DwtHanja"></b>
+                    </div>
                     <p id="DwtHanguel"></p>
                     <p id="Dwt10sin" class="ten_sin"></p>
                   </div>
                   <div class="ganji">
                     <div class="hanja_con">
-					  <p id="DwbEumyang" class="eum_yang"></p> 
-					  <b id="DwbHanja"></b> 
-				    </div>
+                      <p id="DwbEumyang" class="eum_yang"></p>
+                      <b id="DwbHanja"></b>
+                    </div>
                     <p id="DwbHanguel"></p>
                     <ul class="jijanggan" id="DwJj">
                       <li id="DwJj1"></li>
@@ -402,17 +498,17 @@
                   <div class="ganji">
                     <p>세운</p>
                     <div class="hanja_con">
-					  <p id="SwtEumyang" class="eum_yang"></p> 
-					  <b id="SwtHanja"></b> 
-				    </div>
+                      <p id="SwtEumyang" class="eum_yang"></p>
+                      <b id="SwtHanja"></b>
+                    </div>
                     <p id="SwtHanguel"></p>
                     <p id="Swt10sin" class="ten_sin"></p>
                   </div>
                   <div class="ganji">
                     <div class="hanja_con">
-					  <p id="SwbEumyang" class="eum_yang"></p> 
-					  <b id="SwbHanja"></b> 
-				    </div>
+                      <p id="SwbEumyang" class="eum_yang"></p>
+                      <b id="SwbHanja"></b>
+                    </div>
                     <p id="SwbHanguel"></p>
                     <ul class="jijanggan" id="SwJj">
                       <li id="SwJj1"></li>
@@ -431,49 +527,47 @@
             <div class="myowoon w50">
               <p class="buga_title"><span>묘운 (대운팔자)</span></p>
               <ul class="grid_box grid_box_1">
-			    <!-- 천간 -->
                 <li>
                   <p>시주</p>
                   <div class="hanja_con">
-					<p id="MyoHtEumyang" class="eum_yang"></p> 
-					<b id="MyoHtHanja"></b> 
-				  </div>
+                    <p id="MyoHtEumyang" class="eum_yang"></p>
+                    <b id="MyoHtHanja"></b>
+                  </div>
                   <p id="MyoHtHanguel"></p>
                   <p id="MyoHt10sin" class="ten_sin"></p>
                 </li>
                 <li>
                   <p>일주</p>
                   <div class="hanja_con">
-					<p id="MyoDtEumyang" class="eum_yang"></p> 
-					<b id="MyoDtHanja"></b> 
-				  </div>
+                    <p id="MyoDtEumyang" class="eum_yang"></p>
+                    <b id="MyoDtHanja"></b>
+                  </div>
                   <p id="MyoDtHanguel"></p>
                   <p id="MyoDt10sin" class="ten_sin"></p>
                 </li>
                 <li>
                   <p>월주</p>
                   <div class="hanja_con">
-					<p id="MyoMtEumyang" class="eum_yang"></p> 
-					<b id="MyoMtHanja"></b> 
-				  </div>
+                    <p id="MyoMtEumyang" class="eum_yang"></p>
+                    <b id="MyoMtHanja"></b>
+                  </div>
                   <p id="MyoMtHanguel"></p>
                   <p id="MyoMt10sin" class="ten_sin"></p>
                 </li>
                 <li>
                   <p>연주</p>
                   <div class="hanja_con">
-					<p id="MyoYtEumyang" class="eum_yang"></p> 
-					<b id="MyoYtHanja"></b> 
-				  </div>
+                    <p id="MyoYtEumyang" class="eum_yang"></p>
+                    <b id="MyoYtHanja"></b>
+                  </div>
                   <p id="MyoYtHanguel"></p>
                   <p id="MyoYt10sin" class="ten_sin"></p>
                 </li>
-				<!-- 지지 -->
                 <li>
                   <div class="hanja_con">
-					<p id="MyoHbEumyang" class="eum_yang"></p> 
-					<b id="MyoHbHanja"></b> 
-				  </div>
+                    <p id="MyoHbEumyang" class="eum_yang"></p>
+                    <b id="MyoHbHanja"></b>
+                  </div>
                   <p id="MyoHbHanguel"></p>
                   <ul class="jijanggan" id="MyoHbJj">
                     <li id="MyoHbJj1"></li>
@@ -486,9 +580,9 @@
                 </li>
                 <li>
                   <div class="hanja_con">
-					<p id="MyoDbEumyang" class="eum_yang"></p> 
-					<b id="MyoDbHanja"></b> 
-				  </div>
+                    <p id="MyoDbEumyang" class="eum_yang"></p>
+                    <b id="MyoDbHanja"></b>
+                  </div>
                   <p id="MyoDbHanguel"></p>
                   <ul class="jijanggan" id="MyoDbJj">
                     <li id="MyoDbJj1"></li>
@@ -501,9 +595,9 @@
                 </li>
                 <li>
                   <div class="hanja_con">
-					<p id="MyoMbEumyang" class="eum_yang"></p> 
-					<b id="MyoMbHanja"></b> 
-				  </div>
+                    <p id="MyoMbEumyang" class="eum_yang"></p>
+                    <b id="MyoMbHanja"></b>
+                  </div>
                   <p id="MyoMbHanguel"></p>
                   <ul class="jijanggan" id="MyoMbJj">
                     <li id="MyoMbJj1"></li>
@@ -516,9 +610,9 @@
                 </li>
                 <li>
                   <div class="hanja_con">
-					<p id="MyoYbEumyang" class="eum_yang"></p> 
-					<b id="MyoYbHanja"></b> 
-				  </div>
+                    <p id="MyoYbEumyang" class="eum_yang"></p>
+                    <b id="MyoYbHanja"></b>
+                  </div>
                   <p id="MyoYbHanguel"></p>
                   <ul class="jijanggan" id="MyoYbJj">
                     <li id="MyoYbJj1"></li>
@@ -534,49 +628,47 @@
             <div class="woon_wrap w50" id="woonWrap">
               <p class="buga_title"><span>세운/월운/일운/시운</span></p>
               <ul class="grid_box grid_box_1">
-			    <!-- 천간 -->
                 <li>
                   <p>세운</p>
                   <div class="hanja_con">
-					<p id="WSwtEumyang" class="eum_yang"></p> 
-					<b id="WSwtHanja"></b> 
-				  </div>
+                    <p id="WSwtEumyang" class="eum_yang"></p>
+                    <b id="WSwtHanja"></b>
+                  </div>
                   <p id="WSwtHanguel"></p>
                   <p id="WSwt10sin" class="ten_sin"></p>
                 </li>
                 <li>
                   <p>월운</p>
                   <div class="hanja_con">
-					<p id="WMtEumyang" class="eum_yang"></p> 
-					<b id="WMtHanja"></b> 
-				  </div>
+                    <p id="WMtEumyang" class="eum_yang"></p>
+                    <b id="WMtHanja"></b>
+                  </div>
                   <p id="WMtHanguel"></p>
                   <p id="WMt10sin" class="ten_sin"></p>
                 </li>
                 <li>
                   <p>일운</p>
                   <div class="hanja_con">
-					<p id="WDtEumyang" class="eum_yang"></p> 
-					<b id="WDtHanja"></b> 
-				  </div>
+                    <p id="WDtEumyang" class="eum_yang"></p>
+                    <b id="WDtHanja"></b>
+                  </div>
                   <p id="WDtHanguel"></p>
                   <p id="WDt10sin" class="ten_sin"></p>
                 </li>
                 <li>
                   <p>시운</p>
                   <div class="hanja_con">
-					<p id="WTtEumyang" class="eum_yang"></p> 
-					<b id="WTtHanja"></b> 
-				  </div>
+                    <p id="WTtEumyang" class="eum_yang"></p>
+                    <b id="WTtHanja"></b>
+                  </div>
                   <p id="WTtHanguel"></p>
                   <p id="WTt10sin" class="ten_sin"></p>
                 </li>
-				<!-- 지지 -->
                 <li>
                   <div class="hanja_con">
-					<p id="WSwbEumyang" class="eum_yang"></p> 
-					<b id="WSwbHanja"></b> 
-				  </div>
+                    <p id="WSwbEumyang" class="eum_yang"></p>
+                    <b id="WSwbHanja"></b>
+                  </div>
                   <p id="WSwbHanguel"></p>
                   <ul class="jijanggan" id="WHbJj">
                     <li id="WSwJj1"></li>
@@ -589,9 +681,9 @@
                 </li>
                 <li>
                   <div class="hanja_con">
-					<p id="WMbEumyang" class="eum_yang"></p> 
-					<b id="WMbHanja"></b> 
-				  </div>
+                    <p id="WMbEumyang" class="eum_yang"></p>
+                    <b id="WMbHanja"></b>
+                  </div>
                   <p id="WMbHanguel"></p>
                   <ul class="jijanggan" id="WDbJj">
                     <li id="WMbJj1"></li>
@@ -604,9 +696,9 @@
                 </li>
                 <li>
                   <div class="hanja_con">
-					<p id="WDbEumyang" class="eum_yang"></p> 
-					<b id="WDbHanja"></b> 
-				  </div>
+                    <p id="WDbEumyang" class="eum_yang"></p>
+                    <b id="WDbHanja"></b>
+                  </div>
                   <p id="WDbHanguel"></p>
                   <ul class="jijanggan" id="WMbJj">
                     <li id="WDbJj1"></li>
@@ -618,10 +710,10 @@
                   <p id="WDb12ss" class="sin_sal"></p>
                 </li>
                 <li>
-                 <div class="hanja_con">
-					<p id="WTbEumyang" class="eum_yang"></p> 
-					<b id="WTbHanja"></b> 
-				  </div>
+                  <div class="hanja_con">
+                    <p id="WTbEumyang" class="eum_yang"></p>
+                    <b id="WTbHanja"></b>
+                  </div>
                   <p id="WTbHanguel"></p>
                   <ul class="jijanggan" id="WYbJj">
                     <li id="WTbJj1"></li>
@@ -638,7 +730,9 @@
           <div class="cal_area" id="calArea">
             <input type="datetime-local" id="woonTimeSetPicker" />
             <div class="btn_box mb40">
-              <button class="black_btn" id="woonChangeBtn">날짜 변경하기</button>
+              <button class="black_btn" id="woonChangeBtn">
+                날짜 변경하기
+              </button>
             </div>
           </div>
           <div class="woon_area" id="woonArea">
@@ -954,11 +1048,21 @@
           </div>
         </div>
       </div>
-      <script src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"></script>
-	  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-	  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+      <script
+        src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"
+      ></script>
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script src="./common.js"></script>
       <script src="./ui.js"></script>
     </div>
+    <footer class="footer">
+      <p>
+        Copyright © 2025 Hwarim96. All rights reserved.
+      </p>
+    </footer>
   </body>
 </html>
