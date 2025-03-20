@@ -26,13 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-  /* if (birthtimeStr.length < 4) {
-      alert("태어난 시간을 HHMM 형식으로 입력하세요.");
-      return;
-    }*/
-
-    if (!birthtimeStr) {
-      alert("태어난 시간을 선택하세요.");
+    if (birthtimeStr.length !== 4 || isNaN(birthtimeStr)) {
+      alert("태어난 시간을 4자리 숫자 (HHMM) 형식으로 입력하세요.");
       return;
     }
 
@@ -50,8 +45,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let year = parseInt(birthdayStr.substring(0, 4));
     let month = parseInt(birthdayStr.substring(4, 6));
     let day = parseInt(birthdayStr.substring(6, 8));
-    let hour = parseInt(timeParts[0], 10);
-    let minute = parseInt(timeParts[1], 10);
+    let hour = parseInt(birthtimeStr.substring(0, 2), 10);
+    let minute = parseInt(birthtimeStr.substring(2, 4), 10);
 
     // 음력/양력 변환
     const monthType = document.getElementById("monthType").value;
@@ -127,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("유효한 날짜를 입력하세요.");
       return;
     }
-    /*if (!/^\d{4}$/.test(birthtimeStr)) {
+    if (!/^\d{4}$/.test(birthtimeStr)) {
       alert("태어난 시간은 4자리 숫자 (HHMM) 형식으로 입력하세요.");
       return;
     }
@@ -138,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (minute < 0 || minute > 59) {
       alert("분은 00부터 59 사이의 숫자로 입력하세요.");
       return;
-    }*/
+    }
 
     globalState.birthYear = year;
     globalState.month = month;
@@ -1334,8 +1329,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const year = parseInt(birthdayStr.substring(0, 4), 10);
       const month = parseInt(birthdayStr.substring(4, 6), 10);
       const day = parseInt(birthdayStr.substring(6, 8), 10);
-      const hour = parseInt(timeParts[0], 10);
-      const minute = parseInt(timeParts[1], 10);
+      const hour = parseInt(birthtimeStr.substring(0, 2), 10);
+      const minute = parseInt(birthtimeStr.substring(2, 4), 10);
     
       const gender = document.getElementById("genderMan").checked ? "남" :
                      document.getElementById("genderWoman").checked ? "여" : "-";
