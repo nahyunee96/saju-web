@@ -181,6 +181,10 @@ function getMonthNumber(dateObj, boundaries) {
 
 function getYearGanZhi(dateObj, year) {
   const ipChun = findSolarTermDate(year, 315);
+  if (!ipChun || isNaN(ipChun.getTime())) {
+    console.warn("findSolarTermDate returned an invalid date for year", year, "using default value '갑자'");
+    return "갑자";
+  }
   const actualYear = (dateObj < ipChun) ? year - 1 : year;
   const yearIndex = ((actualYear - 4) % 60 + 60) % 60;
   return sexagenaryCycle[yearIndex];
@@ -371,13 +375,6 @@ const effectiveYearForDaewoon = inputYear;
       branch: MONTH_ZHI[nextMonthIndex]
     });
   }
-
-  const response = {
-	base: baseNumber,
-	list,
-	dayStemRef,
-  };
-
   
   return { base: baseNumber, list: list, dayStemRef: dayStemRef };
 }
@@ -385,13 +382,8 @@ const effectiveYearForDaewoon = inputYear;
 function getHourStemArithmetic(dayPillar, hourBranchIndex) {
   // dayPillar에서 천간(첫 글자)을 구합니다.
   const dayStem = getDayStem(dayPillar);  
-  // Cheongan 배열: ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"]
   const idx = Cheongan.indexOf(dayStem);
   if (idx === -1) return "";
-  // Yang: 갑(0), 병(2), 무(4), 경(6), 임(8)
-  // Yin: 을(1), 정(3), 기(5), 신(7), 계(9)
-  // 만약 dayStem이 Yang이면 공식: (idx*2 + hourBranchIndex) mod 10
-  // 만약 Yin이면 공식: (idx*2 + hourBranchIndex + 2) mod 10
   if ([0, 2, 4, 6, 8].includes(idx)) {
     return Cheongan[((idx * 2) + hourBranchIndex) % 10];
   } else {
@@ -443,6 +435,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 	const originalDate = new Date(year, month - 1, day, hour, minute);
 	const correctedDate = adjustBirthDate(originalDate, birthPlace);
 	const nominalBirthDate = new Date(year, month - 1, day);
+  const nominalBirthDate2 = new Date(year, month - 1, day + 1);
 	const nominalBirthDatePrev = new Date(year, month - 1, day - 1);
 
 	const sunTimeElem = document.getElementById('sunTime');
@@ -473,6 +466,17 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 		  { hour: 19, minute: 30, dayOffset:  0 },
 		  { hour: 21, minute: 30, dayOffset:  0 }
 		];
+
+    let hourBranch = getHourBranchUsingArray(correctedDate);
+    if (!hourBranch) {
+      console.warn("getHourBranchUsingArray 반환값이 유효하지 않습니다. 기본값 '자'를 사용합니다.");
+      hourBranch = "자";
+    }
+    let hourBranchIndex = Jiji.indexOf(hourBranch);
+    if (isNaN(hourBranchIndex) || hourBranchIndex < 0 || hourBranchIndex >= boundaries.length) {
+      console.warn("hourBranchIndex가 유효하지 않습니다. 기본값 0을 사용합니다.");
+      hourBranchIndex = 0;
+    }
 
     // 기준 날짜는 명목 생년월일(nominalBirthDate)이며, dayOffset에 따라 전날일 수도 있습니다.
 	  const currentBoundary = boundaries[ hourBranchIndex ];
@@ -563,6 +567,17 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 		  { hour: 19, minute: 0, dayOffset:  0 },
 		  { hour: 21, minute: 0, dayOffset:  0 }
 		];
+
+    let hourBranch = getHourBranchUsingArray(correctedDate);
+    if (!hourBranch) {
+      console.warn("getHourBranchUsingArray 반환값이 유효하지 않습니다. 기본값 '자'를 사용합니다.");
+      hourBranch = "자";
+    }
+    let hourBranchIndex = Jiji.indexOf(hourBranch);
+    if (isNaN(hourBranchIndex) || hourBranchIndex < 0 || hourBranchIndex >= boundaries.length) {
+      console.warn("hourBranchIndex가 유효하지 않습니다. 기본값 0을 사용합니다.");
+      hourBranchIndex = 0;
+    }
 
     const currentBoundary = boundaries[ hourBranchIndex ];
     const boundaryDate = new Date(nominalBirthDate);
