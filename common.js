@@ -443,9 +443,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 	const originalDate = new Date(year, month - 1, day, hour, minute);
 	const correctedDate = adjustBirthDate(originalDate, birthPlace);
 	const nominalBirthDate = new Date(year, month - 1, day);
-	const nominalBirthDate2 = new Date(year, month - 1, day +1);
-	const nominalBirthDatePrev = new Date(nominalBirthDate);
-	nominalBirthDatePrev.setDate(nominalBirthDate.getDate() - 1);
+	const nominalBirthDatePrev = new Date(year, month - 1, day - 1);
 
 	const sunTimeElem = document.getElementById('sunTime');
 	const isSunTime = sunTimeElem && sunTimeElem.checked;
@@ -501,7 +499,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 			hourBranchIndex = 1;
 		}
 		if (solarTime < boundaryDate) {
-			hourBranchIndex = (hourBranchIndex + 11) % 12;
+			
 		}
 
 		
@@ -519,7 +517,11 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 		} else if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() < 24) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
 			hourDayPillar = getDayGanZhi(nominalBirthDate);
 		} else {
-			hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+      if (solarTime < boundaryDate) {
+        hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+      } else {
+        hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+      }
 		}
 
     const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
