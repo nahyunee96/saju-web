@@ -598,7 +598,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const tenGodCheongan = getTenGodForStem(stem, baseDayStem);
         const tenGodJiji = getTenGodForBranch(branch, baseDayStem);
         const twelveUnseong = getTwelveUnseong(baseDayStem, branch);
-        const twelveShinsal = getTwelveShinsal(branch, branch);
+        const twelveShinsal = getTwelveShinsal(branch, baseDayStem);
         let dailyHtml = `<ul class="ilwoon">
           <li class="ilwoonday"><span>${date.getDate()}일</span></li>
           <li class="ilwoon_ganji_cheongan_10sin"><span>${tenGodCheongan}</span></li>
