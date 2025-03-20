@@ -539,7 +539,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       const normStart = normalizeDate(startDate);
       const normEndNext = normalizeDate(endDate);
-      const finalEndDate = new Date(normEndNext.getTime() - 24 * 60 * 60 * 1000);
+      // 마지막 날짜를 그대로 사용하여 마지막 날도 포함시킴
+      const finalEndDate = normEndNext;
+      
       function formatDate(dateObj) {
         const m = dateObj.getMonth() + 1;
         const d = dateObj.getDate();
@@ -548,8 +550,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const startDateStr = formatDate(normStart);
       const endDateStr = formatDate(finalEndDate);
       const headerMonth = normStart.getMonth() + 1;
-      let html = `<ul class="calender_title" id="calenderTitle">`;
-        `<li>
+      let html = `<ul class="calender_title" id="calenderTitle">
+        <li>
           <button class="cal_btn" id="calPrevBtn">
             <span class="btn_icon">◀</span>
             <span class="jeolgi_prev">${prevTermName}</span>
@@ -578,7 +580,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <th>토</th>
         </tr>`;
       let days = [];
-      for (let d = new Date(normStart); d < new Date(normEndNext.getTime()); d.setDate(d.getDate() + 1)) {
+      for (let d = new Date(normStart); d <= normEndNext; d.setDate(d.getDate() + 1)) {
         days.push(new Date(d.getTime()));
       }
       let currentRow = "<tr>";
