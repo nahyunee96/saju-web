@@ -427,6 +427,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 	  const isInsi = insiElem && insiElem.checked;
 
 	if (isSunTime) {
+    
 		const boundaries = [
 		  { hour: 23, minute: 30, dayOffset: -1 },  // 자시: 전날 23:30
 		  { hour: 1,  minute: 30, dayOffset:  0 },  // 축시: 당일 01:30
@@ -442,17 +443,31 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 		  { hour: 21, minute: 30, dayOffset:  0 }
 		];
 
-       // 현재 계산된 hourBranchIndex에 해당하는 시주의 경계(하한)를 계산합니다.
-	  // 기준 날짜는 명목 생년월일(nominalBirthDate)이며, dayOffset에 따라 전날일 수도 있습니다.
-	  const currentBoundary = boundaries[ hourBranchIndex ];
-	const boundaryDate = new Date(nominalBirthDate);
-	boundaryDate.setDate(boundaryDate.getDate() + currentBoundary.dayOffset);
-	boundaryDate.setHours(currentBoundary.hour, currentBoundary.minute, 0, 0);
+    // 만약 hourBranchIndex가 boundaries 범위를 벗어나면 기본값으로 보정
+    if (hourBranchIndex < 0 || hourBranchIndex >= boundaries.length) {
+      console.warn("hourBranchIndex가 유효하지 않습니다. 기본값 0으로 보정합니다.");
+      hourBranchIndex = 0;
+    }
 
-		
-	  
+
+    // 현재 계산된 hourBranchIndex에 해당하는 시주의 경계(하한)를 계산합니다.
+    // 기준 날짜는 명목 생년월일(nominalBirthDate)이며, dayOffset에 따라 전날일 수도 있습니다.
+    const currentBoundary = boundaries[ hourBranchIndex ];
+    const boundaryDate = new Date(nominalBirthDate);
+    boundaryDate.setDate(boundaryDate.getDate() + currentBoundary.dayOffset);
+    boundaryDate.setHours(currentBoundary.hour, currentBoundary.minute, 0, 0);
+
+    console.log("hourBranchIndex:", hourBranchIndex);
+    console.log("boundaries:", boundaries);
+    console.log("currentBoundary:", currentBoundary);
+
 	  // 보정된 시간(correctedDate)에 +30분을 더한 시간을 solarTime으로 구합니다.
-	 const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
+	  const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
+
+    if (solarTime < boundaryDate) {
+      hourBranchIndex = (hourBranchIndex + boundaries.length - 1) % boundaries.length;
+    }
+
 	 let hourDayPillar;
 		if (hourBranchIndex === 0) {
 		 if (solarTime < boundaryDate) {
@@ -475,17 +490,18 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 			  hourDayPillar = getDayGanZhi(nominalBirthDate);
 		  } 
 		
-    if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3.5) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3.5)){
-        hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-    }else if (hourBranchIndex !== 0 && correctedDate.getHours() >= 21.5 && correctedDate.getHours() < 23.5 || hourBranchIndex === 0 && correctedDate.getHours() >= 21.5 && correctedDate.getHours() < 23.5) {
-       hourBranchIndex = 11;
-       hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-    } else if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() < 24) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
-       hourDayPillar = getDayGanZhi(nominalBirthDate);
-    } else {
-       hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-    }
+		if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3.5) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3.5)){
+			 hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+		}else if (hourBranchIndex !== 0 && correctedDate.getHours() >= 21.5 && correctedDate.getHours() < 23.5 || hourBranchIndex === 0 && correctedDate.getHours() >= 21.5 && correctedDate.getHours() < 23.5) {
+			hourBranchIndex = 11;
+			hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+		} else if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() < 24) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
+			hourDayPillar = getDayGanZhi(nominalBirthDate);
+		} else {
+			hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+		}
 
+		const hourStemArithmetic = getHourStemArithmetic(hourDayPillar, hourBranchIndex);
 		  const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
 		  const hourPillar = hourStem + Jiji[hourBranchIndex];
 
@@ -540,6 +556,7 @@ const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
 	 let hourDayPillar;
 		if (hourBranchIndex === 0) {
 		 if (solarTime < boundaryDate) {
+			 console.log('확인감사영');
 			hourBranchIndex = 11;
 		  } else {
 			 hourDayPillar = getDayGanZhi(nominalBirthDate);
@@ -562,7 +579,6 @@ const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
 		} else if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() < 24) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
 			hourDayPillar = getDayGanZhi(nominalBirthDate);
 		}
-
     const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
     const hourPillar = hourStem + Jiji[hourBranchIndex];
 
@@ -580,6 +596,7 @@ const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
     } 
 
     if (isInsi && correctedDate.getHours() < 3){
+      console.log('ㅐㅅㅅ');
     const dayPillar = getDayGanZhi(nominalBirthDatePrev);
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}시, ${getDaewoonDataStr(birthPlace, gender)}`;
 		} else {
