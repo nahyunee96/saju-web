@@ -1019,11 +1019,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const insiElem = document.getElementById("insi");
       let adjustedDate = new Date(refDate.getTime());
       if (jasiElem && jasiElem.checked) {
-        adjustedDate = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), adjustedDate.getDate(), - 1, 23, 30);
+        adjustedDate = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), adjustedDate.getDate(), - 1, 23, 0);
       } else if (yajojasiElem && yajojasiElem.checked) {
-        adjustedDate = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), adjustedDate.getDate() - 1, 23, 30);
+        adjustedDate = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), adjustedDate.getDate() - 1, 23, 0);
       } else if (insiElem && insiElem.checked) {
-        adjustedDate = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), adjustedDate.getDate(), 3, 30);
+        adjustedDate = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), adjustedDate.getDate(), 3, 0);
       } 
       const dayGanZhi = getDayGanZhi(adjustedDate);
       const daySplit = splitPillar(dayGanZhi);
@@ -1339,16 +1339,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const birthPlace = document.getElementById("inputBirthPlace").value || "-";
     
       // 시간 기준(표준시/태양시)와 시 기준(자시/야·조자시/인시)도 값으로 읽어오기
-      const time1 = document.querySelector('input[name="time1"]:checked').value; // "standard" or "sun"
       const time2 = document.querySelector('input[name="time2"]:checked').value; // "jasi", "yajojasi", "insi"
     
-      return { year, month, day, hour, minute, gender, birthPlace, time1, time2 };
+      return { year, month, day, hour, minute, gender, birthPlace, time2 };
     }
     
     // 2025-03-20 추가
     function updateFortune(inputData) {
       // inputData의 값들은 모두 올바른 숫자/문자열이라고 가정
-      const { year, month, day, hour, minute, gender, birthPlace, time1, time2 } = inputData;
+      const { year, month, day, hour, minute, gender, birthPlace, time2 } = inputData;
       
       // 생성한 로컬 변수 사용 – 예를 들어, year는 NaN이 아님을 보장
       const originalDate = new Date(year, month - 1, day, hour, minute);
@@ -1396,16 +1395,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const inputData = collectInputData();
-
-    const selectedTime1 = document.querySelector('input[name="time1"]:checked').value;
     const selectedTime2 = document.querySelector('input[name="time2"]:checked').value;
   
     // 결과창의 체크 옵션 업데이트
-    if (selectedTime1 === "standard") {
-      document.getElementById("timeChk01_01").checked = true;
-    } else if (selectedTime1 === "sun") {
-      document.getElementById("timeChk01_02").checked = true;
-    }
     if (selectedTime2 === "jasi") {
       document.getElementById("timeChk02_01").checked = true;
     } else if (selectedTime2 === "yajojasi") {
@@ -1420,16 +1412,7 @@ document.addEventListener("DOMContentLoaded", function () {
     resultRadios.forEach(function(radio) {
       radio.addEventListener("change", function () {
         // 결과창에서 선택된 값을 읽어 입력 화면의 라디오 버튼 상태 동기화
-        const selectedTime1 = document.querySelector('input[name="timeChk01"]:checked').value;
         const selectedTime2 = document.querySelector('input[name="timeChk02"]:checked').value;
-    
-        // 입력 화면의 "time1" 그룹 업데이트
-        document.querySelectorAll('input[name="time1"]').forEach(el => el.checked = false);
-        if (selectedTime1 === "standard") {
-          document.getElementById("defaultTime").checked = true;
-        } else if (selectedTime1 === "sun") {
-          document.getElementById("sunTime").checked = true;
-        }
     
         // 입력 화면의 "time2" 그룹 업데이트
         document.querySelectorAll('input[name="time2"]').forEach(el => el.checked = false);

@@ -255,25 +255,6 @@
             </select>
           </div>
           <div class="input_group">
-            <label>시간기준지정 (표준시 / 태양시)</label>
-            <div class="radio_box">
-              <span>
-                <input
-                  type="radio"
-                  id="defaultTime"
-                  name="time1"
-                  checked
-                  value="standard"
-                />
-                <label for="defaultTime">표준시 (기존어플들과 동일)</label>
-              </span>
-              <span>
-                <input type="radio" id="sunTime" name="time1" value="sun" />
-                <label for="sunTime">태양시 (+30분)</label>
-              </span>
-            </div>
-          </div>
-          <div class="input_group">
             <label>시간 기준 지정 (자시 / 야 · 조자시 / 인시)</label>
             <div class="radio_box">
               <span>
@@ -320,26 +301,7 @@
             </span>
           </div>
           <ul class="check_option" id="checkOption">
-            <li class="time_chk01">
-              <span>
-                <input
-                  type="radio"
-                  name="timeChk01"
-                  id="timeChk01_01"
-                  value="standard"
-                />
-                <label for="timeChk01_01">표준시</label>
-              </span>
-              <span>
-                <input
-                  type="radio"
-                  name="timeChk01"
-                  id="timeChk01_02"
-                  value="sun"
-                />
-                <label for="timeChk01_02">태양시</label>
-              </span>
-            </li>
+            
             <li class="time_chk02">
               <span>
                 <input
@@ -1060,6 +1022,11 @@
             <div id="daewoonPaljaDetailed"></div>
           </div>
         </div>
+        <footer class="footer">
+          <p>
+            Copyright © 2025 Hwarim96. All rights reserved.
+          </p>
+        </footer>
       </div>
       <script
         src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"
@@ -1072,10 +1039,6 @@
       <script src="./common.js"></script>
       <script src="./ui.js"></script>
     </div>
-    <footer class="footer">
-      <p>
-        Copyright © 2025 Hwarim96. All rights reserved.
-      </p>
-    </footer>
+    
   </body>
 </html>
