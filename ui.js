@@ -1331,21 +1331,21 @@ document.getElementById("calcBtn").addEventListener("click", function () {
 
   // 2025-03-20 추가
   function updateFortune() {
-    if (!birthYear) return;  // 입력된 데이터가 없으면 종료
+    if (!globalState.birthYear) return;  // 입력된 데이터가 없으면 종료
   
-    const _year  = birthYear,
-          _month     = month,
-          _day       = day,
-          _birthPlace= birthPlace,
-          _gender    = gender,
-          _hour      = hour,
-          _minute    = minute;
+    const _year      = globalState.birthYear,
+          _month     = globalState.month,
+          _day       = globalState.day,
+          _birthPlace= globalState.birthPlace,
+          _gender    = globalState.gender,
+          _hour      = globalState.hour,
+          _minute    = globalState.minute;
   
     const originalDate = new Date(_year, _month - 1, _day, _hour, _minute);
-    const correctedDate = adjustBirthDate(originalDate, birthPlace);
-    correctedBirthDate = correctedDate;
+    const correctedDate = adjustBirthDate(originalDate, _birthPlace);
+    globalState.correctedBirthDate = correctedDate;
   
-    // 원국(사주) 계산 실행
+    // 원국(사주) 계산 실행 (getFourPillarsWithDaewoon 함수는 "연주 월주 일주 시주, ..." 형식의 문자열 반환)
     const fullResult = getFourPillarsWithDaewoon(
       correctedDate.getFullYear(),
       correctedDate.getMonth() + 1,
@@ -1355,7 +1355,6 @@ document.getElementById("calcBtn").addEventListener("click", function () {
       _gender
     );
   
-    // fullResult는 "연주 월주 일주 시주, ..." 형태로 반환됨
     const parts = fullResult.split(", ");
     const pillarsPart = parts[0] || "-";
     const pillars = pillarsPart.split(" ");
@@ -1390,45 +1389,74 @@ document.getElementById("calcBtn").addEventListener("click", function () {
     updateHourWoon(correctedDate);
     updateCurrentDaewoon();
     updateMonthlyWoonByToday(correctedDate);
-
-    
   }
-
-  // 기존 계산 및 UI 업데이트 함수 호출 (원국, 대운, 월운, 일운, 시운 등)
-  updateFortune();
-
-  // --- 아래부터는 결과창의 체크 옵션 변경 시 updateFortune()를 다시 호출하도록 이벤트 등록 ---
-  // (calcBtn 클릭 시 결과창의 radio 버튼이 이미 DOM에 생성되었다고 가정합니다.)
-  const resultRadios = document.querySelectorAll('#checkOption input[type="radio"]');
-  // 기존에 이벤트가 중복 등록되지 않도록 (필요하면) 기존 이벤트를 제거하는 로직을 추가할 수 있습니다.
-  resultRadios.forEach(function(radio) {
-    radio.addEventListener("change", function () {
-      // 결과창의 선택값에 따라 입력 화면의 라디오 버튼 상태도 동기화
-      // (입력 화면에 value 속성이 지정되어 있다고 가정합니다.)
-      const selectedTime1 = document.querySelector('input[name="timeChk01"]:checked').value;
-      const selectedTime2 = document.querySelector('input[name="timeChk02"]:checked').value;
-
-      // 입력 화면의 "time1" 그룹 업데이트
-      document.querySelectorAll('input[name="time1"]').forEach(el => el.checked = false);
+  
+  document.addEventListener("DOMContentLoaded", function() {
+    // ... (calcBtn 이벤트리스너 등 기존 코드)
+  
+    document.getElementById("calcBtn").addEventListener("click", function () {
+      // 기존 계산 및 UI 업데이트 코드
+      // (입력값 검증, 음력/양력 변환, 전역 변수 저장, 원국 및 운 계산 등)
+      // 예시로 아래와 같이 globalState와 기타 값들을 업데이트한 후
+      // 결과창에 체크 옵션의 상태도 동기화합니다.
+      // (생략된 부분은 기존 calcBtn 내부 코드를 사용하세요.)
+    
+      // 예시: 결과창의 시간 기준 체크 옵션 동기화
+      const selectedTime1 = document.querySelector('input[name="time1"]:checked').value;
+      const selectedTime2 = document.querySelector('input[name="time2"]:checked').value;
+    
+      // 결과창의 체크 옵션 업데이트
       if (selectedTime1 === "standard") {
-        document.getElementById("defaultTime").checked = true;
+        document.getElementById("timeChk01_01").checked = true;
       } else if (selectedTime1 === "sun") {
-        document.getElementById("sunTime").checked = true;
+        document.getElementById("timeChk01_02").checked = true;
       }
-      
-      // 입력 화면의 "time2" 그룹 업데이트
-      document.querySelectorAll('input[name="time2"]').forEach(el => el.checked = false);
       if (selectedTime2 === "jasi") {
-        document.getElementById("jasi").checked = true;
+        document.getElementById("timeChk02_01").checked = true;
       } else if (selectedTime2 === "yajojasi") {
-        document.getElementById("yajojasi").checked = true;
+        document.getElementById("timeChk02_02").checked = true;
       } else if (selectedTime2 === "insi") {
-        document.getElementById("insi").checked = true;
+        document.getElementById("timeChk02_03").checked = true;
       }
-      
-      // 전체 재계산 및 UI 업데이트
+    
+      // calcBtn 클릭 시 전체 계산 및 UI 업데이트
       updateFortune();
     });
+  
+    // 결과창 내 체크 옵션 라디오 버튼에 change 이벤트 등록
+    const resultRadios = document.querySelectorAll('#checkOption input[type="radio"]');
+    resultRadios.forEach(function(radio) {
+      radio.addEventListener("change", function () {
+        // 결과창에서 선택된 값을 읽어 입력 화면의 라디오 버튼 상태 동기화
+        const selectedTime1 = document.querySelector('input[name="timeChk01"]:checked').value;
+        const selectedTime2 = document.querySelector('input[name="timeChk02"]:checked').value;
+    
+        // 입력 화면의 "time1" 그룹 업데이트
+        document.querySelectorAll('input[name="time1"]').forEach(el => el.checked = false);
+        if (selectedTime1 === "standard") {
+          document.getElementById("defaultTime").checked = true;
+        } else if (selectedTime1 === "sun") {
+          document.getElementById("sunTime").checked = true;
+        }
+    
+        // 입력 화면의 "time2" 그룹 업데이트
+        document.querySelectorAll('input[name="time2"]').forEach(el => el.checked = false);
+        if (selectedTime2 === "jasi") {
+          document.getElementById("jasi").checked = true;
+        } else if (selectedTime2 === "yajojasi") {
+          document.getElementById("yajojasi").checked = true;
+        } else if (selectedTime2 === "insi") {
+          document.getElementById("insi").checked = true;
+        }
+    
+        // 전체 재계산 및 UI 업데이트
+        updateFortune();
+      });
+    });
+    
+    // 결과창 보이기 및 입력창 숨기기
+    document.getElementById('resultWrapper').style.display = 'block';
+    document.getElementById('inputWrap').style.display = 'none';
   });
 
   document.getElementById('resultWrapper').style.display = 'block';
