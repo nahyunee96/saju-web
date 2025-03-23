@@ -107,11 +107,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const hourSplit  = splitPillar(hourPillar);
 
     const natalChartData = {
-      // ISO 형식의 생년월일 문자열 (예: 1996년 12월 29일, 갑신시: 23:30)
       birthDate: birthDate,
-      dayPillar: dayPillar,   // 원국 일주 (예시)
-      hourPillar: hourPillar,  // 원국 시주 (예시)
-      yearPillar: yearPillar   // 원국 연주 (예시)
+      dayPillar: dayPillar,   
+      hourPillar: hourPillar,  
+      yearPillar: yearPillar   
     };
 
     const adjustedBirthDateObj = new Date(
@@ -122,11 +121,9 @@ document.addEventListener("DOMContentLoaded", function () {
       birthDate.getMinutes()
     );
 
-    // "일간" 저장 (묘운 계산 기준)
     globalState.originalDayStem = daySplit.gan;
     const baseDayStem = globalState.originalDayStem;
 
-    // 유효성 검사 (연, 월, 일, 시, 분)
     if (year < 1900 || year > 2099) {
       alert("연도는 1900년부터 2099년 사이로 입력하세요.");
       return;
@@ -157,14 +154,12 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // 전역 상태 저장
     globalState.birthYear = year;
     globalState.month = month;
     globalState.day = day;
     globalState.birthPlace = birthPlace;
     globalState.gender = gender;
 
-    // 결과 화면에 표시
     const formattedTime = `${pad(hour)}:${pad(minute)}`;
     setText("resName", name);
     setText("resGender", gender);
@@ -175,7 +170,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("resbjTime").innerHTML =
       correctedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 
-    // 원국 UI 업데이트
     updatePillarInfo("Yt", yearSplit, baseDayStem);
     updatePillarInfo("Mt", monthSplit, baseDayStem);
     updatePillarInfo("Dt", daySplit, baseDayStem);
@@ -187,7 +181,6 @@ document.addEventListener("DOMContentLoaded", function () {
     updateOriginalPillarMapping(yearSplit, monthSplit, daySplit, hourSplit);
     updateColorClasses();
 
-    // === 대운 계산 및 UI 반영 ===
     function updateCurrentDaewoon() {
       const birthDateObj = new Date(year, month - 1, day);
       const today = new Date();
@@ -225,7 +218,6 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMonthlyWoonByToday(new Date());
     globalState.daewoonData = getDaewoonData(birthPlace, gender);
 
-    // 대운 목록 업데이트 (10개)
     const _basedaytem = globalState.originalDayStem;
     function updateDaewoonItem(i, item) {
       const forwardGanji = item.stem + item.branch;
@@ -871,17 +863,11 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // --- 묘운력 계산 (연/월은 원본, 일/시는 묘운 계산 적용) ---
-
     const birthYearPillar = yearPillar;
     const birthMonthPillar = monthPillar;
 
-    
-
-    // getMyounPillars: 연/월은 그대로, 일/시는 묘운 계산 (예시 알고리즘)
     function getMyounPillars(birthYearPillar, birthMonthPillar, birthDateObj, refDate, gender) {
-
-      // [A] 연주 계산 (연주는 원국 그대로 사용하거나 보정 로직에 따라 수정)
+      // [A] 연주 계산
       let finalYearPillar = birthYearPillar;
       function getAgeByDate(birthDate, refDate) {
         let age = refDate.getFullYear() - birthDate.getFullYear();
@@ -907,8 +893,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     
-      // [B] 월주 계산 (월주는 대운 데이터 기반 계산 예시)
-      function getCurrentDaewoonMonthPillar(birthYear, birthMonth, birthDay, birthPlace, gender, referenceDate) {
+      // [B] 월주 계산
+      function getCurrentDaewoonMonthPillar(birthPlace, gender, referenceDate) {
         const currAge = getAgeByDate(birthDate, referenceDate);
         const daewoonData = getDaewoonData(birthPlace, gender); 
         let currentItem = daewoonData.list[0];
@@ -930,14 +916,6 @@ document.addEventListener("DOMContentLoaded", function () {
         refDate
       );
 
-
-      
-      
-      // ------------------------------------------------------------------
-      // 시뮬레이션 초기 조건 (calc.js 기준)
-      // ------------------------------------------------------------------
-      // 예를 들어, calc.js에서는 일주 시작 날짜가 1997-12-29 00:00 이었으므로,
-      // 여기서는 1년 보정된 adjustedBirthDateObj의 날짜에 자정(00:00)을 적용합니다.
       let iljuDate = new Date(
         adjustedBirthDateObj.getFullYear(),
         adjustedBirthDateObj.getMonth(),
@@ -958,13 +936,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const isYangStem = ["갑", "병", "무", "경", "임"].includes(originalYearPillarData.charAt(0));
       const direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
 
-
-      // ------------------------------------------------------------------
-      // 초기 간지 인덱스 설정 (일주, 시주 각각)
-      // ------------------------------------------------------------------
-
-      // [일주] 원래 calc.js에서는
-      const direction_ilju = direction; // 1: 순행, -1: 역행
+      // [일주] 
+      const direction_ilju = direction; 
       const originalIljuIndex = getGanZhiIndex(natalChartData.dayPillar); 
       let iljuIndex = (originalIljuIndex + direction_ilju + 60) % 60;
 
@@ -972,14 +945,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const originalSijuIndex = getGanZhiIndex(natalChartData.hourPillar);
       let sijuIndex = (originalSijuIndex + direction_siju + 60) % 60;
 
-      // ------------------------------------------------------------------
-      // 다음 이벤트 계산 함수 (calc.js와 동일)
-      // ------------------------------------------------------------------
       function nextIlju() {
         const nextDate = new Date(iljuDate.getTime());
         nextDate.setDate(nextDate.getDate() + 120);
-        // 기존 calc.js에서는 iljuIndex를 역행(-1)으로 변경하였으나,
-      // 여기서는 원하는 방향을 반영하여 업데이트
         const nextIndex = (iljuIndex + direction_ilju + 60) % 60;
         return { date: nextDate, index: nextIndex };
       }
@@ -989,19 +957,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const nextIndex = (sijuIndex + direction_siju + 60) % 60;
         return { date: nextDate, index: nextIndex };
       }
-
-      // 날짜 포맷 함수 ("YYYY.MM.DD hh:mm")
-      function formatDateTime(dateObj) {
-        const yyyy = dateObj.getFullYear();
-        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const dd = String(dateObj.getDate()).padStart(2, '0');
-        const hh = String(dateObj.getHours()).padStart(2, '0');
-        const mi = String(dateObj.getMinutes()).padStart(2, '0');
-        return `${yyyy}.${mm}.${dd} ${hh}:${mi}`;
-      }
-
-      let lastIljuChangeDate = null;
-      let lastSijuChangeDate = null;
 
       while (true) {
         const ni = nextIlju();
@@ -1027,15 +982,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      // 최종 시뮬레이션 결과
-      const finalDayPillar = getGanZhiFromIndex(iljuIndex);   // 계산 결과 일주
-      const finalHourPillar = getGanZhiFromIndex(sijuIndex);    // 계산 결과 시주
+      const finalDayPillar = getGanZhiFromIndex(iljuIndex);   
+      const finalHourPillar = getGanZhiFromIndex(sijuIndex);    
     
       return {
-        yearPillar: finalYearPillar,    // 원국 데이터 기반 연주
-        monthPillar: finalMonthPillar,    // 원국 데이터 기반 월주
-        dayPillar: finalDayPillar,        // 묘운 계산 적용 일주
-        hourPillar: finalHourPillar       // 묘운 계산 적용 시주
+        yearPillar: finalYearPillar,    
+        monthPillar: finalMonthPillar,   
+        dayPillar: finalDayPillar,       
+        hourPillar: finalHourPillar      
       };
     }
 
@@ -1127,10 +1081,8 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoHb12ss", getTwelveShinsal(yearSplit.ji, hourBranch_new));
     }
 
-    // 최종적으로 getMyounPillars 호출 (연/월은 원국 그대로 사용)
     updateMyowoonSection(myounResult, daySplit, yearSplit);
 
-    // 묘운 상세보기 토글
     document.getElementById('myowoonMore').addEventListener('click', function(){
       let myowoonMoreElem = document.getElementById('myowoonMore');
       if (myowoonMoreElem.classList.contains("active")) {
@@ -1236,7 +1188,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     updateHourWoon(refDate);
 
-    // 추가 기능: 재계산 버튼 클릭 시 업데이트
     const picker = document.getElementById("woonTimeSetPicker");
     if (picker) {
       const now = new Date();
@@ -1259,6 +1210,7 @@ document.addEventListener("DOMContentLoaded", function () {
         picker.min = `${minYear}-${minMonth}-${minDay}T00:00`;
       }
     }
+
     document.getElementById("woonChangeBtn").addEventListener("click", function () {
       let refDate = (picker && picker.value) ? new Date(picker.value) : new Date();
       updateMyowoonSection(myounResult, daySplit, yearSplit);

@@ -228,11 +228,8 @@ const fixedDayMapping = {
   "계": ["갑인", "을묘", "병진", "정사", "무오", "기미", "경신", "신유", "임술", "계해", "갑자", "을축"]
 };
 
-// 새로운 함수: 명목 생년월일만으로 일주 계산 (보정 없이)
-
 
 function getHourBranchIndex(dateObj, isSunTime) {
-  // isSunTime 플래그는 여기서 별도의 인덱스 보정에 사용하지 않습니다.
   let totalMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
   const ZASI_START = 23 * 60; // 자시 시작: 23:00 (1380분)
   let adjustedMinutes = totalMinutes;
@@ -252,7 +249,7 @@ function getDayStem(dayGanZhiStr) {
   return dayGanZhiStr.charAt(0);
 }
 
-// getHourStem 함수 (고정 매핑 사용 – 변경 없음)
+// getHourStem 함수
 function getHourStem(dayPillar, hourBranchIndex) {
   const dayStem = getDayStem(dayPillar);
   if (fixedDayMapping.hasOwnProperty(dayStem)) {
@@ -314,26 +311,15 @@ function getDaewoonData(birthPlace, gender) {
   const birthDate = globalState.correctedBirthDate;
   const originalDate = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
   const correctedDate = adjustBirthDate(originalDate, birthPlace);
-  
-  // 명식 계산용 effectiveYear: 원래 입력한 연도와 해당 연도의 입춘(315°) 날짜를 비교
-  // 전통적으로 생일(원래 입력 날짜)이 입춘보다 이전이면 명식은 전년도 기준
   const inputYear = globalState.correctedBirthDate.getFullYear();
-
-const ipChunForPillar = findSolarTermDate(inputYear, 315);
-const effectiveYearForPillar = (originalDate < ipChunForPillar) ? inputYear - 1 : inputYear;
-
-// 대운/세운 계산용 effectiveYear는 입력 연도를 그대로 사용
-const effectiveYearForDaewoon = inputYear;
-  
-  // 명식(연,월) 계산은 correctedDate와 effectiveYearForPillar를 사용
+  const ipChunForPillar = findSolarTermDate(inputYear, 315);
+  const effectiveYearForPillar = (originalDate < ipChunForPillar) ? inputYear - 1 : inputYear;
+  const effectiveYearForDaewoon = inputYear;
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForPillar);
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForPillar);
   const dayStemRef = getDayGanZhi(correctedDate).charAt(0);
-  
   const isYang = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
   const isForward = (gender === "남" && isYang) || (gender === "여" && !isYang);
-  
-  // 절기 경계(대운/세운 계산)는 effectiveYearForDaewoon를 기준으로 함
   const currentSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon);
   const previousSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon - 1);
   const nextSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon + 1);
@@ -490,7 +476,6 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
     hourBranchIndex = 1;
   }
 
-  
   if (isInsi && correctedDate.getHours() < 3) {
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   } else if (hourBranchIndex === 0){
@@ -526,8 +511,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
   } else {
     const dayPillar = getDayGanZhi(nominalBirthDate);
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
-  }
-		
+  }	
 }
 
 function debugSolarTermBoundaries(solarYear) {
@@ -635,7 +619,6 @@ function getTwelveShinsal(yearBranch, branch) {
   };
   return mapping[yearBranch] ? mapping[yearBranch][branch] || "" : "";
 }
-
 
 function pad(num) { return num.toString().padStart(2, '0'); }
 function getTenGodForStem(receivingStem, baseDayStem) {
