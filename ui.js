@@ -401,7 +401,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateListMapping(globalState.monthWoonList, "MwW", "Ms", daySplit.gan, yearSplit.ji);
     }
 
-    function updateMonthlyData(computedYear) {
+    function updateMonthlyData() {
       const dayPillarText = document.getElementById("DtHanguel").innerText;
       const baseDayStem = dayPillarText ? dayPillarText.charAt(0) : "-";
       const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
@@ -869,7 +869,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function getMyounPillars(birthYearPillar, birthMonthPillar, birthDateObj, refDate, gender) {
       // [A] 연주 계산
       let finalYearPillar = birthYearPillar;
-      function getAgeByDate(birthDate, refDate) {
+      function getAgeByDate(birthDate) {
         let age = refDate.getFullYear() - birthDate.getFullYear();
         const m = refDate.getMonth() - birthDate.getMonth();
         if (m < 0 || (m === 0 && refDate.getDate() < birthDate.getDate())) {
