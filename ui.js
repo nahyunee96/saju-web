@@ -101,8 +101,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const yearSplit = splitPillar(yearPillar);
     const monthSplit = splitPillar(monthPillar);
     const daySplit = splitPillar(dayPillar);
+    globalState.originalDayStem = daySplit.gan;
     const hourSplit = splitPillar(hourPillar);
-    const baseDayStem = daySplit.gan;
+    const baseDayStem = globalState.originalDayStem;
     
 
     if (year < 1900 || year > 2099) {
@@ -214,7 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let _yearSplit = splitPillar(yearPillar);
     const _baseYearStem = _yearSplit.gan;
-    const _basedaytem = daySplit.gan;
+    const _basedaytem = globalState.originalDayStem;
     const isForward = ((gender === "남" && ["갑", "병", "무", "경", "임"].includes(_baseYearStem)) ||
       (gender === "여" && !["갑", "병", "무", "경", "임"].includes(_baseYearStem)));
 
@@ -264,7 +265,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const sewoonIndex = ((effectiveYear - 4) % 60 + 60) % 60;
       const sewoonGanZhi = sexagenaryCycle[sewoonIndex];
       const sewoonSplit = splitPillar(sewoonGanZhi);
-      let baseDayStem = daySplit.gan;
+      let baseDayStem = globalState.originalDayStem;
       setText("SwtHanja", stemMapping[sewoonSplit.gan]?.hanja || "-");
       setText("SwtHanguel", stemMapping[sewoonSplit.gan]?.hanguel || "-");
       setText("SwtEumyang", stemMapping[sewoonSplit.gan]?.eumYang || "-");
@@ -1027,7 +1028,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } 
       const dayGanZhi = getDayGanZhi(adjustedDate);
       const daySplit = splitPillar(dayGanZhi);
-      const baseDayStem = daySplit.gan;
+      const baseDayStem = globalState.originalDayStem;
       setText("WDtHanja", stemMapping[daySplit.gan]?.hanja || "-");
       setText("WDtHanguel", stemMapping[daySplit.gan]?.hanguel || "-");
       setText("WDtEumyang", stemMapping[daySplit.gan]?.eumYang || "-");
@@ -1092,7 +1093,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WTtHanja", stemMapping[correctedFortuneHourStem]?.hanja || "-");
       setText("WTtHanguel", stemMapping[correctedFortuneHourStem]?.hanguel || "-");
       setText("WTtEumyang", stemMapping[correctedFortuneHourStem]?.eumYang || "-");
-      setText("WTt10sin", getTenGodForStem(correctedFortuneHourStem, daySplit.gan) || "-");
+      setText("WTt10sin", getTenGodForStem(correctedFortuneHourStem, globalState.originalDayStem) || "-");
       
       // 시운 지지 관련은 그대로 사용 (WTb* 요소)
       setText("WTbHanja", branchMapping[hourBranch]?.hanja || "-");
@@ -1325,7 +1326,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
       const birthtimeStr = document.getElementById("inputBirthtime").value.trim();
-      const timeParts = birthtimeStr.split(":");
     
       // 숫자 변환 및 검증 (예: 생년월일 8자리, 시간 파싱 등)
       const year = parseInt(birthdayStr.substring(0, 4), 10);
@@ -1379,7 +1379,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const monthSplit = splitPillar(monthPillar);
       const daySplit   = splitPillar(dayPillar);
       const hourSplit  = splitPillar(hourPillar);
-      const baseDayStem = daySplit.gan;
+      const baseDayStem = globalState.originalDayStem;
       
       // UI 업데이트 (원국, 각 운 계산 결과 반영)
       updatePillarInfo("Yt", yearSplit, baseDayStem);
