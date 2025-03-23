@@ -397,24 +397,26 @@ function getDaewoonDataStr(birthPlace, gender) {
   return `대운수 ${data.base}, 대운 나이 목록: ${listStr}`;
 }
 
+const timeRanges = [
+  { branch: '자', hanja: '子', start: 23 * 60, end: 1 * 60 },
+  { branch: '축', hanja: '丑', start: 1 * 60,  end: 3 * 60 },
+  { branch: '인', hanja: '寅', start: 3 * 60,  end: 5 * 60 },
+  { branch: '묘', hanja: '卯', start: 5 * 60,  end: 7 * 60 },
+  { branch: '진', hanja: '辰', start: 7 * 60,  end: 9 * 60 },
+  { branch: '사', hanja: '巳', start: 9 * 60,  end: 11 * 60 },
+  { branch: '오', hanja: '午', start: 11 * 60, end: 13 * 60 },
+  { branch: '미', hanja: '未', start: 13 * 60, end: 15 * 60 },
+  { branch: '신', hanja: '申', start: 15 * 60, end: 17 * 60 },
+  { branch: '유', hanja: '酉', start: 17 * 60, end: 19 * 60 },
+  { branch: '술', hanja: '戌', start: 19 * 60, end: 21 * 60 },
+  { branch: '해', hanja: '亥', start: 21 * 60, end: 23 * 60 }
+];
+
 function getHourBranchUsingArray(dateObj) {
   // 총 분 계산
   let totalMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
   // 각 시(지지)별 시간 범위 설정 (자시는 23:00 ~ 1:00, 나머지는 2시간씩)
-  const timeRanges = [
-    { branch: '자', hanja: '子', start: 23 * 60, end: 1 * 60 },
-    { branch: '축', hanja: '丑', start: 1 * 60,  end: 3 * 60 },
-    { branch: '인', hanja: '寅', start: 3 * 60,  end: 5 * 60 },
-    { branch: '묘', hanja: '卯', start: 5 * 60,  end: 7 * 60 },
-    { branch: '진', hanja: '辰', start: 7 * 60,  end: 9 * 60 },
-    { branch: '사', hanja: '巳', start: 9 * 60,  end: 11 * 60 },
-    { branch: '오', hanja: '午', start: 11 * 60, end: 13 * 60 },
-    { branch: '미', hanja: '未', start: 13 * 60, end: 15 * 60 },
-    { branch: '신', hanja: '申', start: 15 * 60, end: 17 * 60 },
-    { branch: '유', hanja: '酉', start: 17 * 60, end: 19 * 60 },
-    { branch: '술', hanja: '戌', start: 19 * 60, end: 21 * 60 },
-    { branch: '해', hanja: '亥', start: 21 * 60, end: 23 * 60 }
-  ];
+  
   for (let i = 0; i < timeRanges.length; i++) {
     const { branch, start, end } = timeRanges[i];
     if (start < end) {
@@ -510,21 +512,20 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 
   if (yajojasi && correctedDate.getHours() >= 24){
   const dayPillar = getDayGanZhi(nominalBirthDate);
-    return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}시, ${getDaewoonDataStr(birthPlace, gender)}`;
+    return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   } 
     
   if (isJasi && correctedDate.getHours() >= 23){
-    console.log('땨냐냐');
     const dayPillar = getDayGanZhi(nominalBirthDate2);
-    return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}시, ${getDaewoonDataStr(birthPlace, gender)}`;
+    return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   } 
 
   if (isInsi && correctedDate.getHours() < 3){
     const dayPillar = getDayGanZhi(nominalBirthDatePrev);
-    return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}시, ${getDaewoonDataStr(birthPlace, gender)}`;
+    return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   } else {
     const dayPillar = getDayGanZhi(nominalBirthDate);
-    return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}시, ${getDaewoonDataStr(birthPlace, gender)}`;
+    return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   }
 		
 }
