@@ -897,32 +897,29 @@ document.addEventListener("DOMContentLoaded", function () {
         if (originalIndex >= 0) {
           const isYangStem = ["갑", "병", "무", "경", "임"].includes(originalYearPillarData.charAt(0));
           const direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
-          finalYearPillar = getGanZhiFromIndex(originalIndex - direction);
+          const stepCount = Math.floor((ageOnRef - 60) / someInterval);
+          finalYearPillar = getGanZhiFromIndex(originalIndex + direction + 60);
         }
       }
     
       // [B] 월주 계산
       function getCurrentDaewoonMonthPillar(birthPlace, gender, referenceDate) {
+        // 여기서 'birthDate'는 전역 변수이거나, 별도로 전달받은 생년월일 Date 객체여야 합니다.
         const currAge = getAgeByDate(birthDate, referenceDate);
-        const daewoonData = getDaewoonData(birthPlace, gender); 
-        let currentItem = daewoonData.list[0];
-        for (let i = 1; i < daewoonData.list.length; i++) {
+        const daewoonData = getDaewoonData(birthPlace, gender);
+        // 리스트의 마지막 요소부터 거꾸로 순회하여, 현재 나이 이하인 첫 번째 항목을 반환합니다.
+        for (let i = daewoonData.list.length - 1; i >= 0; i--) {
           if (daewoonData.list[i].age <= currAge) {
-            currentItem = daewoonData.list[i]; 
+            return daewoonData.list[i].stem + daewoonData.list[i].branch;
           }
         }
-        return currentItem.stem + currentItem.branch;
+        // 만약 아무 항목도 조건에 부합하지 않으면 기본값 반환
+        return daewoonData.list[0].stem + daewoonData.list[0].branch;
       }
       
-      let finalMonthPillar = birthMonthPillar;
-      finalMonthPillar = getCurrentDaewoonMonthPillar(
-        BirthDateObj.getFullYear(),
-        BirthDateObj.getMonth() + 1,
-        BirthDateObj.getDate(),
-        birthPlace,
-        gender,
-        refDate
-      );
+      // 사용 예시:
+      let finalMonthPillar = birthMonthPillar; // 원국 월주 값(초기값)
+      finalMonthPillar = getCurrentDaewoonMonthPillar(birthPlace, gender, refDate);
 
       let iljuDate = new Date(
         adjustedBirthDateObj.getFullYear(),
