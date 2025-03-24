@@ -893,7 +893,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         const originalIndex = getGanZhiIndex(birthYearPillar);
         const correctedDate = adjustBirthDate(birthDateObj, birthPlace);
-        const originalYearPillarData = getYearGanZhi(correctedDate, adjustedBirthDateObj.getFullYear());
+        const originalYearPillarData = getYearGanZhi(correctedDate, BirthDateObj.getFullYear());
         if (originalIndex >= 0) {
           const isYangStem = ["갑", "병", "무", "경", "임"].includes(originalYearPillarData.charAt(0));
           const direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
