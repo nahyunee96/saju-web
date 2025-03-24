@@ -113,6 +113,14 @@ document.addEventListener("DOMContentLoaded", function () {
       yearPillar: yearPillar   
     };
 
+    const BirthDateObj = new Date(
+      birthDate.getFullYear() + 1,
+      birthDate.getMonth(),
+      birthDate.getDate(),
+      birthDate.getHours(),
+      birthDate.getMinutes()
+    );
+
     const adjustedBirthDateObj = new Date(
       birthDate.getFullYear() + 1,
       birthDate.getMonth(),
@@ -908,9 +916,9 @@ document.addEventListener("DOMContentLoaded", function () {
       
       let finalMonthPillar = birthMonthPillar;
       finalMonthPillar = getCurrentDaewoonMonthPillar(
-        adjustedBirthDateObj.getFullYear(),
-        adjustedBirthDateObj.getMonth() + 1,
-        adjustedBirthDateObj.getDate(),
+        BirthDateObj.getFullYear(),
+        BirthDateObj.getMonth() + 1,
+        BirthDateObj.getDate(),
         birthPlace,
         gender,
         refDate
