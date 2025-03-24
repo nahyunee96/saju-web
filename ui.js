@@ -285,8 +285,9 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("SwJj1", sewoonHidden[0]);
       setText("SwJj2", sewoonHidden[1]);
       setText("SwJj3", sewoonHidden[2]);
-      setText("SWb12ws", getTwelveUnseong(sewoonSplit.gan, sewoonSplit.ji));
-      setText("SWb12ss", getTwelveShinsal(sewoonSplit.ji, sewoonSplit.ji));
+      setText("SWb12ws", getTwelveUnseong(daySplit.gan, sewoonSplit.ji));
+      setText("SWb12ss", getTwelveShinsal(yearSplit.ji, sewoonSplit.ji));
+      
       setText("WSwtHanja", stemMapping[sewoonSplit.gan]?.hanja || "-");
       setText("WSwtHanguel", stemMapping[sewoonSplit.gan]?.hanguel || "-");
       setText("WSwtEumyang", stemMapping[sewoonSplit.gan]?.eumYang || "-");
@@ -298,8 +299,8 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WSwJj1", sewoonHidden[0]);
       setText("WSwJj2", sewoonHidden[1]);
       setText("WSwJj3", sewoonHidden[2]);
-      setText("WSWb12ws", getTwelveUnseong(sewoonSplit.gan, sewoonSplit.ji));
-      setText("WSWb12ss", getTwelveShinsal(sewoonSplit.ji, sewoonSplit.ji));
+      setText("WSWb12ws", getTwelveUnseong(daySplit.gan, sewoonSplit.ji));
+      setText("WSWb12ss", getTwelveShinsal(yearSplit.ji, sewoonSplit.ji));
     }
     updateCurrentSewoon(refDate);
 
@@ -1045,7 +1046,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoMb12ss", getTwelveShinsal(yearSplit.ji, monthBranch));
 
       // 일주 업데이트 (묘운 결과 사용)
-      const dayP = natalChartData.dayPillar;
+      const dayP = myounResult.dayPillar;
       const dayStem_new = dayP.charAt(0);
       const dayBranch_new = dayP.slice(1);
       setText("MyoDtHanja", stemMapping[dayStem_new] ? stemMapping[dayStem_new].hanja : dayStem_new);
@@ -1066,7 +1067,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoDb12ss", getTwelveShinsal(yearSplit.ji, dayBranch_new));
 
       // 시주 업데이트 (묘운 결과 사용)
-      const hourP = natalChartData.hourPillar;
+      const hourP = myounResult.hourPillar;
       const hourStem_new = hourP.charAt(0);
       const hourBranch_new = hourP.slice(1);
       setText("MyoHtHanja", stemMapping[hourStem_new] ? stemMapping[hourStem_new].hanja : hourStem_new);
@@ -1177,7 +1178,7 @@ document.addEventListener("DOMContentLoaded", function () {
       let fortuneHourStem = Cheongan[(Cheongan.indexOf(baseHourStem)) % 10];
       let idx = Cheongan.indexOf(fortuneHourStem);
       if (idx === -1) { idx = 0; }
-      let correctedFortuneHourStem = Cheongan[(idx - 2 + Cheongan.length) % Cheongan.length];
+      let correctedFortuneHourStem = Cheongan[(idx + 2 + Cheongan.length) % Cheongan.length];
       setText("WTtHanja", stemMapping[correctedFortuneHourStem]?.hanja || "-");
       setText("WTtHanguel", stemMapping[correctedFortuneHourStem]?.hanguel || "-");
       setText("WTtEumyang", stemMapping[correctedFortuneHourStem]?.eumYang || "-");
