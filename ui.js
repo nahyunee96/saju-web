@@ -108,13 +108,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const natalChartData = {
       birthDate: birthDate,
+      yearPillar: yearPillar,
+      monthPillar: monthPillar,
       dayPillar: dayPillar,   
-      hourPillar: hourPillar,  
-      yearPillar: yearPillar   
+      hourPillar: hourPillar
     };
 
     const BirthDateObj = new Date(
-      birthDate.getFullYear() + 1,
+      birthDate.getFullYear(),
       birthDate.getMonth(),
       birthDate.getDate(),
       birthDate.getHours(),
@@ -1044,7 +1045,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoMb12ss", getTwelveShinsal(yearSplit.ji, monthBranch));
 
       // 일주 업데이트 (묘운 결과 사용)
-      const dayP = myounResult.dayPillar;
+      const dayP = natalChartData.dayPillar;
       const dayStem_new = dayP.charAt(0);
       const dayBranch_new = dayP.slice(1);
       setText("MyoDtHanja", stemMapping[dayStem_new] ? stemMapping[dayStem_new].hanja : dayStem_new);
@@ -1065,7 +1066,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoDb12ss", getTwelveShinsal(yearSplit.ji, dayBranch_new));
 
       // 시주 업데이트 (묘운 결과 사용)
-      const hourP = myounResult.hourPillar;
+      const hourP = natalChartData.hourPillar;
       const hourStem_new = hourP.charAt(0);
       const hourBranch_new = hourP.slice(1);
       setText("MyoHtHanja", stemMapping[hourStem_new] ? stemMapping[hourStem_new].hanja : hourStem_new);
@@ -1172,7 +1173,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateHourWoon(refDate) {
       let hourBranch = getHourBranchUsingArray(refDate);
       let hourBranchIndex = Jiji.indexOf(hourBranch);
-      let daySplit = window.daySplit || splitPillar(getDayGanZhi(refDate));
       let baseHourStem = getHourStem(daySplit.gan, hourBranchIndex);
       let fortuneHourStem = Cheongan[(Cheongan.indexOf(baseHourStem)) % 10];
       let idx = Cheongan.indexOf(fortuneHourStem);
