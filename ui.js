@@ -272,7 +272,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const sewoonIndex = ((effectiveYear - 4) % 60 + 60) % 60;
       const sewoonGanZhi = sexagenaryCycle[sewoonIndex];
       const sewoonSplit = splitPillar(sewoonGanZhi);
-      let baseDayStem = globalState.originalDayStem;
+
       setText("SwtHanja", stemMapping[sewoonSplit.gan]?.hanja || "-");
       setText("SwtHanguel", stemMapping[sewoonSplit.gan]?.hanguel || "-");
       setText("SwtEumyang", stemMapping[sewoonSplit.gan]?.eumYang || "-");
@@ -598,10 +598,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const ganji = getGanZhiFromIndex(adjustedIndex);
         const stem = ganji.charAt(0);
         const branch = ganji.charAt(1);
+        const yearPillarText = document.getElementById("YbHanguel").innerText;
+        const baseYearStem = yearPillarText ? yearPillarText.charAt(0) : "-";
         const tenGodCheongan = getTenGodForStem(stem, baseDayStem);
         const tenGodJiji = getTenGodForBranch(branch, baseDayStem);
         const twelveUnseong = getTwelveUnseong(baseDayStem, branch);
-        const twelveShinsal = getTwelveShinsal(branch, baseDayStem);
+        const twelveShinsal = getTwelveShinsal(baseYearStem, branch);
         let dailyHtml = `<ul class="ilwoon">
           <li class="ilwoonday"><span>${date.getDate()}일</span></li>
           <li class="ilwoon_ganji_cheongan_10sin"><span>${tenGodCheongan}</span></li>
