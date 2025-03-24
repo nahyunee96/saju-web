@@ -520,6 +520,7 @@
   	display: inline-block;
     width: 100%;
     height: 50px;
+    padding: 0 10px;
   }
 
   .red { color: #E40101 !important; }
@@ -848,6 +849,7 @@
       line-height: 10.8vw;
       color: #353535;
       background-color: #fff;
+      padding: 0 2.4vw;
     }
 
     .check_option li span {
