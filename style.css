@@ -462,6 +462,7 @@
   }
 
   .calander_table td.active {
+    border-width: 2px;
     border-color: #E40101;
   }
 
