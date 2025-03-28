@@ -857,6 +857,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateFortune() {
+      const { year, month, day, hour, minute, gender, birthPlace, time2 } = inputData;
+      const originalDate = new Date(year, month - 1, day, hour, minute);
+      const correctedDate = adjustBirthDate(originalDate, birthPlace);
+      // globalState.correctedBirthDate 대신 로컬 변수 correctedDate를 사용하거나,
+      // 필요하다면 globalState에 저장할 수도 있음.
+      
+      // 원국(사주) 계산 실행
+      const fullResult = getFourPillarsWithDaewoon(
+        correctedDate.getFullYear(),
+        correctedDate.getMonth() + 1,
+        correctedDate.getDate(),
+        hour, minute,
+        birthPlace,
+        gender
+      );
+      
+      // fullResult에서 각 기둥 분리
+      const parts = fullResult.split(", ");
+      const pillarsPart = parts[0] || "-";
+      const pillars = pillarsPart.split(" ");
+      const yearPillar  = pillars[0] || "-";
+      const monthPillar = pillars[1] || "-";
+      const dayPillar   = pillars[2] || "-";
+      const hourPillar  = pillars[3] || "-";
+      
+      // 각 기둥을 분리
+      const yearSplit  = splitPillar(yearPillar);
+      const monthSplit = splitPillar(monthPillar);
+      const daySplit   = splitPillar(dayPillar);
+      const hourSplit  = splitPillar(hourPillar);
+      const baseDayStem = globalState.originalDayStem;
       updateStemInfo("Yt", yearSplit, baseDayStem);
       updateStemInfo("Mt", monthSplit, baseDayStem);
       updateStemInfo("Dt", daySplit, baseDayStem);

@@ -246,8 +246,8 @@ function getDayStem(dayGanZhiStr) {
 }
 
 // getHourStem 함수
-function getHourStem(daySet, hourBranchIndex) {
-  const dayStem = getDayStem(daySet);
+function getHourStem(dayPillar, hourBranchIndex) {
+  const dayStem = getDayStem(dayPillar);
   if (fixedDayMapping.hasOwnProperty(dayStem)) {
     const mappedArray = fixedDayMapping[dayStem];
     if (mappedArray.length === 12 && hourBranchIndex >= 0 && hourBranchIndex < 12) {
@@ -262,7 +262,7 @@ function getHourStem(daySet, hourBranchIndex) {
 
 
 // [8] 최종 사주 및 대운 계산 관련 함수
-function splitSet(Set) {
+function splitPillar(Set) {
   return (Set && Set.length >= 2) ? { gan: Set.charAt(0), ji: Set.charAt(1) } : { gan: "-", ji: "-" };
 }
 
@@ -311,10 +311,10 @@ function getDaewoonData(birthPlace, gender) {
   const ipChunForSet = findSolarTermDate(inputYear, 315);
   const effectiveYearForSet = (originalDate < ipChunForSet) ? inputYear - 1 : inputYear;
   const effectiveYearForDaewoon = inputYear;
-  const yearSet = getYearGanZhi(correctedDate, effectiveYearForSet);
-  const monthSet = getMonthGanZhi(correctedDate, effectiveYearForSet);
+  const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
+  const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
   const dayStemRef = getDayGanZhi(correctedDate).charAt(0);
-  const isYang = ["갑", "병", "무", "경", "임"].includes(yearSet.charAt(0));
+  const isYang = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
   const isForward = (gender === "남" && isYang) || (gender === "여" && !isYang);
   const currentSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon);
   const previousSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon - 1);
@@ -339,8 +339,8 @@ function getDaewoonData(birthPlace, gender) {
 
   const baseNumber = Math.max(1, Math.round(daysDiff / 3));
   
-  let currentMonthIndex = MONTH_ZHI.indexOf(monthSet.charAt(1));
-  let monthStemIndex = Cheongan.indexOf(monthSet.charAt(0));
+  let currentMonthIndex = MONTH_ZHI.indexOf(monthPillar.charAt(1));
+  let monthStemIndex = Cheongan.indexOf(monthPillar.charAt(0));
   const list = [];
   for (let i = 0; i < 10; i++) {
     const age = baseNumber + i * 10;
@@ -361,9 +361,9 @@ function getDaewoonData(birthPlace, gender) {
   return { base: baseNumber, list: list, dayStemRef: dayStemRef };
 }
 
-function getHourStemArithmetic(daySet, hourBranchIndex) {
-  // daySet에서 천간(첫 글자)을 구합니다.
-  const dayStem = getDayStem(daySet);  
+function getHourStemArithmetic(dayPillar, hourBranchIndex) {
+  // dayPillar에서 천간(첫 글자)을 구합니다.
+  const dayStem = getDayStem(dayPillar);  
   const idx = Cheongan.indexOf(dayStem);
   if (idx === -1) return "";
   if ([0, 2, 4, 6, 8].includes(idx)) {
@@ -415,7 +415,7 @@ function getHourBranchUsingArray(dateObj) {
   return null;
 }
 
-function getFourSetsWithDaewoon(year, month, day, hour, minute, birthPlace, gender) {
+function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender) {
 	const originalDate = new Date(year, month - 1, day, hour, minute);
 	const correctedDate = adjustBirthDate(originalDate, birthPlace);
 	const nominalBirthDate = new Date(year, month - 1, day);
@@ -453,52 +453,52 @@ function getFourSetsWithDaewoon(year, month, day, hour, minute, birthPlace, gend
   boundaryDate.setHours(currentBoundary.hour, currentBoundary.minute, 0, 0);
 
   const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
-  let hourDaySet;
+  let hourDayPillar;
   if (hourBranchIndex === 0) {
     if (solarTime < boundaryDate) {
-    hourBranchIndex = 11;
+      hourBranchIndex = 11;
     } else {
-      hourDaySet = getDayGanZhi(nominalBirthDate);
+      hourDayPillar = getDayGanZhi(nominalBirthDate);
     }
   } else if(hourBranchIndex === 1) {
     hourBranchIndex = 1;
   }
 
   if (isInsi && correctedDate.getHours() < 3) {
-    hourDaySet = getDayGanZhi(nominalBirthDatePrev);
+    hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   } else if (hourBranchIndex === 0){
-      hourDaySet = getDayGanZhi(nominalBirthDate);
+    hourDayPillar = getDayGanZhi(nominalBirthDate);
   } else {
-    hourDaySet = getDayGanZhi(nominalBirthDatePrev);
+    hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   }
 
   if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3)){
-      hourDaySet = getDayGanZhi(nominalBirthDatePrev);
+    hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   } else if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() < 24) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
-    hourDaySet = getDayGanZhi(nominalBirthDate);
+    hourDayPillar = getDayGanZhi(nominalBirthDate);
   }
-  const hourStem = getHourStem(hourDaySet, hourBranchIndex);
-  const hourSet = hourStem + Jiji[hourBranchIndex];
+  const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
+  const hourPillar = hourStem + Jiji[hourBranchIndex];
 
-  const yearSet = getYearGanZhi(correctedDate, year);
-  const monthSet = getMonthGanZhi(correctedDate, year);
+  const yearPillar = getYearGanZhi(correctedDate, year);
+  const monthPillar = getMonthGanZhi(correctedDate, year);
 
   if (yajojasi && correctedDate.getHours() >= 24){
-    const daySet = getDayGanZhi(nominalBirthDate);
-    return `${yearSet} ${monthSet} ${daySet} ${hourSet}, ${getDaewoonDataStr(birthPlace, gender)}`;
+    const daypillar = getDayGanZhi(nominalBirthDate);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   } 
     
   if (isJasi && correctedDate.getHours() >= 23){
-    const daySet = getDayGanZhi(nominalBirthDate2);
-    return `${yearSet} ${monthSet} ${daySet} ${hourSet}, ${getDaewoonDataStr(birthPlace, gender)}`;
+    const daypillar = getDayGanZhi(nominalBirthDate2);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   } 
 
   if (isInsi && correctedDate.getHours() < 3){
-    const daySet = getDayGanZhi(nominalBirthDatePrev);
-    return `${yearSet} ${monthSet} ${daySet} ${hourSet}, ${getDaewoonDataStr(birthPlace, gender)}`;
+    const daypillar = getDayGanZhi(nominalBirthDatePrev);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   } else {
-    const daySet = getDayGanZhi(nominalBirthDate);
-    return `${yearSet} ${monthSet} ${daySet} ${hourSet}, ${getDaewoonDataStr(birthPlace, gender)}`;
+    const daypillar = getDayGanZhi(nominalBirthDate);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   }	
 }
 
@@ -750,7 +750,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const solarDate = globalState.correctedBirthDate;
-    const fullResult = getFourSetsWithDaewoon(
+    const fullResult = getFourPillarsWithDaewoon(
       solarDate.getFullYear(),
       solarDate.getMonth() + 1,
       solarDate.getDate(),
@@ -766,10 +766,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const hourPillar  = pillars[3] || "-";
 
     // 원국 기둥 분리
-    const yearSplit  = splitSet(yearPillar);
-    const monthSplit = splitSet(monthPillar);
-    const daySplit   = splitSet(dayPillar);
-    const hourSplit  = splitSet(hourPillar);
+    const yearSplit  = splitPillar(yearPillar);
+    const monthSplit = splitPillar(monthPillar);
+    const daySplit   = splitPillar(dayPillar);
+    const hourSplit  = splitPillar(hourPillar);
 
     const natalChartData = {
       birthDate: birthDate,
@@ -949,7 +949,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
       const sewoonIndex = ((effectiveYear - 4) % 60 + 60) % 60;
       const sewoonGanZhi = sexagenaryCycle[sewoonIndex];
-      const sewoonSplit = splitSet(sewoonGanZhi);
+      const sewoonSplit = splitPillar(sewoonGanZhi);
 
       setText("SwtHanja", stemMapping[sewoonSplit.gan]?.hanja || "-");
       setText("SwtHanguel", stemMapping[sewoonSplit.gan]?.hanguel || "-");
@@ -1015,7 +1015,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (globalState.sewoonStartYear) {
         const computedYear = globalState.sewoonStartYear + (index - 1);
         const yearGanZhi = getYearGanZhiForSewoon(computedYear);
-        const splitYear = splitSet(yearGanZhi);
+        const splitYear = splitPillar(yearGanZhi);
         setText("sewoonDetail", `${computedYear}년 (${splitYear.gan}${splitYear.ji})`);
       }
     }
@@ -1037,7 +1037,7 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let j = 0; j < 10; j++) {
       let sewoonYear = globalState.sewoonStartYear + j;
       let yearGanZhi = getYearGanZhiForSewoon(sewoonYear);
-      const splitYear = splitSet(yearGanZhi);
+      const splitYear = splitPillar(yearGanZhi);
       const tenGod = getTenGodForStem(splitYear.gan, baseDayStemS);
       const tenGodJiji = getTenGodForBranch(splitYear.ji, baseDayStemS);
       sewoonList.push({
@@ -1414,7 +1414,7 @@ document.addEventListener("DOMContentLoaded", function () {
         for (let j = 0; j < 10; j++) {
           let sewoonYear = globalState.sewoonStartYear + j;
           let yearGanZhi = getYearGanZhiForSewoon(sewoonYear);
-          const splitYear = splitSet(yearGanZhi);
+          const splitYear = splitPillar(yearGanZhi);
           const tenGod = getTenGodForStem(splitYear.gan, baseDayStemS);
           const tenGodJiji = getTenGodForBranch(splitYear.ji, baseDayStemS);
           sewoonList.push({
@@ -1477,7 +1477,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const displayedDayPillar = document.getElementById("DtHanguel").innerText;
         const baseDayStemS = displayedDayPillar ? displayedDayPillar.charAt(0) : "-";
         let yearGanZhi = getYearGanZhiForSewoon(computedYear);
-        const splitYear = splitSet(yearGanZhi);
+        const splitYear = splitPillar(yearGanZhi);
         const tenGod = getTenGodForStem(splitYear.gan, baseDayStemS);
         const tenGodJiji = getTenGodForBranch(splitYear.ji, baseDayStemS);
         const selectedSewoon = {
@@ -1774,7 +1774,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('woonArea').style.display = 'none';
         document.getElementById('woonContainer').style.display = 'flex';
         document.getElementById('calArea').style.display = 'block';
-        let daySplit = splitSet(dayPillar), yearSplit = splitSet(yearPillar);
+        let daySplit = splitPillar(dayPillar), yearSplit = splitPillar(yearPillar);
         updateMyowoonSection(myounResult, daySplit, yearSplit);
         myowoonMoreElem.classList.add("active");
         myowoonMoreElem.innerText = "원래 화면으로 가기";
@@ -1805,7 +1805,7 @@ document.addEventListener("DOMContentLoaded", function () {
         adjustedDate = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), adjustedDate.getDate(), 3, 0);
       }
       const dayGanZhi = getDayGanZhi(adjustedDate);
-      const daySplitFuc = splitSet(dayGanZhi);
+      const daySplitFuc = splitPillar(dayGanZhi);
       setText("WDtHanja", stemMapping[daySplitFuc.gan]?.hanja || "-");
       setText("WDtHanguel", stemMapping[daySplitFuc.gan]?.hanguel || "-");
       setText("WDtEumyang", stemMapping[daySplitFuc.gan]?.eumYang || "-");
@@ -1843,7 +1843,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const hourBranch = getHourBranchUsingArray(date);
       const hourBranchIndex = Jiji.indexOf(hourBranch);
       const dayGanZhi = getDayGanZhi(date);
-      const daySplitFuc = splitSet(dayGanZhi);
+      const daySplitFuc = splitPillar(dayGanZhi);
       const baseHourStem = getHourStem(daySplitFuc.gan, hourBranchIndex);
       let idx = Cheongan.indexOf(baseHourStem);
       if (idx === -1) idx = 0;
@@ -1912,6 +1912,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     function updateFortune() {
+      const { year, month, day, hour, minute, gender, birthPlace, time2 } = inputData;
+      const originalDate = new Date(year, month - 1, day, hour, minute);
+      const correctedDate = adjustBirthDate(originalDate, birthPlace);
+      // globalState.correctedBirthDate 대신 로컬 변수 correctedDate를 사용하거나,
+      // 필요하다면 globalState에 저장할 수도 있음.
+      
+      // 원국(사주) 계산 실행
+      const fullResult = getFourPillarsWithDaewoon(
+        correctedDate.getFullYear(),
+        correctedDate.getMonth() + 1,
+        correctedDate.getDate(),
+        hour, minute,
+        birthPlace,
+        gender
+      );
+      
+      // fullResult에서 각 기둥 분리
+      const parts = fullResult.split(", ");
+      const pillarsPart = parts[0] || "-";
+      const pillars = pillarsPart.split(" ");
+      const yearPillar  = pillars[0] || "-";
+      const monthPillar = pillars[1] || "-";
+      const dayPillar   = pillars[2] || "-";
+      const hourPillar  = pillars[3] || "-";
+      
+      // 각 기둥을 분리
+      const yearSplit  = splitPillar(yearPillar);
+      const monthSplit = splitPillar(monthPillar);
+      const daySplit   = splitPillar(dayPillar);
+      const hourSplit  = splitPillar(hourPillar);
+      const baseDayStem = globalState.originalDayStem;
       updateStemInfo("Yt", yearSplit, baseDayStem);
       updateStemInfo("Mt", monthSplit, baseDayStem);
       updateStemInfo("Dt", daySplit, baseDayStem);
