@@ -774,22 +774,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const daySplit   = splitPillar(dayPillar);
     const hourSplit  = splitPillar(hourPillar);
 
-    // const natalChartData = {
-    //   birthDate: birthDate,
-    //   yearPillar: yearPillar,
-    //   monthPillar: monthPillar,
-    //   dayPillar: dayPillar,   
-    //   hourPillar: hourPillar
-    // };
-
-    // const BirthDateObj = new Date(
-    //   birthDate.getFullYear(),
-    //   birthDate.getMonth(),
-    //   birthDate.getDate(),
-    //   birthDate.getHours(),
-    //   birthDate.getMinutes()
-    // );
-
     const birthYearPillar = yearPillar;
 
     const baseDayStem = daySplit.gan; // 원국 일간
@@ -1625,10 +1609,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // getMyounPillars: 원국(출생)과 동적 운세(묘운)를 분리하여 계산
     function getMyounPillars(gender, refDate) {
       // staticBirth: 원국 계산용(출생일), dynamicBirth: picker에서 선택한 날짜가 있으면 사용
-      const staticBirth = birthDate;
+      const staticBirth = correctedDate;
       
-      // 동적 계산 기준: dynamicBirth 사용
-      const thisYearIpchun = findSolarTermDate(staticBirth.getFullYear(), 315);
+      // 동적 계산 기준: dynamicBirth 사용;
       const jeolgi = getSolarTermBoundaries(staticBirth.getFullYear());
       let targetSolarTerm;
       if (woljuMode === "역행") {
@@ -1653,19 +1636,20 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // ============== 시주/일주/월주/연주 오프셋 계산 함수들 수정 ==============
-
-      // (A) 시주 동적 오프셋 계산 함수는 그대로 사용
-      function calculateSijuOffsetDynamic(birth, mode) {
-        const h = birth.getHours(); 
+      const birthDate = globalState.correctedBirthDate;
+      // (A) 시주 동적 오프셋 계산 함수 (보정시(corrected)를 기준으로)
+      function calculateSijuOffsetDynamic(birthDate, mode) {
+        // birthDate: 보정시(예: birthDateDate)
+        const h = birthDate.getHours(); 
         let nextOrPrevBlockHour = findNextOrPrevBlock(h, mode);
-        let base = new Date(birth);
+        let base = new Date(birthDate);
 
         if (mode === "순행") {
           if (nextOrPrevBlockHour <= h) {
             base.setDate(base.getDate() + 1); 
           }
           base.setHours(nextOrPrevBlockHour, 0, 0, 0);
-          if (base <= birth) {
+          if (base <= birthDate) {
             base.setHours(base.getHours() + 2);
           }
         } else {
@@ -1673,31 +1657,21 @@ document.addEventListener("DOMContentLoaded", function () {
             base.setDate(base.getDate() - 1);
           }
           base.setHours(nextOrPrevBlockHour, 0, 0, 0);
-          if (base >= birth) {
+          if (base >= birthDate) {
             base.setHours(base.getHours() - 2);
           }
         }
-        const diffMinutes = Math.abs(base - birth) / (60 * 1000);
-        const ratio = diffMinutes / 120; // 2시간=120분 대비 %
+        // 차이를 분 단위로 계산
+        let diffMinutes = Math.abs(base - birthDate) / (60 * 1000);
+        // 0.5분(반 분) 단위로 반올림
+        diffMinutes = Math.round(diffMinutes * 2) / 2;
+        const ratio = diffMinutes / 120; // 2시간=120분 대비 비율
         return ratio * sijuCycle;       // sijuCycle=10 (10일)
       }
 
-      function findNextOrPrevBlock(h, mode) {
-        const sortedBlocks = [1,3,5,7,9,11,13,15,17,19,21,23];
-        if (mode === "순행") {
-          const bigger = sortedBlocks.filter(x => x > h);
-          return (bigger.length === 0) ? sortedBlocks[0] : bigger[0];
-        } else {
-          const smaller = sortedBlocks.filter(x => x < h);
-          return (smaller.length === 0)
-            ? sortedBlocks[sortedBlocks.length - 1]
-            : smaller[smaller.length - 1];
-        }
-      }
-
-      // (B) 일주, (C) 월주, (D) 연주 계산 함수는 그대로 사용합니다.
-      function calculateIljuOffsetDynamic(birth, mode) {
-        let baseTime = new Date(birth);
+      // (B) 일주 동적 오프셋 계산 함수 (보정시 기준)
+      function calculateIljuOffsetDynamic(birthDate, mode) {
+        let baseTime = new Date(birthDate);
         const jasiElem = document.getElementById("jasi");
         const yajojasiElem = document.getElementById("yajojasi");
         const insiElem = document.getElementById("insi");
@@ -1711,68 +1685,80 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (mode === "순행") {
-          if (birth >= baseTime) {
+          if (birthDate >= baseTime) {
             baseTime.setDate(baseTime.getDate() + 1);
           }
-          const diffHours = (baseTime - birth) / (60 * 60 * 1000);
-          return (diffHours / 24) * iljuCycle; // iljuCycle=121.6
+          // 시간 차이를 시간 단위로 구한 후 분으로 변환
+          let diffHours = (baseTime - birthDate) / (60 * 60 * 1000);
+          let diffMinutes = diffHours * 60;
+          // 0.5분 단위 반올림
+          diffMinutes = Math.round(diffMinutes * 2) / 2;
+          diffHours = diffMinutes / 60;
+          const ratio = diffHours / 24; // 하루(24시간) 대비 비율
+          return ratio * iljuCycle;      // iljuCycle=121.6
         } else {
-          if (birth < baseTime) {
+          if (birthDate < baseTime) {
             baseTime.setDate(baseTime.getDate() - 1);
           }
-          const diffHours = (birth - baseTime) / (60 * 60 * 1000);
-          return (diffHours / 24) * iljuCycle;
+          let diffHours = (birthDate - baseTime) / (60 * 60 * 1000);
+          let diffMinutes = diffHours * 60;
+          diffMinutes = Math.round(diffMinutes * 2) / 2;
+          diffHours = diffMinutes / 60;
+          const ratio = diffHours / 24;
+          return ratio * iljuCycle;
         }
       }
 
-      function calculateWoljuOffsetDynamic(birth, term, mode) {
+      // (C) 월주 동적 오프셋 계산 함수 (보정시 기준)
+      // term: 태양절기 경계 정보 객체 (예: term.date)
+      function calculateWoljuOffsetDynamic(birthDate, term, mode) {
         let baseTerm;
         if (mode === "순행") {
-          baseTerm = (birth < term.date)
+          baseTerm = (birthDate < term.date)
             ? term.date
             : new Date(
-                birth.getFullYear() + 1,
+                birthDate.getFullYear() + 1,
                 term.date.getMonth(),
                 term.date.getDate(),
                 term.date.getHours(),
                 term.date.getMinutes()
               );
-          const diffDays = (baseTerm - birth) / oneDayMs;
-          return (diffDays / 30.4) * woljuCycle; // woljuCycle=3652.4
         } else {
-          baseTerm = (birth >= term.date)
+          baseTerm = (birthDate >= term.date)
             ? term.date
             : new Date(
-                birth.getFullYear() - 1,
+                birthDate.getFullYear() - 1,
                 term.date.getMonth(),
                 term.date.getDate(),
                 term.date.getHours(),
                 term.date.getMinutes()
               );
-          const diffDays = (birth - baseTerm) / oneDayMs;
-          return (diffDays / 30.4) * woljuCycle;
+        }
+        const diffDays = Math.abs(baseTerm - birthDate) / oneDayMs;
+        return (diffDays / 30.4) * woljuCycle; // woljuCycle=3652.4
+      }
+
+      // (D) 연주 동적 오프셋 계산 함수 (보정시 기준)
+      function calculateYeonjuOffsetDynamic(birthDate, mode) {
+        // 보정시(birthDate)를 기준으로 입춘을 계산
+        const thisYearIpchun = findSolarTermDate(birthDate.getFullYear(), 315);
+        if (mode === "순행") {
+          // birthDate가 올해 입춘 이전이면 올해 입춘, 이후면 다음 해 입춘 사용
+          const targetIpchun = (birthDate < thisYearIpchun)
+            ? thisYearIpchun
+            : findSolarTermDate(birthDate.getFullYear() + 1, 315);
+          const diffDays = Math.abs(targetIpchun - birthDate) / oneDayMs;
+          return Math.round((diffDays / 365.24) * yeonjuCycle * 1000) / 1000;
+        } else { // 역행
+          // 역행에서는 birthDate가 올해 입춘 이전이면 지난 해 입춘, 이후면 올해 입춘 사용
+          const targetIpchun = (birthDate < thisYearIpchun)
+            ? findSolarTermDate(birthDate.getFullYear() - 1, 315)
+            : thisYearIpchun;
+          const diffDays = Math.abs(birthDate - targetIpchun) / oneDayMs;
+          return Math.round((diffDays / 365.24) * yeonjuCycle * 1000) / 1000;
         }
       }
 
-      function calculateYeonjuOffsetDynamic(birth, mode) {
-        if (mode === "순행") {
-          
-          // birth가 올해 입춘 이전이면 올해 입춘, 이후면 다음 해 입춘을 사용
-          const targetIpchun = (birth < thisYearIpchun)
-            ? thisYearIpchun
-            : findSolarTermDate(birth.getFullYear() + 1, 315);
-          const diffDays = (targetIpchun - birth) / oneDayMs;
-          return Math.round((diffDays / 365.24) * yeonjuCycle * 1000) / 1000;
-        } else { // 역행
-          
-          // 역행에서는 birth가 올해 입춘 이전이면 '지난 해 입춘'을, 이후면 '올해 입춘'을 기준으로 함
-          const targetIpchun = (birth < thisYearIpchun)
-            ? findSolarTermDate(birth.getFullYear() - 1, 315)
-            : thisYearIpchun;
-          const diffDays = (birth - targetIpchun) / oneDayMs;
-          return Math.round((diffDays / 365.24) * yeonjuCycle * 1000) / 1000;
-        }
-      }
       
       // 동적 후보 시각 계산 (모든 계산에 dynamicBirth 사용)
       let newSijuFirst  = new Date(staticBirth.getTime() + calculateSijuOffsetDynamic(staticBirth, sijuMode) * oneDayMs);
