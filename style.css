@@ -522,6 +522,7 @@
     width: 100%;
     height: 50px;
     padding: 0 10px;
+    
   }
 
   .red { color: #E40101 !important; }
@@ -851,6 +852,7 @@
       color: #353535;
       background-color: #fff;
       padding: 0 2.4vw;
+      font-size: 3.6vw;
     }
 
     .check_option li span {
