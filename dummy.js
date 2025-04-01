@@ -1609,7 +1609,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function getMyounPillars(gender, refDate) {
       // staticBirth: 원국 계산용(출생일), dynamicBirth: picker에서 선택한 날짜가 있으면 사용
       const staticBirth = correctedDate;
-      console.log(staticBirth);
       
       // 동적 계산 기준: dynamicBirth 사용;
       const jeolgi = getSolarTermBoundaries(staticBirth.getFullYear());
