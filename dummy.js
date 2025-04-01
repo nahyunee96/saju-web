@@ -713,7 +713,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let day    = parseInt(birthdayStr.substring(6, 8));
     let hour   = parseInt(birthtimeStr.substring(0, 2), 10);
     let minute = parseInt(birthtimeStr.substring(2, 4), 10);
-    const birthDate = new Date(year, month - 1, day, hour, minute);
+    let birthDate = new Date(year, month - 1, day, hour, minute);
 
     // 음력/양력 변환
     const monthType = document.getElementById("monthType").value;
@@ -1543,7 +1543,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 상수 및 날짜 관련 함수
     const oneDayMs = 24 * 60 * 60 * 1000;
-    const oneMinuteMs = 60 * 1000;
 
     function getSolarYearSpanInDays(birthDate, years) {
       const endDate = new Date(birthDate);
@@ -1610,6 +1609,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function getMyounPillars(gender, refDate) {
       // staticBirth: 원국 계산용(출생일), dynamicBirth: picker에서 선택한 날짜가 있으면 사용
       const staticBirth = correctedDate;
+      console.log(staticBirth);
       
       // 동적 계산 기준: dynamicBirth 사용;
       const jeolgi = getSolarTermBoundaries(staticBirth.getFullYear());
@@ -1636,7 +1636,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // ============== 시주/일주/월주/연주 오프셋 계산 함수들 수정 ==============
-      const birthDate = globalState.correctedBirthDate;
+      birthDate = globalState.correctedBirthDate;
       // (A) 시주 동적 오프셋 계산 함수 (보정시(corrected)를 기준으로)
       function calculateSijuOffsetDynamic(birthDate, mode) {
         // birthDate: 보정시(예: birthDateDate)
