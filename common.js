@@ -75,7 +75,7 @@ function getEquationOfTime(dateObj) {
 
 function adjustBirthDate(dateObj, birthPlace) {
   const cityLongitude = cityLongitudes[birthPlace] || cityLongitudes["서울특별시"];
-  const longitudeCorrection = Math.round((cityLongitude - 135.1) * 4);
+  const longitudeCorrection = (cityLongitude - 135.1) * 4;
   const eqTime = getEquationOfTime(dateObj);
   let correctedTime = new Date(dateObj.getTime() + (longitudeCorrection + eqTime) * 60000);
   const summerInterval = getSummerTimeInterval(correctedTime.getFullYear());
@@ -304,20 +304,70 @@ const branchMapping = {
   "해": { hanja: "亥", hanguel: "해수", eumYang: "음(양)" }
 };
 
+// 120년 평균값을 구하는 함수 (이미 있으신 get120YearAverages)
+function get120YearAverages(birthDate) {
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  const endDate = new Date(birthDate.getTime());
+  endDate.setFullYear(endDate.getFullYear() + 120);
+  const totalDays = (endDate - birthDate) / oneDayMs;
+  const averageYear = totalDays / 120;
+  const averageMonth = averageYear / 12;
+  const averageDecade = averageYear * 10;
+  return { totalDays, averageYear, averageMonth, averageDecade };
+}
+
+// 2611.8830583333333일을 년,월,일,시,분,초로 변환하는 함수 (예시)
+function convertDaysToYMDHMS(totalDays, avgYear, avgMonth) {
+  const years = Math.floor(totalDays / avgYear);
+  let remainderDays = totalDays - years * avgYear;
+  const months = Math.floor(remainderDays / avgMonth);
+  remainderDays -= months * avgMonth;
+  const days = Math.floor(remainderDays);
+  const fractionDay = remainderDays - days;
+  const hours = Math.floor(fractionDay * 24);
+  const minutes = Math.floor((fractionDay * 24 - hours) * 60);
+  const seconds = Math.floor((((fractionDay * 24) - hours) * 60 - minutes) * 60);
+  return { years, months, days, hours, minutes, seconds };
+}
+
+// 해당 년도가 윤년인지 판별
+function isLeapYear(year) {
+  return (year % 400 === 0) || (year % 4 === 0 && year % 100 !== 0);
+}
+
+// 해당 년도의 일수를 계산 (윤년이면 366일, 아니면 365일)
+function getDaysInYear(year) {
+  return isLeapYear(year) ? 366 : 365;
+}
+
+const oneDayMs = 24 * 60 * 60 * 1000;
+
+function getDecimalBirthYear(birthDate) {
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  const startOfYear = new Date(birthDate.getFullYear(), 0, 1);
+  const diffDays = (birthDate - startOfYear) / oneDayMs;
+  // 해당 연도의 전체 일수 (윤년 여부 반영)
+  const totalDays = isLeapYear(birthDate.getFullYear()) ? 366 : 365;
+  return birthDate.getFullYear() + diffDays / totalDays;
+}
+
+// getDaewoonData 함수 수정 예제 (대운 데이터 계산 부분)
 function getDaewoonData(birthPlace, gender) {
   const birthDate = globalState.correctedBirthDate;
   const originalDate = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
   const correctedDate = adjustBirthDate(originalDate, birthPlace);
   const inputYear = globalState.correctedBirthDate.getFullYear();
   const ipChunForSet = findSolarTermDate(inputYear, 315);
-  //const ipChunForSet = findSolarTermDate(birthDate.getFullYear(), 315);
   const effectiveYearForSet = (originalDate < ipChunForSet) ? inputYear - 1 : inputYear;
   const effectiveYearForDaewoon = inputYear;
+  
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
   const dayStemRef = getDayGanZhi(correctedDate).charAt(0);
   const isYang = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
   const isForward = (gender === "남" && isYang) || (gender === "여" && !isYang);
+  
+  // 절기 배열 계산 (전년도, 해당년도, 다음년도 포함)
   const currentSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon);
   const previousSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon - 1);
   const nextSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon + 1);
@@ -335,32 +385,90 @@ function getDaewoonData(birthPlace, gender) {
     targetTerm = isForward ? allTerms[0] : allTerms[allTerms.length - 1];
   }
   
-  const daysDiff = isForward
-    ? Math.round((targetTerm.date - correctedDate) / (1000 * 60 * 60 * 24))
-    : Math.round((correctedDate - targetTerm.date) / (1000 * 60 * 60 * 24));
-
-  const baseNumber = Math.max(1, Math.round(daysDiff / 3));
+  // 두 날짜 사이의 차이를 일 단위로 계산
   
-  let currentMonthIndex = MONTH_ZHI.indexOf(monthPillar.charAt(1));
-  let monthStemIndex = Cheongan.indexOf(monthPillar.charAt(0));
+  const diffDays = (isForward)
+    ? (targetTerm.date.getTime() - correctedDate.getTime()) / oneDayMs
+    : (correctedDate.getTime() - targetTerm.date.getTime()) / oneDayMs;
+  console.log("daysDiff:", diffDays.toFixed(10));
+
+  // 2. 120년 평균 데이터를 보정된 시각(correctedDate)을 기준으로 구합니다.
+  const avgData = get120YearAverages(correctedDate);
+  console.log("avgData.averageYear:", avgData.averageYear.toFixed(10));
+  console.log("avgData.averageMonth:", avgData.averageMonth.toFixed(10));
+  console.log("avgData.averageDecade:", avgData.averageDecade.toFixed(10));
+
+  // 3. '치환' 로직: 대운수(년)를 계산
+  //    rawYears = diffDays * (10 / 평균한달길이)
+  const rawYears = diffDays * (10.24 / avgData.averageMonth);
+  console.log("rawYears (대운수, 년):", rawYears.toFixed(10));
+  console.log("평균 1년 (일):", avgData.averageYear.toFixed(6));
+  console.log("평균 1개월 (일):", avgData.averageMonth.toFixed(6));
+  console.log("평균 10년 (일):", avgData.averageDecade.toFixed(6));
+
+  // 1) 년도(정수) 추출
+  const years = Math.floor(rawYears / avgData.averageYear);
+
+  // 2) 남은 일수 계산 (년 단위 소숫점 이하)
+  const leftoverAfterYears = rawYears - years * avgData.averageYear;
+
+  // 3) 남은 일수를 평균 월 길이로 나눠 개월수(정수) 계산
+  const months = Math.floor(leftoverAfterYears / avgData.averageMonth);
+
+  // 4) 남은 일수 계산 (월 단위 소숫점 이하)
+  const leftoverAfterMonths = leftoverAfterYears - months * avgData.averageMonth;
+  const days = Math.floor(leftoverAfterMonths);
+
+  // 5) 남은 일의 소숫점 부분을 시간, 분, 초로 분해
+  const fractionDay = leftoverAfterMonths - days;
+  const totalHours = fractionDay * 24;
+  const hours = Math.floor(totalHours);
+  const fractionHour = totalHours - hours;
+  const totalMinutes = fractionHour * 60;
+  const minutes = Math.floor(totalMinutes);
+  const fractionMinute = totalMinutes - minutes;
+  
+  // 이제 rawYears를 기반으로 각 대운의 세부 분해 데이터를 계산
   const list = [];
   for (let i = 0; i < 10; i++) {
-    const age = baseNumber + i * 10;
-    const nextMonthIndex = isForward
-      ? (currentMonthIndex + i + 1) % 12
-      : (currentMonthIndex - (i + 1) + 12) % 12;
-
-    const nextStemIndex = isForward
-      ? (monthStemIndex + i + 1) % 10
-      : (monthStemIndex - (i + 1) + 10) % 10;
+    // 각 대운은 rawYears + 10*i (대운은 10년 주기로 증가)
+    const totalAge = rawYears + i * 10;
+    
+    // 정수부와 소숫점부 분리
+    const integerYear = Math.floor(totalAge);
+    const fractionYear = totalAge - integerYear;
+    
+    // 소숫점부(년)를 실제 일수로 변환
+    const leftoverDays = fractionYear * avgData.averageYear;
+    // leftoverDays를 년,월,일,시간,분,초로 분해
+    const breakdown = convertDaysToYMDHMS(leftoverDays, avgData.averageYear, avgData.averageMonth);
+    
     list.push({
-      age: age,
-      stem: Cheongan[nextStemIndex],
-      branch: MONTH_ZHI[nextMonthIndex]
+      // 내부 계산용 대운수 (소숫점 포함)
+      age: totalAge,
+      fractionData: {
+        yearInteger: integerYear,
+        months: breakdown.months,
+        days: breakdown.days,
+        hours: breakdown.hours,
+        minutes: breakdown.minutes,
+        seconds: breakdown.seconds
+      },
+      // 대운 월주의 간지는 기존 방식으로 계산 (예: 원국 월주의 연산)
+      stem: Cheongan[(Cheongan.indexOf(monthPillar.charAt(0)) + i + 1) % 10],
+      branch: MONTH_ZHI[(MONTH_ZHI.indexOf(monthPillar.charAt(1)) + i + 1) % 12]
     });
   }
   
-  return { base: baseNumber, list: list, dayStemRef: dayStemRef };
+  // 콘솔로 대운 리스트 전체 출력 (소숫점 포함)
+  console.log("대운 데이터 (rawYears, 분해 데이터):");
+  list.forEach((item, index) => {
+    console.log(`대운 ${index + 1}: ${item.age.toFixed(4)}년 → 정수: ${item.fractionData.yearInteger}년, ` +
+      `+ ${item.fractionData.months}개월, ${item.fractionData.days}일, ` +
+      `${item.fractionData.hours}시간, ${item.fractionData.minutes}분, ${item.fractionData.seconds}초`);
+  });
+  
+  return { base: rawYears, list: list, dayStemRef: dayStemRef };
 }
 
 function getHourStemArithmetic(dayPillar, hourBranchIndex) {
@@ -417,9 +525,17 @@ function getHourBranchUsingArray(dateObj) {
   return null;
 }
 
+function getEffectiveYearForSet(dateObj) {
+  // 해당 연도의 입춘(315°)을 구합니다.
+  const ipChun = findSolarTermDate(dateObj.getFullYear(), 315);
+  // 생일이 입춘 전이면 전년도, 이후면 해당 연도로 결정
+  return (dateObj < ipChun) ? dateObj.getFullYear() - 1 : dateObj.getFullYear();
+}
+
 function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender) {
 	const originalDate = new Date(year, month - 1, day, hour, minute);
 	const correctedDate = adjustBirthDate(originalDate, birthPlace);
+  const effectiveYearForSet = getEffectiveYearForSet(correctedDate);
 	const nominalBirthDate = new Date(year, month - 1, day);
   const nominalBirthDate2 = new Date(year, month - 1, day + 1);
 	const nominalBirthDatePrev = new Date(year, month - 1, day - 1);
@@ -482,8 +598,8 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
   const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
   const hourPillar = hourStem + Jiji[hourBranchIndex];
 
-  const yearPillar = getYearGanZhi(correctedDate, year);
-  const monthPillar = getMonthGanZhi(correctedDate, year);
+  const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
+  const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
 
   if (yajojasi && correctedDate.getHours() >= 24){
     const daypillar = getDayGanZhi(nominalBirthDate);
@@ -847,38 +963,37 @@ document.addEventListener("DOMContentLoaded", function () {
     updateOriginalSetMapping();
     updateColorClasses();
 
+    globalState.daewoonData = getDaewoonData(birthPlace, gender);
     function updateCurrentDaewoon() {
-      const birthDateObj = new Date(year, month - 1, day);
-      const today = new Date();
-      let currentAge = today.getFullYear() - birthDateObj.getFullYear();
-      if (today.getMonth() < birthDateObj.getMonth() ||
-         (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate())) {
-        currentAge--;
+      let activeDaewoonLi = document.querySelector("[id^='daewoon_'].active");
+      let daewoonIndex = activeDaewoonLi ? parseInt(activeDaewoonLi.getAttribute("data-index"), 10) : 1;
+      if (!globalState.birthYear || !globalState.daewoonData) {
+        alert("먼저 계산 버튼을 눌러 출생 정보를 입력하세요.");
+        return;
       }
-      const daewoonData = getDaewoonData(birthPlace, gender);
-      let currentDaewoon = null;
-      for (let i = 0; i < daewoonData.list.length; i++) {
-        if (daewoonData.list[i].age <= currentAge) {
-          currentDaewoon = daewoonData.list[i];
-        }
-      }
-      if (!currentDaewoon) {
-        currentDaewoon = daewoonData.list[0] || { stem: "-", branch: "-" };
-      }
-      setText("DwtHanja", stemMapping[currentDaewoon.stem]?.hanja || "-");
-      setText("DwtHanguel", stemMapping[currentDaewoon.stem]?.hanguel || "-");
-      setText("DwtEumyang", stemMapping[currentDaewoon.stem]?.eumYang || "-");
-      setText("Dwt10sin", getTenGodForStem(currentDaewoon.stem, baseDayStem));
-      setText("DwbHanja", branchMapping[currentDaewoon.branch]?.hanja || "-");
-      setText("DwbHanguel", branchMapping[currentDaewoon.branch]?.hanguel || "-");
-      setText("DwbEumyang", branchMapping[currentDaewoon.branch]?.eumYang || "-");
-      setText("Dwb10sin", getTenGodForBranch(currentDaewoon.branch, baseDayStem));
-      const hiddenArr = hiddenStemMapping[currentDaewoon.branch] || ["-", "-", "-"];
+
+      const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
+      const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
+      if (!selectedDaewoon) return;
+      const daewoonNum = selectedDaewoon.age; 
+      const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
+      globalState.sewoonStartYear = Math.round(sewoonStartYearDecimal);
+    
+      // 나머지 UI 업데이트 (대운 관련) — 기존 코드는 그대로 유지합니다.
+      setText("DwtHanja", stemMapping[selectedDaewoon.stem]?.hanja || "-");
+      setText("DwtHanguel", stemMapping[selectedDaewoon.stem]?.hanguel || "-");
+      setText("DwtEumyang", stemMapping[selectedDaewoon.stem]?.eumYang || "-");
+      setText("Dwt10sin", getTenGodForStem(selectedDaewoon.stem, baseDayStem));
+      setText("DwbHanja", branchMapping[selectedDaewoon.branch]?.hanja || "-");
+      setText("DwbHanguel", branchMapping[selectedDaewoon.branch]?.hanguel || "-");
+      setText("DwbEumyang", branchMapping[selectedDaewoon.branch]?.eumYang || "-");
+      setText("Dwb10sin", getTenGodForBranch(selectedDaewoon.branch, baseDayStem));
+      const hiddenArr = hiddenStemMapping[selectedDaewoon.branch] || ["-", "-", "-"];
       setText("DwJj1", hiddenArr[0]);
       setText("DwJj2", hiddenArr[1]);
       setText("DwJj3", hiddenArr[2]);
-      setText("DWb12ws", getTwelveUnseong(baseDayStem, currentDaewoon.branch));
-      setText("DWb12ss", getTwelveShinsal(baseYearBranch, currentDaewoon.branch));
+      setText("DWb12ws", getTwelveUnseong(baseDayStem, selectedDaewoon.branch));
+      setText("DWb12ss", getTwelveShinsal(baseYearBranch, selectedDaewoon.branch));
     }
     updateCurrentDaewoon();
     updateMonthlyWoonByToday(new Date());
@@ -895,7 +1010,14 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("db10sin" + idx, getTenGodForBranch(finalBranch, baseDayStem) || "-");
       setText("DwW" + idx, "-");
       setText("Ds" + idx, "-");
-      setText("Da" + idx, item.age);
+      
+      // 내부 계산된 대운수(item.age)는 소숫점 4자리까지 유지되지만,
+      // UI에는 정수로 보이도록 반올림해서 출력하려면:
+      const displayedDaewoonNum = Math.floor(item.age);
+      setText("Da" + idx, displayedDaewoonNum);
+      
+      // 만약 계산된 소숫점 값을 그대로 출력하고 싶다면:
+      // setText("Da" + idx, item.age.toFixed(4));
     }
     for (let i = 0; i < 10; i++) {
       updateDaewoonItem(i, globalState.daewoonData.list[i]);
@@ -1005,11 +1127,13 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("먼저 계산 버튼을 눌러 출생 정보를 입력하세요.");
       return;
     }
+
+    const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
     const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
     if (!selectedDaewoon) return;
-    const daewoonNum = selectedDaewoon.age;
-    const sewoonStartYear = globalState.birthYear + (daewoonNum - 1);
-    globalState.sewoonStartYear = sewoonStartYear;
+    const daewoonNum = selectedDaewoon.age; 
+    const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
+    globalState.sewoonStartYear = Math.round(sewoonStartYearDecimal);
     const displayedDayPillar = document.getElementById("DtHanguel").innerText;
     const baseDayStemS = displayedDayPillar ? displayedDayPillar.charAt(0) : "-";
     const sewoonList = [];
@@ -1384,11 +1508,12 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("먼저 계산 버튼을 눌러 출생 정보를 입력하세요.");
           return;
         }
+        const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
         const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
         if (!selectedDaewoon) return;
-        const daewoonNum = selectedDaewoon.age;
-        const sewoonStartYear = globalState.birthYear + (daewoonNum - 1);
-        globalState.sewoonStartYear = sewoonStartYear;
+        const daewoonNum = selectedDaewoon.age; 
+        const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
+        globalState.sewoonStartYear = Math.round(sewoonStartYearDecimal);
         const displayedDayPillar = document.getElementById("DtHanguel").innerText;
         const baseDayStemS = displayedDayPillar ? displayedDayPillar.charAt(0) : "-";
         const sewoonList = [];
@@ -1542,7 +1667,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // 상수 및 날짜 관련 함수
-    const oneDayMs = 24 * 60 * 60 * 1000;
+    
 
     function getSolarYearSpanInDays(birthDate, years) {
       const endDate = new Date(birthDate);
@@ -1623,58 +1748,106 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      function findNextOrPrevBlock(h, mode) {
-        const sortedBlocks = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23];
-        if (mode === "순행") {
-          const bigger = sortedBlocks.filter(x => x > h);
-          return (bigger.length === 0) ? sortedBlocks[0] : bigger[0];
-        } else { // 역행
-          const smaller = sortedBlocks.filter(x => x < h);
-          return (smaller.length === 0) ? sortedBlocks[sortedBlocks.length - 1] : smaller[smaller.length - 1];
-        }
-      }
-
       // ============== 시주/일주/월주/연주 오프셋 계산 함수들 수정 ==============
       birthDate = globalState.correctedBirthDate;
       // (A) 시주 동적 오프셋 계산 함수 (보정시(corrected)를 기준으로)
+      function round4(num) {
+        return Math.round((num * 10000)) / 10000;
+      }
+      
       function calculateSijuOffsetDynamic(birthDate, mode) {
-        // birthDate: 보정시(예: birthDateDate)
-        const h = birthDate.getHours(); 
-        let nextOrPrevBlockHour = findNextOrPrevBlock(h, mode);
-        let base = new Date(birthDate);
-
-        if (mode === "순행") {
-          if (nextOrPrevBlockHour <= h) {
-            base.setDate(base.getDate() + 1); 
-          }
-          base.setHours(nextOrPrevBlockHour, 0, 0, 0);
-          if (base <= birthDate) {
-            base.setHours(base.getHours() + 2);
-          }
-        } else {
-          if (nextOrPrevBlockHour > h) {
-            base.setDate(base.getDate() - 1);
-          }
-          base.setHours(nextOrPrevBlockHour, 0, 0, 0);
-          if (base >= birthDate) {
-            base.setHours(base.getHours() - 2);
+        const sijuCycle = 10;         // 시주 주기 (10일)
+        const totalMinutes = 1440;     // 하루 전체 분 (1440분)
+        const blockLength = 120;       // 각 2시간 블록의 분 (120분)
+        
+        // 생시의 분 단위 값 계산
+        const birthMinutes = birthDate.getHours() * 60 + birthDate.getMinutes();
+        
+        // 2시간 단위 블록 배열 (자정을 넘는 블록 포함)
+        const blocks = [
+          { start: 23 * 60, end: 1 * 60 },   // 23:00 ~ 01:00
+          { start: 1 * 60,  end: 3 * 60 },    // 01:00 ~ 03:00
+          { start: 3 * 60,  end: 5 * 60 },    // 03:00 ~ 05:00
+          { start: 5 * 60,  end: 7 * 60 },    // 05:00 ~ 07:00
+          { start: 7 * 60,  end: 9 * 60 },    // 07:00 ~ 09:00
+          { start: 9 * 60,  end: 11 * 60 },   // 09:00 ~ 11:00
+          { start: 11 * 60, end: 13 * 60 },   // 11:00 ~ 13:00
+          { start: 13 * 60, end: 15 * 60 },   // 13:00 ~ 15:00
+          { start: 15 * 60, end: 17 * 60 },   // 15:00 ~ 17:00
+          { start: 17 * 60, end: 19 * 60 },   // 17:00 ~ 19:00
+          { start: 19 * 60, end: 21 * 60 },   // 19:00 ~ 21:00
+          { start: 21 * 60, end: 23 * 60 }    // 21:00 ~ 23:00
+        ];
+        
+        // 현재 생시가 속한 블록 찾기
+        let block = null;
+        for (let i = 0; i < blocks.length; i++) {
+          const b = blocks[i];
+          if (b.start < b.end) {
+            if (birthMinutes >= b.start && birthMinutes < b.end) {
+              block = b;
+              break;
+            }
+          } else {
+            // 자정을 넘는 경우
+            if (birthMinutes >= b.start || birthMinutes < b.end) {
+              block = b;
+              break;
+            }
           }
         }
-        // 차이를 분 단위로 계산
-        let diffMinutes = Math.abs(base - birthDate) / (60 * 1000);
-        // 0.5분(반 분) 단위로 반올림
-        diffMinutes = Math.round(diffMinutes * 2) / 2;
-        const ratio = diffMinutes / 120; // 2시간=120분 대비 비율
-        return ratio * sijuCycle;       // sijuCycle=10 (10일)
+        if (!block) block = blocks[0];
+        
+        let ratio;
+        if (mode === "순행") {
+          // 순행: 생시부터 블록 끝까지 남은 분 차이
+          let diff = block.end - birthMinutes;
+          if (diff < 0) diff += totalMinutes;
+          ratio = diff / blockLength;
+        } else { // 역행 모드
+          // 역행: 블록 시작부터 생시까지의 분 차이
+          let diff = birthMinutes - block.start;
+          if (diff < 0) diff += totalMinutes;
+          ratio = diff / blockLength;
+        }
+        
+        // 내부 계산 단계에서 4자리 반올림 적용
+        ratio = round4(ratio);
+        const offset = round4(ratio * sijuCycle);
+        
+        console.log("[Siju] birthMinutes:", birthMinutes);
+        console.log("[Siju] block.start:", block.start, "block.length:", blockLength);
+        console.log("[Siju] ratio:", ratio.toFixed(4));
+        console.log("[Siju] 시주 오프셋 (일수):", offset.toFixed(4));
+        
+        return Number(offset.toFixed(4));
       }
 
-      // (B) 일주 동적 오프셋 계산 함수 (보정시 기준)
+      function getDynamicIljuCycle(birthDate) {
+        const startDate = new Date(birthDate);
+        const endDate = new Date(birthDate);
+        endDate.setFullYear(birthDate.getFullYear() + 120);
+        const totalDays = (endDate - startDate) / oneDayMs;
+        const totalMonths = 120 * 12; // 1440개월
+        const avgMonthLength = totalDays / totalMonths;
+        const cycle = avgMonthLength * 4;
+        console.log("[getDynamicIljuCycle] totalDays:", totalDays.toFixed(4),
+                    "totalMonths:", totalMonths,
+                    "avgMonthLength:", avgMonthLength.toFixed(4),
+                    "4개월치 주기:", cycle.toFixed(4), "일");
+        return cycle;
+      }
+      
+      
+      // 일주 오프셋(일수)을 동적으로 산출하는 함수
+      // mode: "순행" 또는 "역행"
       function calculateIljuOffsetDynamic(birthDate, mode) {
-        let baseTime = new Date(birthDate);
+        // 1. baseTime 결정: 체크박스 상태에 따라 당일 목표 시각 설정
+        let baseTime = new Date(birthDate);  
         const jasiElem = document.getElementById("jasi");
         const yajojasiElem = document.getElementById("yajojasi");
         const insiElem = document.getElementById("insi");
-
+      
         if (jasiElem && jasiElem.checked) {
           baseTime.setHours(23, 0, 0, 0);
         } else if (yajojasiElem && yajojasiElem.checked) {
@@ -1682,87 +1855,198 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (insiElem && insiElem.checked) {
           baseTime.setHours(3, 0, 0, 0);
         }
-
+        console.log("[calculateIljuOffsetDynamic] baseTime:", baseTime.toLocaleString());
+      
+        // 2. 동적 일주 주기 계산 (출생월부터 4개월간의 총 일수)
+        let dynamicIljuCycle = getDynamicIljuCycle(birthDate);
+        console.log("[calculateIljuOffsetDynamic] dynamicIljuCycle (일수):", dynamicIljuCycle.toFixed(4));
+      
+        // 3. mode에 따라 목표 시각과 출생 시각 간의 차이를 분 단위로 계산
+        let diffMinutes;
         if (mode === "순행") {
+          // 순행: 출생 시각이 baseTime보다 같거나 늦으면, 오늘의 baseTime은 이미 지났으므로 다음 날의 baseTime을 목표로 함.
+          let targetTime = new Date(baseTime);
           if (birthDate >= baseTime) {
-            baseTime.setDate(baseTime.getDate() + 1);
+            targetTime.setDate(targetTime.getDate() + 1);
           }
-          // 시간 차이를 시간 단위로 구한 후 분으로 변환
-          let diffHours = (baseTime - birthDate) / (60 * 60 * 1000);
-          let diffMinutes = diffHours * 60;
-          // 0.5분 단위 반올림
-          diffMinutes = Math.round(diffMinutes * 2) / 2;
-          diffHours = diffMinutes / 60;
-          const ratio = diffHours / 24; // 하루(24시간) 대비 비율
-          return ratio * iljuCycle;      // iljuCycle=121.6
-        } else {
+          diffMinutes = (targetTime - birthDate) / oneDayMs;
+          console.log("[calculateIljuOffsetDynamic] 순행 mode: targetTime:", targetTime.toLocaleString());
+        } else { // "역행" 모드
+          // 역행: 출생 시각이 baseTime보다 이전이면, 그 날의 baseTime이 아직 도달하지 않았으므로 전 날의 baseTime을 목표로 함.
+          let targetTime = new Date(baseTime);
           if (birthDate < baseTime) {
-            baseTime.setDate(baseTime.getDate() - 1);
+            targetTime.setDate(targetTime.getDate() - 1);
           }
-          let diffHours = (birthDate - baseTime) / (60 * 60 * 1000);
-          let diffMinutes = diffHours * 60;
-          diffMinutes = Math.round(diffMinutes * 2) / 2;
-          diffHours = diffMinutes / 60;
-          const ratio = diffHours / 24;
-          return ratio * iljuCycle;
+          diffMinutes = (birthDate - targetTime) / oneDayMs;
+          console.log("[calculateIljuOffsetDynamic] 역행 mode: targetTime:", targetTime.toLocaleString());
         }
+        console.log("[calculateIljuOffsetDynamic] diffMinutes:", diffMinutes.toFixed(4));
+      
+        // 4. 분 차이를 일 단위로 변환 (1일 = 24 * 60 분)
+        const diffDays = diffMinutes / (24 * 60);
+        console.log("[calculateIljuOffsetDynamic] diffDays:", diffDays.toFixed(4));
+      
+        // 5. 최종 오프셋(일수) = diffDays × 동적 일주 주기
+        const offset = diffDays * dynamicIljuCycle;
+        console.log("[calculateIljuOffsetDynamic] 최종 오프셋 (일수):", offset.toFixed(4));
+      
+        return offset;
       }
+      
 
       // (C) 월주 동적 오프셋 계산 함수 (보정시 기준)
-      // term: 태양절기 경계 정보 객체 (예: term.date)
-      function calculateWoljuOffsetDynamic(birthDate, term, mode) {
-        let baseTerm;
-        if (mode === "순행") {
-          baseTerm = (birthDate < term.date)
-            ? term.date
-            : new Date(
-                birthDate.getFullYear() + 1,
-                term.date.getMonth(),
-                term.date.getDate(),
-                term.date.getHours(),
-                term.date.getMinutes()
-              );
-        } else {
-          baseTerm = (birthDate >= term.date)
-            ? term.date
-            : new Date(
-                birthDate.getFullYear() - 1,
-                term.date.getMonth(),
-                term.date.getDate(),
-                term.date.getHours(),
-                term.date.getMinutes()
-              );
+      function calculateWoljuOffsetDynamic(birthDate, mode) {
+        const solarYear = birthDate.getFullYear();
+        let solarBoundaries = getSolarTermBoundaries(solarYear);
+        if (!solarBoundaries || solarBoundaries.length === 0) {
+          console.warn("solarBoundaries is empty for solarYear:", solarYear);
+          return 0;
         }
-        const diffDays = Math.abs(baseTerm - birthDate) / oneDayMs;
-        return (diffDays / 30.4) * woljuCycle; // woljuCycle=3652.4
+        
+        let targetBoundary;
+        
+        if (mode === "순행") {
+          // 순행 모드:
+          // 만약 출생일이 현재 연도의 첫 절기보다 이전이면, 전년도 절기 배열에서 "소한" 사용.
+          if (birthDate < solarBoundaries[0].date) {
+            const prevBoundaries = getSolarTermBoundaries(solarYear - 1);
+            targetBoundary = prevBoundaries.find(b => b.name === "소한");
+            if (!targetBoundary) {
+              targetBoundary = { date: findSolarTermDate(solarYear - 1, 285), name: "소한" };
+            }
+          } else {
+            // 현재 연도에서 출생일보다 이후인 첫 번째 절기를 선택.
+            targetBoundary = solarBoundaries.find(b => b.date > birthDate);
+            if (!targetBoundary) {
+              // 없다면, 다음 연도의 첫 절기를 사용.
+              const nextBoundaries = getSolarTermBoundaries(solarYear + 1);
+              targetBoundary = nextBoundaries[0];
+            }
+          }
+        } else if (mode === "역행") {
+          // 역행 모드:
+          if (birthDate < solarBoundaries[0].date) {
+            const prevBoundaries = getSolarTermBoundaries(solarYear - 1);
+            targetBoundary = prevBoundaries.find(b => b.name === "소한");
+            if (!targetBoundary) {
+              targetBoundary = { date: findSolarTermDate(solarYear - 1, 285), name: "소한" };
+            }
+          } else {
+            const candidates = solarBoundaries.filter(b => b.date <= birthDate);
+            if (candidates.length > 0) {
+              targetBoundary = candidates[candidates.length - 1];
+            } else {
+              const prevBoundaries = getSolarTermBoundaries(solarYear - 1);
+              targetBoundary = prevBoundaries[prevBoundaries.length - 1];
+            }
+          }
+        }
+        
+        console.log(`[월주-${mode}] targetBoundary:, targetBoundary.name, targetBoundary.date.toLocaleString()`);
+        
+        // get120YearAverages를 사용하여 120년 동안의 평균 데이터를 구합니다.
+        const avgData = get120YearAverages(targetBoundary.date);
+        // dynamicWoljuCycle은 평균 10년 길이 (일수)로 설정합니다.
+        let dynamicWoljuCycle = avgData.averageDecade;
+        // 평균 월 길이 (일수)도 avgData.averageMonth를 사용합니다.
+        const avgMonthLength = avgData.averageMonth;
+        
+        // 두 날짜 사이의 차이를 일 단위로 계산합니다.
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        let diffDays;
+        if (mode === "순행") {
+          diffDays = (targetBoundary.date.getTime() - birthDate.getTime()) / oneDayMs;
+        } else {
+          diffDays = (birthDate.getTime() - targetBoundary.date.getTime()) / oneDayMs;
+        }
+        
+        console.log(`[월주-${mode}] diffDays:, diffDays.toFixed(4), "avgMonthLength:", avgMonthLength.toFixed(4)`);
+        
+        let ratio = diffDays / avgMonthLength;
+        console.log(`[월주-${mode}] ratio:, ratio.toFixed(4)`);
+        
+        const offset = ratio * dynamicWoljuCycle;
+        console.log(`[월주-${mode}] 최종 오프셋 (일수):, offset.toFixed(4)`);
+        
+        return Number(offset.toFixed(4));
       }
+      
 
+      function getAverageYearLength(dateFrom) {
+        const startDate = new Date(dateFrom.getTime());
+        const endDate = new Date(dateFrom.getTime());
+        endDate.setFullYear(dateFrom.getFullYear() + 120);
+        const totalDays = (endDate - startDate) / oneDayMs;
+        const avgYearLength = totalDays / 120;
+        console.log("[getAverageYearLength] totalDays:", totalDays.toFixed(4), 
+                    "avgYearLength:", avgYearLength.toFixed(4));
+        return avgYearLength;
+      }
+      
       // (D) 연주 동적 오프셋 계산 함수 (보정시 기준)
       function calculateYeonjuOffsetDynamic(birthDate, mode) {
-        // 보정시(birthDate)를 기준으로 입춘을 계산
-        const thisYearIpchun = findSolarTermDate(birthDate.getFullYear(), 315);
-        if (mode === "순행") {
-          // birthDate가 올해 입춘 이전이면 올해 입춘, 이후면 다음 해 입춘 사용
-          const targetIpchun = (birthDate < thisYearIpchun)
-            ? thisYearIpchun
-            : findSolarTermDate(birthDate.getFullYear() + 1, 315);
-          const diffDays = Math.abs(targetIpchun - birthDate) / oneDayMs;
-          return Math.round((diffDays / 365.24) * yeonjuCycle * 1000) / 1000;
-        } else { // 역행
-          // 역행에서는 birthDate가 올해 입춘 이전이면 지난 해 입춘, 이후면 올해 입춘 사용
-          const targetIpchun = (birthDate < thisYearIpchun)
-            ? findSolarTermDate(birthDate.getFullYear() - 1, 315)
-            : thisYearIpchun;
-          const diffDays = Math.abs(birthDate - targetIpchun) / oneDayMs;
-          return Math.round((diffDays / 365.24) * yeonjuCycle * 1000) / 1000;
+        // 입춘 정보를 getSolarTermBoundaries에서 받아옵니다.
+        const boundariesThisYear = getSolarTermBoundaries(birthDate.getFullYear());
+        let thisYearIpchun = boundariesThisYear.find(b => b.name === "입춘");
+        if (!thisYearIpchun) {
+          // 만약 없으면 fallback으로 findSolarTermDate 사용
+          thisYearIpchun = { date: findSolarTermDate(birthDate.getFullYear(), 315) };
         }
+        
+        let targetIpchun;
+        
+        if (mode === "순행") {
+          if (birthDate < thisYearIpchun.date) {
+            targetIpchun = thisYearIpchun.date;
+          } else {
+            // 생일 이후이면 다음 해 입춘 사용
+            const boundariesNextYear = getSolarTermBoundaries(birthDate.getFullYear() + 1);
+            let nextYearIpchun = boundariesNextYear.find(b => b.name === "입춘");
+            if (!nextYearIpchun) {
+              nextYearIpchun = { date: findSolarTermDate(birthDate.getFullYear() + 1, 315) };
+            }
+            targetIpchun = nextYearIpchun.date;
+          }
+        } else { // mode === "역행"
+          if (birthDate < thisYearIpchun.date) {
+            // 생일 이전이면 지난 해 입춘 사용
+            const boundariesPrevYear = getSolarTermBoundaries(birthDate.getFullYear() - 1);
+            let prevYearIpchun = boundariesPrevYear.find(b => b.name === "입춘");
+            if (!prevYearIpchun) {
+              prevYearIpchun = { date: findSolarTermDate(birthDate.getFullYear() - 1, 315) };
+            }
+            targetIpchun = prevYearIpchun.date;
+          } else {
+            targetIpchun = thisYearIpchun.date;
+          }
+        }
+        
+        console.log(`[${mode}] targetIpchun:`, targetIpchun.toLocaleString());
+        
+        // 두 날짜 사이의 차이를 일 단위로 계산
+        const diffDays = Math.abs(targetIpchun - birthDate) / oneDayMs;
+        console.log(`[${mode}] diffDays:`, diffDays.toFixed(4));
+        
+        // targetIpchun을 기준으로 120년 동안의 평균 연 길이를 동적으로 계산
+        const avgYearLength = getAverageYearLength(targetIpchun);
+        console.log(`[${mode}] avgYearLength:`, avgYearLength.toFixed(4));
+        
+        // 비율 = diffDays / avgYearLength
+        const ratio = diffDays / avgYearLength;
+        console.log(`[${mode}] ratio:`, ratio.toFixed(4));
+        
+        // 전역 변수 yeonjuCycle (예: 60년 주기)와 곱하여 최종 오프셋(일수)를 계산 (소숫점 3자리 반올림)
+        const finalOffset = Math.round(ratio * yeonjuCycle * 1000) / 1000;
+        console.log(`[${mode}] 최종 연주 오프셋 (일수):`, finalOffset.toFixed(4));
+        
+        return finalOffset;
       }
 
       
       // 동적 후보 시각 계산 (모든 계산에 dynamicBirth 사용)
       let newSijuFirst  = new Date(staticBirth.getTime() + calculateSijuOffsetDynamic(staticBirth, sijuMode) * oneDayMs);
       let newIljuFirst  = new Date(staticBirth.getTime() + calculateIljuOffsetDynamic(staticBirth, iljuMode) * oneDayMs);
-      let newWoljuFirst = new Date(staticBirth.getTime() + calculateWoljuOffsetDynamic(staticBirth, targetSolarTerm, woljuMode) * oneDayMs);
+      let newWoljuFirst = new Date(staticBirth.getTime() + calculateWoljuOffsetDynamic(staticBirth, woljuMode) * oneDayMs);
       let newYeonjuFirst = new Date(staticBirth.getTime() + calculateYeonjuOffsetDynamic(staticBirth, yeonjuMode) * oneDayMs);
       
       // 보정: dynamicBirth 기준
@@ -2187,8 +2471,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     }
-    
-    
     console.log("=== 최종 운세 결과 ===");
     logTimelineWindow("시주", sijuTimeline);
     logTimelineWindow("일주", iljuTimeline);
@@ -2312,10 +2594,61 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("insi").checked = true;
         }
         updateFortune(inputData);
+        const myowoonResult = getMyounPillars(gender, refDate);
+        updateMyowoonSection(myowoonResult);
+        logTimelineWindow(label, timeline, windowSize = 10);
       });
     });
     
     document.getElementById('resultWrapper').style.display = 'block';
     document.getElementById('inputWrap').style.display = 'none';
   });
+
+  const inputYear = 1996; // 원하는 년도로 변경 가능
+  const solarTermList = getSolarTermBoundaries(inputYear);
+  console.log(`=== ${inputYear}년 절기 리스트 ===`);
+  solarTermList.forEach(term => {
+    console.log(`${term.name}: ${term.date}`);
+  });
+
+  // 두 날짜 사이의 차이를 일, 시간, 분 단위로 계산하는 함수
+function calculateTimeDifference(date1, date2) {
+  // 날짜 차이를 밀리초(ms) 단위로 계산 (date1이 date2보다 늦으면 양수)
+  const diffMs = date1 - date2;
+  // 부호 저장 (음수면 date1이 더 이전임)
+  const sign = diffMs < 0 ? -1 : 1;
+  const absDiff = Math.abs(diffMs);
+  
+  const msPerDay = 24 * 60 * 60 * 1000;     // 1일 = 86,400,000ms
+  const msPerHour = 60 * 60 * 1000;          // 1시간 = 3,600,000ms
+  const msPerMinute = 60 * 1000;             // 1분 = 60,000ms
+
+  const days = Math.floor(absDiff / msPerDay);
+  const remainingAfterDays = absDiff % msPerDay;
+  const hours = Math.floor(remainingAfterDays / msPerHour);
+  const remainingAfterHours = remainingAfterDays % msPerHour;
+  const minutes = Math.floor(remainingAfterHours / msPerMinute);
+
+  return { sign, days, hours, minutes, totalDays: diffMs / msPerDay };
+}
+
+  // 예시: 1996년 12월 29일 16시 30분, 1996년 11월 19일 12시 30분
+  // Date 객체 생성 시, 월은 0부터 시작하므로 12월은 11, 11월은 10으로 입력합니다.
+  const dateA = new Date(1996, 11, 29, 16, 30); // 1996년 12월 29일 16:30
+  const dateB = new Date(1996, 10, 19, 12, 30); // 1996년 11월 19일 12:30
+
+  const diff = calculateTimeDifference(dateA, dateB);
+
+  // 부호에 따라 결과 문자열 구성
+  let resultStr = "";
+  if(diff.sign < 0) {
+    resultStr = `뒤에 있는 날짜가 더 이후입니다.\n`;
+  }
+
+  resultStr += `날짜 차이: ${diff.days}일 ${diff.hours}시간 ${diff.minutes}분`;
+
+  // 전체 일수(소수점 포함)도 같이 출력
+  resultStr += `\n전체 차이(일 단위): ${diff.totalDays}일`;
+
+  console.log(resultStr);
 });
