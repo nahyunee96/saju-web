@@ -1020,11 +1020,6 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem("myeongsikList", JSON.stringify(list));
       alert("명식이 수정되었습니다.");
       delete window.currentModifyIndex;
-    } else {
-      // 신규 저장 로직 (기존과 동일하게 추가 가능)
-      list.push(newData);
-      localStorage.setItem("myeongsikList", JSON.stringify(list));
-      alert("새 명식이 저장되었습니다.");
     }
 
     // 목록 재갱신 및 화면 전환
