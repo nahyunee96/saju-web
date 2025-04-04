@@ -594,6 +594,7 @@
     border: none;
     outline: none;
     cursor: pointer;
+    color: #353535;
   }
 
   .cal_area {
@@ -895,7 +896,7 @@
     .delete_btn span {
       height: 8vw;
       vertical-align: top;
-      margin-top: -0.8vw;
+      margin-top: 0;
     }
   
     .aside .list_ul {
