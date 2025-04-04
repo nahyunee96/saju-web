@@ -396,9 +396,7 @@ function getDaewoonData(birthPlace, gender) {
   //const baseNumber = (daysDiff / avgData.averageMonth) * 10;
   let ratio = diffDays / avgMonthLength;
   const offset = ratio * 10;
-  console.log('offset', offset);
   const baseNumber = Number(offset.toFixed(4));
-  console.log('ratio', ratio);
   
   let currentMonthIndex = MONTH_ZHI.indexOf(monthPillar.charAt(1));
   let monthStemIndex = Cheongan.indexOf(monthPillar.charAt(0));
@@ -839,6 +837,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const listUl = document.querySelector("aside .list_ul");
     if (!listUl) return;
     listUl.innerHTML = "";
+    const dragNotice = document.querySelector(".pharases");
+    if (savedList.length >= 2) {
+      dragNotice.style.display = "block";
+    } else {
+      dragNotice.style.display = "none";
+    }
     savedList.forEach((item, index) => {
       listUl.innerHTML += `
         <li data-index="${index}">
@@ -931,8 +935,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("click", function (event) {
     const modifyBtn = event.target.closest(".modify_btn");
     if (!modifyBtn) return;
-
-    console.log('버튼 클릭 확인용');
 
     const index = parseInt(modifyBtn.getAttribute("data-index"), 10);
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
@@ -1374,7 +1376,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
     if (!selectedDaewoon) return;
     const daewoonNum = selectedDaewoon.age; 
-    console.log('decimalBirthYear', decimalBirthYear, 'daewoonNum', globalState.daewoonData.list[0].age, 'daewoonNum', daewoonNum);
     const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
     globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal);
     const displayedDayPillar = document.getElementById("DtHanguel").innerText;
@@ -2203,7 +2204,6 @@ document.addEventListener("DOMContentLoaded", function () {
         
         let ratio = diffDays / avgMonthLength;
         const offset = ratio * dynamicWoljuCycle;
-        console.log(ratio * 10);
         
         return Number(offset.toFixed(4));
       }
@@ -2721,11 +2721,11 @@ document.addEventListener("DOMContentLoaded", function () {
       updateHourWoon(refDate);
       updateMyowoonSection(myowoonResult);
     
-      // console.log("=== 최종 운세 결과 ===");
-      // logTimelineWindow("시주", sijuTimeline);
-      // logTimelineWindow("일주", iljuTimeline);
-      // logTimelineWindow("월주", woljuTimeline);
-      // logTimelineWindow("연주", yeonjuTimeline);
+      console.log("=== 최종 운세 결과 ===");
+      logTimelineWindow("시주", sijuTimeline);
+      logTimelineWindow("일주", iljuTimeline);
+      logTimelineWindow("월주", woljuTimeline);
+      logTimelineWindow("연주", yeonjuTimeline);
     });
     
     
