@@ -728,17 +728,99 @@ function updateBranchInfo(prefix, branch, baseDayStem) {
     return `${yyyy}.${mm}.${dd}`;
   }
 
+document.addEventListener("DOMContentLoaded", function () {
+
+  const inputName = document.getElementById("inputName");
+  if (inputName) {
+    inputName.addEventListener("input", function () {
+      if (this.value.length > 10) {
+        this.value = this.value.slice(0, 10);
+      }
+    });
+  }
+
+  // saveBtn 이벤트 리스너
+  document.getElementById("saveBtn").addEventListener("click", function () {
+    // 입력값 읽어오기
+    let birthday = document.getElementById("inputBirthday").value.trim();
+    let birthtime = document.getElementById("inputBirthtime").value.trim();
+    let gender = document.getElementById("genderMan").checked ? "남" : "여";
+    let birthPlace = document.getElementById("inputBirthPlace").value;
+    let name = document.getElementById("inputName").value.trim() || "이름없음";
+
+    // 기본 검증
+    if (birthday.length !== 8 || birthtime.length !== 4) {
+      alert("생년월일은 YYYYMMDD, 태어난 시간은 HHMM 형식이어야 합니다.");
+      return;
+    }
+
+    // 숫자 파싱
+    let year = parseInt(birthday.substring(0, 4), 10);
+    let month = parseInt(birthday.substring(4, 6), 10);
+    let day = parseInt(birthday.substring(6, 8), 10);
+    let hour = parseInt(birthtime.substring(0, 2), 10);
+    let minute = parseInt(birthtime.substring(2, 4), 10);
+
+    // 계산 함수 호출
+    let computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender);
+    let pillarsPart = computedResult.split(", ")[0]; // 예: "병자 경인 정묘 무오시"
+    let pillars = pillarsPart.split(" ");
+    let yearPillar = pillars[0] || "";
+    let monthPillar = pillars[1] || "";
+    let dayPillar = pillars[2] || "";
+    let hourPillar = pillars[3] || "";
+
+    let originalDate = new Date(year, month - 1, day, hour, minute);
+    let correctedDate = adjustBirthDate(originalDate, birthPlace);
+    let age = calculateAge(correctedDate);
+    let birthdayTime = formatDate(correctedDate);
+
+    // 저장할 데이터 객체 구성
+    let newData = {
+      birthday: birthday,
+      birthtime: birthtime,
+      gender: gender,
+      birthPlace: birthPlace,
+      name: name,
+      result: computedResult,
+      yearPillar: yearPillar,
+      monthPillar: monthPillar,
+      dayPillar: dayPillar,
+      hourPillar: hourPillar,
+      age: age,
+      birthdayTime: birthdayTime
+    };
+
+    // 로컬스토리지에서 목록 읽어오기
+    let list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+    // 중복 검사 (생년월일, 태어난 시간, 성별, 출생지, 이름 모두 동일한 경우)
+    let alreadySaved = list.some(function (item) {
+      return item.birthday === newData.birthday &&
+              item.birthtime === newData.birthtime &&
+              item.gender === newData.gender &&
+              item.birthPlace === newData.birthPlace &&
+              item.name === newData.name;
+    });
+    if (alreadySaved) {
+      alert("이미 저장된 명식입니다.");
+      return;
+    }
+    // 중복이 아니라면 저장
+    list.push(newData);
+    localStorage.setItem("myeongsikList", JSON.stringify(list));
+    loadSavedMyeongsikList();
+    alert("저장이 성공적으로 완료 되었습니다.");
+  });
+
   let savedMyeongsikList = [];
 
+  // loadSavedMyeongsikList 함수 (목록 구성 및 detailView, delete 버튼 이벤트 등록)
   function loadSavedMyeongsikList() {
-    // 로컬스토리지에서 저장된 목록을 읽어 전역 변수에도 할당
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     savedMyeongsikList = savedList; 
     const listUl = document.querySelector("aside .list_ul");
     if (!listUl) return;
-    listUl.innerHTML = ""; // 기존 목록 초기화
-  
-    // 목록(li) 구성: 각 li에 저장된 사주(명식) 결과와 입력값(데이터 속성)을 포함함
+    listUl.innerHTML = "";
     savedList.forEach((item, index) => {
       listUl.innerHTML += `
         <li data-index="${index}">
@@ -766,16 +848,14 @@ function updateBranchInfo(prefix, branch, baseDayStem) {
         </li>
       `;
     });
-  
-    // "이 명식 보기" 버튼 이벤트 등록
-    document.querySelectorAll(".detailViewBtn").forEach(function(button) {
-      button.addEventListener("click", function(e) {
+    
+    // detailViewBtn 이벤트 등록
+    document.querySelectorAll(".detailViewBtn").forEach(function (button) {
+      button.addEventListener("click", function (e) {
         e.stopPropagation();
-        // 버튼의 data-index는 0부터 시작하도록 설정되어 있음
         const idx = parseInt(button.getAttribute("data-index"), 10);
         const item = savedList[idx];
         if (item) {
-          // 저장된 객체의 입력값들을 해당 input 요소에 채워넣음
           document.getElementById("inputBirthday").value = item.birthday;
           document.getElementById("inputBirthtime").value = item.birthtime;
           if (item.gender === "남") {
@@ -786,37 +866,45 @@ function updateBranchInfo(prefix, branch, baseDayStem) {
             document.getElementById("genderMan").checked = false;
           }
           document.getElementById("inputBirthPlace").value = item.birthPlace;
-          // 자동으로 산출하기 버튼(calcBtn) 클릭 → 계산 결과 재실행
+          // 자동 계산 실행 (필요시 setTimeout 추가)
           document.getElementById("calcBtn").click();
         }
-        // 필요에 따라 목록(aside)와 입력/결과 영역을 숨김 처리
         document.getElementById("aside").style.display = "none";
         document.getElementById("inputWrap").style.display = "none";
-        document.getElementById("resultWrapper").style.display = "none";
+        document.getElementById("resultWrapper").style.display = "block";
       });
     });
     
-  }
-  
-
-document.addEventListener("DOMContentLoaded", function () {
-
-  const calcBtn = document.getElementById("calcBtn");
-  if (calcBtn) {
-    calcBtn.click();
-  }
-
-  const inputName = document.getElementById("inputName");
-  if (inputName) {
-    inputName.addEventListener("input", function () {
-      if (this.value.length > 10) {
-        this.value = this.value.slice(0, 10);
-      }
+    // delete 버튼 이벤트 등록
+    document.querySelectorAll(".delete_btn").forEach(function (button) {
+      button.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const dataIndex = button.getAttribute("data-index");
+        const idxStr = dataIndex.replace("delete_", "");
+        const idx = parseInt(idxStr, 10) - 1;
+        let list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+        if (idx >= 0 && idx < list.length) {
+          list.splice(idx, 1);
+          localStorage.setItem("myeongsikList", JSON.stringify(list));
+          loadSavedMyeongsikList();
+          alert("해당 명식이 삭제되었습니다.");
+        }
+      });
     });
   }
 
-  
-  
+  // aside 열기/닫기 이벤트 등록
+  document.getElementById("listViewBtn").addEventListener("click", function () {
+    loadSavedMyeongsikList();
+    document.getElementById("aside").style.display = "block";
+  });
+  document.getElementById("closeBtn").addEventListener("click", function () {
+    document.getElementById("aside").style.display = "none";
+  });
+  document.getElementById("backBtnAS").addEventListener("click", function () {
+    document.getElementById("aside").style.display = "none";
+  });
+
   document.getElementById("calcBtn").addEventListener("click", function () {
 
     let refDate = new Date();
@@ -2635,151 +2723,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-document.getElementById("saveBtn").addEventListener("click", function () {
-  // 현재 계산된 결과와 입력값을 저장
-  // 입력값 읽어오기
-  let birthday = document.getElementById("inputBirthday").value.trim(); // 예: "YYYYMMDD"
-  let birthtime = document.getElementById("inputBirthtime").value.trim(); // 예: "HHMM"
-  let gender = document.getElementById("genderMan").checked ? "남" : "여";
-  let birthPlace = document.getElementById("inputBirthPlace").value;
-  let name = document.getElementById("inputName").value.trim() || "이름없음";
 
-  // 기본 검증
-  if (birthday.length !== 8 || birthtime.length !== 4) {
-    alert("생년월일은 YYYYMMDD, 태어난 시간은 HHMM 형식이어야 합니다.");
-    return;
-  }
-
-  // 입력값에서 숫자값 추출
-  let year = parseInt(birthday.substring(0, 4), 10);
-  let month = parseInt(birthday.substring(4, 6), 10);
-  let day = parseInt(birthday.substring(6, 8), 10);
-  let hour = parseInt(birthtime.substring(0, 2), 10);
-  let minute = parseInt(birthtime.substring(2, 4), 10);
-
-  // 계산 함수 호출 (예: 사주 계산 결과 문자열 반환)
-  let computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender);
-
-  // 결과 문자열의 앞부분(사주 기둥)을 파싱하여 각 기둥 값을 추출합니다.
-  let pillarsPart = computedResult.split(", ")[0]; // 예: "병자 경인 정묘 무오시"
-  let pillars = pillarsPart.split(" ");
-  let yearPillar = pillars[0] || "";
-  let monthPillar = pillars[1] || "";
-  let dayPillar = pillars[2] || "";
-  let hourPillar = pillars[3] || "";
-
-  // 추가 계산: correctedDate, 나이, 생일시간
-  let originalDate = new Date(year, month - 1, day, hour, minute);
-  let correctedDate = adjustBirthDate(originalDate, birthPlace);
-  let age = calculateAge(correctedDate);
-  let birthdayTime = formatDate(correctedDate); // 예: "YYYY.MM.DD"
-
-  // 저장할 데이터 객체 구성
-  let newData = {
-    birthday: birthday,         // 예: "YYYYMMDD"
-    birthtime: birthtime,       // 예: "HHMM"
-    gender: gender,             // "남" 또는 "여"
-    birthPlace: birthPlace,
-    name: name,
-    result: computedResult,     // 전체 계산 결과 문자열
-    yearPillar: yearPillar,
-    monthPillar: monthPillar,
-    dayPillar: dayPillar,
-    hourPillar: hourPillar,
-    age: age,
-    birthdayTime: birthdayTime
-  };
-
-  // 로컬스토리지에 저장된 목록을 읽어오기
-  let list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-
-  // 기존 목록에서 모든 key의 값이 동일한 데이터가 있는지 확인
-  let alreadySaved = list.some(function(item) {
-    return item.birthday === newData.birthday &&
-           item.birthtime === newData.birthtime &&
-           item.gender === newData.gender &&
-           item.birthPlace === newData.birthPlace;
-    // 필요시 result, 사주 기둥 등 추가 필드를 비교할 수 있습니다.
-  });
-
-  // 저장 후 목록을 새로 불러와 화면에 업데이트
-  loadSavedMyeongsikList();
-
-  if (alreadySaved) {
-    alert("이미 저장된 명식입니다.");
-    return;
-  }
-
-  // 중복되지 않았다면 배열에 추가하고 저장
-  list.push(newData);
-  localStorage.setItem("myeongsikList", JSON.stringify(list));
-});
-document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("container").addEventListener("click", function (event) {
-    const btn = event.target.closest("[id^='detailViewBtn_']");
-    if (btn) {
-      console.log('불러오기 버튼 클릭');
-      // 버튼의 data-index 속성이 1부터 시작한다고 가정
-      const index = parseInt(btn.getAttribute("data-index"), 10) - 1;
-      const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-      if (index >= 0 && index < savedList.length) {
-        // 저장된 객체의 입력값들을 input 요소에 채워넣기
-        document.getElementById("inputBirthday").value = savedList[index].birthday;
-        console.log(document.getElementById("inputBirthday").value);
-        document.getElementById("inputBirthtime").value = savedList[index].birthtime;
-        if (savedList[index].gender === "남") {
-          document.getElementById("genderMan").checked = true;
-          document.getElementById("genderWoman").checked = false;
-        } else {
-          document.getElementById("genderWoman").checked = true;
-          document.getElementById("genderMan").checked = false;
-        }
-        document.getElementById("inputBirthPlace").value = savedList[index].birthPlace;
-        
-        // 필요하다면 다른 입력 필드(예: 음력 여부 등)도 채워넣으세요.
-        
-        // 자동으로 산출하기 버튼(calcBtn)을 클릭하여 계산 실행
-        setTimeout(function() {
-          document.getElementById("calcBtn").click();
-        }, 10);
-      }
-      // 목록(aside)와 관련 영역은 숨깁니다.
-      document.getElementById("aside").style.display = "none";
-      document.getElementById("inputWrap").style.display = "none";
-      document.getElementById("resultWrapper").style.display = "block";
-    }
-  });
-});
-
-// aside 열기/닫기 이벤트
-document.getElementById("listViewBtn").addEventListener("click", function () {
-  loadSavedMyeongsikList();
-  document.getElementById("aside").style.display = "block";
-  });
-  document.getElementById("closeBtn").addEventListener("click", function () {
-  document.getElementById("aside").style.display = "none";
-  });
-  document.getElementById("backBtnAS").addEventListener("click", function () {
-  document.getElementById("aside").style.display = "none";
-});
-
-// 삭제 버튼 처리 (이벤트 위임)
-
-document.addEventListener("click", function (event) {
-  const deleteBtn = event.target.closest(".delete_btn");
-  if (deleteBtn) {
-    const dataIndex = deleteBtn.getAttribute("data-index"); // "delete_번호"
-    const indexStr = dataIndex.replace("delete_", "");
-    const index = parseInt(indexStr, 10) - 1;
-    let savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-    if (index >= 0 && index < savedList.length) {
-      savedList.splice(index, 1);
-      localStorage.setItem("myeongsikList", JSON.stringify(savedList));
-      loadSavedMyeongsikList();
-      alert("해당 명식이 삭제되었습니다.");
-    }
-  }
-});
 
 
 
