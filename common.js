@@ -856,8 +856,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const idx = parseInt(button.getAttribute("data-index"), 10);
         const item = savedList[idx];
         if (item) {
+          document.getElementById("inputName").value = item.name;
           document.getElementById("inputBirthday").value = item.birthday;
           document.getElementById("inputBirthtime").value = item.birthtime;
+          
           if (item.gender === "남") {
             document.getElementById("genderMan").checked = true;
             document.getElementById("genderWoman").checked = false;
