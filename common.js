@@ -316,7 +316,6 @@ function get120YearAverages(birthDate) {
   return { totalDays, averageYear, averageMonth, averageDecade };
 }
 
-// 2611.8830583333333일을 년,월,일,시,분,초로 변환하는 함수 (예시)
 function convertDaysToYMDHMS(totalDays, avgYear, avgMonth) {
   const years = Math.floor(totalDays / avgYear);
   let remainderDays = totalDays - years * avgYear;
@@ -343,7 +342,6 @@ function getDaysInYear(year) {
 const oneDayMs = 24 * 60 * 60 * 1000;
 
 function getDecimalBirthYear(birthDate) {
-  const oneDayMs = 24 * 60 * 60 * 1000;
   const startOfYear = new Date(birthDate.getFullYear(), 0, 1);
   const diffDays = (birthDate - startOfYear) / oneDayMs;
   // 해당 연도의 전체 일수 (윤년 여부 반영)
@@ -381,12 +379,26 @@ function getDaewoonData(birthPlace, gender) {
   if (!targetTerm) {
     targetTerm = isForward ? allTerms[0] : allTerms[allTerms.length - 1];
   }
-  
+  const avgData = get120YearAverages(targetTerm.date);
+  let dynamicWoljuCycle = avgData.averageDecade;
+  const avgMonthLength = avgData.averageMonth;
   const daysDiff = isForward
-    ? Math.round((targetTerm.date - correctedDate) / (1000 * 60 * 60 * 24))
-    : Math.round((correctedDate - targetTerm.date) / (1000 * 60 * 60 * 24));
+    ? Math.round((targetTerm.date - correctedDate) / oneDayMs)
+    : Math.round((correctedDate - targetTerm.date) / oneDayMs);
 
-  const baseNumber = Math.max(1, Math.round(daysDiff / 3));
+  let diffDays;
+  if (isForward) {
+    diffDays = (targetTerm.date.getTime() - birthDate.getTime()) / oneDayMs;
+  } else {
+    diffDays = (birthDate.getTime() - targetTerm.date.getTime()) / oneDayMs;
+  }
+
+  //const baseNumber = (daysDiff / avgData.averageMonth) * 10;
+  let ratio = diffDays / avgMonthLength;
+  const offset = ratio * 10;
+  console.log('offset', offset);
+  const baseNumber = Number(offset.toFixed(4));
+  console.log('ratio', ratio);
   
   let currentMonthIndex = MONTH_ZHI.indexOf(monthPillar.charAt(1));
   let monthStemIndex = Cheongan.indexOf(monthPillar.charAt(0));
@@ -455,8 +467,14 @@ function getHourBranchUsingArray(dateObj) {
 function getEffectiveYearForSet(dateObj) {
   // 해당 연도의 입춘(315°)을 구합니다.
   const ipChun = findSolarTermDate(dateObj.getFullYear(), 315);
-  // 생일이 입춘 전이면 전년도, 이후면 해당 연도로 결정
-  return (dateObj < ipChun) ? dateObj.getFullYear() - 1 : dateObj.getFullYear();
+  const year = dateObj.getFullYear();
+
+  if (dateObj < ipChun) {
+    return year - 1;
+  } else {
+    return year;
+  }
+
 }
 
 function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender) {
@@ -1250,8 +1268,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
     if (!selectedDaewoon) return;
     const daewoonNum = selectedDaewoon.age; 
+    console.log('decimalBirthYear', decimalBirthYear, 'daewoonNum', globalState.daewoonData.list[0].age, 'daewoonNum', daewoonNum);
     const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-    globalState.sewoonStartYear = Math.round(sewoonStartYearDecimal);
+    globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal);
     const displayedDayPillar = document.getElementById("DtHanguel").innerText;
     const baseDayStemS = displayedDayPillar ? displayedDayPillar.charAt(0) : "-";
     const sewoonList = [];
@@ -1404,28 +1423,46 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMonthlyWoonByToday(refDate);
 
     document.addEventListener("click", function (event) {
+      // 중복 실행 방지를 위한 플래그 검사
+      if (globalState.isNavigating) return;
+      
       const btn = event.target.closest("#calPrevBtn, #calNextBtn");
       if (!btn) return;
+      
       const solarYear = globalState.solarYear;
       const boundaries = globalState.boundaries;
       const currentIndex = globalState.currentIndex;
       if (solarYear === undefined || !boundaries || currentIndex === undefined) return;
+      
+      // 이벤트 실행 시작: 플래그 true로 설정
+      globalState.isNavigating = true;
+      
       let newIndex;
       if (btn.id === "calPrevBtn") {
         newIndex = (currentIndex - 1 + boundaries.length) % boundaries.length;
       } else if (btn.id === "calNextBtn") {
         newIndex = (currentIndex + 1) % boundaries.length;
       }
+      
+      // globalState.currentIndex 업데이트
+      globalState.currentIndex = newIndex;
+      
       const newTermName = boundaries[newIndex].name;
       updateMonthlyFortuneCalendar(newTermName, solarYear, newIndex);
+      
       setTimeout(function () {
         const liElements = Array.from(document.querySelectorAll("#mowoonList li"));
-        if (!liElements.length) return;
-        liElements.forEach(li => li.classList.remove("active"));
-        const targetIndex = newIndex % liElements.length;
-        liElements[targetIndex].classList.add("active");
+        if (liElements.length) {
+          liElements.forEach(li => li.classList.remove("active"));
+          const targetIndex = newIndex % liElements.length;
+          liElements[targetIndex].classList.add("active");
+        }
+        // 모든 처리가 끝난 후 플래그 초기화
+        globalState.isNavigating = false;
       }, 0);
     });
+    
+    
 
     const currentSolarYear = (todayObj < ipChun) ? todayObj.getFullYear() - 1 : todayObj.getFullYear();
     let boundariesArr = getSolarTermBoundaries(currentSolarYear);
@@ -1633,7 +1670,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!selectedDaewoon) return;
         const daewoonNum = selectedDaewoon.age; 
         const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-        globalState.sewoonStartYear = Math.round(sewoonStartYearDecimal);
+        globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal);
         const displayedDayPillar = document.getElementById("DtHanguel").innerText;
         const baseDayStemS = displayedDayPillar ? displayedDayPillar.charAt(0) : "-";
         const sewoonList = [];
@@ -2042,7 +2079,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
         
-        
         // get120YearAverages를 사용하여 120년 동안의 평균 데이터를 구합니다.
         const avgData = get120YearAverages(targetBoundary.date);
         // dynamicWoljuCycle은 평균 10년 길이 (일수)로 설정합니다.
@@ -2061,6 +2097,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         let ratio = diffDays / avgMonthLength;
         const offset = ratio * dynamicWoljuCycle;
+        console.log(ratio * 10);
         
         return Number(offset.toFixed(4));
       }
