@@ -37,6 +37,12 @@
     border-radius: 5px;
   }
 
+  .drag_btn_zone {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    touch-action: none; /* 드래그 반응 빠르게 */
+  }
+
   .mb10 {
     margin-bottom: 10px;
   }

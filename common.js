@@ -2826,100 +2826,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   });
 
-  let dragSrcEl = null;
-  let isDragHandle = false;
+  new Sortable(document.querySelector(".list_ul"), {
+    handle: ".drag_btn_zone", // 요 버튼 누르고 있어야 드래그 가능
+    animation: 150,
+    onEnd: function (evt) {
+      // 드래그 후 순서 바뀔 때 로컬스토리지도 업데이트
+      const newOrder = [];
+      const items = document.querySelectorAll(".list_ul li");
+      const originalList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
 
-  function handleDragStart(e) {
-    if (!isDragHandle) return e.preventDefault();
-    dragSrcEl = this;
-    this.classList.add("dragging");
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/html", this.outerHTML);
-  }
+      items.forEach((li) => {
+        const index = parseInt(li.getAttribute("data-index"), 10);
+        if (!isNaN(index)) {
+          newOrder.push(originalList[index]);
+        }
+      });
 
-  function handleDragOver(e) {
-    if (e.preventDefault) e.preventDefault();
-    return false;
-  }
-
-  function handleDragEnter() {
-    if (this !== dragSrcEl) this.classList.add("over");
-  }
-
-  function handleDragLeave() {
-    this.classList.remove("over");
-  }
-
-  function handleDrop(e) {
-    if (e.stopPropagation) e.stopPropagation();
-
-    if (dragSrcEl !== this) {
-      const list = document.querySelector("aside .list_ul");
-      const draggingIndex = Array.from(list.children).indexOf(dragSrcEl);
-      const targetIndex = Array.from(list.children).indexOf(this);
-
-      // DOM 순서 변경
-      list.insertBefore(dragSrcEl, (draggingIndex < targetIndex) ? this.nextSibling : this);
-
-      // localStorage 업데이트
-      let savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-      const movedItem = savedList.splice(draggingIndex, 1)[0];
-      savedList.splice(targetIndex, 0, movedItem);
-      localStorage.setItem("myeongsikList", JSON.stringify(savedList));
-
-      // 리스트 다시 그리기
-      loadSavedMyeongsikList();
+      localStorage.setItem("myeongsikList", JSON.stringify(newOrder));
+      loadSavedMyeongsikList(); // 재렌더링하여 인덱스 재정렬
     }
-
-    return false;
-  }
-
-  function handleDragEnd() {
-    this.classList.remove("dragging");
-    document.querySelectorAll("aside .list_ul li").forEach(item => item.classList.remove("over"));
-  }
-
-  function addDnDHandlers() {
-    const listItems = document.querySelectorAll("aside .list_ul li");
-
-    listItems.forEach(function (item) {
-      item.setAttribute("draggable", true);
-
-      // 드래그 핸들 버튼 이벤트
-      const handle = item.querySelector(".drag_btn_zone");
-
-      // 마우스 이벤트
-      handle.addEventListener("mousedown", function (e) {
-        isDragHandle = true;
-      });
-      document.addEventListener("mouseup", function () {
-        isDragHandle = false;
-      });
-
-      // 터치 이벤트 (모바일 대응)
-      handle.addEventListener("touchstart", function () {
-        isDragHandle = true;
-      }, { passive: true });
-      document.addEventListener("touchend", function () {
-        isDragHandle = false;
-      }, { passive: true });
-
-      item.addEventListener("dragstart", handleDragStart);
-      item.addEventListener("dragenter", handleDragEnter);
-      item.addEventListener("dragover", handleDragOver);
-      item.addEventListener("dragleave", handleDragLeave);
-      item.addEventListener("drop", handleDrop);
-      item.addEventListener("dragend", handleDragEnd);
-    });
-  }
-
-  // loadSavedMyeongsikList가 실행된 후 DnD 설정해야 하므로 감싸줌
-  const originalLoad = loadSavedMyeongsikList;
-  loadSavedMyeongsikList = function () {
-    originalLoad(); // 기존 목록 불러오기
-    addDnDHandlers(); // 드래그 이벤트 연결
-  };
-
-  // 페이지 로딩 시 최초 한번 실행
-  loadSavedMyeongsikList();
+  });
 });
