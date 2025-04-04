@@ -445,6 +445,7 @@
 
   .header .flex_btn_2 button  {
     padding: 10px 20px;
+    color: #353535;
   }
 
   .aside {
@@ -479,9 +480,12 @@
 
   .aside .close_btn span,
   .delete_btn span {
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
     vertical-align: top;
-    margin-top: -5px;
+    margin-top: -8px;
   }
 
   .aside .list_ul {
@@ -889,7 +893,7 @@
   
     .aside .close_btn span,
     .delete_btn span {
-      display: inline-block;
+      height: 8vw;
       vertical-align: top;
       margin-top: -0.8vw;
     }
