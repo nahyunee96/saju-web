@@ -935,32 +935,43 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("click", function (event) {
     const modifyBtn = event.target.closest(".modify_btn");
     if (!modifyBtn) return;
-
+  
     const index = parseInt(modifyBtn.getAttribute("data-index"), 10);
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const selected = savedList[index];
     if (!selected) return;
-
+  
     document.getElementById("inputWrap").style.display = "block";
     document.getElementById("resultWrapper").style.display = "none";
     document.getElementById("aside").style.display = "none";
-
+  
     document.getElementById("inputName").value = selected.name;
     document.getElementById("inputBirthday").value = selected.birthday;
     document.getElementById("inputBirthtime").value = selected.birthtime;
     document.getElementById("inputBirthPlace").value = selected.birthPlace;
-
+  
     if (selected.gender === "남") {
       document.getElementById("genderMan").checked = true;
     } else {
       document.getElementById("genderWoman").checked = true;
     }
-
+  
+    // 수정 모드용 인덱스를 전역에 저장
     window.currentModifyIndex = index;
-
+  
+    // 버튼 텍스트를 "수정하기"로 변경
     const calcBtn = document.getElementById("calcBtn");
     calcBtn.textContent = "수정하기";
+
+    // ✅ 커서를 각 input 끝에 자동 이동
+    const inputs = ["inputName", "inputBirthday", "inputBirthtime"];
+    inputs.forEach(id => {
+      const el = document.getElementById(id);
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+    });
   });
+  
 
   // 수정 버튼으로 기능 전환
   // 기존 산출하기 기능과 동일한 위치에 존재
