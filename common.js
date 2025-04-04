@@ -827,7 +827,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="info">
             <p>
               <span><b id="nameSV_${index + 1}">${item.name}</b></span>
-              <span>(<b id="ageSV_${index + 1}">${item.age}</b>세)</span>
+              <span>(만 <b id="ageSV_${index + 1}">${item.age}</b>세)</span>
               <span><b id="genderSV_${index + 1}">${item.gender}</b></span>
             </p>
             <p>

@@ -460,24 +460,21 @@
   }
 
   .aside .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     height: 80px;
     padding: 20px;
+    border-bottom: 1px solid #EED36C;
   }
 
   .aside .close_btn,
   .delete_btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
     width: 40px;
     height: 40px;
     padding: 0 !important;
     font-size: 40px;
     line-height: 100%;
-  }
-
-  .delete_btn {
-    position: static;
   }
 
   .aside .close_btn span,
