@@ -351,23 +351,20 @@ function getDecimalBirthYear(birthDate) {
   return birthDate.getFullYear() + diffDays / totalDays;
 }
 
-// getDaewoonData 함수 수정 예제 (대운 데이터 계산 부분)
 function getDaewoonData(birthPlace, gender) {
   const birthDate = globalState.correctedBirthDate;
   const originalDate = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
   const correctedDate = adjustBirthDate(originalDate, birthPlace);
   const inputYear = globalState.correctedBirthDate.getFullYear();
   const ipChunForSet = findSolarTermDate(inputYear, 315);
+  //const ipChunForSet = findSolarTermDate(birthDate.getFullYear(), 315);
   const effectiveYearForSet = (originalDate < ipChunForSet) ? inputYear - 1 : inputYear;
   const effectiveYearForDaewoon = inputYear;
-  
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
   const dayStemRef = getDayGanZhi(correctedDate).charAt(0);
   const isYang = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
   const isForward = (gender === "남" && isYang) || (gender === "여" && !isYang);
-  
-  // 절기 배열 계산 (전년도, 해당년도, 다음년도 포함)
   const currentSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon);
   const previousSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon - 1);
   const nextSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon + 1);
@@ -385,102 +382,32 @@ function getDaewoonData(birthPlace, gender) {
     targetTerm = isForward ? allTerms[0] : allTerms[allTerms.length - 1];
   }
   
-  // 두 날짜 사이의 차이를 일 단위로 계산
+  const daysDiff = isForward
+    ? Math.round((targetTerm.date - correctedDate) / (1000 * 60 * 60 * 24))
+    : Math.round((correctedDate - targetTerm.date) / (1000 * 60 * 60 * 24));
+
+  const baseNumber = Math.max(1, Math.round(daysDiff / 3));
   
-  const diffDays = (isForward)
-    ? (targetTerm.date.getTime() - correctedDate.getTime()) / oneDayMs
-    : (correctedDate.getTime() - targetTerm.date.getTime()) / oneDayMs;
-  console.log("daysDiff:", diffDays.toFixed(10));
-
-  // 2. 120년 평균 데이터를 보정된 시각(correctedDate)을 기준으로 구합니다.
-  const avgData = get120YearAverages(correctedDate);
-  console.log("avgData.averageYear:", avgData.averageYear.toFixed(10));
-  console.log("avgData.averageMonth:", avgData.averageMonth.toFixed(10));
-  console.log("avgData.averageDecade:", avgData.averageDecade.toFixed(10));
-
-  // 3. '치환' 로직: 대운수(년)를 계산
-  //    rawYears = diffDays * (10 / 평균한달길이)
-  const rawYears = diffDays * (10.24 / avgData.averageMonth);
-  console.log("rawYears (대운수, 년):", rawYears.toFixed(10));
-  console.log("평균 1년 (일):", avgData.averageYear.toFixed(6));
-  console.log("평균 1개월 (일):", avgData.averageMonth.toFixed(6));
-  console.log("평균 10년 (일):", avgData.averageDecade.toFixed(6));
-
-  // 1) 년도(정수) 추출
-  const years = Math.floor(rawYears / avgData.averageYear);
-
-  // 2) 남은 일수 계산 (년 단위 소숫점 이하)
-  const leftoverAfterYears = rawYears - years * avgData.averageYear;
-
-  // 3) 남은 일수를 평균 월 길이로 나눠 개월수(정수) 계산
-  const months = Math.floor(leftoverAfterYears / avgData.averageMonth);
-
-  // 4) 남은 일수 계산 (월 단위 소숫점 이하)
-  const leftoverAfterMonths = leftoverAfterYears - months * avgData.averageMonth;
-  const days = Math.floor(leftoverAfterMonths);
-
-  // 5) 남은 일의 소숫점 부분을 시간, 분, 초로 분해
-  const fractionDay = leftoverAfterMonths - days;
-  const totalHours = fractionDay * 24;
-  const hours = Math.floor(totalHours);
-  const fractionHour = totalHours - hours;
-  const totalMinutes = fractionHour * 60;
-  const minutes = Math.floor(totalMinutes);
-  const fractionMinute = totalMinutes - minutes;
-  
-  // 이제 rawYears를 기반으로 각 대운의 세부 분해 데이터를 계산
+  let currentMonthIndex = MONTH_ZHI.indexOf(monthPillar.charAt(1));
+  let monthStemIndex = Cheongan.indexOf(monthPillar.charAt(0));
   const list = [];
   for (let i = 0; i < 10; i++) {
-    // 각 대운은 rawYears + 10*i (대운은 10년 주기로 증가)
-    const totalAge = rawYears + i * 10;
-    
-    // 정수부와 소숫점부 분리
-    const integerYear = Math.floor(totalAge);
-    const fractionYear = totalAge - integerYear;
-    
-    // 소숫점부(년)를 실제 일수로 변환
-    const leftoverDays = fractionYear * avgData.averageYear;
-    // leftoverDays를 년,월,일,시간,분,초로 분해
-    const breakdown = convertDaysToYMDHMS(leftoverDays, avgData.averageYear, avgData.averageMonth);
-    
+    const age = baseNumber + i * 10;
+    const nextMonthIndex = isForward
+      ? (currentMonthIndex + i + 1) % 12
+      : (currentMonthIndex - (i + 1) + 12) % 12;
+
+    const nextStemIndex = isForward
+      ? (monthStemIndex + i + 1) % 10
+      : (monthStemIndex - (i + 1) + 10) % 10;
     list.push({
-      // 내부 계산용 대운수 (소숫점 포함)
-      age: totalAge,
-      fractionData: {
-        yearInteger: integerYear,
-        months: breakdown.months,
-        days: breakdown.days,
-        hours: breakdown.hours,
-        minutes: breakdown.minutes,
-        seconds: breakdown.seconds
-      },
-      // 대운 월주의 간지는 기존 방식으로 계산 (예: 원국 월주의 연산)
-      stem: Cheongan[(Cheongan.indexOf(monthPillar.charAt(0)) + i + 1) % 10],
-      branch: MONTH_ZHI[(MONTH_ZHI.indexOf(monthPillar.charAt(1)) + i + 1) % 12]
+      age: age,
+      stem: Cheongan[nextStemIndex],
+      branch: MONTH_ZHI[nextMonthIndex]
     });
   }
   
-  // 콘솔로 대운 리스트 전체 출력 (소숫점 포함)
-  console.log("대운 데이터 (rawYears, 분해 데이터):");
-  list.forEach((item, index) => {
-    console.log(`대운 ${index + 1}: ${item.age.toFixed(4)}년 → 정수: ${item.fractionData.yearInteger}년, ` +
-      `+ ${item.fractionData.months}개월, ${item.fractionData.days}일, ` +
-      `${item.fractionData.hours}시간, ${item.fractionData.minutes}분, ${item.fractionData.seconds}초`);
-  });
-  
-  return { base: rawYears, list: list, dayStemRef: dayStemRef };
-}
-
-function getHourStemArithmetic(dayPillar, hourBranchIndex) {
-  // dayPillar에서 천간(첫 글자)을 구합니다.
-  const dayStem = getDayStem(dayPillar);  
-  const idx = Cheongan.indexOf(dayStem);
-  if (idx === -1) return "";
-  if ([0, 2, 4, 6, 8].includes(idx)) {
-    return Cheongan[((idx * 2) + hourBranchIndex) % 10];
-  } else {
-    return Cheongan[((idx * 2) + hourBranchIndex + 2) % 10];
-  }
+  return { base: baseNumber, list: list, dayStemRef: dayStemRef };
 }
 
 function getDaewoonDataStr(birthPlace, gender) {
@@ -618,10 +545,6 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
     const daypillar = getDayGanZhi(nominalBirthDate);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   }	
-}
-
-function debugSolarTermBoundaries(solarYear) {
-  return getSolarTermBoundaries(solarYear);
 }
 
 let globalState = { birthYear: null, month: null, day: null, birthPlace: null, gender: null, daewoonData: null, sewoonStartYear: null };
@@ -785,7 +708,104 @@ function updateBranchInfo(prefix, branch, baseDayStem) {
   updateHiddenStems(branch, prefix);
 }
 
+  // -------------------------
+  // Helper 함수들
+  // -------------------------
+  function calculateAge(birthDate) {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
+  function formatDate(dateObj) {
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const dd = String(dateObj.getDate()).padStart(2, "0");
+    return `${yyyy}.${mm}.${dd}`;
+  }
+
+  let savedMyeongsikList = [];
+
+  function loadSavedMyeongsikList() {
+    // 로컬스토리지에서 저장된 목록을 읽어 전역 변수에도 할당
+    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+    savedMyeongsikList = savedList; 
+    const listUl = document.querySelector("aside .list_ul");
+    if (!listUl) return;
+    listUl.innerHTML = ""; // 기존 목록 초기화
+  
+    // 목록(li) 구성: 각 li에 저장된 사주(명식) 결과와 입력값(데이터 속성)을 포함함
+    savedList.forEach((item, index) => {
+      listUl.innerHTML += `
+        <li data-index="${index}">
+          <div class="info">
+            <p>
+              <span><b id="yearGZ_${index + 1}">${item.yearPillar}</b>년</span>
+              <span><b id="monthGZ_${index + 1}">${item.monthPillar}</b>월</span>
+              <span><b id="dayGZ_${index + 1}">${item.dayPillar}</b>일</span>
+              <span><b id="timeGZ_${index + 1}">${item.hourPillar}</b>시</span>
+            </p>
+            <p>
+              <span><b id="nameSV_${index + 1}">${item.name}</b></span>
+              <span>(<b id="ageSV_${index + 1}">${item.age}</b>세)</span>
+              <span><b id="genderSV_${index + 1}">${item.gender}</b></span>
+            </p>
+            <p>
+              <span id="birthdaytimeSV_${index + 1}">${item.birthdayTime}</span>
+              <span><b id="birthPlaceSV_${index + 1}">${item.birthPlace}</b></span>
+            </p>
+          </div>
+          <div class="btn_zone">
+            <button class="black_btn detailViewBtn" id="detailViewBtn_${index + 1}" data-index="${index}">이 명식 보기</button>
+            <button class="black_btn delete_btn" data-index="delete_${index + 1}"><span>&times;</span></button>
+          </div>
+        </li>
+      `;
+    });
+  
+    // "이 명식 보기" 버튼 이벤트 등록
+    document.querySelectorAll(".detailViewBtn").forEach(function(button) {
+      button.addEventListener("click", function(e) {
+        e.stopPropagation();
+        // 버튼의 data-index는 0부터 시작하도록 설정되어 있음
+        const idx = parseInt(button.getAttribute("data-index"), 10);
+        const item = savedList[idx];
+        if (item) {
+          // 저장된 객체의 입력값들을 해당 input 요소에 채워넣음
+          document.getElementById("inputBirthday").value = item.birthday;
+          document.getElementById("inputBirthtime").value = item.birthtime;
+          if (item.gender === "남") {
+            document.getElementById("genderMan").checked = true;
+            document.getElementById("genderWoman").checked = false;
+          } else {
+            document.getElementById("genderWoman").checked = true;
+            document.getElementById("genderMan").checked = false;
+          }
+          document.getElementById("inputBirthPlace").value = item.birthPlace;
+          // 자동으로 산출하기 버튼(calcBtn) 클릭 → 계산 결과 재실행
+          document.getElementById("calcBtn").click();
+        }
+        // 필요에 따라 목록(aside)와 입력/결과 영역을 숨김 처리
+        document.getElementById("aside").style.display = "none";
+        document.getElementById("inputWrap").style.display = "none";
+        document.getElementById("resultWrapper").style.display = "none";
+      });
+    });
+    
+  }
+  
+
 document.addEventListener("DOMContentLoaded", function () {
+
+  const calcBtn = document.getElementById("calcBtn");
+  if (calcBtn) {
+    calcBtn.click();
+  }
+
   const inputName = document.getElementById("inputName");
   if (inputName) {
     inputName.addEventListener("input", function () {
@@ -795,6 +815,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  
+  
   document.getElementById("calcBtn").addEventListener("click", function () {
 
     let refDate = new Date();
@@ -864,9 +886,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (lunarDate) {
       const formattedLunar = `${lunarDate.year}-${pad(lunarDate.month)}-${pad(lunarDate.day)}${lunarDate.isLeap ? " (윤달)" : ""}`;
       setText("resBirth2", formattedLunar);
-    } else {
-      setText("resBirth2", "-");
-    }
+    } 
 
     const solarDate = globalState.correctedBirthDate;
     const fullResult = getFourPillarsWithDaewoon(
@@ -965,35 +985,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
     globalState.daewoonData = getDaewoonData(birthPlace, gender);
     function updateCurrentDaewoon() {
-      let activeDaewoonLi = document.querySelector("[id^='daewoon_'].active");
-      let daewoonIndex = activeDaewoonLi ? parseInt(activeDaewoonLi.getAttribute("data-index"), 10) : 1;
-      if (!globalState.birthYear || !globalState.daewoonData) {
-        alert("먼저 계산 버튼을 눌러 출생 정보를 입력하세요.");
-        return;
+      const birthDateObj = new Date(year, month - 1, day);
+      const today = new Date();
+      let currentAge = today.getFullYear() - birthDateObj.getFullYear();
+      if (today.getMonth() < birthDateObj.getMonth() ||
+         (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate())) {
+        currentAge--;
       }
-
-      const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
-      const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
-      if (!selectedDaewoon) return;
-      const daewoonNum = selectedDaewoon.age; 
-      const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-      globalState.sewoonStartYear = Math.round(sewoonStartYearDecimal);
+      const daewoonData = getDaewoonData(birthPlace, gender);
+      let currentDaewoon = null;
+      for (let i = 0; i < daewoonData.list.length; i++) {
+        if (daewoonData.list[i].age <= currentAge) {
+          currentDaewoon = daewoonData.list[i];
+        }
+      }
+      if (!currentDaewoon) {
+        currentDaewoon = daewoonData.list[0] || { stem: "-", branch: "-" };
+      }
     
       // 나머지 UI 업데이트 (대운 관련) — 기존 코드는 그대로 유지합니다.
-      setText("DwtHanja", stemMapping[selectedDaewoon.stem]?.hanja || "-");
-      setText("DwtHanguel", stemMapping[selectedDaewoon.stem]?.hanguel || "-");
-      setText("DwtEumyang", stemMapping[selectedDaewoon.stem]?.eumYang || "-");
-      setText("Dwt10sin", getTenGodForStem(selectedDaewoon.stem, baseDayStem));
-      setText("DwbHanja", branchMapping[selectedDaewoon.branch]?.hanja || "-");
-      setText("DwbHanguel", branchMapping[selectedDaewoon.branch]?.hanguel || "-");
-      setText("DwbEumyang", branchMapping[selectedDaewoon.branch]?.eumYang || "-");
-      setText("Dwb10sin", getTenGodForBranch(selectedDaewoon.branch, baseDayStem));
-      const hiddenArr = hiddenStemMapping[selectedDaewoon.branch] || ["-", "-", "-"];
+      setText("DwtHanja", stemMapping[currentDaewoon.stem]?.hanja || "-");
+      setText("DwtHanguel", stemMapping[currentDaewoon.stem]?.hanguel || "-");
+      setText("DwtEumyang", stemMapping[currentDaewoon.stem]?.eumYang || "-");
+      setText("Dwt10sin", getTenGodForStem(currentDaewoon.stem, baseDayStem));
+      setText("DwbHanja", branchMapping[currentDaewoon.branch]?.hanja || "-");
+      setText("DwbHanguel", branchMapping[currentDaewoon.branch]?.hanguel || "-");
+      setText("DwbEumyang", branchMapping[currentDaewoon.branch]?.eumYang || "-");
+      setText("Dwb10sin", getTenGodForBranch(currentDaewoon.branch, baseDayStem));
+      const hiddenArr = hiddenStemMapping[currentDaewoon.branch] || ["-", "-", "-"];
       setText("DwJj1", hiddenArr[0]);
       setText("DwJj2", hiddenArr[1]);
       setText("DwJj3", hiddenArr[2]);
-      setText("DWb12ws", getTwelveUnseong(baseDayStem, selectedDaewoon.branch));
-      setText("DWb12ss", getTwelveShinsal(baseYearBranch, selectedDaewoon.branch));
+      setText("DWb12ws", getTwelveUnseong(baseDayStem, currentDaewoon.branch));
+      setText("DWb12ss", getTwelveShinsal(baseYearBranch, currentDaewoon.branch));
     }
     updateCurrentDaewoon();
     updateMonthlyWoonByToday(new Date());
@@ -1129,6 +1153,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
+    const originalYearPillarData = getYearGanZhi(correctedDate, birthDate.getFullYear());
+    const isYangStem = ["갑", "병", "무", "경", "임"].includes(originalYearPillarData.charAt(0));
+    const direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
     const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
     if (!selectedDaewoon) return;
     const daewoonNum = selectedDaewoon.age; 
@@ -1174,6 +1201,7 @@ document.addEventListener("DOMContentLoaded", function () {
       li.classList.toggle("active", currentYear === displayYear);
       document.getElementById('resultWrapper').style.display = 'block';
       document.getElementById('inputWrap').style.display = 'none';
+      document.getElementById("saveBtn").style.display = "inline-block";
     });
 
     function updateListMapping(list, prefixUnseong, prefixShinsal, baseDayStem, baseYearBranch) {
@@ -1699,9 +1727,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 모드 결정 (순행/역행)
     // getYearGanZhi, correctedDate, gender는 이미 정의되어 있다고 가정
-    const originalYearPillarData = getYearGanZhi(correctedDate, birthDate.getFullYear());
-    const isYangStem = ["갑", "병", "무", "경", "임"].includes(originalYearPillarData.charAt(0));
-    const direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
     const yeonjuMode = direction === 1 ? "순행" : "역행";
     const woljuMode  = direction === 1 ? "순행" : "역행";
     const iljuMode   = direction === 1 ? "순행" : "역행";
@@ -2231,8 +2256,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    document.getElementById('backBtn').addEventListener('click', function () {
-      window.location.reload();
+    document.querySelectorAll('.back_btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        window.location.reload();
+      });
     });
 
     document.getElementById('wongookLM').classList.remove("w100");
@@ -2602,53 +2629,163 @@ document.addEventListener("DOMContentLoaded", function () {
     
     document.getElementById('resultWrapper').style.display = 'block';
     document.getElementById('inputWrap').style.display = 'none';
+    document.getElementById("saveBtn").style.display = "inline-block";
+
+
   });
+});
 
-  const inputYear = 1996; // 원하는 년도로 변경 가능
-  const solarTermList = getSolarTermBoundaries(inputYear);
-  console.log(`=== ${inputYear}년 절기 리스트 ===`);
-  solarTermList.forEach(term => {
-    console.log(`${term.name}: ${term.date}`);
-  });
+document.getElementById("saveBtn").addEventListener("click", function () {
+  // 현재 계산된 결과와 입력값을 저장
+  // 입력값 읽어오기
+  let birthday = document.getElementById("inputBirthday").value.trim(); // 예: "YYYYMMDD"
+  let birthtime = document.getElementById("inputBirthtime").value.trim(); // 예: "HHMM"
+  let gender = document.getElementById("genderMan").checked ? "남" : "여";
+  let birthPlace = document.getElementById("inputBirthPlace").value;
+  let name = document.getElementById("inputName").value.trim() || "이름없음";
 
-  // 두 날짜 사이의 차이를 일, 시간, 분 단위로 계산하는 함수
-function calculateTimeDifference(date1, date2) {
-  // 날짜 차이를 밀리초(ms) 단위로 계산 (date1이 date2보다 늦으면 양수)
-  const diffMs = date1 - date2;
-  // 부호 저장 (음수면 date1이 더 이전임)
-  const sign = diffMs < 0 ? -1 : 1;
-  const absDiff = Math.abs(diffMs);
-  
-  const msPerDay = 24 * 60 * 60 * 1000;     // 1일 = 86,400,000ms
-  const msPerHour = 60 * 60 * 1000;          // 1시간 = 3,600,000ms
-  const msPerMinute = 60 * 1000;             // 1분 = 60,000ms
-
-  const days = Math.floor(absDiff / msPerDay);
-  const remainingAfterDays = absDiff % msPerDay;
-  const hours = Math.floor(remainingAfterDays / msPerHour);
-  const remainingAfterHours = remainingAfterDays % msPerHour;
-  const minutes = Math.floor(remainingAfterHours / msPerMinute);
-
-  return { sign, days, hours, minutes, totalDays: diffMs / msPerDay };
-}
-
-  // 예시: 1996년 12월 29일 16시 30분, 1996년 11월 19일 12시 30분
-  // Date 객체 생성 시, 월은 0부터 시작하므로 12월은 11, 11월은 10으로 입력합니다.
-  const dateA = new Date(1996, 11, 29, 16, 30); // 1996년 12월 29일 16:30
-  const dateB = new Date(1996, 10, 19, 12, 30); // 1996년 11월 19일 12:30
-
-  const diff = calculateTimeDifference(dateA, dateB);
-
-  // 부호에 따라 결과 문자열 구성
-  let resultStr = "";
-  if(diff.sign < 0) {
-    resultStr = `뒤에 있는 날짜가 더 이후입니다.\n`;
+  // 기본 검증
+  if (birthday.length !== 8 || birthtime.length !== 4) {
+    alert("생년월일은 YYYYMMDD, 태어난 시간은 HHMM 형식이어야 합니다.");
+    return;
   }
 
-  resultStr += `날짜 차이: ${diff.days}일 ${diff.hours}시간 ${diff.minutes}분`;
+  // 입력값에서 숫자값 추출
+  let year = parseInt(birthday.substring(0, 4), 10);
+  let month = parseInt(birthday.substring(4, 6), 10);
+  let day = parseInt(birthday.substring(6, 8), 10);
+  let hour = parseInt(birthtime.substring(0, 2), 10);
+  let minute = parseInt(birthtime.substring(2, 4), 10);
 
-  // 전체 일수(소수점 포함)도 같이 출력
-  resultStr += `\n전체 차이(일 단위): ${diff.totalDays}일`;
+  // 계산 함수 호출 (예: 사주 계산 결과 문자열 반환)
+  let computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender);
 
-  console.log(resultStr);
+  // 결과 문자열의 앞부분(사주 기둥)을 파싱하여 각 기둥 값을 추출합니다.
+  let pillarsPart = computedResult.split(", ")[0]; // 예: "병자 경인 정묘 무오시"
+  let pillars = pillarsPart.split(" ");
+  let yearPillar = pillars[0] || "";
+  let monthPillar = pillars[1] || "";
+  let dayPillar = pillars[2] || "";
+  let hourPillar = pillars[3] || "";
+
+  // 추가 계산: correctedDate, 나이, 생일시간
+  let originalDate = new Date(year, month - 1, day, hour, minute);
+  let correctedDate = adjustBirthDate(originalDate, birthPlace);
+  let age = calculateAge(correctedDate);
+  let birthdayTime = formatDate(correctedDate); // 예: "YYYY.MM.DD"
+
+  // 저장할 데이터 객체 구성
+  let newData = {
+    birthday: birthday,         // 예: "YYYYMMDD"
+    birthtime: birthtime,       // 예: "HHMM"
+    gender: gender,             // "남" 또는 "여"
+    birthPlace: birthPlace,
+    name: name,
+    result: computedResult,     // 전체 계산 결과 문자열
+    yearPillar: yearPillar,
+    monthPillar: monthPillar,
+    dayPillar: dayPillar,
+    hourPillar: hourPillar,
+    age: age,
+    birthdayTime: birthdayTime
+  };
+
+  // 로컬스토리지에 저장된 목록을 읽어오기
+  let list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+
+  // 기존 목록에서 모든 key의 값이 동일한 데이터가 있는지 확인
+  let alreadySaved = list.some(function(item) {
+    return item.birthday === newData.birthday &&
+           item.birthtime === newData.birthtime &&
+           item.gender === newData.gender &&
+           item.birthPlace === newData.birthPlace;
+    // 필요시 result, 사주 기둥 등 추가 필드를 비교할 수 있습니다.
+  });
+
+  // 저장 후 목록을 새로 불러와 화면에 업데이트
+  loadSavedMyeongsikList();
+
+  if (alreadySaved) {
+    alert("이미 저장된 명식입니다.");
+    return;
+  }
+
+  // 중복되지 않았다면 배열에 추가하고 저장
+  list.push(newData);
+  localStorage.setItem("myeongsikList", JSON.stringify(list));
 });
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("container").addEventListener("click", function (event) {
+    const btn = event.target.closest("[id^='detailViewBtn_']");
+    if (btn) {
+      console.log('불러오기 버튼 클릭');
+      // 버튼의 data-index 속성이 1부터 시작한다고 가정
+      const index = parseInt(btn.getAttribute("data-index"), 10) - 1;
+      const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+      if (index >= 0 && index < savedList.length) {
+        // 저장된 객체의 입력값들을 input 요소에 채워넣기
+        document.getElementById("inputBirthday").value = savedList[index].birthday;
+        console.log(document.getElementById("inputBirthday").value);
+        document.getElementById("inputBirthtime").value = savedList[index].birthtime;
+        if (savedList[index].gender === "남") {
+          document.getElementById("genderMan").checked = true;
+          document.getElementById("genderWoman").checked = false;
+        } else {
+          document.getElementById("genderWoman").checked = true;
+          document.getElementById("genderMan").checked = false;
+        }
+        document.getElementById("inputBirthPlace").value = savedList[index].birthPlace;
+        
+        // 필요하다면 다른 입력 필드(예: 음력 여부 등)도 채워넣으세요.
+        
+        // 자동으로 산출하기 버튼(calcBtn)을 클릭하여 계산 실행
+        setTimeout(function() {
+          document.getElementById("calcBtn").click();
+        }, 10);
+      }
+      // 목록(aside)와 관련 영역은 숨깁니다.
+      document.getElementById("aside").style.display = "none";
+      document.getElementById("inputWrap").style.display = "none";
+      document.getElementById("resultWrapper").style.display = "block";
+    }
+  });
+});
+
+// aside 열기/닫기 이벤트
+document.getElementById("listViewBtn").addEventListener("click", function () {
+  loadSavedMyeongsikList();
+  document.getElementById("aside").style.display = "block";
+  });
+  document.getElementById("closeBtn").addEventListener("click", function () {
+  document.getElementById("aside").style.display = "none";
+  });
+  document.getElementById("backBtnAS").addEventListener("click", function () {
+  document.getElementById("aside").style.display = "none";
+});
+
+// 삭제 버튼 처리 (이벤트 위임)
+
+document.addEventListener("click", function (event) {
+  const deleteBtn = event.target.closest(".delete_btn");
+  if (deleteBtn) {
+    const dataIndex = deleteBtn.getAttribute("data-index"); // "delete_번호"
+    const indexStr = dataIndex.replace("delete_", "");
+    const index = parseInt(indexStr, 10) - 1;
+    let savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+    if (index >= 0 && index < savedList.length) {
+      savedList.splice(index, 1);
+      localStorage.setItem("myeongsikList", JSON.stringify(savedList));
+      loadSavedMyeongsikList();
+      alert("해당 명식이 삭제되었습니다.");
+    }
+  }
+});
+
+
+
+
+
+
+
+
+

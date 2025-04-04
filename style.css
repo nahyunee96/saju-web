@@ -118,8 +118,9 @@
     border-radius: 5px;
     color: #353535;
   }
+
   .input_group select {
-	line-height: normal !important;
+	  line-height: normal !important;
   }
 
   .radio_box {
@@ -189,7 +190,6 @@
     gap: 10px;
   }
 
-  /* 원국/합충형... 영역 */
   .grid_box {
     position: relative; 
     z-index: 10; 
@@ -200,7 +200,7 @@
   }
 
   .grid_box.reverse {
-	direction: rtl;
+	  direction: rtl;
   }
 
   .grid_box_2 {
@@ -417,13 +417,96 @@
     margin-bottom: 0;
   }
 
-  .result_wrapper .head {
-    padding: 10px;
-    margin-bottom: 20px;
-    text-align: center;
+  .container {
+    padding: 90px 0;
   }
 
-  
+  .container .header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 90px;
+    position:fixed;
+    top: 0;
+    left: 0;
+    padding: 0 10px;
+    border-bottom: 1px solid #a5a5a5;
+    background-color: #011627;
+    color: #EED36C;
+    z-index: 98;
+  }
+
+  .header .flex_btn_2 {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .header .flex_btn_2 button  {
+    padding: 10px 20px;
+  }
+
+  .aside {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 99;
+    background-color: #011627;
+    color: #fff;
+  }
+
+  .aside .head {
+    height: 80px;
+    padding: 20px;
+  }
+
+  .aside .close_btn,
+  .delete_btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    padding: 0 !important;
+    font-size: 40px;
+    line-height: 100%;
+  }
+
+  .delete_btn {
+    position: static;
+  }
+
+  .aside .close_btn span,
+  .delete_btn span {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: -5px;
+  }
+
+  .aside .list_ul {
+    max-height: (100vh - 80px);
+    padding: 20px;
+    padding-top: 0;
+    overflow: auto;
+  }
+
+  .aside .list_ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #EED36C;
+  }
+
+  .aside .list_ul li .btn_zone {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
   .ilju_calender {
     margin-top: 20px;
@@ -504,7 +587,7 @@
     margin-bottom: 0;
   }
 
-  .btn_box .black_btn {
+  .black_btn {
     padding: 10px 50px;
     background-color: #EED36C;
     border: none;
@@ -522,7 +605,6 @@
     width: 100%;
     height: 50px;
     padding: 0 10px;
-    
   }
 
   .red { color: #E40101 !important; }
@@ -601,10 +683,6 @@
 
   /* 모바일 대응 */
   @media screen and (max-width:991px){
-
-    .container {
-      padding: 0vw;
-    }
     .info_wrapper {
       max-width: 100%; 
       padding:2.624vw; 
@@ -642,17 +720,26 @@
       margin-top:5.224vw;
     }
     .btn_box button {
-      padding:4.224vw 12.448vw; 
+      padding:0vw 12.448vw; 
       font-size:3.628vw;
+    }
+
+    .btn_box button#calcBtn {
+      height: 12vw;
     }
 
     .btn_box.mb40 {
       margin-bottom: 12vw;
     }
 
-    .btn_box .black_btn {
-      padding: 2vw 10vw;
+    .black_btn {
+      padding: 0 10vw;
+      height: 8vw;
       font-size: 3.628vw;
+    }
+
+    .detailViewBtn {
+      padding: 0 2vw;
     }
 
     .result_wrapper .info_box {
@@ -775,6 +862,49 @@
     .fortune_section .w.dage {
       font-size: 2.424vw;
       margin-bottom: 0;
+    }
+
+    .container {
+      padding: 16vw 0;
+    }
+
+    .container .header {
+      height: 16vw;
+    }
+
+    .header .flex_btn_2 button {
+      padding: 0 4vw;
+    }
+
+    .aside .head {
+      padding: 4vw;
+    }
+  
+    .aside .close_btn,
+    .delete_btn {
+      top: 4vw;
+      right: 4vw;
+      width: 8vw;
+      height: 8vw;
+      font-size: 8vw;
+      padding: 0px;
+    }
+  
+    .aside .close_btn span,
+    .delete_btn span {
+      display: inline-block;
+      vertical-align: top;
+      margin-top: -0.8vw;
+    }
+  
+    .aside .list_ul {
+      padding: 4vw;
+      padding-top: 0;
+    }
+  
+    .aside .list_ul li {
+      padding: 3.6vw 0;
+      font-size: 3.2vw;
     }
 
     .grid_box_12 {
