@@ -1425,6 +1425,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById('resultWrapper').style.display = 'block';
       window.scrollTo(0, 0);
       document.getElementById('inputWrap').style.display = 'none';
+      document.getElementById("backBtn").style.display = "inline-block";
       document.getElementById("saveBtn").style.display = "inline-block";
     });
 

@@ -639,6 +639,7 @@
     outline: none;
     cursor: pointer;
     color: #353535;
+    border-radius: 4px;
   }
 
   .cal_area {
@@ -929,7 +930,7 @@
     }
 
     .header .flex_btn_2 button {
-      padding: 0 4vw;
+      padding: 0 2vw;
     }
 
     .aside .head {
