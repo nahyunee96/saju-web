@@ -550,6 +550,7 @@
     padding: 0px 20px;
     font-size: 14px;
     color: #EED36C;
+    margin-bottom: 5px;
   }
 
   .ilju_calender {
@@ -982,6 +983,7 @@
     .aside .pharases {
       padding: 0 4vw;
       font-size: 3.2vw;
+      margin-bottom: 1.2vw;
     }
 
     .grid_box_12 {
