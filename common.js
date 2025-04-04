@@ -872,6 +872,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("aside").style.display = "none";
         document.getElementById("inputWrap").style.display = "none";
         document.getElementById("resultWrapper").style.display = "block";
+        window.scrollTo(0, 0);
       });
     });
     
@@ -1288,6 +1289,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const currentYear = Number(dyearElem.innerText);
       li.classList.toggle("active", currentYear === displayYear);
       document.getElementById('resultWrapper').style.display = 'block';
+      window.scrollTo(0, 0);
       document.getElementById('inputWrap').style.display = 'none';
       document.getElementById("saveBtn").style.display = "inline-block";
     });
@@ -2716,6 +2718,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     
     document.getElementById('resultWrapper').style.display = 'block';
+    window.scrollTo(0, 0);
     document.getElementById('inputWrap').style.display = 'none';
     document.getElementById("saveBtn").style.display = "inline-block";
 
