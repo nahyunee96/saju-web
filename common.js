@@ -842,25 +842,32 @@ document.addEventListener("DOMContentLoaded", function () {
     savedList.forEach((item, index) => {
       listUl.innerHTML += `
         <li data-index="${index}">
-          <div class="info">
-            <p>
-              <span><b id="nameSV_${index + 1}">${item.name}</b></span>
-              <span>(만 <b id="ageSV_${index + 1}">${item.age}</b>세)</span>
-              <span><b id="genderSV_${index + 1}">${item.gender}</b></span>
-            </p>
-            <p>
-              <span><b id="yearGZ_${index + 1}">${item.yearPillar}</b>년</span>
-              <span><b id="monthGZ_${index + 1}">${item.monthPillar}</b>월</span>
-              <span><b id="dayGZ_${index + 1}">${item.dayPillar}</b>일</span>
-              <span><b id="timeGZ_${index + 1}">${item.hourPillar}</b>시</span>
-            </p>
-            <p>
-              <span id="birthdaytimeSV_${index + 1}">${item.birthdayTime}</span>
-              <span><b id="birthPlaceSV_${index + 1}">${item.birthPlace}</b></span>
-            </p>
+          <div class="info_btn_zone">
+            <button class="drag_btn_zone" id="dragBtn_${index + 1}">
+              <div class="line"></div>
+              <div class="line"></div>
+              <div class="line"></div>
+            </button>
+            <div class="info">
+              <p>
+                <span><b id="nameSV_${index + 1}">${item.name}</b></span>
+                <span>(만 <b id="ageSV_${index + 1}">${item.age}</b>세, <b id="genderSV_${index + 1}">${item.gender}</b>)</span>
+              </p>
+              <p>
+                <span><b id="yearGZ_${index + 1}">${item.yearPillar}</b>년</span>
+                <span><b id="monthGZ_${index + 1}">${item.monthPillar}</b>월</span>
+                <span><b id="dayGZ_${index + 1}">${item.dayPillar}</b>일</span>
+                <span><b id="timeGZ_${index + 1}">${item.hourPillar}</b>시</span>
+              </p>
+              <p>
+                <span id="birthdaytimeSV_${index + 1}">${item.birthdayTime}</span>
+                <span><b id="birthPlaceSV_${index + 1}">${item.birthPlace}</b></span>
+              </p>
+            </div>
           </div>
           <div class="btn_zone">
             <button class="black_btn detailViewBtn" id="detailViewBtn_${index + 1}" data-index="${index}">명식 보기</button>
+            <button button class="black_btn modify_btn" id="modifyBtn_${index + 1}" data-index="${index}">수정</button>
             <button class="black_btn delete_btn" data-index="delete_${index + 1}"><span>&times;</span></button>
           </div>
         </li>
@@ -899,7 +906,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // delete 버튼 이벤트 등록
     document.querySelectorAll(".delete_btn").forEach(function (button) {
       button.addEventListener("click", function (e) {
-        e.stopPropagation();
+        e.stopPropagation(); // li 클릭 이벤트 방지
+    
+        // 삭제 확인 창
+        const confirmDelete = confirm("정말로 해당 명식을 삭제하시겠습니까?");
+        if (!confirmDelete) return;
+    
         const dataIndex = button.getAttribute("data-index");
         const idxStr = dataIndex.replace("delete_", "");
         const idx = parseInt(idxStr, 10) - 1;
@@ -913,6 +925,100 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  // 수정 버튼 이벤트 위임 처리
+  // DOMContentLoaded 내부 또는 하단에 위치해도 무방합니다
+  document.addEventListener("click", function (event) {
+    const modifyBtn = event.target.closest(".modify_btn");
+    if (!modifyBtn) return;
+
+    console.log('버튼 클릭 확인용');
+
+    const index = parseInt(modifyBtn.getAttribute("data-index"), 10);
+    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+    const selected = savedList[index];
+    if (!selected) return;
+
+    document.getElementById("inputWrap").style.display = "block";
+    document.getElementById("resultWrapper").style.display = "none";
+    document.getElementById("aside").style.display = "none";
+
+    document.getElementById("inputName").value = selected.name;
+    document.getElementById("inputBirthday").value = selected.birthday;
+    document.getElementById("inputBirthtime").value = selected.birthtime;
+    document.getElementById("inputBirthPlace").value = selected.birthPlace;
+
+    if (selected.gender === "남") {
+      document.getElementById("genderMan").checked = true;
+    } else {
+      document.getElementById("genderWoman").checked = true;
+    }
+
+    window.currentModifyIndex = index;
+
+    const calcBtn = document.getElementById("calcBtn");
+    calcBtn.textContent = "수정하기";
+  });
+
+  // 수정 버튼으로 기능 전환
+  // 기존 산출하기 기능과 동일한 위치에 존재
+  // calcBtn 클릭 시 수정인지 신규 계산인지 구분
+
+  document.getElementById("calcBtn").addEventListener("click", function () {
+    const birthday = document.getElementById("inputBirthday").value.trim();
+    const birthtime = document.getElementById("inputBirthtime").value.trim();
+    const gender = document.getElementById("genderMan").checked ? "남" : "여";
+    const birthPlace = document.getElementById("inputBirthPlace").value;
+    const name = document.getElementById("inputName").value.trim() || "이름없음";
+
+    if (birthday.length !== 8 || birthtime.length !== 4) {
+      alert("생년월일은 YYYYMMDD, 태어난 시간은 HHMM 형식이어야 합니다.");
+      return;
+    }
+
+    const year = parseInt(birthday.substring(0, 4), 10);
+    const month = parseInt(birthday.substring(4, 6), 10);
+    const day = parseInt(birthday.substring(6, 8), 10);
+    const hour = parseInt(birthtime.substring(0, 2), 10);
+    const minute = parseInt(birthtime.substring(2, 4), 10);
+
+    const result = getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender);
+    const pillars = result.split(", ")[0].split(" ");
+
+    const correctedDate = adjustBirthDate(new Date(year, month - 1, day, hour, minute), birthPlace);
+    const age = calculateAge(correctedDate);
+    const birthdayTime = formatDate(correctedDate);
+
+    const newData = {
+      birthday, birthtime, gender, birthPlace, name,
+      result,
+      yearPillar: pillars[0] || "",
+      monthPillar: pillars[1] || "",
+      dayPillar: pillars[2] || "",
+      hourPillar: pillars[3] || "",
+      age, birthdayTime
+    };
+
+    const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+
+    // 수정 모드인 경우 기존 값 업데이트
+    if (typeof window.currentModifyIndex === "number") {
+      list[window.currentModifyIndex] = newData;
+      localStorage.setItem("myeongsikList", JSON.stringify(list));
+      alert("명식이 수정되었습니다.");
+      delete window.currentModifyIndex;
+    } else {
+      // 신규 저장 로직 (기존과 동일하게 추가 가능)
+      list.push(newData);
+      localStorage.setItem("myeongsikList", JSON.stringify(list));
+      alert("새 명식이 저장되었습니다.");
+    }
+
+    // 목록 재갱신 및 화면 전환
+    loadSavedMyeongsikList();
+    document.getElementById("inputWrap").style.display = "none";
+    document.getElementById("resultWrapper").style.display = "block";
+  });
 
   // aside 열기/닫기 이벤트 등록
   document.getElementById("listViewBtn").addEventListener("click", function () {
@@ -2719,15 +2825,101 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   });
+
+  let dragSrcEl = null;
+  let isDragHandle = false;
+
+  function handleDragStart(e) {
+    if (!isDragHandle) return e.preventDefault();
+    dragSrcEl = this;
+    this.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", this.outerHTML);
+  }
+
+  function handleDragOver(e) {
+    if (e.preventDefault) e.preventDefault();
+    return false;
+  }
+
+  function handleDragEnter() {
+    if (this !== dragSrcEl) this.classList.add("over");
+  }
+
+  function handleDragLeave() {
+    this.classList.remove("over");
+  }
+
+  function handleDrop(e) {
+    if (e.stopPropagation) e.stopPropagation();
+
+    if (dragSrcEl !== this) {
+      const list = document.querySelector("aside .list_ul");
+      const draggingIndex = Array.from(list.children).indexOf(dragSrcEl);
+      const targetIndex = Array.from(list.children).indexOf(this);
+
+      // DOM 순서 변경
+      list.insertBefore(dragSrcEl, (draggingIndex < targetIndex) ? this.nextSibling : this);
+
+      // localStorage 업데이트
+      let savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+      const movedItem = savedList.splice(draggingIndex, 1)[0];
+      savedList.splice(targetIndex, 0, movedItem);
+      localStorage.setItem("myeongsikList", JSON.stringify(savedList));
+
+      // 리스트 다시 그리기
+      loadSavedMyeongsikList();
+    }
+
+    return false;
+  }
+
+  function handleDragEnd() {
+    this.classList.remove("dragging");
+    document.querySelectorAll("aside .list_ul li").forEach(item => item.classList.remove("over"));
+  }
+
+  function addDnDHandlers() {
+    const listItems = document.querySelectorAll("aside .list_ul li");
+
+    listItems.forEach(function (item) {
+      item.setAttribute("draggable", true);
+
+      // 드래그 핸들 버튼 이벤트
+      const handle = item.querySelector(".drag_btn_zone");
+
+      // 마우스 이벤트
+      handle.addEventListener("mousedown", function (e) {
+        isDragHandle = true;
+      });
+      document.addEventListener("mouseup", function () {
+        isDragHandle = false;
+      });
+
+      // 터치 이벤트 (모바일 대응)
+      handle.addEventListener("touchstart", function () {
+        isDragHandle = true;
+      }, { passive: true });
+      document.addEventListener("touchend", function () {
+        isDragHandle = false;
+      }, { passive: true });
+
+      item.addEventListener("dragstart", handleDragStart);
+      item.addEventListener("dragenter", handleDragEnter);
+      item.addEventListener("dragover", handleDragOver);
+      item.addEventListener("dragleave", handleDragLeave);
+      item.addEventListener("drop", handleDrop);
+      item.addEventListener("dragend", handleDragEnd);
+    });
+  }
+
+  // loadSavedMyeongsikList가 실행된 후 DnD 설정해야 하므로 감싸줌
+  const originalLoad = loadSavedMyeongsikList;
+  loadSavedMyeongsikList = function () {
+    originalLoad(); // 기존 목록 불러오기
+    addDnDHandlers(); // 드래그 이벤트 연결
+  };
+
+  // 페이지 로딩 시 최초 한번 실행
+  loadSavedMyeongsikList();
 });
-
-
-
-
-
-
-
-
-
-
-

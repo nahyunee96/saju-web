@@ -175,13 +175,19 @@
   }
 
   .result_wrapper .info_box {
-    display: flex; 
-    justify-content: space-between; 
     color: #fff; 
     border-bottom: 1px solid #fff; 
     padding-bottom: 10px; 
     margin-bottom: 25px; 
-    font-size: 16px;
+  }
+
+  .result_wrapper .info_box .name_gender {
+    font-size:20px;
+    margin-bottom: 8px;
+  }
+
+  .result_wrapper .info_box .birthday_info {
+    font-size:18px;
   }
 
   .woon_container {
@@ -503,10 +509,41 @@
     border-bottom: 1px solid #EED36C;
   }
 
+  .aside .list_ul li .info_btn_zone {
+    display: flex;
+    align-items: center;
+  }
+
+  .aside .list_ul li .info_btn_zone .drag_btn_zone {
+    height: 20px;
+    margin-right: 10px;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .aside .list_ul li .info_btn_zone .drag_btn_zone .line {
+    width: 24px;
+    height: 4px;
+    background-color: #EED36C;
+    margin-bottom: 4px;
+  }
+
+  .aside .list_ul li .info_btn_zone .drag_btn_zone .line:last-child {
+    margin-bottom: 0;
+  }
+
   .aside .list_ul li .btn_zone {
     display: flex;
     align-items: center;
     gap: 10px;
+  }
+
+  .aside .pharases {
+    padding: 0px 20px;
+    font-size: 14px;
+    color: #EED36C;
   }
 
   .ilju_calender {
@@ -737,17 +774,27 @@
     .black_btn {
       padding: 0 10vw;
       height: 8vw;
-      font-size: 3.628vw;
+      font-size: 3.228vw;
     }
-
-    .detailViewBtn {
+    
+    .detailViewBtn,
+    .modify_btn,
+    .back_btn {
       padding: 0 2vw;
     }
 
     .result_wrapper .info_box {
       margin-bottom:4vw; 
-      font-size:2.444vw; 
       padding-bottom:2vw;
+    }
+
+    .result_wrapper .info_box .name_gender {
+      font-size:3.244vw;
+      margin-bottom: 1.2vw;
+    }
+
+    .result_wrapper .info_box .birthday_info {
+      font-size:2.844vw;
     }
     
     .woonkuk {
@@ -879,6 +926,7 @@
     }
 
     .aside .head {
+      height: 16vw;
       padding: 4vw;
     }
   
@@ -906,6 +954,27 @@
   
     .aside .list_ul li {
       padding: 3.6vw 0;
+      font-size: 3.2vw;
+    }
+
+    .aside .list_ul li .btn_zone {
+      gap: 2vw;
+    }
+
+    .aside .list_ul li .info_btn_zone .drag_btn_zone {
+      height: 6.4vw;
+      margin-right: 2.8vw;
+    }
+  
+    .aside .list_ul li .info_btn_zone .drag_btn_zone .line {
+      width: 6.4vw;
+      height: 1.2vw;
+      background-color: #EED36C;
+      margin-bottom: 1.2vw;
+    }
+
+    .aside .pharases {
+      padding: 0 4vw;
       font-size: 3.2vw;
     }
 
