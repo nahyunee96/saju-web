@@ -826,15 +826,15 @@ document.addEventListener("DOMContentLoaded", function () {
         <li data-index="${index}">
           <div class="info">
             <p>
+              <span><b id="nameSV_${index + 1}">${item.name}</b></span>
+              <span>(<b id="ageSV_${index + 1}">${item.age}</b>세)</span>
+              <span><b id="genderSV_${index + 1}">${item.gender}</b></span>
+            </p>
+            <p>
               <span><b id="yearGZ_${index + 1}">${item.yearPillar}</b>년</span>
               <span><b id="monthGZ_${index + 1}">${item.monthPillar}</b>월</span>
               <span><b id="dayGZ_${index + 1}">${item.dayPillar}</b>일</span>
               <span><b id="timeGZ_${index + 1}">${item.hourPillar}</b>시</span>
-            </p>
-            <p>
-              <span><b id="nameSV_${index + 1}">${item.name}</b></span>
-              <span>(<b id="ageSV_${index + 1}">${item.age}</b>세)</span>
-              <span><b id="genderSV_${index + 1}">${item.gender}</b></span>
             </p>
             <p>
               <span id="birthdaytimeSV_${index + 1}">${item.birthdayTime}</span>
@@ -842,7 +842,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </p>
           </div>
           <div class="btn_zone">
-            <button class="black_btn detailViewBtn" id="detailViewBtn_${index + 1}" data-index="${index}">이 명식 보기</button>
+            <button class="black_btn detailViewBtn" id="detailViewBtn_${index + 1}" data-index="${index}">명식 보기</button>
             <button class="black_btn delete_btn" data-index="delete_${index + 1}"><span>&times;</span></button>
           </div>
         </li>
