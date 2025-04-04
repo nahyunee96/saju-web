@@ -1930,11 +1930,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ratio = round4(ratio);
         const offset = round4(ratio * sijuCycle);
         
-        console.log("[Siju] birthMinutes:", birthMinutes);
-        console.log("[Siju] block.start:", block.start, "block.length:", blockLength);
-        console.log("[Siju] ratio:", ratio.toFixed(4));
-        console.log("[Siju] 시주 오프셋 (일수):", offset.toFixed(4));
-        
         return Number(offset.toFixed(4));
       }
 
@@ -1946,10 +1941,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const totalMonths = 120 * 12; // 1440개월
         const avgMonthLength = totalDays / totalMonths;
         const cycle = avgMonthLength * 4;
-        console.log("[getDynamicIljuCycle] totalDays:", totalDays.toFixed(4),
-                    "totalMonths:", totalMonths,
-                    "avgMonthLength:", avgMonthLength.toFixed(4),
-                    "4개월치 주기:", cycle.toFixed(4), "일");
         return cycle;
       }
       
@@ -1970,11 +1961,9 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (insiElem && insiElem.checked) {
           baseTime.setHours(3, 0, 0, 0);
         }
-        console.log("[calculateIljuOffsetDynamic] baseTime:", baseTime.toLocaleString());
       
         // 2. 동적 일주 주기 계산 (출생월부터 4개월간의 총 일수)
         let dynamicIljuCycle = getDynamicIljuCycle(birthDate);
-        console.log("[calculateIljuOffsetDynamic] dynamicIljuCycle (일수):", dynamicIljuCycle.toFixed(4));
       
         // 3. mode에 따라 목표 시각과 출생 시각 간의 차이를 분 단위로 계산
         let diffMinutes;
@@ -1985,7 +1974,6 @@ document.addEventListener("DOMContentLoaded", function () {
             targetTime.setDate(targetTime.getDate() + 1);
           }
           diffMinutes = (targetTime - birthDate) / oneDayMs;
-          console.log("[calculateIljuOffsetDynamic] 순행 mode: targetTime:", targetTime.toLocaleString());
         } else { // "역행" 모드
           // 역행: 출생 시각이 baseTime보다 이전이면, 그 날의 baseTime이 아직 도달하지 않았으므로 전 날의 baseTime을 목표로 함.
           let targetTime = new Date(baseTime);
@@ -1993,18 +1981,13 @@ document.addEventListener("DOMContentLoaded", function () {
             targetTime.setDate(targetTime.getDate() - 1);
           }
           diffMinutes = (birthDate - targetTime) / oneDayMs;
-          console.log("[calculateIljuOffsetDynamic] 역행 mode: targetTime:", targetTime.toLocaleString());
         }
-        console.log("[calculateIljuOffsetDynamic] diffMinutes:", diffMinutes.toFixed(4));
       
         // 4. 분 차이를 일 단위로 변환 (1일 = 24 * 60 분)
         const diffDays = diffMinutes / (24 * 60);
-        console.log("[calculateIljuOffsetDynamic] diffDays:", diffDays.toFixed(4));
       
         // 5. 최종 오프셋(일수) = diffDays × 동적 일주 주기
         const offset = diffDays * dynamicIljuCycle;
-        console.log("[calculateIljuOffsetDynamic] 최종 오프셋 (일수):", offset.toFixed(4));
-      
         return offset;
       }
       
@@ -2057,7 +2040,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
         
-        console.log(`[월주-${mode}] targetBoundary:, targetBoundary.name, targetBoundary.date.toLocaleString()`);
         
         // get120YearAverages를 사용하여 120년 동안의 평균 데이터를 구합니다.
         const avgData = get120YearAverages(targetBoundary.date);
@@ -2075,13 +2057,8 @@ document.addEventListener("DOMContentLoaded", function () {
           diffDays = (birthDate.getTime() - targetBoundary.date.getTime()) / oneDayMs;
         }
         
-        console.log(`[월주-${mode}] diffDays:, diffDays.toFixed(4), "avgMonthLength:", avgMonthLength.toFixed(4)`);
-        
         let ratio = diffDays / avgMonthLength;
-        console.log(`[월주-${mode}] ratio:, ratio.toFixed(4)`);
-        
         const offset = ratio * dynamicWoljuCycle;
-        console.log(`[월주-${mode}] 최종 오프셋 (일수):, offset.toFixed(4)`);
         
         return Number(offset.toFixed(4));
       }
@@ -2093,8 +2070,6 @@ document.addEventListener("DOMContentLoaded", function () {
         endDate.setFullYear(dateFrom.getFullYear() + 120);
         const totalDays = (endDate - startDate) / oneDayMs;
         const avgYearLength = totalDays / 120;
-        console.log("[getAverageYearLength] totalDays:", totalDays.toFixed(4), 
-                    "avgYearLength:", avgYearLength.toFixed(4));
         return avgYearLength;
       }
       
@@ -2136,24 +2111,10 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
         
-        console.log(`[${mode}] targetIpchun:`, targetIpchun.toLocaleString());
-        
-        // 두 날짜 사이의 차이를 일 단위로 계산
         const diffDays = Math.abs(targetIpchun - birthDate) / oneDayMs;
-        console.log(`[${mode}] diffDays:`, diffDays.toFixed(4));
-        
-        // targetIpchun을 기준으로 120년 동안의 평균 연 길이를 동적으로 계산
         const avgYearLength = getAverageYearLength(targetIpchun);
-        console.log(`[${mode}] avgYearLength:`, avgYearLength.toFixed(4));
-        
-        // 비율 = diffDays / avgYearLength
         const ratio = diffDays / avgYearLength;
-        console.log(`[${mode}] ratio:`, ratio.toFixed(4));
-        
-        // 전역 변수 yeonjuCycle (예: 60년 주기)와 곱하여 최종 오프셋(일수)를 계산 (소숫점 3자리 반올림)
         const finalOffset = Math.round(ratio * yeonjuCycle * 1000) / 1000;
-        console.log(`[${mode}] 최종 연주 오프셋 (일수):`, finalOffset.toFixed(4));
-        
         return finalOffset;
       }
 
@@ -2555,11 +2516,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!next || next.date.getTime() === currentEvent.date.getTime()) break;
         currentEvent = next;
       }
-      
-      /*console.log(`=== ${label} 타임라인 (${mode}) ===`);
-      timeline.forEach(evt => {
-        console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      });*/
       return timeline;
     }
 
@@ -2620,11 +2576,11 @@ document.addEventListener("DOMContentLoaded", function () {
       updateHourWoon(refDate);
       updateMyowoonSection(myowoonResult);
     
-      console.log("=== 최종 운세 결과 ===");
-      logTimelineWindow("시주", sijuTimeline);
-      logTimelineWindow("일주", iljuTimeline);
-      logTimelineWindow("월주", woljuTimeline);
-      logTimelineWindow("연주", yeonjuTimeline);
+      // console.log("=== 최종 운세 결과 ===");
+      // logTimelineWindow("시주", sijuTimeline);
+      // logTimelineWindow("일주", iljuTimeline);
+      // logTimelineWindow("월주", woljuTimeline);
+      // logTimelineWindow("연주", yeonjuTimeline);
     });
     
     
