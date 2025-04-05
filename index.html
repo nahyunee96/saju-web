@@ -45,6 +45,15 @@
             </button>
             <button class="black_btn close_btn" id="closeBtn"><span>&times;</span></button>
           </div>
+          <form class="search_form">
+            <select name="searchSelect" id="searchSelect">
+              <option value="이름">이름</option>
+              <option value="간지">간지</option>
+              <option value="생일">생일</option>
+            </select>
+            <input type="text" id="searchText" name="searchText" placeholder="이름/간지/생일로 찾을 수 있습니다.">
+            <button class="black_btn search_btn" id="searchBtn">검색</button>
+          </form>
           <ul class="list_ul"></ul>
           <p class="pharases" style="display: none;">왼쪽 바 버튼을 클릭하여 드래그로 순서를 바꿀 수 있습니다.</p>
           <p class="pharases">명식 저장은 브라우저 안에서만 해당되며,<br>다른 브라우저를 사용할 경우 명식을 다시 저장해야합니다.</p>
@@ -80,6 +89,7 @@
           <div class="input_group">
             <label for="inputBirthtime">출생시간</label>
             <input type="tel" id="inputBirthtime" placeholder="예) 1534" maxlength="4" />
+            <div class="label_line"><input type="checkbox" id="bitthTimeX"><label for="bitthTimeX">태어난 시 모름</label></div>
           </div>
           <div class="input_group">
             <label>성별</label>
@@ -97,7 +107,7 @@
           <div class="input_group">
             <label for="inputBirthPlace">출생지선택</label>
             <select id="inputBirthPlace">
-              <option value="출생지 선택" style="display: none;">출생지 선택</option>
+              <option value="" style="display: none;">출생지 선택</option>
               <option value="서울특별시">서울특별시</option>
               <option value="부산광역시">부산광역시</option>
               <option value="대구광역시">대구광역시</option>
@@ -279,8 +289,10 @@
                 <option value="서귀포시">서귀포시</option>
               </optgroup>
             </select>
+            <div class="label_line"><input type="checkbox" id="bitthPlaceX"><label for="bitthPlaceX">태어난 출생지 모름</label></div>
+            <p class="pharases" id="birthPlaceTxt" style="display: none;">태어난 시간을 모르면 보정값으로 들어가진 않지만, 출생지 정보 저장 자체는 가능합니다.</p>
           </div>
-          <div class="input_group">
+          <div class="input_group" id="timeType">
             <label>시간 기준 지정 (자시 / 야 · 조자시 / 인시)</label>
             <div class="radio_box">
               <span>
@@ -320,7 +332,7 @@
                 <b id="resBirth2"></b> (음)
                 <b id="resTime"></b> /
                 <b id="resAddr"></b> /
-                보정시 : <b id="resbjTime"></b>
+                <span id="bjTimeText"> 보정시 : <b id="resbjTime"></b></span>
               </div>
             </div>
             <ul class="check_option" id="checkOption">
