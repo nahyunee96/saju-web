@@ -837,12 +837,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const listUl = document.querySelector("aside .list_ul");
     if (!listUl) return;
     listUl.innerHTML = "";
-    const dragNotice = document.querySelector(".pharases");
-    if (savedList.length >= 2) {
-      dragNotice.style.display = "block";
-    } else {
-      dragNotice.style.display = "none";
-    }
+    
     savedList.forEach((item, index) => {
       listUl.innerHTML += `
         <li data-index="${index}">
@@ -864,7 +859,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 <span><b id="timeGZ_${index + 1}">${item.hourPillar}</b>시</span>
               </p>
               <p>
-                <span id="birthdaytimeSV_${index + 1}">${item.birthdayTime}</span>
+                <span id="birthdaySV_${index + 1}">
+                  ${item.birthday.substring(0, 4)}년 
+                  ${item.birthday.substring(4, 6)}월 
+                  ${item.birthday.substring(6, 8)}일
+                </span>
+                <span id="birthtimeSV_${index + 1}">
+                  ${item.birthtime.substring(0, 2)}시 
+                  ${item.birthtime.substring(2, 4)}분
+                </span>
+              </p>
+              <p>
                 <span><b id="birthPlaceSV_${index + 1}">${item.birthPlace}</b></span>
               </p>
             </div>
@@ -876,6 +881,16 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         </li>
       `;
+
+      const dragNotice = document.querySelector(".pharases");
+      const dragBtn = document.querySelector(".drag_btn_zone");
+      if (savedList.length >= 2) {
+        dragNotice.style.display = "block";
+        dragBtn.style.display = "block";
+      } else {
+        dragNotice.style.display = "none";
+        dragBtn.style.display = "none";
+      }
     });
     
     // detailViewBtn 이벤트 등록
@@ -929,104 +944,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
-
-  // 수정 버튼 이벤트 위임 처리
-  // DOMContentLoaded 내부 또는 하단에 위치해도 무방합니다
-  document.addEventListener("click", function (event) {
-    const modifyBtn = event.target.closest(".modify_btn");
-    if (!modifyBtn) return;
-  
-    const index = parseInt(modifyBtn.getAttribute("data-index"), 10);
-    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-    const selected = savedList[index];
-    if (!selected) return;
-  
-    document.getElementById("inputWrap").style.display = "block";
-    document.getElementById("resultWrapper").style.display = "none";
-    document.getElementById("aside").style.display = "none";
-  
-    document.getElementById("inputName").value = selected.name;
-    document.getElementById("inputBirthday").value = selected.birthday;
-    document.getElementById("inputBirthtime").value = selected.birthtime;
-    document.getElementById("inputBirthPlace").value = selected.birthPlace;
-  
-    if (selected.gender === "남") {
-      document.getElementById("genderMan").checked = true;
-    } else {
-      document.getElementById("genderWoman").checked = true;
-    }
-  
-    // 수정 모드용 인덱스를 전역에 저장
-    window.currentModifyIndex = index;
-  
-    // 버튼 텍스트를 "수정하기"로 변경
-    const calcBtn = document.getElementById("calcBtn");
-    calcBtn.textContent = "수정하기";
-
-    // ✅ 커서를 각 input 끝에 자동 이동
-    const inputs = ["inputName", "inputBirthday", "inputBirthtime"];
-    inputs.forEach(id => {
-      const el = document.getElementById(id);
-      el.focus();
-      el.setSelectionRange(el.value.length, el.value.length);
-    });
-  });
-  
-
-  // 수정 버튼으로 기능 전환
-  // 기존 산출하기 기능과 동일한 위치에 존재
-  // calcBtn 클릭 시 수정인지 신규 계산인지 구분
-
-  document.getElementById("calcBtn").addEventListener("click", function () {
-    const birthday = document.getElementById("inputBirthday").value.trim();
-    const birthtime = document.getElementById("inputBirthtime").value.trim();
-    const gender = document.getElementById("genderMan").checked ? "남" : "여";
-    const birthPlace = document.getElementById("inputBirthPlace").value;
-    const name = document.getElementById("inputName").value.trim() || "이름없음";
-
-    if (birthday.length !== 8 || birthtime.length !== 4) {
-      alert("생년월일은 YYYYMMDD, 태어난 시간은 HHMM 형식이어야 합니다.");
-      return;
-    }
-
-    const year = parseInt(birthday.substring(0, 4), 10);
-    const month = parseInt(birthday.substring(4, 6), 10);
-    const day = parseInt(birthday.substring(6, 8), 10);
-    const hour = parseInt(birthtime.substring(0, 2), 10);
-    const minute = parseInt(birthtime.substring(2, 4), 10);
-
-    const result = getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender);
-    const pillars = result.split(", ")[0].split(" ");
-
-    const correctedDate = adjustBirthDate(new Date(year, month - 1, day, hour, minute), birthPlace);
-    const age = calculateAge(correctedDate);
-    const birthdayTime = formatDate(correctedDate);
-
-    const newData = {
-      birthday, birthtime, gender, birthPlace, name,
-      result,
-      yearPillar: pillars[0] || "",
-      monthPillar: pillars[1] || "",
-      dayPillar: pillars[2] || "",
-      hourPillar: pillars[3] || "",
-      age, birthdayTime
-    };
-
-    const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-
-    // 수정 모드인 경우 기존 값 업데이트
-    if (typeof window.currentModifyIndex === "number") {
-      list[window.currentModifyIndex] = newData;
-      localStorage.setItem("myeongsikList", JSON.stringify(list));
-      alert("명식이 수정되었습니다.");
-      delete window.currentModifyIndex;
-    }
-
-    // 목록 재갱신 및 화면 전환
-    loadSavedMyeongsikList();
-    document.getElementById("inputWrap").style.display = "none";
-    document.getElementById("resultWrapper").style.display = "block";
-  });
 
   // aside 열기/닫기 이벤트 등록
   document.getElementById("listViewBtn").addEventListener("click", function () {
@@ -1226,7 +1143,6 @@ document.addEventListener("DOMContentLoaded", function () {
         currentDaewoon = daewoonData.list[0] || { stem: "-", branch: "-" };
       }
     
-      // 나머지 UI 업데이트 (대운 관련) — 기존 코드는 그대로 유지합니다.
       setText("DwtHanja", stemMapping[currentDaewoon.stem]?.hanja || "-");
       setText("DwtHanguel", stemMapping[currentDaewoon.stem]?.hanguel || "-");
       setText("DwtEumyang", stemMapping[currentDaewoon.stem]?.eumYang || "-");
@@ -1258,13 +1174,9 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("DwW" + idx, "-");
       setText("Ds" + idx, "-");
       
-      // 내부 계산된 대운수(item.age)는 소숫점 4자리까지 유지되지만,
-      // UI에는 정수로 보이도록 반올림해서 출력하려면:
       const displayedDaewoonNum = Math.floor(item.age);
       setText("Da" + idx, displayedDaewoonNum);
-      
-      // 만약 계산된 소숫점 값을 그대로 출력하고 싶다면:
-      // setText("Da" + idx, item.age.toFixed(4));
+
     }
     for (let i = 0; i < 10; i++) {
       updateDaewoonItem(i, globalState.daewoonData.list[i]);
@@ -2830,8 +2742,96 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('inputWrap').style.display = 'none';
     document.getElementById("saveBtn").style.display = "inline-block";
 
-
   });
+
+  document.addEventListener("click", function (event) {
+    const modifyBtn = event.target.closest(".modify_btn");
+    if (!modifyBtn) return;
+  
+    const index = parseInt(modifyBtn.getAttribute("data-index"), 10);
+    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+    const selected = savedList[index];
+    if (!selected) return;
+  
+    document.getElementById("inputWrap").style.display = "block";
+    document.getElementById("resultWrapper").style.display = "none";
+    document.getElementById("aside").style.display = "none";
+  
+    document.getElementById("inputName").value = selected.name;
+    document.getElementById("inputBirthday").value = selected.birthday;
+    document.getElementById("inputBirthtime").value = selected.birthtime;
+    document.getElementById("inputBirthPlace").value = selected.birthPlace;
+  
+    if (selected.gender === "남") {
+      document.getElementById("genderMan").checked = true;
+    } else {
+      document.getElementById("genderWoman").checked = true;
+    }
+  
+    // 수정 모드용 인덱스를 전역에 저장
+    window.currentModifyIndex = index;
+  
+    // 버튼 텍스트를 "수정하기"로 변경
+    const calcBtn = document.getElementById("calcBtn");
+    calcBtn.textContent = "수정하기";
+
+    const nameInput = document.getElementById("inputName");
+    nameInput.focus();
+    nameInput.setSelectionRange(nameInput.value.length, nameInput.value.length);
+  });
+
+  document.getElementById("calcBtn").addEventListener("click", function () {
+    const birthday = document.getElementById("inputBirthday").value.trim();
+    const birthtime = document.getElementById("inputBirthtime").value.trim();
+    const gender = document.getElementById("genderMan").checked ? "남" : "여";
+    const birthPlace = document.getElementById("inputBirthPlace").value;
+    const name = document.getElementById("inputName").value.trim() || "이름없음";
+
+    if (birthday.length !== 8 || birthtime.length !== 4) {
+      alert("생년월일은 YYYYMMDD, 태어난 시간은 HHMM 형식이어야 합니다.");
+      return;
+    }
+
+    const year = parseInt(birthday.substring(0, 4), 10);
+    const month = parseInt(birthday.substring(4, 6), 10);
+    const day = parseInt(birthday.substring(6, 8), 10);
+    const hour = parseInt(birthtime.substring(0, 2), 10);
+    const minute = parseInt(birthtime.substring(2, 4), 10);
+
+    const result = getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender);
+    const pillars = result.split(", ")[0].split(" ");
+
+    const correctedDate = adjustBirthDate(new Date(year, month - 1, day, hour, minute), birthPlace);
+    const age = calculateAge(correctedDate);
+    const birthdayTime = formatDate(correctedDate);
+
+    const newData = {
+      birthday, birthtime, gender, birthPlace, name,
+      result,
+      yearPillar: pillars[0] || "",
+      monthPillar: pillars[1] || "",
+      dayPillar: pillars[2] || "",
+      hourPillar: pillars[3] || "",
+      age, birthdayTime
+    };
+
+    const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+
+    // 수정 모드인 경우 기존 값 업데이트
+    if (typeof window.currentModifyIndex === "number") {
+      list[window.currentModifyIndex] = newData;
+      localStorage.setItem("myeongsikList", JSON.stringify(list));
+      alert("명식이 수정되었습니다.");
+      delete window.currentModifyIndex;
+    }
+
+    // 목록 재갱신 및 화면 전환
+    loadSavedMyeongsikList();
+    document.getElementById("inputWrap").style.display = "none";
+    document.getElementById("resultWrapper").style.display = "block";
+  });
+
+
 
   new Sortable(document.querySelector(".list_ul"), {
     handle: ".drag_btn_zone", // 요 버튼 누르고 있어야 드래그 가능
