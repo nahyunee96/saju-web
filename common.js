@@ -842,7 +842,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </p>
           </div>
           <div class="btn_zone">
-            <button class="black_btn detailViewBtn" id="detailViewBtn_${index + 1}" data-index="${index}">명식 보기</button>
+            <button class="black_btn detail_view_btn" id="detailViewBtn_${index + 1}" data-index="${index}">명식 보기</button>
             <button class="black_btn delete_btn" data-index="delete_${index + 1}"><span>&times;</span></button>
           </div>
         </li>
@@ -850,7 +850,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     
     // detailViewBtn 이벤트 등록
-    document.querySelectorAll(".detailViewBtn").forEach(function (button) {
+    document.querySelectorAll(".detail_view_btn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
         const idx = parseInt(button.getAttribute("data-index"), 10);
@@ -2681,14 +2681,3 @@ document.addEventListener("DOMContentLoaded", function () {
 
   });
 });
-
-
-
-
-
-
-
-
-
-
-

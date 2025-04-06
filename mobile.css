@@ -1,0 +1,349 @@
+/* ======== css - mobile ======== */
+
+@media screen and (max-width:991px){
+
+  /* 공통 스타일 */
+  .black_btn {
+    padding: 0 10vw;
+    height: 8vw;
+    font-size: 3.628vw;
+  }
+
+  /* 헤더 & 사이드바 */
+  .container {
+    padding: 16vw 0;
+  }
+
+  .container .header {
+    height: 16vw;
+  }
+
+  .header .flex_btn_2 button {
+    padding: 0 2vw;
+  }
+
+  .aside .head {
+    padding: 4vw;
+  }
+
+  .aside .close_btn,
+  .delete_btn {
+    top: 4vw;
+    right: 4vw;
+    width: 8vw;
+    height: 8vw;
+    font-size: 8vw;
+    padding: 0px;
+  }
+
+  .aside .close_btn span,
+  .delete_btn span {
+    height: 8vw;
+    vertical-align: top;
+    margin-top: -0.8vw;
+  }
+
+  .aside .list_ul {
+    padding: 4vw;
+    padding-top: 0;
+  }
+
+  .aside .list_ul li {
+    padding: 3.6vw 0;
+    font-size: 3.2vw;
+  }
+  
+  /* 컨테이너 이너 스타일 */
+  .info_wrapper {
+    max-width: 100%; 
+    padding:2.624vw; 
+    border-radius: 0;
+  }
+
+  /* 사이드바 스타일 */
+  .detail_view_Btn {
+    padding: 0 2vw;
+  }
+
+  /* 인풋창 */
+  .input_group {
+    margin-bottom:3.644vw;
+  }
+
+  .input_group>label {
+    font-size:3.644vw; 
+    margin-bottom:1.988vw;
+  }
+
+  .input_group input[type='text'],
+  .input_group input[type='tel'],
+  .input_group input[type='time'],
+  .input_group select {
+    height: 10.8vw;
+    line-height: 10.8vw;
+    font-size:3.244vw; 
+    padding:0 3.242vw;
+  }
+
+  .radio_box span input[type='radio']+label {
+    padding:2.44vw; 
+    font-size:3.244vw;
+  }
+
+  .btn_box {
+    margin-top:8.224vw;
+  }
+
+  .btn_box.mt20 {
+    margin-top: 4vw;
+  }
+
+  .btn_box.mt {
+    margin-top:5.224vw;
+  }
+
+  .btn_box button {
+    padding:0vw 12.448vw; 
+    font-size:3.628vw;
+  }
+
+  .btn_box button#calcBtn {
+    height: 12vw;
+  }
+
+  .btn_box.mb40 {
+    margin-bottom: 12vw;
+  }
+
+  /* 결과창 */
+  .result_wrapper .info_box {
+    margin-bottom:4vw; 
+    font-size:2.444vw; 
+    padding-bottom:2vw;
+  }
+
+  /* 원국 */
+  .woonkuk {
+    width: 65%;
+  }
+
+  .lucky_wrap {
+    width: 35%;
+  }
+  
+  .lucky_wrap .lucky_box {
+    gap: 2vw;
+  }
+
+  /* 라디오 체크옵션 스타일 */
+  .check_option li span {
+    margin: 0 0.8vw;
+  }
+
+  .check_option li input[type='radio'] {
+    width: 2.4vw;
+    height: 2.4vw;
+    margin-right: 1.2vw;
+  }
+
+  .check_option li input[type='radio']::before {
+    width: 2vw;
+    height: 2vw;
+  }
+
+  .check_option li label {
+    font-size: 2.8vw;
+  }
+
+  /* 타이틀 스타일 */
+  .buga_title {
+    margin: 2.4vw 0 1.2vw;
+  }
+
+  .buga_title span {
+    font-size: 3.2vw;
+    padding: 2vw;
+  }
+
+  /* 그리드 */
+  .grid_box {
+    gap: 2vw;
+  }
+
+  .grid_box_10 {
+    gap: 0.3vw;
+  }
+
+  .grid_box > li {
+    font-size: 2.824vw;
+  }
+
+  .grid_box_12 {
+    gap: .2vw;
+  }
+
+  .grid_box_12.fortune_section .w {
+    font-size: 2vw;
+  }
+
+  .grid_box_12 .ganji_w {
+    font-size: 2.8vw;
+    padding: 2vw 1.2vw;
+  }
+
+  /* 공통 - 겹치는 스타일 */
+  .grid_box > li 
+  .lucky_box .lucky .ganji {
+    padding: 0;
+  }
+
+  .grid_box_1 li .hanja_con,
+  .ganji .hanja_con {
+    font-size:8.848vw;
+    padding: 2vw;
+  }
+
+  .grid_box_1 li p, 
+  .ganji p,
+  .grid_box_1 li p.ten_sin, 
+  .ganji p.ten_sin,
+  .fortune_section .w {
+    font-size: 2.824vw;
+  }
+
+  .grid_box_1 li p.eum_yang, 
+  .ganji p.eum_yang,
+  .wongook_lucky .grid_box_1 li p.eum_yang {
+    width: 9.242vw;
+    padding: 0.4vw 0;
+    margin-bottom: 0;
+    font-size: 2.42vw;
+  }
+
+  .w50 .grid_box_1 li .hanja_con,
+  .w50 .ganji .hanja_con {
+    font-size:5.848vw;
+    padding: 0.8vw;
+  }
+
+  .w50 .grid_box_1 {
+    gap: 1vw;
+  }
+
+  .w50 .grid_box_1 li p, .w50 .ganji p {
+    font-size: 2.2vw;
+  }
+
+  /* 간지스타일 */
+  .ganji_w {
+    width: 100%;
+    padding: 2.242vw;
+    text-align: center;
+    font-size: 3.248vw;
+    font-weight: 700;
+  }
+
+  /* 지장간 */
+  .jijanggan {
+    gap: .8vw;
+  }
+
+  .jijanggan li {
+    font-size: 2.62vw;
+  }
+
+  .w50 .jijanggan li {
+    font-size: 2vw;
+  }
+
+  /* 운 영역 */
+  .woon_container {
+    gap: 2vw;
+  }
+
+  .lucky_box .lucky .ganji {
+    margin-bottom: 2vw;
+  }
+
+  .fortune_section .w {
+    padding: 1vw 0;
+  }
+  
+  .fortune_section .w.dage {
+    font-size: 2.424vw;
+    margin-bottom: 0;
+  }
+
+  /* 일주달력 */
+  .ilju_calender {
+    margin-top: 4vw;
+    padding: 2.2vw;
+  }
+
+  .ilju_calender .calender_title {
+    padding-bottom: 2.4vw;
+    margin-bottom: 2.4vw;
+    font-size: 2.4vw;
+  }
+  
+  .ilju_calender .cal_btn {
+    padding: 1.2vw 2.4vw;
+    font-size: 2.4vw;
+  }
+
+  .ilju_calender .calender_title .curr_title {
+    padding-top: 1.2vw;
+  }
+
+  .calander_table th{
+    padding: 1.2vw;
+    font-size: 2.4vw;
+  }
+
+  .calander_table td {
+    padding: 0.8vw;
+    font-size: 2vw;
+  }
+
+
+  .calander_table .ilwoon li {
+    margin-bottom: 0.4vw;
+  }
+
+  .calander_table .ilwoon li.ilwoonday {
+    font-size: 2vw;
+  }
+
+  .calander_table .ilwoon li span {
+    width: 5.2vw;
+  }
+
+  .calander_table .ilwoon li.ilwoon_ganji_cheongan span,
+  .calander_table .ilwoon li.ilwoon_ganji_jiji span {
+    width: 5.2vw;
+    border-radius: 1.2vw;
+    font-size: 2.8vw;
+  }
+
+  .cal_area {
+    margin-top: 8vw;
+    text-align: center;
+  }
+
+  .cal_area input {
+    width: 100%;
+    height: 10.8vw;
+    line-height: 10.8vw;
+    color: #353535;
+    background-color: #fff;
+    padding: 0 2.4vw;
+    font-size: 3.6vw;
+  }
+
+  /* 푸터 */
+  .footer {
+    padding: 6.2vw 1.2vw;
+    font-size: 2.4vw;
+  }
+
+}
