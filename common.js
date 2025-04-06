@@ -1,3 +1,9 @@
+let currentModifyIndex;
+let getMyounPillarsVr;
+let updateMyowoonSectionVr;
+let modifyIndex;           // 현재 수정 중인 명식 인덱스
+let originalDataSnapshot;  // 기존 명식 데이터 백업
+
 // [0] 출생지 보정 및 써머타임 함수
 const cityLongitudes = {
   "서울특별시": 126.9780, "부산광역시": 129.1, "대구광역시": 128.6,
@@ -837,6 +843,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // 나이와 생시 표시 시간
     const age = correctedDate ? calculateAge(correctedDate) : "-";
     const birthdayTime = correctedDate ? formatDate(correctedDate) : "?";
+
+    const selectedTime2 = document.querySelector('input[name="time2"]:checked').value || "";
+    console.log("선택된 기준시각:", selectedTime2);
   
     // 저장할 데이터 객체 구성
     const newData = {
@@ -853,28 +862,34 @@ document.addEventListener("DOMContentLoaded", function () {
       age: age,
       birthdayTime: birthdayTime,
       isTimeUnknown: isTimeUnknown,
-      isPlaceUnknown: isPlaceUnknown
+      isPlaceUnknown: isPlaceUnknown,
+      selectedTime2: selectedTime2
     };
+
+    console.log("선택된 기준시각:", selectedTime2);
   
     // 저장 중복 검사
     const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const alreadySaved = list.some(function (item) {
       return item.birthday === newData.birthday &&
-             item.birthtime === newData.birthtime &&
-             item.gender === newData.gender &&
-             item.birthPlace === newData.birthPlace &&
-             item.name === newData.name;
+            item.birthtime === newData.birthtime &&
+            item.gender === newData.gender &&
+            item.birthPlace === newData.birthPlace &&
+            item.name === newData.name &&
+            item.selectedTime2 === newData.selectedTime2;  // ← 라디오 버튼 값 비교 추가
     });
     if (alreadySaved) {
-      alert("이미 저장된 명식입니다.");
-      return;
+      const confirmSave = confirm("이미 같은 정보의 명식이 존재합니다. 한 번 더 저장하시겠습니까?");
+      if (!confirmSave) return;
     }
+  
   
     // 저장
     list.push(newData);
     localStorage.setItem("myeongsikList", JSON.stringify(list));
     loadSavedMyeongsikList();
     alert("저장이 성공적으로 완료 되었습니다.");
+    console.log("저장된 리스트:", JSON.parse(localStorage.getItem("myeongsikList")));
   });
   
 
@@ -908,6 +923,18 @@ document.addEventListener("DOMContentLoaded", function () {
                                 : (item.birthPlace?.trim() && item.birthPlace.trim() !== "출생지 선택"
                                     ? item.birthPlace.trim()
                                     : "-");
+
+    const displayTimeLabel = item.isTimeUnknown
+    ? "시간기준모름"
+    : (item.selectedTime2 === "jasi"
+        ? "자시"
+        : item.selectedTime2 === "yajojasi"
+          ? "야 · 조자시"
+          : item.selectedTime2 === "insi"
+            ? "인시"
+            : "-");
+      
+    console.log(item.selectedTime2);
   
       li.innerHTML = `
         <div class="info_btn_zone">
@@ -939,6 +966,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </li>
             <li>
               <span><b id="birthPlaceSV_${index + 1}">${birthPlaceDisplay}</b></span>
+              <span><b id="selectTime2__${index + 1}">${displayTimeLabel}</b>기준 명식</span>
             </li>
           </ul>
         </div>
@@ -974,10 +1002,21 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+    function handleViewClick() {
+      if (isModifyMode) {
+        const confirmLeave = confirm("수정된 내용을 저장하지 않았습니다. 정말 이동하시겠습니까?");
+        if (!confirmLeave) return;
+      }
+      isModifyMode = false;
+      originalDataSnapshot = "";
+      currentModifyIndex = null;
+    }
+
     // detailViewBtn 이벤트 등록
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
+        handleViewClick();
         const idx = parseInt(button.getAttribute("data-index"), 10);
         const item = savedList[idx];
         if (!item) return;
@@ -1017,6 +1056,17 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           document.getElementById("genderWoman").checked = true;
           document.getElementById("genderMan").checked = false;
+        }
+
+        if (item.selectedTime2 === "jasi") {
+          document.getElementById("jasi").checked = true;
+          document.getElementById("timeChk02_01").checked = true;
+        } else if (item.selectedTime2 === "yajojasi") {
+          document.getElementById("yajojasi").checked = true;
+          document.getElementById("timeChk02_02").checked = true;
+        } else if (item.selectedTime2 === "insi") {
+          document.getElementById("insi").checked = true;
+          document.getElementById("timeChk02_03").checked = true;
         }
     
         // 자동 계산
@@ -2103,12 +2153,22 @@ document.addEventListener("DOMContentLoaded", function () {
         return Math.round((num * 10000)) / 10000;
       }
     
-      function calculateSijuOffsetDynamic(birthDate, mode) {
+      function calculateSijuOffsetDynamic(birthDate, mode, selectedTime2) {
+        let baseTime = new Date(birthDate);
+      
+        if (selectedTime2 === "jasi") {
+          baseTime.setHours(23, 0);
+        } else if (selectedTime2 === "yajojasi") {
+          baseTime.setHours(0, 0);
+        } else if (selectedTime2 === "insi") {
+          baseTime.setHours(3, 0);
+        }
+      
         const sijuCycle = 10;
         const totalMinutes = 1440;
         const blockLength = 120;
-        const birthMinutes = birthDate.getHours() * 60 + birthDate.getMinutes();
-    
+        const birthMinutes = baseTime.getHours() * 60 + baseTime.getMinutes();
+      
         const blocks = [
           { start: 1380, end: 60 }, { start: 60, end: 180 },
           { start: 180, end: 300 }, { start: 300, end: 420 },
@@ -2117,13 +2177,20 @@ document.addEventListener("DOMContentLoaded", function () {
           { start: 900, end: 1020 }, { start: 1020, end: 1140 },
           { start: 1140, end: 1260 }, { start: 1260, end: 1380 }
         ];
-    
-        let block = blocks.find(b => (b.start < b.end && birthMinutes >= b.start && birthMinutes < b.end) ||
-                                      (b.start > b.end && (birthMinutes >= b.start || birthMinutes < b.end)));
+      
+        let block = blocks.find(b =>
+          (b.start < b.end && birthMinutes >= b.start && birthMinutes < b.end) ||
+          (b.start > b.end && (birthMinutes >= b.start || birthMinutes < b.end))
+        );
+      
         if (!block) block = blocks[0];
-    
-        let diff = mode === "순행" ? block.end - birthMinutes : birthMinutes - block.start;
+      
+        let diff = mode === "순행"
+          ? block.end - birthMinutes
+          : birthMinutes - block.start;
+      
         if (diff < 0) diff += totalMinutes;
+      
         let ratio = round4(diff / blockLength);
         return Number((ratio * sijuCycle).toFixed(4));
       }
@@ -2210,6 +2277,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       };
     }
+
+    getMyounPillarsVr = getMyounPillars;
     
 
     // UI 업데이트 예시: updateMyowoonSection
@@ -2311,6 +2380,8 @@ document.addEventListener("DOMContentLoaded", function () {
     
       updateColorClasses();
     }
+
+    updateMyowoonSectionVr = updateMyowoonSection;
     
     function registerMyowoonMoreHandler() {
       const btn = document.getElementById("myowoonMore");
@@ -2684,55 +2755,33 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     const inputData = collectInputData();
-    const selectedTime2 = document.querySelector('input[name="time2"]:checked').value;
-    if (selectedTime2 === "jasi") {
-      document.getElementById("timeChk02_01").checked = true;
-    } else if (selectedTime2 === "yajojasi") {
-      document.getElementById("timeChk02_02").checked = true;
-    } else if (selectedTime2 === "insi") {
-      document.getElementById("timeChk02_03").checked = true;
-    }
     
     const resultRadios = document.querySelectorAll('#checkOption input[type="radio"]');
     resultRadios.forEach(function(radio) {
       radio.addEventListener("change", function () {
+
         const selectedTime2 = document.querySelector('input[name="timeChk02"]:checked').value;
         document.querySelectorAll('input[name="time2"]').forEach(el => el.checked = false);
         if (selectedTime2 === "jasi") {
           document.getElementById("jasi").checked = true;
+          document.getElementById("timeChk02_01").checked = true;
         } else if (selectedTime2 === "yajojasi") {
           document.getElementById("yajojasi").checked = true;
+          document.getElementById("timeChk02_02").checked = true;
         } else if (selectedTime2 === "insi") {
           document.getElementById("insi").checked = true;
+          document.getElementById("timeChk02_03").checked = true;
         }
+        
         updateFortune(inputData);
         const myowoonResult = getMyounPillars(gender, refDate);
         updateMyowoonSection(myowoonResult);
 
         // ==== 묘운 타임라인 출력 ====
-        const sijuTimeline  = generateTimeline({
-          date: myowoonResult.candidateTimes.siju,
-          index: getGanZhiIndex(myowoonResult.hourPillar),
-          ganji: myowoonResult.hourPillar
-        }, sijuCycle, sijuMode, "시주", refDate);
-
-        const iljuTimeline  = generateTimeline({
-          date: myowoonResult.candidateTimes.ilju,
-          index: getGanZhiIndex(myowoonResult.dayPillar),
-          ganji: myowoonResult.dayPillar
-        }, iljuCycle, iljuMode, "일주", refDate);
-
-        const woljuTimeline = generateTimeline({
-          date: myowoonResult.candidateTimes.wolju,
-          index: getGanZhiIndex(myowoonResult.monthPillar),
-          ganji: myowoonResult.monthPillar
-        }, woljuCycle, woljuMode, "월주", refDate);
-
-        const yeonjuTimeline = generateTimeline({
-          date: myowoonResult.candidateTimes.yeonju,
-          index: getGanZhiIndex(myowoonResult.yearPillar),
-          ganji: myowoonResult.yearPillar
-        }, yeonjuCycle, yeonjuMode, "연주", refDate);
+        const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
+        const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", refDate);
+        const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", refDate);
+        const yeonjuTimeline = generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", refDate);
 
         console.log("=== 타임라인 갱신 (라디오 변경에 따라) ===");
         logTimelineWindow("시주", sijuTimeline);
@@ -2751,7 +2800,35 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   
-
+  function startModify(index) {
+    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+    const selected = savedList[index];
+    if (!selected) return;
+  
+    currentModifyIndex = index; // 필요시 전역에서 선언
+    isModifyMode = true;
+  
+    // 💡 구조를 `makeNewData()`에 맞게 정리해서 snapshot 저장
+    const snapshot = {
+      birthday: selected.birthday,
+      birthtime: selected.birthtime,
+      gender: selected.gender,
+      birthPlace: selected.birthPlace,
+      name: selected.name,
+      result: selected.result,
+      yearPillar: selected.yearPillar,
+      monthPillar: selected.monthPillar,
+      dayPillar: selected.dayPillar,
+      hourPillar: selected.hourPillar,
+      age: selected.age,
+      birthdayTime: selected.birthdayTime,
+      isTimeUnknown: selected.isTimeUnknown,
+      isPlaceUnknown: selected.isPlaceUnknown,
+      selectedTime2: selected.selectedTime2 || ""
+    };
+  
+    originalDataSnapshot = JSON.stringify(snapshot);
+  }
 
   document.addEventListener("click", function (event) {
     const modifyBtn = event.target.closest(".modify_btn");
@@ -2761,6 +2838,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const selected = savedList[index];
     if (!selected) return;
+
+    startModify(index);
   
     // 화면 전환
     document.getElementById("inputWrap").style.display = "block";
@@ -2811,9 +2890,30 @@ document.addEventListener("DOMContentLoaded", function () {
       placeInput.value = selected.birthPlace || "";
       placeInput.disabled = false;
     }
+
+    if (selected.selectedTime2 === "jasi") {
+      document.getElementById("jasi").checked = true;
+      document.getElementById("timeChk02_01").checked = true;
+    } else if (selected.selectedTime2 === "yajojasi") {
+      document.getElementById("yajojasi").checked = true;
+      document.getElementById("timeChk02_02").checked = true;
+    } else if (selected.selectedTime2 === "insi") {
+      document.getElementById("insi").checked = true;
+      document.getElementById("timeChk02_03").checked = true;
+    }
+
+    setTimeout(() => {
+      updateMyowoonSectionVr;
+    }, 10);
+
+    const myowoonBtn = document.getElementById("myowoonMore");
+    myowoonBtn.classList.remove("active");
+    myowoonBtn.innerText = "묘운력(운 전체) 상세보기";
   
     // 수정 모드 플래그 설정
-    window.currentModifyIndex = index;
+    currentModifyIndex = index;
+
+    
   
     // 버튼 텍스트 변경
     const calcBtn = document.getElementById("calcBtn");
@@ -2826,69 +2926,95 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   
   
+  let isModifyMode = false;
+  let originalDataSnapshot = "";
 
-  // 수정하기 버튼 눌렀을 때
-  document.getElementById("calcBtn").addEventListener("click", function () {
-    const birthday = document.getElementById("inputBirthday").value.replace(/\s/g, "").trim();
-    const birthtime = document.getElementById("inputBirthtime").value.replace(/\s/g, "").trim();
+  
+  
+  function makeNewData() {
+    const birthday = document.getElementById("inputBirthday").value.trim();
+    const birthtimeRaw = document.getElementById("inputBirthtime").value.trim();
+    const isTimeUnknown = document.getElementById("bitthTimeX").checked;
+    const isPlaceUnknown = document.getElementById("bitthPlaceX").checked;
     const gender = document.getElementById("genderMan").checked ? "남" : "여";
-    const birthPlaceInput = document.getElementById("inputBirthPlace").value || "-";
+    const birthPlaceInput = document.getElementById("inputBirthPlace").value;
     const name = document.getElementById("inputName").value.trim() || "이름없음";
-
-
+    const selectedTime2 = document.querySelector('input[name="time2"]:checked')?.value || "";
+  
     const year = parseInt(birthday.substring(0, 4), 10);
     const month = parseInt(birthday.substring(4, 6), 10);
     const day = parseInt(birthday.substring(6, 8), 10);
-
-    // 시간 모름 처리
-    const isTimeUnknown = document.getElementById("bitthTimeX").checked;
-    const hour = isTimeUnknown ? 0 : parseInt(birthtime.substring(0, 2), 10);
-    const minute = isTimeUnknown ? 0 : parseInt(birthtime.substring(2, 4), 10);
-
-    // 출생지 모름 처리
-    const isPlaceUnknown = document.getElementById("bitthPlaceX").checked;
-    const usedBirthPlace = (isPlaceUnknown || birthPlaceInput === "" || birthPlaceInput === "출생지 선택")
-                                    ? "서울특별시" : birthPlaceInput;
-
-
-    const result = getFourPillarsWithDaewoon(year, month, day, hour, minute, usedBirthPlace, gender);
-    const pillars = result.split(", ")[0].split(" ");
-
-    const correctedDate = adjustBirthDate(new Date(year, month - 1, day, hour, minute), birthPlaceInput);
-    const age = calculateAge(correctedDate);
-    const birthdayTime = formatDate(correctedDate);
-
-    // 저장용은 원래 입력 그대로 유지
+    const hour = isTimeUnknown ? 0 : parseInt(birthtimeRaw.substring(0, 2), 10);
+    const minute = isTimeUnknown ? 0 : parseInt(birthtimeRaw.substring(2, 4), 10);
+  
+    const usedBirthPlace = (isPlaceUnknown || birthPlaceInput === "" || birthPlaceInput === "출생지 선택") ? "서울특별시" : birthPlaceInput;
     const savedBirthPlace = isPlaceUnknown ? "" : birthPlaceInput;
-
-    const newData = {
-      birthday, birthtime, gender, 
-      birthPlace: savedBirthPlace, 
-      name,
-      result,
+  
+    const displayHour = isTimeUnknown ? "-" : birthtimeRaw.substring(0, 2);
+    const displayMinute = isTimeUnknown ? "-" : birthtimeRaw.substring(2, 4);
+    const displayBirthtimeFormatted = `${displayHour}${displayMinute}`;
+  
+    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, usedBirthPlace, gender);
+    const pillarsPart = computedResult.split(", ")[0];
+    const pillars = pillarsPart.split(" ");
+  
+    const originalDate = new Date(year, month - 1, day, hour, minute);
+    let correctedDate;
+    if (isTimeUnknown) {
+      correctedDate = null;
+    } else if (isPlaceUnknown) {
+      correctedDate = new Date(originalDate.getTime() - 30 * 60000);
+    } else {
+      correctedDate = adjustBirthDate(originalDate, usedBirthPlace);
+    }
+  
+    const age = correctedDate ? calculateAge(correctedDate) : "-";
+    const birthdayTime = correctedDate ? formatDate(correctedDate) : "?";
+  
+    return {
+      birthday: birthday,
+      birthtime: displayBirthtimeFormatted,
+      gender: gender,
+      birthPlace: savedBirthPlace,
+      name: name,
+      result: computedResult,
       yearPillar: pillars[0] || "",
       monthPillar: pillars[1] || "",
       dayPillar: pillars[2] || "",
-      hourPillar: pillars[3] || "",
-      age, birthdayTime,
-      isTimeUnknown,
-      isPlaceUnknown
+      hourPillar: isTimeUnknown ? "-" : (pillars[3] || ""),
+      age: age,
+      birthdayTime: birthdayTime,
+      isTimeUnknown: isTimeUnknown,
+      isPlaceUnknown: isPlaceUnknown,
+      selectedTime2: selectedTime2
     };
+  }
+  
 
+  // 수정하기 버튼 눌렀을 때
+  document.getElementById("calcBtn").addEventListener("click", function () {
+    const newData = makeNewData();
     const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
 
-    // 수정 모드인 경우 기존 값 업데이트
-    if (typeof window.currentModifyIndex === "number") {
-      list[window.currentModifyIndex] = newData;
-      localStorage.setItem("myeongsikList", JSON.stringify(list));
-      alert("명식이 수정되었습니다.");
-      delete window.currentModifyIndex;
-    }
+    if (typeof currentModifyIndex === "number") {
+      const currentDataStr = JSON.stringify(newData);
+      if (currentDataStr === originalDataSnapshot) {
+        const confirmSave = confirm("수정된 부분이 없습니다. 이대로 저장하시겠습니까?");
+        if (!confirmSave) return;
+      }
 
-    // 목록 재갱신 및 화면 전환
-    loadSavedMyeongsikList();
-    document.getElementById("inputWrap").style.display = "none";
-    document.getElementById("resultWrapper").style.display = "block";
+      list[currentModifyIndex] = newData;
+      localStorage.setItem("myeongsikList", JSON.stringify(list));
+      loadSavedMyeongsikList();
+      alert("명식이 수정되었습니다.");
+
+      isModifyMode = false;
+      originalDataSnapshot = "";
+      currentModifyIndex = null;
+
+      document.getElementById("inputWrap").style.display = "none";
+      document.getElementById("resultWrapper").style.display = "block";
+    }
   });
 
 
