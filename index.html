@@ -47,7 +47,18 @@
             </button>
             <button class="black_btn close_btn" id="closeBtn"><span>&times;</span></button>
           </div>
+          <form class="search_form">
+            <select name="searchSelect" id="searchSelect">
+              <option value="이름">이름</option>
+              <option value="간지">간지</option>
+              <option value="생일">생일</option>
+            </select>
+            <input type="text" id="searchText" name="searchText" placeholder="이름/간지/생일로 찾을 수 있습니다.">
+            <button class="black_btn search_btn" id="searchBtn">검색</button>
+          </form>
           <ul class="list_ul"></ul>
+          <p class="pharases" style="display: none;">왼쪽 바 버튼을 클릭하여 드래그로 순서를 바꿀 수 있습니다.</p>
+          <p class="pharases">명식 저장은 브라우저 안에서만 해당되며,<br>다른 브라우저를 사용할 경우 명식을 다시 저장해야합니다.</p>
         </div>
       </aside>
       <div class="info_wrapper">
@@ -56,11 +67,7 @@
           <!-- 인풋 = 명주이름 -->
           <div class="input_group">
             <label for="inputName">명주이름</label>
-            <input
-              type="text"
-              id="inputName"
-              maxlength="10"
-              placeholder="10글자 이내로 이름 입력"
+            <input type="text" id="inputName" maxlength="10" placeholder="10글자 이내로 이름 입력"
             />
           </div>
           <!-- 인풋 = 명주출생일 -->
@@ -80,6 +87,7 @@
           <div class="input_group">
             <label for="inputBirthtime">출생시간</label>
             <input type="tel" id="inputBirthtime" placeholder="예) 1534" maxlength="4" />
+            <div class="label_line"><input type="checkbox" id="bitthTimeX"><label for="bitthTimeX">태어난 시 모름</label></div>
           </div>
           <!-- 인풋 = 명주성별 -->
           <div class="input_group">
@@ -281,6 +289,8 @@
                 <option value="서귀포시">서귀포시</option>
               </optgroup>
             </select>
+            <div class="label_line"><input type="checkbox" id="bitthPlaceX"><label for="bitthPlaceX">태어난 출생지 모름</label></div>
+            <p class="pharases" id="birthPlaceTxt" style="display: none;">태어난 시간을 모르면 보정값으로 들어가진 않지만, 출생지 정보 저장 자체는 가능합니다.</p>
           </div>
           <!-- 인풋 = 명식 시간 기준 -->
           <div class="input_group">
@@ -318,7 +328,7 @@
               <b id="resBirth2"></b> (음)
               <b id="resTime"></b> /
               <b id="resAddr"></b> /
-              보정시 : <b id="resbjTime"></b>
+              <span id="bjTimeText"> 보정시 : <b id="resbjTime"></b></span>
             </span>
           </div>
           <!-- 결과 = 시간 기준 선택 라디오버튼 -->
@@ -1076,6 +1086,7 @@
       <script src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"></script>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
       <script src="./common.js"></script>
 
     </div>

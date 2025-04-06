@@ -65,6 +65,55 @@ select {
   cursor: pointer;
 }
 
+/* 체크박스 스타일 */
+.label_line {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  color: #EED36C;
+  font-size: 14px;
+}
+
+.label_line input[type='checkbox'] {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  
+}
+
+.label_line input[type='checkbox']::before {
+  display: none;
+  content: '✔';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: #011627;
+}
+
+.label_line input[type='checkbox']:checked::before {
+  display: block;
+}
+
+.label_line label {
+  color: #fff;
+  cursor: pointer;
+}
+
+/* 문구 전역 스타일 */
+.pharases {
+  padding: 0px 20px;
+  font-size: 14px;
+  color: #EED36C;
+  margin-bottom: 5px;
+}
+
 /* 컨테이너 */
 .container {
   display: flex; 
@@ -148,7 +197,34 @@ select {
   overflow: auto;
 }
 
-.aside .list_ul li {
+.aside .search_form {
+  display: flex;
+  gap: 10px;
+  padding: 10px 20px 0;
+  height: 56px;
+}
+
+.aside .search_form select {
+  background-color: #fff;
+  width: 100px;
+}
+
+.aside .search_form input {
+  width: 250px;
+  border: none;
+  outline: none;
+  border-radius: 4px;
+  padding: 0 10px;
+}
+
+.aside .list_ul {
+  height: calc(100vh - 136px);
+  padding: 20px;
+  padding-top: 0;
+  overflow: auto;
+}
+
+.aside .list_ul > li {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -156,7 +232,32 @@ select {
   border-bottom: 1px solid #EED36C;
 }
 
-.aside .list_ul li .btn_zone {
+.aside .list_ul > li .info_btn_zone {
+  display: flex;
+  align-items: center;
+}
+
+.aside .list_ul > li .info_btn_zone .drag_btn_zone {
+  height: 20px;
+  margin-right: 10px;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.aside .list_ul > li .info_btn_zone .drag_btn_zone .line {
+  width: 24px;
+  height: 4px;
+  background-color: #EED36C;
+  margin-bottom: 4px;
+}
+
+.aside .list_ul > li .info_btn_zone .drag_btn_zone .line:last-child {
+  margin-bottom: 0;
+}
+
+.aside .list_ul > li .btn_zone {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -170,6 +271,10 @@ select {
   background-color: #011627; 
   padding: 30px; 
   border-radius: 20px;
+}
+
+.info_wrapper .pharases {
+  padding: 10px 0 0;
 }
 
 /* 체크옵션 라디오 스타일 */

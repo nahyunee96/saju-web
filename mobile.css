@@ -9,6 +9,28 @@
     font-size: 3.628vw;
   }
 
+  .detailViewBtn,
+  .modify_btn,
+  .back_btn,
+  .search_btn {
+    padding: 0 2vw;
+  }
+
+  /* 체크박스 스타일 */
+  .label_line input[type='checkbox'] {
+    width: 3.2vw;
+    height: 3.2vw;
+    margin-right: 1.2vw;
+  }
+
+  .label_line input[type='checkbox']::before {
+    font-size: 2.4vw;
+  }
+
+  .label_line label {
+    font-size: 3.2vw;
+  }
+
   /* 헤더 & 사이드바 */
   .container {
     padding: 16vw 0;
@@ -43,22 +65,96 @@
     margin-top: -0.8vw;
   }
 
+  .aside .head {
+    height: 16vw;
+    padding: 4vw;
+  }
+
+  .aside .close_btn,
+  .delete_btn {
+    top: 4vw;
+    right: 4vw;
+    width: 8vw;
+    height: 8vw;
+    font-size: 8vw;
+    padding: 0px;
+  }
+
+  .aside .close_btn span,
+  .delete_btn span {
+    height: 8vw;
+    vertical-align: top;
+    margin-top: 0;
+  }
+
+  .aside .search_form {
+    gap: 2vw;
+    padding: 4vw 4vw 0;
+    height: 13.2vw;
+  }
+
+  .aside .search_form select {
+    width: calc(25% - 2vw);
+    height: 8vw;
+    padding: 0 2vw;
+    font-size: 3.2vw;
+  }
+
+  .aside .search_form input {
+    width: calc(60% - 2vw);
+    height: 8vw;
+    font-size: 3.2vw;
+    padding: 0 2.4vw;
+  }
+
+  .aside .search_form button {
+    width: calc(15% - 2vw);
+  }
+
   .aside .list_ul {
     padding: 4vw;
+    height: calc(100vh - 29.2vw);
     padding-top: 0;
   }
 
-  .aside .list_ul li {
+  .aside .list_ul > li {
     padding: 3.6vw 0;
     font-size: 3.2vw;
   }
-  
+
+  .aside .list_ul > li .btn_zone {
+    gap: 2vw;
+  }
+
+  .aside .list_ul > li .info_btn_zone .drag_btn_zone {
+    height: 6.4vw;
+    margin-right: 2.8vw;
+  }
+
+  .aside .list_ul > li .info_btn_zone .drag_btn_zone .line {
+    width: 6.4vw;
+    height: 1.2vw;
+    background-color: #EED36C;
+    margin-bottom: 1.2vw;
+  }
+
+  .pharases {
+    padding: 0 4vw;
+    font-size: 3.2vw;
+    margin-bottom: 1.2vw;
+  }
+
   /* 컨테이너 이너 스타일 */
   .info_wrapper {
     max-width: 100%; 
     padding:2.624vw; 
     border-radius: 0;
   }
+
+  .info_wrapper .pharases {
+    padding: 2vw 0 0;
+  }
+  
 
   /* 사이드바 스타일 */
   .detail_view_Btn {
