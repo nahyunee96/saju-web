@@ -68,6 +68,7 @@
               id="inputName"
               maxlength="10"
               placeholder="10글자 이내로 이름 입력"
+              value="김나현"
             />
           </div>
           <div class="input_group">
@@ -78,6 +79,7 @@
                 id="inputBirthday"
                 maxlength="8"
                 placeholder="예) 19900101"
+                value="19961229"
               />
               <select name="monthType" id="monthType">
                 <option value="양력">양력</option>
@@ -88,7 +90,7 @@
           </div>
           <div class="input_group">
             <label for="inputBirthtime">출생시간</label>
-            <input type="tel" id="inputBirthtime" placeholder="예) 1534" maxlength="4" />
+            <input type="tel" id="inputBirthtime" placeholder="예) 1534" maxlength="4" value="1630" />
             <div class="label_line"><input type="checkbox" id="bitthTimeX"><label for="bitthTimeX">태어난 시 모름</label></div>
           </div>
           <div class="input_group">
@@ -99,7 +101,7 @@
                 <label for="genderMan">남성</label>
               </span>
               <span>
-                <input type="radio" id="genderWoman" name="gender" />
+                <input type="radio" id="genderWoman" name="gender" checked />
                 <label for="genderWoman">여성</label>
               </span>
             </div>
@@ -109,7 +111,7 @@
             <select id="inputBirthPlace">
               <option value="" style="display: none;">출생지 선택</option>
               <option value="서울특별시">서울특별시</option>
-              <option value="부산광역시">부산광역시</option>
+              <option value="부산광역시" selected>부산광역시</option>
               <option value="대구광역시">대구광역시</option>
               <option value="인천광역시">인천광역시</option>
               <option value="광주광역시">광주광역시</option>
@@ -1073,8 +1075,25 @@
       />
       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-      <script type="module" src="./common.js"></script>
-      <!-- <script src="./calc.js"></script> -->
+      <script type="module" src="./js/domain/constants.js"></script>
+      <script type="module" src="./js/utils/helper.js"></script>
+      <script type="module" src="./js/domain/solar/astroUtils.js"></script>
+      <script type="module" src="./js/domain/solar/solarTerm.js"></script>
+      <script type="module" src="./js/domain/solar/sunPosition.js"></script>
+      <script type="module" src="./js/domain/solar/timeUtil.js"></script>
+      <script type="module" src="./js/domain/util.js"></script>
+      <script type="module" src="./js/core/numberCalc.js"></script>
+      <script type="module" src="./js/domain/correction/correction.js"></script>
+      <script type="module" src="./js/domain/ganzhi/ganzhiUtil.js"></script>
+      <script type="module" src="./js/domain/ganzhi/sipsin.js"></script>
+      <script type="module" src="./js/domain/service/daewoon.js"></script>
+      <script type="module" src="./js/domain/service/daewoonString.js"></script>
+      <script type="module" src="./js/domain/service/fourPillars.js"></script>
+      <script type="module" src="./js/domain/info.js"></script>
+      <script type="module" src="./js/domain/ui/inputControl.js"></script>
+      <script type="module" src="./js/domain/ui/render.js"></script>
+      <script type="module" src="./js/domain/ui/uiUpdate.js"></script>
+      <script type="module" src="./main.js"></script>
     </div>
     
   </body>

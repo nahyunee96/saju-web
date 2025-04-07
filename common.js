@@ -80,18 +80,15 @@ function getEquationOfTime(dateObj) {
 }
 
 function adjustBirthDate(dateObj, birthPlace, isPlaceUnknown) {
-  // 출생지 모름일 경우: -30분 고정 보정
   if (isPlaceUnknown) {
     return new Date(dateObj.getTime() - 30 * 60000); // 30분 = 1800000ms
   }
 
-  // 출생지 입력된 경우: 경도 + 방정시 보정
   const cityLongitude = cityLongitudes[birthPlace] || cityLongitudes["서울특별시"];
   const longitudeCorrection = (cityLongitude - 135.1) * 4; // 분 단위
   const eqTime = getEquationOfTime(dateObj); // 분 단위
   let correctedTime = new Date(dateObj.getTime() + (longitudeCorrection + eqTime) * 60000);
 
-  // 서머타임 적용
   const summerInterval = getSummerTimeInterval(correctedTime.getFullYear());
   if (summerInterval && correctedTime >= summerInterval.start && correctedTime < summerInterval.end) {
     correctedTime = new Date(correctedTime.getTime() - 60 * 60000); // -1시간
@@ -101,6 +98,7 @@ function adjustBirthDate(dateObj, birthPlace, isPlaceUnknown) {
 }
 
 // [1] 천문/역법 함수
+// 그레고리력 날짜 → 율리우스일(Julian Day, JD) 변환함수
 function calendarGregorianToJD(year, month, day) {
   if (month <= 2) { year -= 1; month += 12; }
   const a = Math.floor(year / 100);
@@ -130,7 +128,6 @@ function getSunLongitude(jd) {
   let M = (357.52911 + 35999.05029 * t - 0.0001537 * t * t) % 360;
   if (M < 0) M += 360;
   const Mrad = M * Math.PI / 180;
-  const e = 0.016708634 - 0.000042037 * t - 0.0000001267 * t * t;
   const C = (1.914602 - 0.004817 * t - 0.000014 * t * t) * Math.sin(Mrad)
           + (0.019993 - 0.000101 * t) * Math.sin(2 * Mrad)
           + 0.000289 * Math.sin(3 * Mrad);
@@ -397,9 +394,6 @@ function getDaewoonData(birthPlace, gender) {
   const avgData = get120YearAverages(targetTerm.date);
   let dynamicWoljuCycle = avgData.averageDecade;
   const avgMonthLength = avgData.averageMonth;
-  const daysDiff = isForward
-    ? Math.round((targetTerm.date - correctedDate) / oneDayMs)
-    : Math.round((correctedDate - targetTerm.date) / oneDayMs);
 
   let diffDays;
   if (isForward) {
@@ -457,10 +451,7 @@ const timeRanges = [
 ];
 
 function getHourBranchUsingArray(dateObj) {
-  // 총 분 계산
   let totalMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
-  // 각 시(지지)별 시간 범위 설정 (자시는 23:00 ~ 1:00, 나머지는 2시간씩)
-  
   for (let i = 0; i < timeRanges.length; i++) {
     const { branch, start, end } = timeRanges[i];
     if (start < end) {
@@ -478,16 +469,13 @@ function getHourBranchUsingArray(dateObj) {
 }
 
 function getEffectiveYearForSet(dateObj) {
-  // 해당 연도의 입춘(315°)을 구합니다.
   const ipChun = findSolarTermDate(dateObj.getFullYear(), 315);
   const year = dateObj.getFullYear();
-
   if (dateObj < ipChun) {
     return year - 1;
   } else {
     return year;
   }
-
 }
 
 function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender) {
@@ -745,8 +733,8 @@ function updateBranchInfo(prefix, branch, baseDayStem) {
   function calculateAge(birthDate) {
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    const todayMonth = today.getMonth() - birthDate.getMonth();
+    if (todayMonth < 0 || (todayMonth === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
     return age;
