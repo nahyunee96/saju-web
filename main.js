@@ -32,7 +32,7 @@ import { 대운_데이터 } from "./js/domain/service/daewoon.js";
 import { 대운_데이터_문자열 } from "./js/domain/service/daewoonString.js";
 import { 대운_고수준_서비스 } from "./js/domain/service/fourPillars.js";
 import { ui_색상_업데이트 } from "./js/domain/ui/uiUpdate.js";
-import { mjInfo, 수집된_입력값_저장 } from "./js/domain/info.js";
+import { mjInfo, 수집된_입력값_저장, 남녀_음양으로_구분 } from "./js/domain/info.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   let today = new Date();
@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let boundaries;
   let currentIndex;
   let activeMonth;
+  const direction = 남녀_음양으로_구분.isForward;
 
   // 산출하기 이벤트
   document.getElementById("calcBtn").addEventListener("click", function () {
@@ -238,7 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // 원국 업데이트
-    function 원국_지지관련_업데이트() {
+    function 원국_지지관련_업데이트(아이디_유무_검사, 십이운성_매핑, 십이신살_매핑) {
       아이디_유무_검사("Hb12ws", mjInfo.unknownTime ? "-" : 십이운성_매핑(일간, 시지));
       아이디_유무_검사("Hb12ss", mjInfo.unknownTime ? "-" : 십이신살_매핑(연지, 시지));
       아이디_유무_검사("Db12ws", 십이운성_매핑(일간, 일지));
@@ -264,7 +265,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentAge = today.getFullYear() - dateInfo.getFullYear();
 
     // 현재대운 업데이트
-    function 현재대운_업데이트(일간) {
+    function 현재대운_업데이트(일간, currentAge) {
       // 나이 계산식
       if (today.getMonth() < dateInfo.getMonth() ||
          (today.getMonth() === dateInfo.getMonth() && today.getDate() < dateInfo.getDate())) {
@@ -290,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function () {
       아이디_유무_검사("DwbHanguel", 지지_정보_매핑[currentDaewoon.지지]?.hanguel || "-");
       아이디_유무_검사("DwbEumyang", 지지_정보_매핑[currentDaewoon.지지]?.eumYang || "-");
       아이디_유무_검사("Dwb10sin", 지지_십신_매핑(currentDaewoon.지지, 일간));
-      const 대운_지장간_매핑 = 지장간_매핑[currentDaewoon.지지] || ["-", "-", "-"];
+      const 대운_지장간_매핑 = 지장간_매핑[currentDaewoon.지지] || ["(-)", "(-)", "(-)"];
       아이디_유무_검사("DwJj1", 대운_지장간_매핑[0]);
       아이디_유무_검사("DwJj2", 대운_지장간_매핑[1]);
       아이디_유무_검사("DwJj3", 대운_지장간_매핑[2]);
@@ -298,10 +299,10 @@ document.addEventListener("DOMContentLoaded", function () {
       아이디_유무_검사("DWb12ss", 십이신살_매핑(연지, currentDaewoon.지지));
     }
 
-    현재대운_업데이트(일간);
+    현재대운_업데이트(일간, currentAge);
 
     // ? 나중에 보고 지워도 될듯
-    updateMonthlyWoonByToday(today);
+    현재날짜로_월운_업데이트(today);
 
     function 대운_모든아이템_업데이트(대운리스트, 일간, 연지) {
       for (let i = 0; i < 대운리스트.length; i++) {
@@ -361,7 +362,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // 현재 세운 업데이트
-    function 현재세운_업데이트(today, 일간, ipChun) {
+    function 현재세운_업데이트(
+      today, 
+      일간,
+      연지, 
+      ipChun,
+      아이디_유무_검사,
+      지장간_매핑
+    ) {
       현재기준연주 = (today >= ipChun) ? today.getFullYear() : today.getFullYear() - 1;
       const 세운_인덱스 = ((현재기준연주 - 4) % 60 + 60) % 60;
       const 세운_간지 = 육십갑자_순서_매핑[세운_인덱스];
@@ -370,39 +378,46 @@ document.addEventListener("DOMContentLoaded", function () {
       아이디_유무_검사("SwtHanja", 천간_정보_매핑[세운_간지_분리.gan]?.hanja || "-");
       아이디_유무_검사("SwtHanguel", 천간_정보_매핑[세운_간지_분리.gan]?.hanguel || "-");
       아이디_유무_검사("SwtEumyang", 천간_정보_매핑[세운_간지_분리.gan]?.eumYang || "-");
-      아이디_유무_검사("Swt10sin", getTenGodForStem(세운_간지_분리.gan, 일간));
+      아이디_유무_검사("Swt10sin", 천간_십신_매핑(세운_간지_분리.gan, 일간));
       아이디_유무_검사("SwbHanja", 지지_정보_매핑[세운_간지_분리.ji]?.hanja || "-");
       아이디_유무_검사("SwbHanguel", 지지_정보_매핑[세운_간지_분리.ji]?.hanguel || "-");
       아이디_유무_검사("SwbEumyang", 지지_정보_매핑[세운_간지_분리.ji]?.eumYang || "-");
-      아이디_유무_검사("Swb10sin", getTenGodForBranch(세운_간지_분리.ji, 일간));
-      const 세운_지장간_매핑 = 지장간_매핑[세운_간지_분리.ji] || ["-", "-", "-"];
+      아이디_유무_검사("Swb10sin", 지지_십신_매핑(세운_간지_분리.ji, 일간));
+      const 세운_지장간_매핑 = 지장간_매핑[세운_간지_분리.ji] || ["(-)", "(-)", "(-)"];
       아이디_유무_검사("SwJj1", 세운_지장간_매핑[0]);
       아이디_유무_검사("SwJj2", 세운_지장간_매핑[1]);
       아이디_유무_검사("SwJj3", 세운_지장간_매핑[2]);
-      아이디_유무_검사("SWb12ws", getTwelveUnseong(일간, 세운_간지_분리.ji));
-      아이디_유무_검사("SWb12ss", getTwelveShinsal(baseYearBranch, 세운_간지_분리.ji));
+      아이디_유무_검사("SWb12ws", 십이운성_매핑(일간, 세운_간지_분리.ji));
+      아이디_유무_검사("SWb12ss", 십이신살_매핑(연지, 세운_간지_분리.ji));
       
       아이디_유무_검사("WSwtHanja", 천간_정보_매핑[세운_간지_분리.gan]?.hanja || "-");
       아이디_유무_검사("WSwtHanguel", 천간_정보_매핑[세운_간지_분리.gan]?.hanguel || "-");
       아이디_유무_검사("WSwtEumyang", 천간_정보_매핑[세운_간지_분리.gan]?.eumYang || "-");
-      아이디_유무_검사("WSwt10sin", getTenGodForStem(세운_간지_분리.gan, 일간));
+      아이디_유무_검사("WSwt10sin", 천간_십신_매핑(세운_간지_분리.gan, 일간));
       아이디_유무_검사("WSwbHanja", 지지_정보_매핑[세운_간지_분리.ji]?.hanja || "-");
       아이디_유무_검사("WSwbHanguel", 지지_정보_매핑[세운_간지_분리.ji]?.hanguel || "-");
       아이디_유무_검사("WSwbEumyang", 지지_정보_매핑[세운_간지_분리.ji]?.eumYang || "-");
-      아이디_유무_검사("WSwb10sin", getTenGodForBranch(세운_간지_분리.ji, 일간));
+      아이디_유무_검사("WSwb10sin", 지지_십신_매핑(세운_간지_분리.ji, 일간));
       아이디_유무_검사("WSwJj1", 세운_지장간_매핑[0]);
       아이디_유무_검사("WSwJj2", 세운_지장간_매핑[1]);
       아이디_유무_검사("WSwJj3", 세운_지장간_매핑[2]);
-      아이디_유무_검사("WSWb12ws", getTwelveUnseong(일간, 세운_간지_분리.ji));
-      아이디_유무_검사("WSWb12ss", getTwelveShinsal(baseYearBranch, 세운_간지_분리.ji));
+      아이디_유무_검사("WSWb12ws", 십이운성_매핑(일간, 세운_간지_분리.ji));
+      아이디_유무_검사("WSWb12ss", 십이신살_매핑(연지, 세운_간지_분리.ji));
     }
 
-    현재세운_업데이트(today, 일간, ipChun);
+    현재세운_업데이트(
+      today, 
+      일간,
+      연지, 
+      ipChun,
+      아이디_유무_검사,
+      지장간_매핑
+    );
 
     // 세운 li 클릭 이벤트
     let 세운_처음_년도 = null;
 
-    function 세운_디테일_업데이트(index) {
+    function 세운_디테일_업데이트(index, 연간_인덱스_구함, 문자열_분리, 아이디_유무_검사) {
       if (세운_처음_년도) {
         const 세운_첫년도_계산 = 세운_처음_년도 + (index - 1);
         const 세운_첫년도_인덱스 = 연간_인덱스_구함(세운_첫년도_계산);
@@ -418,14 +433,26 @@ document.addEventListener("DOMContentLoaded", function () {
         세운_리스트_li.forEach(item => item.classList.remove("active"));
         this.classList.add("active");
         const index = this.getAttribute("data-index2");
-        세운_디테일_업데이트(index);
+        세운_디테일_업데이트(index, 연간_인덱스_구함, 문자열_분리, 아이디_유무_검사);
         const mowoonListElem = document.getElementById("walwoonArea");
         if (mowoonListElem) { mowoonListElem.style.display = "grid"; }
       });
     });
 
     // 세운 아이템 업데이트
-    function 세운_아이템_업데이트(일간) {
+    function 세운_아이템_업데이트(
+      일간,
+      연지,
+      생년월일_소숫점_환산,
+      대운_데이터,
+      연간_인덱스_구함,
+      문자열_분리,
+      천간_십신_매핑,
+      지지_십신_매핑,
+      아이디_유무_검사,
+      십이운성_매핑,
+      십이신살_매핑
+    ) {
       const 보정_생년월일_소숫점_환산 = 생년월일_소숫점_환산(correctedDate);
       const 선택된_대운 = 대운_데이터.list[daewoonIndex - 1];
       if (!선택된_대운) return;
@@ -463,8 +490,19 @@ document.addEventListener("DOMContentLoaded", function () {
       ui_색상_업데이트();
     }
 
-    세운_아이템_업데이트(일간);
-    // today.getFullYear()
+    세운_아이템_업데이트(
+      일간,
+      연지,
+      생년월일_소숫점_환산,
+      대운_데이터,
+      연간_인덱스_구함,
+      문자열_분리,
+      천간_십신_매핑,
+      지지_십신_매핑,
+      아이디_유무_검사,
+      십이운성_매핑,
+      십이신살_매핑
+    );
 
     const 현재날짜_년도 = today.getFullYear();
     const UI_년도 = (today < ipChun) ? 현재날짜_년도 - 1 : 현재날짜_년도;
@@ -495,7 +533,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (현재_세운_인덱스 < 0) 현재_세운_인덱스 = 0;
     if (현재_세운_인덱스 > 9) 현재_세운_인덱스 = 9;
     const 세운_계산식 = 세운_시작_보정 + 현재_세운_인덱스;
-    updateMonthlyData(세운_계산식);
+    월운_데이터_업데이트(세운_계산식);
     
     const 월운_구역 = document.getElementById("walwoonArea");
     if (월운_구역) { 월운_구역.style.display = "grid"; }
@@ -512,7 +550,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const birthDayInfo = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
 
     // 월운리스트 업데이트 
-    function 월운_데이터_업데이트(일간) {
+    function 월운_데이터_업데이트(
+      일간, 
+      연지,
+      연의_간지를_출력함,
+      천간_매핑,
+      천간_정보_매핑,
+      지지_정보_매핑,
+      천간_십신_매핑,
+      지지_십신_매핑,
+      십이운성_매핑,
+      십이신살_매핑,
+      아이디_유무_검사
+    ) {
       일간 = 일간_한글 ? 일간_한글.charAt(0) : "-";
       const 연도를_구함 = 연의_간지를_출력함(birthDayInfo, 현재기준연주);
       const 연도구한것의_천간 = 연도를_구함.charAt(0);
@@ -520,13 +570,13 @@ document.addEventListener("DOMContentLoaded", function () {
       for (let i = 0; i < 12; i++) {
         const 월넘버 = i + 1;
         const 월천간_인덱스 = (((천간의_인덱스 * 2) + 월넘버 - 1) + 4) % 10;
-        const 월천간 = 천간_매핑[월천간_인덱스];
+        const 월천간 = 천간_정보_매핑[월천간_인덱스];
         const 월지지 = 월_간지_출력_상수[월넘버 - 1];
         const 천간_십신 = 천간_십신_매핑(월천간, 일간);
         const 지지_십신 = 지지_십신_매핑(월지지, 일간);
         const UI_월운 = (월넘버 < 12) ? (월넘버 + 1) + "월" : "1월";
         const 월운성 = 십이운성_매핑(일간, 월지지);
-        const 월신살 = 십이신살_매핑(baseYearBranch, 월지지);
+        const 월신살 = 십이신살_매핑(연지, 월지지);
         아이디_유무_검사("MC_" + (i + 1), 천간_정보_매핑[월천간]?.hanja || "-");
         아이디_유무_검사("MJ_" + (i + 1), 지지_정보_매핑[월지지]?.hanja || "-");
         아이디_유무_검사("Mot10sin" + (i + 1), 천간_십신 || "-");
@@ -537,9 +587,33 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    월운_데이터_업데이트(일간);
+    월운_데이터_업데이트(
+      일간, 
+      연지,
+      연의_간지를_출력함,
+      천간_매핑,
+      천간_정보_매핑,
+      지지_정보_매핑,
+      천간_십신_매핑,
+      지지_십신_매핑,
+      십이운성_매핑,
+      십이신살_매핑,
+      아이디_유무_검사
+    );
 
-    function 월운_업데이트(computedYear, 현재_월_인덱스, 일간) {
+    function 월운_업데이트(
+      computedYear, 
+      현재_월_인덱스, 
+      일간,
+      천간_정보_매핑,
+      월_간지_출력_상수,
+      천간_십신_매핑,
+      지지_십신_매핑,
+      십이운성_매핑,
+      십이신살_매핑,
+      아이디_유무_검사,
+      지장간_매핑
+    ) {
       const boundaries = 절기_기준_범위(computedYear);
       if (!boundaries || boundaries.length === 0) return;
       const cycleStartDate = boundaries[0].date;
@@ -549,21 +623,21 @@ document.addEventListener("DOMContentLoaded", function () {
       const 연천간_인덱스 = 천간_매핑.indexOf(연천간);
       const 월넘버 = 현재_월_인덱스 + 1;
       const 월천간_넘버 = (((연천간_인덱스 * 2) + 월넘버 - 1) + 4) % 10;
-      const 월천간 = 천간_매핑[월천간_넘버];
+      const 월천간 = 천간_정보_매핑[월천간_넘버];
       const 월지지 = 월_간지_출력_상수[월넘버 - 1];
       const 월_천간_십신 = 천간_십신_매핑(월천간, 일간);
       const 월_지지_십신 = 지지_십신_매핑(월지지, 일간);
       const 월운성 = 십이운성_매핑(일간, 월지지);
       const 월신살 = 십이신살_매핑(연지, 월지지);
-      아이디_유무_검사("WMtHanja", stemMapping[monthStem]?.hanja || "-");
-      아이디_유무_검사("WMtHanguel", stemMapping[monthStem]?.hanguel || "-");
-      아이디_유무_검사("WMtEumyang", stemMapping[monthStem]?.eumYang || "-");
+      아이디_유무_검사("WMtHanja", 천간_정보_매핑[월천간]?.hanja || "-");
+      아이디_유무_검사("WMtHanguel", 천간_정보_매핑[월천간]?.hanguel || "-");
+      아이디_유무_검사("WMtEumyang", 천간_정보_매핑[월천간]?.eumYang || "-");
       아이디_유무_검사("WMt10sin", 월_천간_십신 || "-");
-      아이디_유무_검사("WMbHanja", branchMapping[월지지]?.hanja || "-");
-      아이디_유무_검사("WMbHanguel", branchMapping[월지지]?.hanguel || "-");
-      아이디_유무_검사("WMbEumyang", branchMapping[월지지]?.eumYang || "-");
+      아이디_유무_검사("WMbHanja", 지지_정보_매핑[월지지]?.hanja || "-");
+      아이디_유무_검사("WMbHanguel", 지지_정보_매핑[월지지]?.hanguel || "-");
+      아이디_유무_검사("WMbEumyang", 지지_정보_매핑[월지지]?.eumYang || "-");
       아이디_유무_검사("WMb10sin", 월_지지_십신 || "-");
-      updateHiddenStems(월지지, "WMb");
+      지장간_매핑(월지지, "WMb");
       아이디_유무_검사("WMb12ws", 월운성 || "-");
       아이디_유무_검사("WMb12ss", 월신살 || "-");
       ui_색상_업데이트();
@@ -582,12 +656,24 @@ document.addEventListener("DOMContentLoaded", function () {
       if (today >= boundaries[boundaries.length - 1].date) {
         현재_월_인덱스 = boundaries.length - 1;
       }
-      월운_업데이트(UI_년도, 현재_월_인덱스, 일간);
+      월운_업데이트(
+        computedYear, 
+        현재_월_인덱스, 
+        일간,
+        천간_정보_매핑,
+        월_간지_출력_상수,
+        천간_십신_매핑,
+        지지_십신_매핑,
+        십이운성_매핑,
+        십이신살_매핑,
+        아이디_유무_검사,
+        지장간_매핑
+      );
     }
     현재날짜로_월운_업데이트(today);
     
     // 일운 달력 업데이트
-    const 월운_리스트 = Array.from(document.querySelectorAll("#mowoonList li"));
+    const 월운_리스트 = Array.from(월운_리스트);
     document.addEventListener("click", function (event) {
       // 중복 실행 방지를 위한 플래그 검사
       if (isNavigating) return;
@@ -623,6 +709,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 0);
     });
 
+    function normalizeDate(dateObj) {
+      return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+    }
 
     let boundariesArr = 절기_기준_범위(UI_년도);
     let currentTerm = boundariesArr.find((term, idx) => {
@@ -630,7 +719,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return today >= term.date && today < next.date;
     });
     if (!currentTerm) { currentTerm = boundariesArr[0]; }
-    function 월운_캘린더_업데이트(solarTermName, startDate, endDate, baseDayStem, currentIndex, boundaries, solarYear) {
+    function 월운_캘린더_업데이트(solarTermName, startDate, endDate, dateObj, currentIndex, boundaries, solarYear) {
       let prevTermName, nextTermName;
       if (currentIndex > 0) {
         prevTermName = boundaries[currentIndex - 1].name;
@@ -646,9 +735,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!Array.isArray(nextBoundaries)) nextBoundaries = Array.from(nextBoundaries);
         nextTermName = nextBoundaries[0].name;
       }
-      function normalizeDate(dateObj) {
-        return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-      }
+      normalizeDate(dateObj);
       const normStart = normalizeDate(startDate);
       const normEndNext = normalizeDate(endDate);
       const finalEndDate = normEndNext;
@@ -746,7 +833,12 @@ document.addEventListener("DOMContentLoaded", function () {
       return html;
     }
 
-    function 월운_캘린더_업데이트(solarTermName, computedYear, newIndexOpt) {
+    function 월운_캘린더_업데이트(
+      solarTermName, 
+      computedYear, 
+      newIndexOpt,
+
+    ) {
       const solarYear = computedYear || (function () {
         return (today < ipChun) ? today.getFullYear() - 1 : today.getFullYear();
       })();
@@ -775,10 +867,6 @@ document.addEventListener("DOMContentLoaded", function () {
         nextTerm = nextBoundaries[0];
       }
 
-      function normalizeDate(dateObj) {
-        return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-      }
-
       const normStart = normalizeDate(currentTerm.date);
       const normNext = normalizeDate(nextTerm.date);
       const finalEndDate = new Date(normNext.getTime() - oneDayMs);
@@ -799,7 +887,7 @@ document.addEventListener("DOMContentLoaded", function () {
       boundaries = boundaries;
       currentIndex = currentIndex;
       const now = new Date();
-      const activeMonth = activeMonth || (now.getMonth() + 1);
+      let activeMonth = activeMonth || (now.getMonth() + 1);
       월운_리스트.forEach(function (li) {
         const liMonth = parseInt(li.getAttribute("data-index3"), 10);
         li.classList.toggle("active", liMonth === activeMonth);
@@ -809,8 +897,279 @@ document.addEventListener("DOMContentLoaded", function () {
     월운_캘린더_업데이트(currentTerm.name, currentSolarYear);
 
     // li 클릭 이벤트 처리
+    function 대운_클릭_이벤트(
+      일간,
+      생년월일_소숫점_환산,
+      절기_기준_범위
+    ) {
+      const 대운_아이디 = document.querySelectorAll("[id^='daewoon_']");
+      대운_아이디.forEach(function (daewoonLi) {
+        daewoonLi.addEventListener("click", function (event) {
+          event.stopPropagation();
+          
+          // UI 숨김/보임 처리
+          document.getElementById('iljuCalender').style.display = 'none';
+          const sewoonBox = document.querySelector(".lucky.sewoon");
+          if (sewoonBox) { sewoonBox.style.display = "none"; }
+          세운_리스트.forEach(li => li.classList.remove("active"));
+          if (월운_구역) { 월운_구역.style.display = "none"; }
+          
+          // 출생년도(decimal) 계산
+          const 보정_생년월일_소숫점_환산 = 생년월일_소숫점_환산(correctedDate);
+          const 선택된_대운 = 대운_데이터.list[daewoonIndex - 1];
+          if (!선택된_대운) return;
+          const 대운수 = 선택된_대운.age; 
+          세운_시작_보정 = 보정_생년월일_소숫점_환산 + 대운수;
+          let 세운_시작_년도 = Math.floor(세운_시작_보정);
+          
+          // 세운(운) 리스트 생성
+          const sewoonList = [];
+          for (let j = 0; j < 10; j++) {
+            let sewoonYear = 세운_시작_보정 + j;
+            let yearGanZhi = getYearGanZhiForSewoon(sewoonYear);
+            const splitYear = splitPillar(yearGanZhi);
+            const 천간_십신 = 천간_십신_매핑(splitYear.gan, 일간);
+            const 지지_십신 = 지지_십신_매핑(splitYear.ji, 일간);
+            sewoonList.push({
+              year: sewoonYear,
+              gan: splitYear.gan,
+              ji: splitYear.ji,
+              tenGod: 천간_십신,
+              tenGodJiji: 지지_십신
+            });
+          }
+          
+          // 세운 데이터 업데이트 함수
+          function 세운_데이터_업데이트(일간, 연지) {
+            sewoonList.forEach(function (item, index) {
+              const idx = index + 1;
+              setText("SC_" + idx, 천간_정보_매핑[item.gan]?.hanja || "-");
+              setText("SJ_" + idx, 지지_정보_매핑[item.ji]?.hanja || "-");
+              setText("st10sin" + idx, item.tenGod);
+              setText("sb10sin" + idx, item.tenGodJiji);
+              setText("SwW" + idx, 십이운성_매핑(일간, item.ji) || "-");
+              setText("Ss" + idx, 십이신살_매핑(연지, item.ji) || "-");
+              setText("Dy" + idx, item.year);
+            });
+          }
+          세운_데이터_업데이트(일간, 연지, 천간_십신, 지지_십신);
+          
+          // 원국 대운 HTML 업데이트 함수
+          function 대운_HTML_업데이트(선택된_대운, 일간) {
+            setText("DwtHanja", 천간_정보_매핑[선택된_대운.stem]?.hanja || "-");
+            setText("DwtHanguel", 천간_정보_매핑[선택된_대운.stem]?.hanguel || "-");
+            setText("DwtEumyang", 천간_정보_매핑[선택된_대운.stem]?.eumYang || "-");
+            setText("Dwt10sin", getTenGodForStem(선택된_대운.stem, 일간));
+            setText("DwbHanja", 지지_정보_매핑[선택된_대운.branch]?.hanja || "-");
+            setText("DwbHanguel", 지지_정보_매핑[선택된_대운.branch]?.hanguel || "-");
+            setText("DwbEumyang", 지지_정보_매핑[선택된_대운.branch]?.eumYang || "-");
+            setText("Dwb10sin", getTenGodForBranch(선택된_대운.branch, 일간));
+            const 대운_지장간_매핑 = 지장간_매핑[선택된_대운.branch] || ["(-)", "(-)", "(-)"];
+            setText("DwJj1", 대운_지장간_매핑[0]);
+            setText("DwJj2", 대운_지장간_매핑[1]);
+            setText("DwJj3", 대운_지장간_매핑[2]);
+          }
+          대운_HTML_업데이트(선택된_대운, 일간);
+          
+          ui_색상_업데이트();
+          
+          const 세운_구분 = 절기_기준_범위(세운_시작_보정);
+          const targetSolarTerm = 세운_구분[0].name;
+          updateMonthlyFortuneCalendar(targetSolarTerm, 세운_시작_보정);
+          월운_리스트.forEach(li => li.classList.remove("active"));
+        });
+      });
+    }
+    대운_클릭_이벤트(
+      일간,
+      생년월일_소숫점_환산,
+      절기_기준_범위
+    ); 
+    
 
+    if (!currentTerm) { currentTerm = boundariesArr[0]; }
+    월운_캘린더_업데이트(currentTerm.name, mjInfo.year);
+    (function 리스트_액티브_업데이트(currentTerm) {
+      const displayedMonth = currentTerm.date.getMonth() + 1;
+      월운_리스트.forEach(function (li) {
+        const liMonth = parseInt(li.getAttribute("data-index3"), 10);
+        li.classList.toggle("active", liMonth === displayedMonth);
+      });
+    })();
 
+    월운_리스트.forEach(function(li) {
+      li.addEventListener("click", function(event) {
+        event.stopPropagation();
+        월운_리스트.forEach(function(item) {
+          item.classList.remove("active");
+        });
+        li.classList.add("active");
+        document.getElementById('iljuCalender').style.display = 'grid';
+        const termName = li.getAttribute("data-solar-term") || "";
+        mjInfo.year || (function(){
+          return (today < ipChun) ? today.getFullYear() - 1 : today.getFullYear();
+        })();
+        activeMonth = parseInt(li.getAttribute("data-index3"), 10);
+        updateMonthlyFortuneCalendar(termName, mjInfo.year);
+      });
+    });
+
+    function getSolarYearSpanInDays(birthDate, years) {
+      const endDate = new Date(birthDate);
+      endDate.setFullYear(endDate.getFullYear() + years);
+      return (endDate - birthDate) / oneDayMs;
+    }
+
+    function getSolarMonthSpanInDays(birthDate, months) {
+      const endDate = new Date(birthDate);
+      endDate.setMonth(endDate.getMonth() + months);
+      return (endDate - birthDate) / oneDayMs;
+    }
+
+    function getSolarDaySpanInDays(birthDate, days) {
+      const endDate = new Date(birthDate);
+      endDate.setDate(endDate.getDate() + days);
+      return (endDate - birthDate) / oneDayMs;
+    }
+
+    function getDynamicCycles(birthDate) {
+      const yeonjuCycle = getSolarYearSpanInDays(birthDate, 60);
+      const woljuCycle  = getSolarYearSpanInDays(birthDate, 10);
+      const iljuCycle   = getSolarMonthSpanInDays(birthDate, 4);
+      const sijuCycle   = getSolarDaySpanInDays(birthDate, 10);
+      return { yeonjuCycle, woljuCycle, iljuCycle, sijuCycle };
+    }
+
+    const { yeonjuCycle, woljuCycle, iljuCycle, sijuCycle } = getDynamicCycles(mjInfo.birthDate);
+
+    const yeonjuMode = direction === 1 ? "순행" : "역행";
+    const woljuMode  = direction === 1 ? "순행" : "역행";
+    const iljuMode   = direction === 1 ? "순행" : "역행";
+    const sijuMode   = direction === 1 ? "순행" : "역행";
+
+    function adjustInitial(candidate, cycleDays, baseDate) {
+      while (candidate < baseDate) {
+        candidate = new Date(candidate.getTime() + cycleDays * oneDayMs);
+      }
+      return candidate;
+    }
+
+    function getDynamicStep(candidateTime, cycleDays, refDate) {
+      const now = refDate || new Date();
+      const diff = now - candidateTime; // 밀리초 차이
+      return diff < 0 ? 0 : Math.floor(diff / (cycleDays * oneDayMs)) + 1;
+    }
+
+    function applyFirstUpdateDynamicWithStep(date, originalIndex, cycleDays, mode) {
+      const steps = getDynamicStep(date, cycleDays, today, 간지_인덱스_구함);
+      const updatedIndex = mode === "순행"
+        ? ((originalIndex + steps) % 60 + 60) % 60
+        : ((originalIndex - steps) % 60 + 60) % 60;
+      return { date: date, index: updatedIndex, ganji: 간지_인덱스_구함(updatedIndex) };
+    }
+
+    // 묘운
+    function getMyounPillars(gender, refDate, birthDate, 절기_기준_범위) {
+      let baseTime = new Date(mjInfo.birthDate);
+
+      const jasiElem = document.getElementById("jasi");
+      const yajojasiElem = document.getElementById("yajojasi");
+      const insiElem = document.getElementById("insi");
+
+      if (jasiElem && jasiElem.checked) {
+        baseTime.setHours(23, 0, 0, 0);
+      } else if (yajojasiElem && yajojasiElem.checked) {
+        baseTime.setHours(0, 0, 0, 0);
+      } else if (insiElem && insiElem.checked) {
+        baseTime.setHours(3, 0, 0, 0);
+      }
+
+      const jeolgi = 절기_기준_범위(mjInfo.year);
+      let targetSolarTerm;
+      if (woljuMode === "역행") {
+        const pastTerms = jeolgi.filter(term => term.date <= staticBirth);
+        targetSolarTerm = pastTerms.length ? pastTerms[pastTerms.length - 1] : jeolgi[0];
+      } else {
+        targetSolarTerm = jeolgi.find(term => term.date > staticBirth);
+        if (!targetSolarTerm) {
+          targetSolarTerm = 절기_기준_범위(mjInfo.year + 1)[0];
+        }
+      }
+
+      function round4(num) {
+        return Math.round((num * 10000)) / 10000;
+      }
+
+      function 묘운_시주_계산식(round4, birthDate, mode, hour, minute) {
+        const sijuCycle = 10;
+        const totalMinutes = 1440;
+        const blockLength = 120;
+        const birthMinutes = mjInfo.hour * 60 + mjInfo.minute;
+
+        const blocks = [
+          { start: 1380, end: 60 }, { start: 60, end: 180 },
+          { start: 180, end: 300 }, { start: 300, end: 420 },
+          { start: 420, end: 540 }, { start: 540, end: 660 },
+          { start: 660, end: 780 }, { start: 780, end: 900 },
+          { start: 900, end: 1020 }, { start: 1020, end: 1140 },
+          { start: 1140, end: 1260 }, { start: 1260, end: 1380 }
+        ];
+
+        let block = blocks.find(b => (b.start < b.end && birthMinutes >= b.start && birthMinutes < b.end) ||
+                                      (b.start > b.end && (birthMinutes >= b.start || birthMinutes < b.end)));
+        if (!block) block = blocks[0];
+    
+        let diff = mode === "순행" ? block.end - birthMinutes : birthMinutes - block.start;
+        if (diff < 0) diff += totalMinutes;
+        let ratio = round4(diff / blockLength);
+        return Number((ratio * sijuCycle).toFixed(4));
+      }
+
+      function 묘운_일주_계산식_보조(birthDate, year, oneDayMs) {
+        const endDate = new Date(birthDate);
+        endDate.setFullYear(mjInfo.year + 120);
+        const totalDays = (endDate - birthDate) / oneDayMs;
+        return (totalDays / (120 * 12)) * 4;
+      }
+
+      function 묘운_일주_계산식(birthDate, mode, oneDayMs) {
+        const dynamicIljuCycle = 묘운_일주_계산식_보조(birthDate, mjInfo.year);
+        const diffMinutes = (mode === "순행" ? baseTime - birthDate : birthDate - baseTime) / oneDayMs;
+        return diffMinutes * dynamicIljuCycle / (24 * 60);
+      }
+
+      function 묘운_월주_계산식(birthDate, mode, 절기_기준_범위, oneDayMs) {
+        let boundaries = 절기_기준_범위(mjInfo.year);
+        if (!boundaries.length) return 0;
+        let target = mode === "순행" ? boundaries.find(b => b.date > birthDate) : boundaries.filter(b => b.date <= birthDate).slice(-1)[0];
+        if (!target) target = getSolarTermBoundaries(solarYear + (mode === "순행" ? 1 : -1))[0];
+        const avg = get120YearAverages(target.date);
+        const ratio = Math.abs(target.date - birthDate) / oneDayMs / avg.averageMonth;
+        return Number((ratio * avg.averageDecade).toFixed(4));
+      }
+
+      function 묘운_연주_계산식_보조(date, oneDayMs, year) {
+        const end = new Date(date);
+        end.setFullYear(year + 120);
+        return ((end - date) / oneDayMs) / 120;
+      }
+
+      function 묘운_연주_계산식(birthDate, mode, ipChun, 절기_기준_범위, oneDayMs, yeonjuCycle) {
+        if (mode === "순행" && birthDate >= ipChun) {
+          ipChun = 절기_기준_범위(birthDate.getFullYear() + 1).find(b => b.name === "입춘")?.date;
+        } else if (mode === "역행" && birthDate < ipChun) {
+          ipChun = 절기_기준_범위(birthDate.getFullYear() - 1).find(b => b.name === "입춘")?.date;
+        }
+        const ratio = Math.abs(ipChun - birthDate) / oneDayMs / 묘운_연주_계산식_보조(mjInfo.birthDate, oneDayMs, mjInfo.year);
+        return Math.round(ratio * yeonjuCycle * 1000) / 1000;
+      }
+
+      let newSijuFirst  = adjustInitial(new Date(mjInfo.birthDate + 묘운_시주_계산식(round4, mjInfo.birthDate, mode, mjInfo.hour, mjInfo.minute) * oneDayMs), sijuCycle, mjInfo.birthDate);
+      let newIljuFirst  = adjustInitial(new Date(mjInfo.birthDate + 묘운_일주_계산식(staticBirth, iljuMode) * oneDayMs), iljuCycle, staticBirth);
+      let newWoljuFirst = adjustInitial(new Date(mjInfo.birthDate + 묘운_월주_계산식(staticBirth, woljuMode) * oneDayMs), woljuCycle, staticBirth);
+      let newYeonjuFirst= adjustInitial(new Date(mjInfo.birthDate + 묘운_연주_계산식(staticBirth, yeonjuMode) * oneDayMs), yeonjuCycle, staticBirth);
+    
+    }
 
     //===========================================================================================================//
   });
