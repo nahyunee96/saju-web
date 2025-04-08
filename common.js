@@ -1541,7 +1541,7 @@ document.addEventListener("DOMContentLoaded", function () {
           tenGodJiji: tenGodJiji
         });
       }
-      sewoonList.forEach(function (item, index, baseDayStem, baseYearBranch) {
+      sewoonList.forEach(function (item, index) {
         const idx = index + 1;
         setText("SC_" + idx, stemMapping[item.gan]?.hanja || "-");
         setText("SJ_" + idx, branchMapping[item.ji]?.hanja || "-");
