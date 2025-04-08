@@ -2417,6 +2417,7 @@ document.addEventListener("DOMContentLoaded", function () {
          "MyoHbJj1", "MyoHbJj2", "MyoHbJj3", "MyoHb12ws", "MyoHb12ss"].forEach(id => setText(id, "-"));
       } else {
         const hp = myowoonResult.hourEvent.ganji;
+        console.log('baseDayStem', baseDayStem);
         setText("MyoHtHanja", stemMapping[hp[0]]?.hanja || hp[0]);
         applyColor("MyoHtHanja", hp[0]);
         setText("MyoHtHanguel", stemMapping[hp[0]]?.hanguel || hp[0]);
@@ -2488,7 +2489,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('calArea').style.display = 'none';
 
     // globalState.originalDayStem을 업데이트하는 함수
-    function updateBaseDayStem() {
+    function updateBaseDayStem(baseDayStem) {
       const corrected = globalState.correctedBirthDate;
       let adjusted = new Date(corrected.getTime());
       if (document.getElementById("jasi").checked) {
@@ -2506,9 +2507,8 @@ document.addEventListener("DOMContentLoaded", function () {
         adjusted.setHours(3, 0, 0, 0);
       }
       console.log("adjusted time:", adjusted);
-      const dayGanZhi = getDayGanZhi(adjusted);
-      console.log("getDayGanZhi(adjusted):", dayGanZhi);
-      globalState.originalDayStem = dayGanZhi.charAt(0);
+      console.log("getDayGanZhi(adjusted):", baseDayStem);
+      globalState.originalDayStem = baseDayStem;
     }
         
 
@@ -2528,19 +2528,21 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       
       const dayGanZhi = getDayGanZhi(adjustedDate);
-      baseDayStem = splitPillar(dayGanZhi);
+      const 일간 = daySplit.gan;
+      let 스플랫 = splitPillar(dayGanZhi);
       // globalState.originalDayStem를 사용하여 업데이트
-      setText("WDtHanja", stemMapping[baseDayStem.gan]?.hanja || "-");
-      setText("WDtHanguel", stemMapping[baseDayStem.gan]?.hanguel || "-");
-      setText("WDtEumyang", stemMapping[baseDayStem.gan]?.eumYang || "-");
-      setText("WDt10sin", getTenGodForStem(baseDayStem.gan, globalState.originalDayStem) || "-");
-      setText("WDbHanja", branchMapping[baseDayStem.ji]?.hanja || "-");
-      setText("WDbHanguel", branchMapping[baseDayStem.ji]?.hanguel || "-");
-      setText("WDbEumyang", branchMapping[baseDayStem.ji]?.eumYang || "-");
-      setText("WDb10sin", getTenGodForBranch(baseDayStem.ji, globalState.originalDayStem) || "-");
-      updateHiddenStems(baseDayStem.ji, "WDb");
-      setText("WDb12ws", getTwelveUnseong(globalState.originalDayStem, baseDayStem.ji) || "-");
-      setText("WDb12ss", getTwelveShinsal(baseYearBranch, baseDayStem.ji) || "-");
+      setText("WDtHanja", stemMapping[스플랫.gan]?.hanja || "-");
+      setText("WDtHanguel", stemMapping[스플랫.gan]?.hanguel || "-");
+      setText("WDtEumyang", stemMapping[스플랫.gan]?.eumYang || "-");
+      setText("WDt10sin", getTenGodForStem(스플랫.gan, 일간) || "-");
+      console.log('스플랫.gan, 일간', 스플랫.gan, 일간);
+      setText("WDbHanja", branchMapping[스플랫.ji]?.hanja || "-");
+      setText("WDbHanguel", branchMapping[스플랫.ji]?.hanguel || "-");
+      setText("WDbEumyang", branchMapping[스플랫.ji]?.eumYang || "-");
+      setText("WDb10sin", getTenGodForBranch(스플랫.ji, 일간) || "-");
+      updateHiddenStems(스플랫.ji, "WDb");
+      setText("WDb12ws", getTwelveUnseong(일간, 스플랫.ji) || "-");
+      setText("WDb12ss", getTwelveShinsal(baseYearBranch, 스플랫.ji) || "-");
       updateColorClasses();
     }
 
@@ -2579,6 +2581,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WTtHanguel", stemMapping[correctedFortuneHourStem]?.hanguel || "-");
       setText("WTtEumyang", stemMapping[correctedFortuneHourStem]?.eumYang || "-");
       setText("WTt10sin", getTenGodForStem(correctedFortuneHourStem, baseDayStem) || "-");
+      console.log('correctedFortuneHourStem, baseDayStem', correctedFortuneHourStem, baseDayStem);
       setText("WTbHanja", branchMapping[hourBranch]?.hanja || "-");
       setText("WTbHanguel", branchMapping[hourBranch]?.hanguel || "-");
       setText("WTbEumyang", branchMapping[hourBranch]?.eumYang || "-");
@@ -2736,7 +2739,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateCurrentSewoon(refDate, baseDayStem);
       updateMonthlyWoonByToday(refDate);
       updateDayWoon(refDate);
-      updateHourWoon(refDate);
+      updateHourWoon(refDate, baseDayStem);
       updateMyowoonSection(myowoonResult, baseDayStem);
     
       console.log("=== 최종 운세 결과 ===");
