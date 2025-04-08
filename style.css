@@ -219,6 +219,10 @@
 	  direction: rtl;
   }
 
+  .reverse .jijanggan {
+    direction: rtl;
+  }
+
   .grid_box_2 {
     margin-top: 10px;
   }
