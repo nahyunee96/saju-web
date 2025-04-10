@@ -22,7 +22,8 @@
     appearance: none;
   }
 
-  input:disabled {
+  input:disabled,
+  select:disabled {
     background-color: #B3B9BE !important;
   }
 
@@ -528,11 +529,14 @@
     padding: 0 10px;
   }
 
-  .aside .list_ul {
+  .aside .list_ul_wrap {
     height: calc(100vh - 136px);
+    overflow: auto;
+  }
+
+  .aside .list_ul {
     padding: 20px;
     padding-top: 0;
-    overflow: auto;
   }
 
   .aside .list_ul > li {
@@ -1067,10 +1071,13 @@
     .aside .search_form button {
       width: calc(15% - 2vw);
     }
+
+    .aside .list_ul_wrap {
+      height: calc(100vh - 29.2vw);
+    }
   
     .aside .list_ul {
       padding: 4vw;
-      height: calc(100vh - 29.2vw);
       padding-top: 0;
     }
   

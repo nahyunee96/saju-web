@@ -901,7 +901,7 @@ document.addEventListener("DOMContentLoaded", function () {
     savedMyeongsikList = savedList;
   
     const listUl = document.querySelector("aside .list_ul");
-    const dragNotice = document.querySelector(".pharases");
+    const dragNotice = document.querySelector("#dragNotice");
   
     if (!listUl) return;
     listUl.innerHTML = "";
@@ -933,8 +933,6 @@ document.addEventListener("DOMContentLoaded", function () {
           : item.selectedTime2 === "insi"
             ? "인시"
             : "-");
-      
-    console.log(item.selectedTime2);
   
       li.innerHTML = `
         <div class="info_btn_zone">
