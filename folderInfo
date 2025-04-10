@@ -1,0 +1,6 @@
+폴더구조
+cityLongitudes = 도시_지정_함수 → correction/constans.js
+cityLongitude = 도시_지정_상수 → correction/constans.js
+getSummerTimeInterval = 썸머타임_함수 → designate/main.js
+getEquationOfTime = 균시차_함수 → calculation/main.js
+adjustBirthDate = 보정시_출력_함수 → correction/function.js

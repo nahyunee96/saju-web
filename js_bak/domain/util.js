@@ -1,4 +1,5 @@
 // domain/util.js = 도메인 관련 유틸 함수
+import { 지지_정보_매핑 } from "../domain/constants.js"; 
 
 // export let 전역_상태 = {
 //   birthYear: null,
@@ -26,7 +27,7 @@ export function 지지를_인덱스로_분류(dateObj) {
 // 지지에서 시간을 문자열로 변환하는 함수
 export function 지지관련_시간에서_문자열로_변환(dateObj) {
   const totalMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
-  for (const [branch, info] of Object.entries(jijiInfo)) {
+  for (const [branch, info] of Object.entries(지지_정보_매핑)) {
     const { start, end } = info.time;
     if (start < end) {
       if (totalMinutes >= start && totalMinutes < end) {

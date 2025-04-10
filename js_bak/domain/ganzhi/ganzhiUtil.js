@@ -1,26 +1,25 @@
 
 // ganzhiUtil.js = 간지 유틸 함수들 창고
-import { ipChun } from "../solar/solarTerm.js";
+import { 육십갑자_순서_매핑 } from "../constants.js";
+import { mjInfo } from "../info.js";
+import { 그레고리력_to_율리우스일 } from "../solar/astroUtils.js";
+import { ipChun, 절기_기준_범위, 이_절기가_몇번째_인가요 } from "../solar/solarTerm.js";
 
 // 입력된 날짜가 315도 즉, 입춘 전인지 후 해당 년도를 판별하는 함수
-export function 연의_간지를_구함(dateObj, year, ipChun, 육십갑자_순서_매핑) {
-  const actualYear = (dateObj < ipChun) ? year - 1 : year;
+export function 연의_간지를_구함() {
+  const actualYear = (mjInfo.birthday < ipChun) ? mjInfo.year - 1 : mjInfo.year;
   const yearIndex = ((actualYear - 4) % 60 + 60) % 60;
   return 육십갑자_순서_매핑[yearIndex];
 }
 
+let today = new Date();
+let 현재기준연주 = (today >= ipChun) ? today.getFullYear() : today.getFullYear() - 1;
+
 // 입력된 날짜 기준으로 해당 월의 간지(천간+지지)를 구하는 함수
-export function 월의_간지를_구함(
-  dateObj,
-  solarYear,
-  절기_기준_범위,
-  이_절기가_몇번째_인가요,
-  연의_간지를_구함,
-  간지_월_순서_매핑
-) {
-  const boundaries = 절기_기준_범위(solarYear);
+export function 월의_간지를_구함() {
+  const boundaries = 절기_기준_범위(현재기준연주);
   const monthNumber = 이_절기가_몇번째_인가요(dateObj, boundaries);
-  const yearGanZhi = 연의_간지를_구함(dateObj, solarYear);
+  const yearGanZhi = 연의_간지를_구함(dateObj, 현재기준연주);
   
   const yearStem = yearGanZhi.charAt(0);
   const yearStemIndex = cheongan.indexOf(yearStem) + 1;
@@ -49,9 +48,9 @@ export function 월_간지_출력_상수(getDate, effectiveYear) {
 }
 
 // 날짜를 기준으로 율리우스일(JD)로 변환한 뒤, 해당 JD 기준으로 육십갑자 배열에서 일간지를 구하는 함수
-export function 일_간지를_구함(dateObj, calendarToJD, 육십갑자_순서_매핑) {
+export function 일_간지를_구함(dateObj) {
   const d = new Date(dateObj.getTime()); // 원본 보호용
-  const jd = Math.floor(calendarToJD(d.getFullYear(), d.getMonth() + 1, d.getDate()));
+  const jd = Math.floor(그레고리력_to_율리우스일(d.getFullYear(), d.getMonth() + 1, d.getDate()));
   return 육십갑자_순서_매핑[(jd + 50) % 60] || "";
 }
 

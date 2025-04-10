@@ -81,19 +81,16 @@ function getEquationOfTime(dateObj) {
 
 function adjustBirthDate(dateObj, birthPlace, isPlaceUnknown) {
   if (isPlaceUnknown) {
-    return new Date(dateObj.getTime() - 30 * 60000); // 30분 = 1800000ms
+    return new Date(dateObj.getTime() - 30 * 60000); 
   }
-
   const cityLongitude = cityLongitudes[birthPlace] || cityLongitudes["서울특별시"];
-  const longitudeCorrection = (cityLongitude - 135.1) * 4; // 분 단위
-  const eqTime = getEquationOfTime(dateObj); // 분 단위
+  const longitudeCorrection = (cityLongitude - 135.1) * 4; 
+  const eqTime = getEquationOfTime(dateObj); 
   let correctedTime = new Date(dateObj.getTime() + (longitudeCorrection + eqTime) * 60000);
-
   const summerInterval = getSummerTimeInterval(correctedTime.getFullYear());
   if (summerInterval && correctedTime >= summerInterval.start && correctedTime < summerInterval.end) {
-    correctedTime = new Date(correctedTime.getTime() - 60 * 60000); // -1시간
+    correctedTime = new Date(correctedTime.getTime() - 60 * 60000); 
   }
-
   return correctedTime;
 }
 

@@ -27,17 +27,17 @@ export function 지장간_업데이트(setBranch, prefix, 지장간_매핑, root
   root.getElementById(prefix + "Jj3").innerText = mapping[2];
 }
 
-export function 천간관련_정보_업데이트(prefix, setGanzhi, baseDayStem, stemMapping, 아이디_유무_검사, 일간에_따른_천간_십신_출력) {
-  아이디_유무_검사(prefix + "Hanja", (stemMapping[setGanzhi.gan]?.hanja) || "-");
-  아이디_유무_검사(prefix + "Hanguel", (stemMapping[setGanzhi.gan]?.hanguel) || "-");
-  아이디_유무_검사(prefix + "Eumyang", (stemMapping[setGanzhi.gan]?.eumYang) || "-");
+export function 천간관련_정보_업데이트(prefix, setGanzhi, baseDayStem, 천간_정보_매핑, 아이디_유무_검사, 일간에_따른_천간_십신_출력) {
+  아이디_유무_검사(prefix + "Hanja", (천간_정보_매핑[setGanzhi.gan]?.hanja) || "-");
+  아이디_유무_검사(prefix + "Hanguel", (천간_정보_매핑[setGanzhi.gan]?.hanguel) || "-");
+  아이디_유무_검사(prefix + "Eumyang", (천간_정보_매핑[setGanzhi.gan]?.eumYang) || "-");
   아이디_유무_검사(prefix + "10sin", (prefix === "Dt") ? "본원" : 일간에_따른_천간_십신_출력(Set.gan, baseDayStem));
 }
 
-export function 지지관련_정보_업데이트(prefix, branch, baseDayStem, branchMapping, 아이디_유무_검사, 일간에_따른_지지_십신_출력, updateHiddenStems) {
-  아이디_유무_검사(prefix + "Hanja", (branchMapping[branch]?.hanja) || "-");
-  아이디_유무_검사(prefix + "Hanguel", (branchMapping[branch]?.hanguel) || "-");
-  아이디_유무_검사(prefix + "Eumyang", (branchMapping[branch]?.eumYang) || "-");
+export function 지지관련_정보_업데이트(prefix, branch, baseDayStem, 지지_정보_매핑, 아이디_유무_검사, 일간에_따른_지지_십신_출력, updateHiddenStems) {
+  아이디_유무_검사(prefix + "Hanja", (지지_정보_매핑[branch]?.hanja) || "-");
+  아이디_유무_검사(prefix + "Hanguel", (지지_정보_매핑[branch]?.hanguel) || "-");
+  아이디_유무_검사(prefix + "Eumyang", (지지_정보_매핑[branch]?.eumYang) || "-");
   아이디_유무_검사(prefix + "10sin", 일간에_따른_지지_십신_출력(branch, baseDayStem));
   updateHiddenStems(branch, prefix);
 }

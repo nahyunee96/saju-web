@@ -1,6 +1,6 @@
 // daewoon.js = 대운에 대한 함수 창고
 
-import { 남녀_음양으로_구분 } from "../info.js";
+import { 남녀_음양으로_구분, mjInfo } from "../info.js";
 import { 연의_간지를_출력함, 월의_간지를_출력함, 연_간지_출력_상수, 월_간지_출력_상수 } from "../ganzhi/ganzhiUtil.js";
 import { ipChun } from "../solar/solarTerm.js";
 
@@ -42,21 +42,21 @@ export function 대운_데이터(
 ) {
   
   
-  const originalDate = new Date(birthdayInfo.getFullYear(), birthdayInfo.getMonth(), birthdayInfo.getDate());
-  
-  const inputYear = birthdayInfo.getFullYear();
+  const originalDate = new Date(mjInfo.year, mjInfo.month, mjInfo.day);
+  let birthDate = new Date(mjInfo.year, mjInfo.month - 1, mjInfo.day, mjInfo.hour, mjInfo.minute);
+  const inputYear = mjInfo.year;
   const effectiveYear = (originalDate < ipChun)
     ? inputYear - 1 : inputYear;
 
-  연의_간지를_출력함(correctedDate, effectiveYear);
-  월의_간지를_출력함(correctedDate, effectiveYear);
+  연의_간지를_출력함(birthDate, effectiveYear);
+  월의_간지를_출력함(birthDate, effectiveYear);
 
   남녀_음양으로_구분(gender, 연_간지_출력_상수);
 
-  const dayStemRef = 일_간지를_구함(correctedDate).charAt(0);
+  const dayStemRef = 일_간지를_구함(birthDate).charAt(0);
 
   const targetTerm = findTargetSolarTerm(
-    correctedDate,
+    birthDate,
     effectiveYear,
     남녀_음양으로_구분,
     썸머타임_계산
@@ -78,7 +78,7 @@ export function 대운_데이터(
 }
 
 // 절기를 찾는 함수
-export function 타겟절기_찾음(correctedDate, year, 남녀_음양으로_구분, 절기_기준_범위) {
+export function 타겟절기_찾음(birthDate, year, 남녀_음양으로_구분, 절기_기준_범위) {
   const allTerms = [
     ...절기_기준_범위(year - 1),
     ...절기_기준_범위(year),
@@ -86,9 +86,9 @@ export function 타겟절기_찾음(correctedDate, year, 남녀_음양으로_구
   ].sort((a, b) => a.date - b.date);
 
   if (남녀_음양으로_구분) {
-    return allTerms.find(term => term.date > correctedDate) || allTerms[0];
+    return allTerms.find(term => term.date > birthDate) || allTerms[0];
   } else {
-    const pastTerms = allTerms.filter(term => term.date <= correctedDate);
+    const pastTerms = allTerms.filter(term => term.date <= birthDate);
     return pastTerms[pastTerms.length - 1] || allTerms[allTerms.length - 1];
   }
 }

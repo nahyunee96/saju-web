@@ -24,7 +24,7 @@ export function 태양의_고도를_절기로(year, solarDegree) {
 export const ipChun = 태양의_고도를_절기로(mjInfo.year, 315);
 
 // solarRange.js = 절기 기준 범위를 구하는 고도화된 절기 유틸 함수 창고
-export function 절기_기준_범위(solarYear, 태양의_고도를_절기로) {
+export function 절기_기준_범위(solarYear) {
   let boundaries = [
     { solarDegree: 315, name: "입춘", date: 태양의_고도를_절기로(solarYear, 315) },
     { solarDegree: 345, name: "경칩", date: 태양의_고도를_절기로(solarYear, 345) },
