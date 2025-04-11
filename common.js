@@ -760,7 +760,7 @@ function updateBranchInfo(prefix, branch, baseDayStem) {
   }
 
 document.addEventListener("DOMContentLoaded", function () {
-
+  window.scrollTo(0, 0);
   const inputName = document.getElementById("inputName");
   if (inputName) {
     inputName.addEventListener("input", function () {
@@ -2487,6 +2487,8 @@ document.addEventListener("DOMContentLoaded", function () {
         window.scrollTo(0, 0);
       });
     });
+
+
 
     document.getElementById('wongookLM').classList.remove("w100");
     document.getElementById('luckyWrap').style.display = 'block';
