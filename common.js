@@ -3101,9 +3101,9 @@ document.addEventListener("DOMContentLoaded", function () {
           <b>${sijuMode}</b> 방식으로 계산된다면, <br>
           보정 시각에서 첫번째 간지 변환일자는 <b>${formatDateTime(myowoonResult.newSijuFirst)}</b>로 산출되며, <br>
           묘운 시주의 기간은 2시간을 10일로 치환합니다. <br>
+          간지가 바뀌기까지의 시간인, <b>${getSijuTimeDifference(correctedDate, sijuMode)}</b>을 똑같이 치환한다면,<br>
           실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualSijuOffset.toFixed(4)}</b>일로 되며, <br>
           위에 치환한 것처럼, 한 타임이 바뀌기 전의 ${direction()} 간지까지의 시간인, <br>
-          <b>${getSijuTimeDifference(correctedDate, sijuMode)}</b>을 똑같이 치환해서,<br>
           그 다음부터는 <b>10일</b>의 간격으로 <b>${sijuMode}</b>이 계속 진행됩니다. <br>
           최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatDateTime(adjustedSijuTime)}에 (${myowoonResult.hourEvent.ganji})</b>로 변경되었습니다.
         </li>
