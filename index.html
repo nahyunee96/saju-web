@@ -74,7 +74,7 @@
           <div class="input_group">
             <label for="inputBirthday">출생일</label>
             <div class="flex_input">
-              <input type="tel" id="inputBirthday" maxlength="8" placeholder="예) 19900101"
+              <input type="tel" id="inputBirthday" maxlength="8" placeholder="예) 19900101" value="19961229 " oninput="this.value = this.value.replace(/[^0-9]/g, '')"
               />
               <select name="monthType" id="monthType">
                 <option value="양력">양력</option>
@@ -86,7 +86,7 @@
           <!-- 인풋 = 명주출생시간 -->
           <div class="input_group">
             <label for="inputBirthtime">출생시간</label>
-            <input type="tel" id="inputBirthtime" placeholder="예) 1534" maxlength="4" />
+            <input type="tel" id="inputBirthtime" placeholder="예) 1534" maxlength="4" value="1630" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
             <div class="label_line"><input type="checkbox" id="bitthTimeX"><label for="bitthTimeX">태어난 시 모름</label></div>
           </div>
           <!-- 인풋 = 명주성별 -->
@@ -98,7 +98,7 @@
                 <label for="genderMan">남성</label>
               </span>
               <span>
-                <input type="radio" id="genderWoman" name="gender" />
+                <input type="radio" id="genderWoman" name="gender" checked />
                 <label for="genderWoman">여성</label>
               </span>
             </div>
@@ -109,7 +109,7 @@
             <select id="inputBirthPlace">
               <option value="출생지 선택" style="display: none;">출생지 선택</option>
               <option value="서울특별시">서울특별시</option>
-              <option value="부산광역시">부산광역시</option>
+              <option value="부산광역시" selected>부산광역시</option>
               <option value="대구광역시">대구광역시</option>
               <option value="인천광역시">인천광역시</option>
               <option value="광주광역시">광주광역시</option>
@@ -1087,7 +1087,13 @@
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-      <script src="./common.js"></script>
+      <script type="module" src="./js/solar.js"></script>
+      <script type="module" src="./js/mapping.js"></script>
+      <script type="module" src="./js/calculration.js"></script>
+      <script type="module" src="./js/common.js"></script>
+      <script type="module" src="./js/유효성검사.js"></script>
+      <script type="module" src="./js/term.js"></script>
+      <script type="module" src="./js/main.js"></script>
 
     </div>
   </body>

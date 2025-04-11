@@ -1,0 +1,19 @@
+js/
+├── core/
+│   └── core.js                   // 공통 상수, 타입 분기용 등
+├── get/
+│   ├── ganji.js                  // 간지 계산 (년, 월, 일, 시 등)
+│   ├── time.js                   // 시간대별 분기 계산
+│   └── daewoon.js                // 대운 전체 관련
+├── solar/
+│   ├── coord.js                  // 태양 황경
+│   └── term.js                   // 절기 위치 계산
+├── correction/
+│   └── bjtime.js                 // 보정시 계산
+├── mapping/
+│   └── data.js                   // 모든 mapping 상수
+├── format/
+│   └── text.js                   // 텍스트 포맷 함수
+├── ui/
+│   └── update.js                 // DOM UI 업데이트
+├── mainController.js            // 진입점, 이벤트 바인딩 등

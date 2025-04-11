@@ -1,6 +1,5 @@
-// 보정 상수
-
-export const 도시_보정시_상수 = {
+// 태양 관련 함수들
+export const 도시경도 = {
   "서울특별시": 126.9780, "부산광역시": 129.1, "대구광역시": 128.6,
   "인천광역시": 126.7052, "광주광역시": 126.8530, "대전광역시": 127.3845,
   "울산광역시": 129.3114, "세종특별자치시": 127.2890,
@@ -50,3 +49,83 @@ export const 도시_보정시_상수 = {
   "의령군": 128.29,
   "제주시": 126.5312, "서귀포시": 126.715
 };
+
+export function 썸머타임(year) {
+  let interval = null;
+  switch (year) {
+    case 1948: interval = { start: new Date(1948, 4, 31, 0, 0), end: new Date(1948, 8, 22, 0, 0) }; break;
+    case 1949: interval = { start: new Date(1949, 2, 31, 0, 0), end: new Date(1949, 8, 30, 0, 0) }; break;
+    case 1950: interval = { start: new Date(1950, 3, 1, 0, 0), end: new Date(1950, 8, 10, 0, 0) }; break;
+    case 1951: interval = { start: new Date(1951, 4, 6, 0, 0), end: new Date(1951, 8, 9, 0, 0) }; break;
+    case 1955: interval = { start: new Date(1955, 3, 6, 0, 0), end: new Date(1955, 8, 22, 0, 0) }; break;
+    case 1956: interval = { start: new Date(1956, 4, 20, 0, 0), end: new Date(1956, 8, 30, 0, 0) }; break;
+    case 1957: interval = { start: new Date(1957, 4, 5, 0, 0), end: new Date(1957, 8, 22, 0, 0) }; break;
+    case 1958: interval = { start: new Date(1958, 4, 4, 0, 0), end: new Date(1958, 8, 21, 0, 0) }; break;
+    default: interval = null;
+  }
+  return interval;
+}
+
+export function 균시차(dateObj) {
+  const start = new Date(dateObj.getFullYear(), 0, 0);
+  const N = Math.floor((dateObj - start) / (1000 * 60 * 60 * 24));
+  const B = ((360 / 365) * (N - 81)) * Math.PI / 180;
+  return 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+}
+
+export function 최종보정(dateObj, birthPlace, isPlaceUnknown, 도시경도, 썸머타임, 균시차) {
+  if (isPlaceUnknown) {
+    return new Date(dateObj.getTime() - 30 * 60000); 
+  }
+  const cityLongitude = 도시경도[birthPlace] || 도시경도["서울특별시"];
+  const 도시경도보정 = (cityLongitude - 135.1) * 4; 
+  const eqTime = 균시차(dateObj); 
+  let correctedTime = new Date(dateObj.getTime() + (도시경도보정 + eqTime) * 60000);
+  const summerInterval = 썸머타임(correctedTime.getFullYear());
+  if (summerInterval && correctedTime >= summerInterval.start && correctedTime < summerInterval.end) {
+    correctedTime = new Date(correctedTime.getTime() - 60 * 60000); 
+  }
+  return correctedTime;
+}
+
+export function 율리우스(year, month, day) {
+  if (month <= 2) { year -= 1; month += 12; }
+  const a = Math.floor(year / 100);
+  const b = 2 - a + Math.floor(a / 4);
+  return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + b - 1524.5;
+}
+
+export function 율리우스_역변환(jd) {
+  const z = Math.floor(jd + 0.5), f = jd + 0.5 - z;
+  let a = z;
+  if (z >= 2299161) {
+    const alpha = Math.floor((z - 1867216.25) / 36524.25);
+    a = z + 1 + alpha - Math.floor(alpha / 4);
+  }
+  const b = a + 1524, c = Math.floor((b - 122.1) / 365.25),
+        d = Math.floor(365.25 * c), e = Math.floor((b - d) / 30.6001);
+  const day = b - d - Math.floor(30.6001 * e) + f;
+  let month = e - 1; if (month > 12) month -= 12;
+  let year = c - 4715; if (month > 2) year -= 1;
+  return [year, month, day];
+}
+
+export function 태양의_황경(jd) {
+  const t = (jd - 2451545.0) / 36525;
+  let L0 = (280.46646 + 36000.76983 * t + 0.0003032 * t * t) % 360;
+  if (L0 < 0) L0 += 360;
+  let M = (357.52911 + 35999.05029 * t - 0.0001537 * t * t) % 360;
+  if (M < 0) M += 360;
+  const Mrad = M * Math.PI / 180;
+  const C = (1.914602 - 0.004817 * t - 0.000014 * t * t) * Math.sin(Mrad)
+          + (0.019993 - 0.000101 * t) * Math.sin(2 * Mrad)
+          + 0.000289 * Math.sin(3 * Mrad);
+  let trueL = (L0 + C) % 360; if (trueL < 0) trueL += 360;
+  return trueL;
+}
+
+export function JD_날짜_get(dateObj, 율리우스) {
+  const y = dateObj.getFullYear(), m = dateObj.getMonth() + 1;
+  const d = dateObj.getDate() + dateObj.getHours() / 24 + dateObj.getMinutes() / (24 * 60);
+  return 율리우스(y, m, d);
+}

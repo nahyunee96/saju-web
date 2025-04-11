@@ -890,7 +890,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
     if (!listUl) return;
     listUl.innerHTML = "";
-  
+    
     savedList.forEach((item, index) => {
       const li = document.createElement("li");
       li.setAttribute("data-index", index);
