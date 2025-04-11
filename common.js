@@ -1258,7 +1258,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const birthYearPillar = yearPillar;
 
-    const baseDayStem = daySplit.gan; // 원국 일간
+    let baseDayStem = daySplit.gan; // 원국 일간
+    
     const baseYearBranch = birthYearPillar.charAt(1); // 원국 연지 (예: "병자"에서 "자")
 
     
@@ -1322,6 +1323,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateOriginalSetMapping() {
+      
       setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, hourSplit.ji));
       setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch, hourSplit.ji));
       setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
@@ -1344,7 +1346,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateColorClasses();
 
     globalState.daewoonData = getDaewoonData(usedBirthPlace, gender);
-    function updateCurrentDaewoon(baseDayStem) {
+    function updateCurrentDaewoon() {
       const birthDateObj = new Date(year, month - 1, day);
       const today = new Date();
       let currentAge = today.getFullYear() - birthDateObj.getFullYear();
@@ -1378,11 +1380,11 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("DWb12ws", getTwelveUnseong(baseDayStem, currentDaewoon.branch));
       setText("DWb12ss", getTwelveShinsal(baseYearBranch, currentDaewoon.branch));
     }
-    updateCurrentDaewoon(baseDayStem);
+    updateCurrentDaewoon();
     updateMonthlyWoonByToday(new Date());
     globalState.daewoonData = getDaewoonData(usedBirthPlace, gender);
 
-    function updateAllDaewoonItems(daewoonList, baseDayStem, baseYearBranch) {
+    function updateAllDaewoonItems(daewoonList) {
       for (let i = 0; i < daewoonList.length; i++) {
         const item = daewoonList[i];
         const forwardGanji = item.stem + item.branch;
@@ -1406,7 +1408,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     // 호출 시
-    updateAllDaewoonItems(globalState.daewoonData.list, baseDayStem, baseYearBranch);
+    
+    updateAllDaewoonItems(globalState.daewoonData.list);
 
     const birthDateObj = new Date(year, month - 1, day);
     const todayObj = new Date();
@@ -1429,7 +1432,7 @@ document.addEventListener("DOMContentLoaded", function () {
       daewoonLis[currentDaewoonIndex].classList.add("active");
     }
 
-    function updateCurrentSewoon(refDate, baseDayStem) {
+    function updateCurrentSewoon(refDate) {
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
       //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
       const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
@@ -1517,7 +1520,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const isYangStem = ["갑", "병", "무", "경", "임"].includes(originalYearPillarData.charAt(0));
     const direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
 
-    function updateSewoonItem(baseDayStem) {
+    function updateSewoonItem() {
       const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
       const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
       if (!selectedDaewoon) return;
@@ -1552,7 +1555,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateColorClasses();
     }
 
-    updateSewoonItem(baseDayStem);
+    updateSewoonItem();
 
     const todayYear = todayObj.getFullYear();
     const ipChun = findSolarTermDate(todayObj.getFullYear(), 315);
@@ -1585,12 +1588,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentSewoonIndex = displayYear - globalState.sewoonStartYear;
     if (currentSewoonIndex < 0) currentSewoonIndex = 0;
     if (currentSewoonIndex > 9) currentSewoonIndex = 9;
-    const computedSewoonYear = globalState.sewoonStartYear + currentSewoonIndex;
-    updateMonthlyData(computedSewoonYear);
+    updateMonthlyData();
     const monthlyContainer = document.getElementById("walwoonArea");
     if (monthlyContainer) { monthlyContainer.style.display = "grid"; }
     updateColorClasses();
-    updateOriginalSetMapping(yearSplit, monthSplit, daySplit, hourSplit);
+    updateOriginalSetMapping();
     updateListMapping(globalState.daewoonData.list, "DwW", "Ds", baseDayStem, baseYearBranch);
     if (globalState.sewoonList && globalState.sewoonList.length > 0) {
       updateListMapping(globalState.sewoonList, "SwW", "Ss", baseDayStem, baseYearBranch);
@@ -1599,7 +1601,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateListMapping(globalState.monthWoonList, "MwW", "Ms", baseDayStem, baseYearBranch);
     }
 
-    function updateMonthlyData(baseDayStem) {
+    function updateMonthlyData() {
       const dayPillarText = document.getElementById("DtHanguel").innerText;
       baseDayStem = dayPillarText ? dayPillarText.charAt(0) : "-";
       const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
@@ -2020,7 +2022,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
           const computedYear = globalState.sewoonStartYear + (sewoonIndex - 1);
-          updateMonthlyData(baseDayStem);
+          updateMonthlyData();
           
           // baseDayStem을 인자로 받아서 사용합니다.
           // 참고: 만약 "DtHanguel"에서 가져온 값이 필요하다면 주석 처리한 코드를 사용할 수 있습니다.
@@ -2041,7 +2043,7 @@ document.addEventListener("DOMContentLoaded", function () {
           };
     
           // 내부 함수: 선택된 세운 결과로 UI를 업데이트
-          function updateSewoonHTML(selectedSewoon, baseDayStem) {
+          function updateSewoonHTML(selectedSewoon) {
             setText("SwtHanja", stemMapping[selectedSewoon.gan]?.hanja || "-");
             setText("SwtHanguel", stemMapping[selectedSewoon.gan]?.hanguel || "-");
             setText("SwtEumyang", stemMapping[selectedSewoon.gan]?.eumYang || "-");
@@ -2318,7 +2320,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const iljuEvent = applyFirstUpdateDynamicWithStep(newIljuFirst, iljuIndex, iljuCycle, iljuMode, refDate);
       const woljuEvent = applyFirstUpdateDynamicWithStep(newWoljuFirst, woljuIndex, woljuCycle, woljuMode, refDate);
       const yeonjuEvent= applyFirstUpdateDynamicWithStep(newYeonjuFirst, yeonjuIndex, yeonjuCycle, yeonjuMode, refDate);
-  
+      
+      
 
       return {
         fullResult,
@@ -2508,8 +2511,6 @@ document.addEventListener("DOMContentLoaded", function () {
       } else if (document.getElementById("insi").checked) {
         adjusted.setHours(3, 0, 0, 0);
       }
-      console.log("adjusted time:", adjusted);
-      console.log("getDayGanZhi(adjusted):", baseDayStem);
       globalState.originalDayStem = baseDayStem;
     }
         
@@ -2795,7 +2796,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const monthSplit = splitPillar(monthPillar);
       const daySplit   = splitPillar(dayPillar);
       const hourSplit  = splitPillar(hourPillar);
-      const baseDayStem = globalState.originalDayStem;
+      baseDayStem = globalState.originalDayStem;
       updateStemInfo("Yt", yearSplit, baseDayStem);
       updateStemInfo("Mt", monthSplit, baseDayStem);
       updateStemInfo("Dt", daySplit, baseDayStem);
@@ -2854,9 +2855,363 @@ document.addEventListener("DOMContentLoaded", function () {
       return { solarTermName, startDate, endDate, currentIndex, boundaries, solarYear, currentMonthIndex };
     }
 
+
+    function updateExplanDetail(myowoonResult) {
+
+      function getAverageYearLength(date) {
+        const end = new Date(date);
+        end.setFullYear(date.getFullYear() + 120);
+        return ((end - date) / oneDayMs) / 120;
+      }
+  
+      const oneMinuteMs = 60 * 1000;
+  
+      function direction() {
+        if (iljuMode === "순행") {
+          return '다음';
+        } else {
+          return '전';
+        }
+      }
+  
+      const expectedSijuDiffMinutes = Math.floor(((myowoonResult.newSijuFirst - correctedDate) / oneMinuteMs) * 2) / 2;
+  
+      const expectedSijuOffset = sijuCycle * (expectedSijuDiffMinutes / 120);
+      const expectedIljuOffset = getAverageYearLength(correctedDate) * (4 / 12);  
+      const expectedWoljuOffset = getAverageYearLength(correctedDate) * 12;
+      const expectedYeonjuOffset = getAverageYearLength(correctedDate) * 60;        
+      
+      // 실제 후보 시각과 보정 시각 사이의 차이를 구해봅니다.
+      const actualSijuOffset = Math.round(((myowoonResult.newSijuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
+      const actualIljuOffset = Math.round(((myowoonResult.newIljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
+      const actualWoljuOffset = Math.round(((myowoonResult.newWoljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
+      const actualYeonjuOffset = Math.round(((myowoonResult.newYeonjuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
+      
+      
+      const finalSijuTime = new Date(
+        myowoonResult.newSijuFirst.getTime() + getDynamicStep(myowoonResult.newSijuFirst, sijuCycle, refDate) * sijuCycle * oneDayMs
+      );
+      const finalIljuTime = new Date(
+        myowoonResult.newIljuFirst.getTime() + getDynamicStep(myowoonResult.newIljuFirst, iljuCycle, refDate) * iljuCycle * oneDayMs
+      );
+      const finalWoljuTime = new Date(
+        myowoonResult.newWoljuFirst.getTime() + getDynamicStep(myowoonResult.newWoljuFirst, woljuCycle, refDate) * woljuCycle * oneDayMs
+      );
+      const finalYeonjuTime = new Date(
+        myowoonResult.newYeonjuFirst.getTime() + getDynamicStep(myowoonResult.newYeonjuFirst, yeonjuCycle, refDate) * yeonjuCycle * oneDayMs
+      );
+  
+      const adjustedSijuTime = new Date(finalSijuTime.getTime() - sijuCycle * oneDayMs);
+      const adjustedIljuTime = new Date(finalIljuTime.getTime() - iljuCycle * oneDayMs);
+      const adjustedWoljuTime = new Date(finalWoljuTime.getTime() - woljuCycle * oneDayMs);
+      const adjustedYeonjuTime = new Date(finalYeonjuTime.getTime() - yeonjuCycle * oneDayMs);  
+      
+
+      let timeLabel = "";
+        if (document.getElementById("jasi")?.checked) {
+          timeLabel = "자시";
+        } else if (document.getElementById("yajojasi")?.checked) {
+          timeLabel = "야 · 조자시";
+        } else if (document.getElementById("insi")?.checked) {
+          timeLabel = "인시";
+      }
+
+      document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
+        radio.addEventListener("change", function () {
+          if (document.getElementById("jasi")?.checked) {
+            timeLabel = "자시";
+          } else if (document.getElementById("yajojasi")?.checked) {
+            timeLabel = "야 · 조자시";
+            updateExplanDetail(myowoonResult);
+          } else if (document.getElementById("insi")?.checked) {
+            timeLabel = "인시";
+          }
+        });
+      });
+  
+      function findNextOrPrevBlock(h, mode) {
+        const sortedBlocks = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23];
+        if (mode === "순행") {
+          const bigger = sortedBlocks.filter(x => x > h);
+          return (bigger.length === 0) ? sortedBlocks[0] : bigger[0];
+        } else {
+          const smaller = sortedBlocks.filter(x => x < h);
+          return (smaller.length === 0) ? sortedBlocks[sortedBlocks.length - 1] : smaller[smaller.length - 1];
+        }
+      }
+  
+      function getSijuTimeDifference(birthDate, mode) {
+        // birthDate: 보정 시각(예: correctedDate)을 전달 (Date 객체)
+        // mode: "순행" 또는 "역행"
+        let base = new Date(birthDate); // 기준 시간 계산용 복사본
+        const h = birthDate.getHours();
+        const sijuBlock = findNextOrPrevBlock(h, mode);
+        
+        if (mode === "순행") {
+          // 순행인 경우: 만약 기준 블록 시간이 현재 시각 이하이면 다음날로 설정
+          if (sijuBlock <= h) {
+            base.setDate(base.getDate() + 1);
+          }
+          base.setHours(sijuBlock, 0, 0, 0);
+          // 만약 여전히 보정 시각보다 이전이면(동일하면) 2시간 더해서 보정
+          if (base <= birthDate) {
+            base.setHours(base.getHours() + 2);
+          }
+        } else { // 역행
+          // 역행인 경우: 만약 기준 블록 시간이 현재 시각보다 크다면 전날로 설정
+          if (sijuBlock > h) {
+            base.setDate(base.getDate() - 1);
+          }
+          base.setHours(sijuBlock, 0, 0, 0);
+          // 만약 여전히 보정 시각보다 이후이면 2시간 빼기
+          if (base >= birthDate) {
+            base.setHours(base.getHours() - 2);
+          }
+        }
+        
+        // 보정 시각과 계산된 기준 시간(base) 사이의 차이를 분 단위로 계산
+        const diffMinutes = Math.floor(Math.abs(birthDate - base) / (60 * 1000));
+        const hours = Math.floor(diffMinutes / 60);
+        const minutes = diffMinutes % 60;
+        
+        return `${hours}시간 ${minutes.toString().padStart(2, "0")}분`;
+      }
+  
+      function getIljuTimeDifference(birthDate, mode) {
+        // birthDate: 태어난 시각 (Date 객체)
+        // mode: "순행" 또는 "역행"
+        let baseTime = new Date(birthDate);
+        
+        // 라디오 버튼에 따른 기준 시간 설정:
+        // 자시: 23:00, 야조시: 00:00, 인시: 03:00
+        if (document.getElementById("jasi")?.checked) {
+          baseTime.setHours(23, 0, 0, 0);
+        } else if (document.getElementById("yajojasi")?.checked) {
+          baseTime.setHours(0, 0, 0, 0);
+        } else if (document.getElementById("insi")?.checked) {
+          baseTime.setHours(3, 0, 0, 0);
+        }
+        
+        // 역행 모드에서, 보정 시각(birthDate)이 기준 시간보다 작을 경우에만
+        // 기준 시간이 전날로 설정되도록 합니다.
+        if (mode === "역행" && birthDate < baseTime) {
+          baseTime.setDate(baseTime.getDate() - 1);
+        }
+        // 순행 모드의 경우, 태어난 시간이 기준 시간보다 같거나 이후이면
+        // 기준 시간을 다음날로 설정(필요에 따라) -- 여기서는 역행만 처리합니다.
+        
+        // 차이를 분 단위로 계산 (절대값)
+        const diffMinutes = Math.floor(Math.abs(birthDate - baseTime) / (60 * 1000));
+        const hours = Math.floor(diffMinutes / 60);
+        const minutes = diffMinutes % 60;
+        
+        return `${hours}시간 ${minutes.toString().padStart(2, "0")}분`;
+      }
+  
+      function getWoljuTimeDifference(correctedDate, woljuTerm, mode) {
+        // correctedDate: 보정 시각 (Date 객체)
+        // woljuTerm: 절기 경계 정보가 담긴 객체, 예: { date: Date, name: "입춘", ... }
+        // mode: "순행" 또는 "역행" (월주의 계산 방식)
+        let woljuBase;
+        if (mode === "순행") {
+          // 순행: 보정 시각이 절기 경계보다 이전이면 기준 시간은 절기 경계, 
+          // 아니라면 다음 해 같은 절기 경계를 기준으로 함.
+          woljuBase = (correctedDate < woljuTerm.date)
+            ? woljuTerm.date
+            : new Date(correctedDate.getFullYear() + 1, 
+                       woljuTerm.date.getMonth(), 
+                       woljuTerm.date.getDate(),
+                       woljuTerm.date.getHours(), 
+                       woljuTerm.date.getMinutes());
+        } else {
+          // 역행: 보정 시각이 절기 경계보다 같거나 이후이면 기준 시간은 절기 경계,
+          // 아니라면 이전 해의 같은 절기 경계를 기준으로 함.
+          woljuBase = (correctedDate >= woljuTerm.date)
+            ? woljuTerm.date
+            : new Date(correctedDate.getFullYear() - 1, 
+                       woljuTerm.date.getMonth(), 
+                       woljuTerm.date.getDate(),
+                       woljuTerm.date.getHours(), 
+                       woljuTerm.date.getMinutes());
+        }
+        
+        // oneDayMs는 24*60*60*1000 (하루의 밀리초)
+        const diffMs = Math.abs(woljuBase - correctedDate);
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        
+        const diffDays = Math.floor(diffMs / oneDayMs);
+        const remainderMs = diffMs % oneDayMs;
+        const diffHours = Math.floor(remainderMs / (60 * 60 * 1000));
+        const remainderMs2 = remainderMs % (60 * 60 * 1000);
+        const diffMinutes = Math.floor(remainderMs2 / (60 * 1000));
+        
+        return `${diffDays}일 ${diffHours}시간 ${diffMinutes.toString().padStart(2, "0")}분`;
+      }
+
+      function getYeonjuTimeDifference(corrected, mode) {
+        // corrected: 보정 시각 (Date 객체)
+        // mode: "순행" 또는 "역행"
+        
+        // 이 함수에서는 현재 보정 시각의 연도에 해당하는 입춘(태양절기, solarDegree 315)을 기준으로 targetIpchun을 결정합니다.
+        const thisYearIpchun = findSolarTermDate(corrected.getFullYear(), 315);
+        let targetIpchun;
+        if (mode === "순행") {
+          // 순행: 보정 시각이 이번 해의 입춘보다 이전이면 이번 해의 입춘, 그렇지 않으면 다음 해의 입춘
+          targetIpchun = (corrected < thisYearIpchun)
+            ? thisYearIpchun
+            : findSolarTermDate(corrected.getFullYear() + 1, 315);
+        } else {
+          // 역행: 보정 시각이 이번 해의 입춘보다 이전이면 지난 해의 입춘, 그렇지 않으면 이번 해의 입춘
+          targetIpchun = (corrected < thisYearIpchun)
+            ? findSolarTermDate(corrected.getFullYear() - 1, 315)
+            : thisYearIpchun;
+        }
+        
+        // targetIpchun과 보정 시각 사이의 차이를 밀리초 단위로 구합니다.
+        const diffMs = Math.abs(targetIpchun - corrected);
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        
+        // 일(day) 단위, 시간(hour) 단위, 분(minute) 단위로 계산합니다.
+        const days = Math.floor(diffMs / oneDayMs);
+        const remainderMs = diffMs % oneDayMs;
+        const hours = Math.floor(remainderMs / (60 * 60 * 1000));
+        const remainderMs2 = remainderMs % (60 * 60 * 1000);
+        const minutes = Math.floor(remainderMs2 / (60 * 1000));
+        
+        return `${days}일 ${hours}시간 ${minutes.toString().padStart(2, "0")}분`;
+      }
+      
+    
+      const ul = document.getElementById("explanDetail");
+      let html = "";
+    
+      // ----- 시주 설명 -----
+      html += `
+        <li>
+          <div class="pillar_title"><strong>시주</strong></div>
+          원국 시주 간지: <b>${hourPillar}</b><br>
+          보정 후 처음 간지 바뀌는 시간: <b>${formatDateTime(myowoonResult.newSijuFirst)}</b><br>
+          보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatDateTime(adjustedSijuTime)}</b><br>
+          다음 간지 바뀌는 날짜 : <b>${formatDateTime(finalSijuTime)}</b><br>
+          동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newSijuFirst, sijuCycle, refDate)}</b><br>
+          최종 업데이트 이벤트 간지: <b>${myowoonResult.hourEvent.ganji}</b><br>
+          방향: <b>${sijuMode}</b><br><br>
+          
+          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+          <b>${sijuMode}</b> 방식으로 계산된다면, <br>
+          보정 시각에서 첫번째 간지 변환일자는 <b>${formatDateTime(myowoonResult.newSijuFirst)}</b>로 산출되며, <br>
+          묘운 시주의 기간은 2시간을 10일로 치환합니다. <br>
+          실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualSijuOffset.toFixed(4)}</b>일로 되며, <br>
+          위에 치환한 것처럼, 한 타임이 바뀌기 전의 ${direction()} 간지까지의 시간인, <br>
+          <b>${getSijuTimeDifference(correctedDate, sijuMode)}</b>을 똑같이 치환해서,<br>
+          그 다음부터는 <b>10일</b>의 간격으로 <b>${sijuMode}</b>이 계속 진행됩니다. <br>
+          최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatDateTime(adjustedSijuTime)}에 (${myowoonResult.hourEvent.ganji})</b>로 변경되었습니다.
+        </li>
+      `;
+    
+      // ----- 일주 설명 -----
+      html += `
+        <li>
+          <div class="pillar_title"><strong>일주</strong></div>
+          원국 일주 간지: <b>${dayPillar}</b><br>
+          보정 후 처음 간지 바뀌는 시간: <b>${formatDateTime(myowoonResult.newIljuFirst)}</b><br>
+          보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatDateTime(adjustedIljuTime)}</b><br>
+          다음 간지 바뀌는 날짜 : <b>${formatDateTime(finalIljuTime)}</b><br>
+          동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newIljuFirst, iljuCycle, refDate)}</b><br>
+          최종 업데이트 이벤트 간지: <b>${myowoonResult.dayEvent.ganji}</b><br>
+          방향: <b>${iljuMode}</b><br><br>
+          
+          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+          일주는 라디오 버튼 설정에 따라 결정된 기준 시간이 적용됩니다. (현재 <b>${timeLabel}</b>적용 중)<br>
+          <b>${iljuMode}</b> 방식으로 계산된다면, <br>
+          보정 시각에서 첫번째 간지 변환일자는 <b>${formatDateTime(myowoonResult.newIljuFirst)}</b>로 산출되며, <br>
+          묘운 일주의 기간은 하루(24시간)를 120년의 평균 4개월, 즉 약 <b>${expectedIljuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
+          위에 치환한 것처럼, 하루가 바뀌기 전의 ${direction()} 간지까지의 시간인, 
+          <b>${getIljuTimeDifference(correctedDate, iljuMode)}</b>을 똑같이 치환한다면, 
+          실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualIljuOffset.toFixed(4)}</b>일로 되며, <br>
+          그 다음부터는 <b>${expectedIljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${iljuMode}</b> 진행됩니다.<br>
+          최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatDateTime(adjustedIljuTime)}에 (${myowoonResult.dayEvent.ganji})</b>로 변경되었습니다.
+        </li>
+      `;
+  
+      // ----- 월주 설명 -----
+      html += `
+        <li>
+          <div class="pillar_title"><strong>월주</strong></div>
+          원국 월주 간지: <b>${monthPillar}</b><br>
+          보정 후 처음 간지 바뀌는 시간: <b>${formatDateTime(myowoonResult.newWoljuFirst)}</b><br>
+          보정 후 오늘까지 마지막으로 바뀐 시간: <b>
+          ${ myowoonResult.dynamicSteps.wolju == 0 
+            ? `변경없음` 
+            : `${formatDateTime(adjustedWoljuTime)}` }
+          </b><br>
+          다음 간지 바뀌는 날짜 : <b>${formatDateTime(finalWoljuTime)}</b><br>
+          동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newWoljuFirst, woljuCycle, refDate)}</b><br>
+          최종 업데이트 이벤트 간지: <b>${myowoonResult.monthEvent.ganji}</b><br>
+          방향: <b>${woljuMode}</b><br><br>
+          
+          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+          <b>${woljuMode}</b> 방식으로 계산된다면, <br>
+          보정 시각에서 첫번째 간지 변환일자는 <b>${formatDateTime(myowoonResult.newWoljuFirst)}</b>로 산출되며, <br>
+          묘운 월주의 기간은 120년의 한달을 평균 10년으로, 즉 약 <b>${expectedWoljuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
+          위에 치환한 것처럼, 절기를 계산식에 포함한 한달이 바뀌기전의 전의 ${direction()} 간지까지의 시간인, 
+          <b>${getWoljuTimeDifference(
+            correctedDate, getSolarTermBoundaries(correctedDate.getFullYear()).find(term => term.name === "입춘"), woljuMode
+          )}</b>을 똑같이 치환한다면,<br>
+          실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualWoljuOffset.toFixed(4)}</b>일로 되며, <br>
+          그 다음부터는 <b>${expectedWoljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${woljuMode}</b> 진행됩니다.<br>
+          ${ myowoonResult.dynamicSteps.wolju == 0 
+            ? `따라서, 변화가 한 번도 발생하지 않아 최초 후보 시각과 최종 후보 시각은 <b>${formatDateTime(myowoonResult.candidateTimes.wolju)}</b>로 동일합니다.` 
+            : `최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatDateTime(adjustedWoljuTime)} (${myowoonResult.monthEvent.ganji})</b>로 변경되었습니다.` }<br>
+          ${ myowoonResult.dynamicSteps.wolju == 0 
+            ? `최초 간지 전환 시점은 <b>${formatDateTime(myowoonResult.candidateTimes.wolju)}</b>입니다.` 
+            : `최초 간지 전환 시점은 <b>${formatDateTime(myowoonResult.candidateTimes.wolju)}</b>입니다.` }
+        </li>
+      `;
+
+      // ----- 연주 설명 -----
+      html += `
+        <li>
+          <div class="pillar_title"><strong>연주</strong></div>
+          원국 연주 간지: <b>${yearPillar}</b><br>
+          보정 후 처음 간지 바뀌는 시간: <b>${formatDateTime(myowoonResult.newYeonjuFirst)}</b><br>
+          보정 후 오늘까지 마지막으로 바뀐 시간: <b>
+          ${ myowoonResult.dynamicSteps.yeonju == 0 
+            ? `변경없음` 
+            : `${formatDateTime(adjustedYeonjuTime)}` }
+          </b><br>
+          다음 간지 바뀌는 날짜 : <b>${formatDateTime(finalYeonjuTime)}</b><br>
+          동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newYeonjuFirst, yeonjuCycle, refDate)}</b><br>
+          최종 업데이트 이벤트 간지: <b>${myowoonResult.yearEvent.ganji}</b><br>
+          방향: <b>${yeonjuMode}</b><br><br>
+          
+          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+          <b>${yeonjuMode}</b> 방식으로 계산된다면, <br>
+          보정 시각에서 첫번째 간지 변환일자는 <b>${formatDateTime(myowoonResult.newYeonjuFirst)}</b>로 산출되며, <br>
+          묘운 월주의 기간은 120년의 일년을 평균 60년으로, 즉 약 <b>${expectedYeonjuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
+          위에 치환한 것처럼, 입춘을 계산식에 포함한 일년이 바뀌기전의 전의 ${direction()} 간지까지의 시간인, 
+          <b>${getYeonjuTimeDifference(correctedDate, iljuMode)}</b>을 똑같이 치환한다면,<br>
+          실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualYeonjuOffset.toFixed(4)}</b>일로 되며, <br>
+          그 다음부터는 <b>${expectedYeonjuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${yeonjuMode}</b> 진행됩니다.<br>
+            
+          ${ myowoonResult.dynamicSteps.yeonju == 0 
+            ? `따라서, 변화가 한 번도 발생하지 않아 최초 후보 시각과 최종 후보 시각은 <b>${formatDateTime(myowoonResult.candidateTimes.yeonju)}</b>로 동일합니다.` 
+            : `최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatDateTime(adjustedYeonjuTime)} (${myowoonResult.yearEvent.ganji})</b>로 변경되었습니다.` }<br>
+          ${ myowoonResult.dynamicSteps.yeonju == 0 
+            ? `최초 간지 전환 시점은 <b>${formatDateTime(myowoonResult.candidateTimes.yeonju)}</b>입니다.` 
+            : `최초 간지 전환 시점은 <b>${formatDateTime(myowoonResult.candidateTimes.yeonju)}</b>입니다.` }
+        </li>
+      `;
+    
+      
+      ul.innerHTML = html;
+    }
+    updateExplanDetail(myowoonResult);
+
     // 라디오 변경 이벤트 리스너 내부
     document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
       radio.addEventListener("change", function () {
+
         // 결과창과 계산용 라디오 동기화
         const selectedValue = document.querySelector('input[name="timeChk02"]:checked').value;
         const calcRadio = document.querySelector('input[name="time2"][value="' + selectedValue + '"]');
@@ -2874,9 +3229,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         
         // 기준 일간 재계산(내부에서 보정 로직을 포함시켜 최신 baseDayStem을 계산)
-        updateBaseDayStem(baseDayStem);
+        
         // 최신 baseDayStem를 가져옵니다.
-        const baseDayStem = globalState.originalDayStem;
+
+        updateBaseDayStem(baseDayStem);
         
         // 원국, 묘운, 운 등의 업데이트 함수 호출
         updateFortune(inputData);
@@ -2884,14 +3240,16 @@ document.addEventListener("DOMContentLoaded", function () {
         updateColorClasses();
         
         // 운(대운) 관련 업데이트: 원국 십신, 십이운성 등
-        updateCurrentDaewoon(baseDayStem);
+        
+        updateCurrentDaewoon();
         // 예: 전체 대운 리스트 업데이트 (각 항목마다 baseDayStem 필요)
-        updateAllDaewoonItems(globalState.daewoonData.list, baseDayStem, baseYearBranch);
+        
+        updateAllDaewoonItems(globalState.daewoonData.list);
         
         // 세운/월운/일운/시운 업데이트 (대운의 기준이 baseDayStem)
-        updateCurrentSewoon(refDate, baseDayStem);
+        updateCurrentSewoon(refDate);
         // 예: 각 세운 항목 업데이트
-        updateSewoonItem(baseDayStem); // 만약 개별 항목 업데이트 함수가 있다면 호출
+        updateSewoonItem(); // 만약 개별 항목 업데이트 함수가 있다면 호출
         
         // 월운 업데이트 (computedYear, currentMonthIndex와 함께 baseDayStem 전달)
         // 예시: 현재 날짜를 기준으로 computedYear와 currentMonthIndex 계산
@@ -2902,8 +3260,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const currentMonthIndex = today.getMonth(); // 간단하게 달 번호(0부터 시작)
 
         // 그 후 updateMonthlyWoon 호출
-        updateMonthlyData(baseDayStem);
-        updateMonthlyWoon(computedYear, currentMonthIndex, baseDayStem);
+        updateMonthlyData();
+        updateMonthlyWoon(computedYear, currentMonthIndex);
         
         const {
           solarTermName,
@@ -2931,7 +3289,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
         const myowoonResult = getMyounPillars(gender, refDate);
         updateMyowoonSection(myowoonResult, baseDayStem);
-        
+        updateExplanDetail(myowoonResult);
         // 타임라인 업데이트 (필요 시)
         const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
         const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", refDate);
@@ -2944,81 +3302,8 @@ document.addEventListener("DOMContentLoaded", function () {
         logTimelineWindow("연주", yeonjuTimeline);
       });
     });
-
-    function updateExplanDetail(myowoonResult) {
-
-      function getAverageYearLength(date) {
-        const end = new Date(date);
-        end.setFullYear(date.getFullYear() + 120);
-        return ((end - date) / oneDayMs) / 120;
-      }
-
-      const expectedIljuOffset = getAverageYearLength(correctedDate) * (4 / 12);
-      // expectedIljuOffset는 보정 시각으로부터 120년 평균 4개월에 해당하는 일수입니다.
-      // 예를 들어, getAverageYearLength(correctedDate)가 365.24일이면, 약 121.7467일이 됩니다.
-      
-      // 실제 후보 시각과 보정 시각 사이의 차이를 구해봅니다.
-      const actualIljuOffset = (myowoonResult.candidateTimes.ilju - correctedDate) / oneDayMs;
     
-      const ul = document.getElementById("explanDetail");
-      let html = "";
     
-      // ----- 시주 설명 -----
-      html += `<li><strong>시주:</strong><br>`;
-      html += `원국 시주 간지: <b>${myowoonResult.hourPillar}</b><br>`;
-      html += `보정 후 동적 후보 시각: <b>${formatDateTime(myowoonResult.candidateTimes.siju)}</b><br>`;
-      html += `동적 업데이트 단계: <b>${myowoonResult.dynamicSteps.siju}</b><br>`;
-      html += `최종 업데이트 이벤트 간지: <b>${myowoonResult.hourEvent.ganji}</b><br>`;
-      html += `<b>예: 보정 시각이 ${formatDateTime(correctedDate)}라면, 시주의 경우 보정 시각과 기준(블록) 시간 사이의 차이가 동적으로 `;
-      html += `계산되어 (동적 단계 ${myowoonResult.dynamicSteps.siju})가 산출됩니다. 이 값은 2시간(120분)을 기준으로 산출되며, `;
-      html += `시주 사이클(${sijuCycle}일)을 곱한 결과, 보정 시각에 (즉, ${formatDateTime(myowoonResult.candidateTimes.siju)}) `;
-      html += `가 최종 후보 시각으로 결정됩니다.</b></li>`;
-    
-      // ----- 일주 설명 -----
-      html += `
-        <li>
-          <strong>일주 (방향: ${iljuMode}):</strong><br>
-          원국 일주 간지: <b>${myowoonResult.dayPillar}</b><br>
-          보정 후 동적 후보 시각: <b>${formatDateTime(myowoonResult.candidateTimes.ilju)}</b><br>
-          동적 업데이트 단계: <b>${myowoonResult.dynamicSteps.ilju}</b><br>
-          최종 업데이트 이벤트 간지: <b>${myowoonResult.dayEvent.ganji}</b><br>
-          방향: <b>${iljuMode}</b><br><br>
-          
-          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
-          일주는 라디오 버튼 설정에 따라 결정된 기준 시간이 적용됩니다. <br>
-          만약 <b>${iljuMode}</b> 방식으로 계산된다면, <br>
-          보정 시각에서 첫번째 간지 변환일자는 <b>${formatDateTime(myowoonResult.candidateTimes.ilju)}</b>로 산출되며, <br>
-          묘운 일주의 기간은 120년의 평균 4개월, 즉 약 <b>${expectedIljuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
-          실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualIljuOffset.toFixed(4)}</b>일로 계산되었습니다. <br>
-          오늘의 간지 전환 시간을 찾기 위해 이 기간이 보정되며, <br>
-          최종적으로 보정 시각에 이 기간을 더하면 최종 후보 시각이 <b>${formatDateTime(myowoonResult.candidateTimes.ilju)}</b>로 결정됩니다.
-        </li>
-      `;
-    
-      // ----- 월주 설명 -----
-      html += `<li><strong>월주:</strong><br>`;
-      html += `원국 월주 간지: <b>${myowoonResult.monthPillar}</b><br>`;
-      html += `보정 후 동적 후보 시각: <b>${formatDateTime(myowoonResult.candidateTimes.wolju)}</b><br>`;
-      html += `동적 업데이트 단계: <b>${myowoonResult.dynamicSteps.wolju}</b><br>`;
-      html += `최종 업데이트 이벤트 간지: <b>${myowoonResult.monthEvent.ganji}</b><br>`;
-      html += `<b>예: 보정 시각(${formatDateTime(correctedDate)})과 태양절기 경계(예: 입춘)가 비교되어, 월주의 동적 단계가 `;
-      html += `${myowoonResult.dynamicSteps.wolju}로 산출됩니다. 이 값은 평균 한 달(30.4일, 즉 ${(30.4 * 1440)}분)을 기준으로 계산되고, `;
-      html += `월주 사이클(${woljuCycle}일)을 곱한 결과, 최종 후보 시각이 ${formatDateTime(myowoonResult.candidateTimes.wolju)}로 결정됩니다.</b></li>`;
-    
-      // ----- 연주 설명 -----
-      html += `<li><strong>연주:</strong><br>`;
-      html += `원국 연주 간지: <b>${myowoonResult.yearPillar}</b><br>`;
-      html += `보정 후 동적 후보 시각: <b>${formatDateTime(myowoonResult.candidateTimes.yeonju)}</b><br>`;
-      html += `동적 업데이트 단계: <b>${myowoonResult.dynamicSteps.yeonju}</b><br>`;
-      html += `최종 업데이트 이벤트 간지: <b>${myowoonResult.yearEvent.ganji}</b><br>`;
-      html += `<b>예: 보정 시각(${formatDateTime(correctedDate)})과 입춘(태양절기)을 비교하여 연주의 동적 단계 `;
-      html += `(${myowoonResult.dynamicSteps.yeonju})가 산출됩니다. 이 단계는 1년(365.24일, 즉 ${(365.24 * 24 * 60)}분)을 기준으로 계산되고, `;
-      html += `연주 사이클(${yeonjuCycle}일)을 곱한 결과, 최종 후보 시각이 ${formatDateTime(myowoonResult.candidateTimes.yeonju)}로 결정됩니다.</b></li>`;
-      
-      ul.innerHTML = html;
-    }
-    
-    updateExplanDetail(myowoonResult);
     
     document.getElementById('resultWrapper').style.display = 'block';
     window.scrollTo(0, 0);
@@ -3368,5 +3653,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = "묘운 설명 접기";
     }
   });
+
+
 });
 

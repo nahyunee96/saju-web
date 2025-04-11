@@ -330,7 +330,7 @@
 
   .grid_box_1 li p.ten_sin,
   .ganji p.ten_sin {
-    font-size: 14px;
+    font-size: 20px;
   }
 
   .jijanggan {
@@ -834,6 +834,10 @@
     margin-bottom: 0;
   }
 
+  .explan .pillar_title {
+    font-size: 20px;
+  }
+
   /* 모바일 대응 */
   @media screen and (max-width:991px){
     .info_wrapper {
@@ -889,7 +893,7 @@
       margin-top:5.224vw;
     }
     .btn_box button {
-      padding:0vw 12.448vw; 
+      padding:0vw 8.448vw; 
       font-size:3.628vw;
     }
 
@@ -1243,5 +1247,25 @@
       padding: 6.2vw 1.2vw;
       font-size: 2.4vw;
     }
+
+    .explan {
+      padding: 4vw;
+      margin-top: 8vw;
+      font-size: 3.2vw;
+    }
+  
+    .explan .pharases {
+      margin-bottom: 4vw;
+      font-size: 4vw;
+    }
+  
+    .explan li {
+      margin-bottom: 4vw;
+    }
+
+    .explan .pillar_title {
+      font-size: 4.4vw;
+    }
+  
     
   }
