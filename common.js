@@ -2484,6 +2484,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.back_btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         window.location.reload();
+        window.scrollTo(0, 0);
       });
     });
 
