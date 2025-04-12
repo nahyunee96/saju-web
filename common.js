@@ -2344,7 +2344,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
 
     // UI 업데이트 예시: updateMyowoonSection
-    function updateMyowoonSection(myowoonResult, baseDayStem) {
+    function updateMyowoonSection(myowoonResult) {
       function setText(id, text) {
         const elem = document.getElementById(id);
         if (elem) elem.innerText = text;
@@ -2701,12 +2701,6 @@ document.addEventListener("DOMContentLoaded", function () {
     logTimelineWindow("일주", iljuTimeline);
     logTimelineWindow("월주", woljuTimeline);
     logTimelineWindow("연주", yeonjuTimeline);
-    
-    
-
-    
-    
-    
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
@@ -3223,12 +3217,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function radioFunc(refDate) {
-      refDate = getOriginalDateFromItem(currentMyeongsik);
-      const correctedDate = adjustBirthDate(refDate, currentMyeongsik.birthPlace, currentMyeongsik.isPlaceUnknown);
-      const adjustedD = getAdjustedDateWithTimeType(correctedDate);
+      const birthD = getOriginalDateFromItem(currentMyeongsik);
+      const correctedDate = adjustBirthDate(birthD, currentMyeongsik.birthPlace, currentMyeongsik.isPlaceUnknown);
+      //const adjustedD = getAdjustedDateWithTimeType(correctedDate);
 
       const originalBranch = getHourBranchFromPillar(currentMyeongsik.hourPillar); // "축"
-      const realBranch = getHourBranchName(refDate); // → "자"로 나오는지 확인
+      const realBranch = getHourBranchName(birthD); // → "자"로 나오는지 확인
 
       console.log("🌿 원래 시지:", originalBranch, "📌 계산된 시지:", realBranch);
 
@@ -3236,9 +3230,9 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      function getDateForGanZhiWithRadio(refDate) {
+      function getDateForGanZhiWithRadio(birthD) {
         const selectedTime = document.querySelector('input[name="timeChk02"]:checked')?.value;
-        const adjusted = new Date(refDate);
+        const adjusted = new Date(birthD);
       
         if (selectedTime === "jasi") {
           adjusted.setHours(23, 0, 0, 0); // 자시 기준
@@ -3250,7 +3244,6 @@ document.addEventListener("DOMContentLoaded", function () {
       
         return adjusted;
       }
-      
 
       const branchIndex = getHourBranchIndex(correctedDate);
       const branchName = Jiji[branchIndex];
@@ -3259,12 +3252,11 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("✅ 조건 진입 성공");
       
         // [1] 원본 생일 정보
-        const refDate = getOriginalDateFromItem(currentMyeongsik);
-        console.log("📅 생일 기준:", refDate.toLocaleString());
+        console.log("📅 생일 기준:", birthD.toLocaleString());
       
         // [2] 보정된 시각
         const corrected = adjustBirthDate(
-          refDate,
+          birthD,
           currentMyeongsik.birthPlace,
           currentMyeongsik.isPlaceUnknown
         );
@@ -3332,12 +3324,13 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       // 캘린더 컨테이너에 반영 (예시)
       document.getElementById("iljuCalender").innerHTML = calendarHTML;
-      
+      updateDayWoon(refDate);
       updateHourWoon(refDate);
       updateMonthlyWoonByToday(refDate);
       // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
       const myowoonResult = getMyounPillars(gender, refDate);
       updateExplanDetail(myowoonResult);
+      updateMyowoonSection(myowoonResult);
       
     }
     
@@ -3359,8 +3352,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (branchName === "자" || branchName === "축") {
           radioFunc(refDate);
-          updateMyowoonSection(myowoonResult);
-          updateDayWoon(refDate);
+          
         }
 
         // 타임라인 업데이트 (필요 시)
@@ -3395,8 +3387,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (branchName === "자" || branchName === "축") {
         radioFunc(refDate);
-        updateMyowoonSection(myowoonResult);
-        updateDayWoon(refDate);
       }
     
       logTimelineWindow("시주", sijuTimeline);
