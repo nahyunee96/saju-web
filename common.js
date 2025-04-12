@@ -3262,7 +3262,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const picker = document.getElementById("woonTimeSetPicker");
         const refDate = picker && picker.value ? new Date(picker.value) : new Date();
 
-        radioFunc(refDate);
+
+        const branchIndex = getHourBranchIndex(correctedDate);
+        const branchName = Jiji[branchIndex];
+
+        if (branchName === "자" || branchName === "축") {
+          radioFunc(refDate);
+        }
+        
         
         // 타임라인 업데이트 (필요 시)
         const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
