@@ -101,11 +101,19 @@ function adjustBirthDate(dateObj, birthPlace, isPlaceUnknown) {
 }
 
 // [1] 천문/역법 함수
-function calendarGregorianToJD(year, month, day) {
-  if (month <= 2) { year -= 1; month += 12; }
+function calendarGregorianToJD(year, month, day, hour = 0, minute = 0) {
+  if (month <= 2) {
+    year -= 1;
+    month += 12;
+  }
+
   const a = Math.floor(year / 100);
   const b = 2 - a + Math.floor(a / 4);
-  return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + b - 1524.5;
+  const fractionalDay = day + (hour + minute / 60) / 24;
+
+  return Math.floor(365.25 * (year + 4716)) +
+         Math.floor(30.6001 * (month + 1)) +
+         fractionalDay + b - 1524.5;
 }
 
 function jdToCalendarGregorian(jd) {
@@ -219,11 +227,17 @@ const Jiji = ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "�
 
 // [4] 일간 계산
 function getDayGanZhi(dateObj) {
+  const y = dateObj.getFullYear();
+  const m = dateObj.getMonth() + 1;
+  const d = dateObj.getDate();
+  const h = dateObj.getHours();
+  const min = dateObj.getMinutes();
 
-  let d = new Date(dateObj.getTime());
+  const jd = calendarGregorianToJD(y, m, d, h, min);
+  const index = Math.floor(jd) + 50; // 여기서 +50은 기준 조정치
+
+  return sexagenaryCycle[index % 60];
   
-  const jd = Math.floor(calendarGregorianToJD(d.getFullYear(), d.getMonth() + 1, d.getDate()));
-  return sexagenaryCycle[(jd + 50) % 60] || "";
 }
 
 // [5] 고정 시주 계산 (참고용)
@@ -254,11 +268,8 @@ function getHourBranchIndex(dateObj, isSunTime) {
 }
 
 
-function getDayStem(dayGanZhiStr) {
-  if (!dayGanZhiStr || typeof dayGanZhiStr !== "string" || dayGanZhiStr.length === 0) {
-    console.error("getDayStem: 인자가 유효하지 않습니다. 기본값 '갑' 사용"); return "갑";
-  }
-  return dayGanZhiStr.charAt(0);
+function getDayStem(ganZhi) {
+  return ganZhi.charAt(0);
 }
 
 // getHourStem 함수
@@ -584,7 +595,7 @@ const tenGodMappingForStems = {
   "갑": { "갑": "비견", "을": "겁재", "병": "식신", "정": "상관", "무": "편재", "기": "정재", "경": "편관", "신": "정관", "임": "편인", "계": "정인" },
   "을": { "갑": "겁재", "을": "비견", "병": "상관", "정": "식신", "무": "정재", "기": "편재", "경": "정관", "신": "편관", "임": "정인", "계": "편인" },
   "병": { "갑": "편인", "을": "정인", "병": "비견", "정": "겁재", "무": "식신", "기": "상관", "경": "편재", "신": "정재", "임": "편관", "계": "정관" },
-  "정": { "갑": "정인", "을": "편인", "병": "겁재", "정": "비견", "무": "상관", "기": "식상", "경": "정재", "신": "편재", "임": "정관", "계": "편관" },
+  "정": { "갑": "정인", "을": "편인", "병": "겁재", "정": "비견", "무": "상관", "기": "식신", "경": "정재", "신": "편재", "임": "정관", "계": "편관" },
   "무": { "갑": "편관", "을": "정관", "병": "편인", "정": "정인", "무": "비견", "기": "겁재", "경": "식신", "신": "상관", "임": "편재", "계": "정재" },
   "기": { "갑": "정관", "을": "편관", "병": "정인", "정": "편인", "무": "겁재", "기": "비견", "경": "상관", "신": "식신", "임": "정재", "계": "편재" },
   "경": { "갑": "편재", "을": "정재", "병": "편관", "정": "정관", "무": "편인", "기": "정인", "경": "비견", "신": "겁재", "임": "식신", "계": "상관" },
@@ -602,7 +613,7 @@ const tenGodMappingForBranches = {
   "기": { "자": "편재", "축": "비견", "인": "정관", "묘": "편관", "진": "겁재", "사": "정인", "오": "편인", "미": "비견", "신": "상관", "유": "식신", "술": "겁재", "해": "정재" },
   "경": { "자": "상관", "축": "정인", "인": "편재", "묘": "정재", "진": "편인", "사": "편관", "오": "정관", "미": "정인", "신": "비견", "유": "겁재", "술": "편인", "해": "식신" },
   "신": { "자": "식신", "축": "편인", "인": "정재", "묘": "편재", "진": "정인", "사": "정관", "오": "편관", "미": "편인", "신": "겁재", "유": "비견", "술": "정인", "해": "상관" },
-  "임": { "자": "겁재", "축": "정관", "인": "식상", "묘": "상관", "진": "편관", "사": "편재", "오": "정재", "미": "정관", "신": "편인", "유": "정인", "술": "편인", "해": "비견" },
+  "임": { "자": "겁재", "축": "정관", "인": "식신", "묘": "상관", "진": "편관", "사": "편재", "오": "정재", "미": "정관", "신": "편인", "유": "정인", "술": "편인", "해": "비견" },
   "계": { "자": "비견", "축": "편관", "인": "상관", "묘": "식신", "진": "정관", "사": "정재", "오": "편재", "미": "편관", "신": "정인", "유": "편인", "술": "정인", "해": "겁재" }
 };
 
@@ -1225,7 +1236,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const originalDate = new Date(year, month - 1, day, hour, minute);
     const correctedDate = adjustBirthDate(originalDate, usedBirthPlace);
     globalState.correctedBirthDate = correctedDate;
-    updateBaseDayStem();
 
     const formattedBirth = `${year}-${pad(month)}-${pad(day)}`;
     setText("resBirth", formattedBirth);
@@ -1432,7 +1442,7 @@ document.addEventListener("DOMContentLoaded", function () {
       daewoonLis[currentDaewoonIndex].classList.add("active");
     }
 
-    function updateCurrentSewoon(refDate) {
+    function updateCurrentSewoon() {
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
       //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
       const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
@@ -1469,7 +1479,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WSWb12ws", getTwelveUnseong(baseDayStem, sewoonSplit.ji));
       setText("WSWb12ss", getTwelveShinsal(baseYearBranch, sewoonSplit.ji));
     }
-    updateCurrentSewoon(refDate, baseDayStem);
+    updateCurrentSewoon();
 
     document.querySelectorAll("#daewoonList li").forEach(function (li) {
       li.addEventListener("click", function (event) {
@@ -1728,7 +1738,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return todayObj >= term.date && todayObj < next.date;
     });
     if (!currentTerm) { currentTerm = boundariesArr[0]; }
-    function generateDailyFortuneCalendar(solarTermName, startDate, endDate, baseDayStem, currentIndex, boundaries, solarYear) {
+    function generateDailyFortuneCalendar(solarTermName, startDate, endDate, currentIndex, boundaries, solarYear) {
       let prevTermName, nextTermName;
       if (currentIndex > 0) {
         prevTermName = boundaries[currentIndex - 1].name;
@@ -1885,7 +1895,6 @@ document.addEventListener("DOMContentLoaded", function () {
         solarTermName,
         normStart,
         finalEndDate,
-        baseDayStem,
         currentIndex,
         boundaries,
         solarYear
@@ -2344,7 +2353,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
 
     // UI 업데이트 예시: updateMyowoonSection
-    function updateMyowoonSection(myowoonResult, baseDayStem) {
+    function updateMyowoonSection(myowoonResult) {
       function setText(id, text) {
         const elem = document.getElementById(id);
         if (elem) elem.innerText = text;
@@ -2422,7 +2431,6 @@ document.addEventListener("DOMContentLoaded", function () {
          "MyoHbJj1", "MyoHbJj2", "MyoHbJj3", "MyoHb12ws", "MyoHb12ss"].forEach(id => setText(id, "-"));
       } else {
         const hp = myowoonResult.hourEvent.ganji;
-        console.log('baseDayStem', baseDayStem);
         setText("MyoHtHanja", stemMapping[hp[0]]?.hanja || hp[0]);
         applyColor("MyoHtHanja", hp[0]);
         setText("MyoHtHanguel", stemMapping[hp[0]]?.hanguel || hp[0]);
@@ -2472,7 +2480,7 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById('woonArea').style.display = 'none';
           document.getElementById('woonContainer').style.display = 'flex';
           document.getElementById('calArea').style.display = 'block';
-          updateMyowoonSection(myowoonResult, baseDayStem);
+          updateMyowoonSection(myowoonResult);
           newBtn.classList.add("active");
           newBtn.innerText = "원래 화면으로 가기";
         }
@@ -2495,32 +2503,10 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('woonArea').style.display = 'block';
     document.getElementById('woonContainer').style.display = 'none';
     document.getElementById('calArea').style.display = 'none';
-
-    // globalState.originalDayStem을 업데이트하는 함수
-    function updateBaseDayStem(baseDayStem) {
-      const corrected = globalState.correctedBirthDate;
-      let adjusted = new Date(corrected.getTime());
-      if (document.getElementById("jasi").checked) {
-        adjusted.setHours(23, 0, 0, 0);
-        if (adjusted.getHours() >= 23 || adjusted.getHours() < 1) {
-          adjusted.setDate(adjusted.getDate() + 1);
-        }
-      } else if (document.getElementById("yajojasi").checked) {
-        adjusted.setHours(0, 0, 0, 0);
-        // 필요 시 야·조자시 보정 로직 추가
-        if (adjusted.getHours() >= 24 || adjusted.getHours() < 3) {
-          adjusted.setDate(adjusted.getDate() + 1);
-        }
-      } else if (document.getElementById("insi").checked) {
-        adjusted.setHours(3, 0, 0, 0);
-      }
-      globalState.originalDayStem = baseDayStem;
-    }
         
 
     // updateDayWoon 함수 수정
-    function updateDayWoon(refDate, baseDayStem) {
-      if (!(refDate instanceof Date) || isNaN(refDate.getTime())) { refDate = new Date(); }
+    function updateDayWoon(refDate) {
       const jasiElem = document.getElementById("jasi");
       const yajojasiElem = document.getElementById("yajojasi");
       const insiElem = document.getElementById("insi");
@@ -2533,21 +2519,19 @@ document.addEventListener("DOMContentLoaded", function () {
         adjustedDate = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), adjustedDate.getDate(), 3, 0, 0, 0);
       }
       
-      const dayGanZhi = getDayGanZhi(adjustedDate);
-      const 일간 = daySplit.gan;
-      let 스플랫 = splitPillar(dayGanZhi);
+      const dayGanZhi_ = getDayGanZhi(adjustedDate);
+      let 스플랫 = splitPillar(dayGanZhi_);
       // globalState.originalDayStem를 사용하여 업데이트
       setText("WDtHanja", stemMapping[스플랫.gan]?.hanja || "-");
       setText("WDtHanguel", stemMapping[스플랫.gan]?.hanguel || "-");
       setText("WDtEumyang", stemMapping[스플랫.gan]?.eumYang || "-");
-      setText("WDt10sin", getTenGodForStem(스플랫.gan, 일간) || "-");
-      console.log('스플랫.gan, 일간', 스플랫.gan, 일간);
+      setText("WDt10sin", getTenGodForStem(스플랫.gan, baseDayStem) || "-");
       setText("WDbHanja", branchMapping[스플랫.ji]?.hanja || "-");
       setText("WDbHanguel", branchMapping[스플랫.ji]?.hanguel || "-");
       setText("WDbEumyang", branchMapping[스플랫.ji]?.eumYang || "-");
-      setText("WDb10sin", getTenGodForBranch(스플랫.ji, 일간) || "-");
+      setText("WDb10sin", getTenGodForBranch(스플랫.ji, baseDayStem) || "-");
       updateHiddenStems(스플랫.ji, "WDb");
-      setText("WDb12ws", getTwelveUnseong(일간, 스플랫.ji) || "-");
+      setText("WDb12ws", getTwelveUnseong(baseDayStem, 스플랫.ji) || "-");
       setText("WDb12ss", getTwelveShinsal(baseYearBranch, 스플랫.ji) || "-");
       updateColorClasses();
     }
@@ -2573,7 +2557,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return null;
     }
 
-    function updateHourWoon(refDate, baseDayStem) {
+    function updateHourWoon(refDate) {
       const date = new Date(refDate);
       const hourBranch = getHourBranchUsingArray(date);
       const hourBranchIndex = Jiji.indexOf(hourBranch);
@@ -2587,7 +2571,6 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WTtHanguel", stemMapping[correctedFortuneHourStem]?.hanguel || "-");
       setText("WTtEumyang", stemMapping[correctedFortuneHourStem]?.eumYang || "-");
       setText("WTt10sin", getTenGodForStem(correctedFortuneHourStem, baseDayStem) || "-");
-      console.log('correctedFortuneHourStem, baseDayStem', correctedFortuneHourStem, baseDayStem);
       setText("WTbHanja", branchMapping[hourBranch]?.hanja || "-");
       setText("WTbHanguel", branchMapping[hourBranch]?.hanguel || "-");
       setText("WTbEumyang", branchMapping[hourBranch]?.eumYang || "-");
@@ -2597,7 +2580,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WTb12ss", getTwelveShinsal(baseYearBranch, hourBranch) || "-");
       updateColorClasses();
     }
-    updateHourWoon(refDate, baseDayStem);
+    updateHourWoon(refDate);
 
     const picker = document.getElementById("woonTimeSetPicker");
     refDate = (picker && picker.value) ? new Date(picker.value) : new Date();  
@@ -2742,11 +2725,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const yeonjuTimeline= generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", refDate);
     
       // 다른 운세 업데이트 함수 호출 (refDate 기준 업데이트)
-      updateCurrentSewoon(refDate, baseDayStem);
+      updateCurrentSewoon();
       updateMonthlyWoonByToday(refDate);
       updateDayWoon(refDate);
-      updateHourWoon(refDate, baseDayStem);
-      updateMyowoonSection(myowoonResult, baseDayStem);
+      updateHourWoon(refDate);
+      updateMyowoonSection(myowoonResult);
     
       console.log("=== 최종 운세 결과 ===");
       logTimelineWindow("시주", sijuTimeline);
@@ -2799,7 +2782,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const monthSplit = splitPillar(monthPillar);
       const daySplit   = splitPillar(dayPillar);
       const hourSplit  = splitPillar(hourPillar);
-      baseDayStem = globalState.originalDayStem;
       updateStemInfo("Yt", yearSplit, baseDayStem);
       updateStemInfo("Mt", monthSplit, baseDayStem);
       updateStemInfo("Dt", daySplit, baseDayStem);
@@ -3211,9 +3193,29 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     updateExplanDetail(myowoonResult);
 
+    function getDaySplit(dateObj) {
+      // (1) 예: getDayGanZhi(dateObj)가 "경자" 같은 문자열을 리턴한다고 가정
+      const dayGanZhi = getDayGanZhi(dateObj); 
+        // 예: "경자" (간 = '경', 지 = '자')
+    
+      // (2) 일간(gan) 추출: getDayStem("경자") -> "경"
+      const dayStem = getDayStem(dayGanZhi);
+    
+      // (3) 일지(zhi) 추출: 비슷한 로직이 있다면 가정. (혹은 dayGanZhi.slice(1)처럼 직접 처리)
+      const dayBranch = dayGanZhi[1];
+    
+      // (4) 필요한 정보들을 객체로 묶어서 반환
+      return {
+        gan: dayStem,      // 일간
+        zhi: dayBranch,    // 일지
+        ganZhi: dayGanZhi, // 전체 간지
+      };
+    }
+
+
     // 라디오 변경 이벤트 리스너 내부
     document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
-      radio.addEventListener("change", function () {
+      radio.addEventListener("change", function() {
 
         // 결과창과 계산용 라디오 동기화
         const selectedValue = document.querySelector('input[name="timeChk02"]:checked').value;
@@ -3221,21 +3223,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (calcRadio) {
           calcRadio.checked = true;
         }
-        
-        // 보정된 출생시간에 대해 보정 로직 적용 (필요 시)
-        const corrected = globalState.correctedBirthDate;
-        let adjusted = new Date(corrected.getTime());
-        if (document.getElementById("jasi").checked && (adjusted.getHours() >= 23 || adjusted.getHours() < 3)) {
-          adjusted.setDate(adjusted.getDate() + direction + 60);
-        } else if (document.getElementById("yajojasi").checked && (adjusted.getHours() >= 24 || adjusted.getHours() < 3)) {
-          adjusted.setDate(adjusted.getDate() + direction + 60);
-        }
-        
-        // 기준 일간 재계산(내부에서 보정 로직을 포함시켜 최신 baseDayStem을 계산)
-        
-        // 최신 baseDayStem를 가져옵니다.
 
-        updateBaseDayStem(baseDayStem);
+        
+      
         
         // 원국, 묘운, 운 등의 업데이트 함수 호출
         updateFortune(inputData);
@@ -3250,21 +3240,9 @@ document.addEventListener("DOMContentLoaded", function () {
         updateAllDaewoonItems(globalState.daewoonData.list);
         
         // 세운/월운/일운/시운 업데이트 (대운의 기준이 baseDayStem)
-        updateCurrentSewoon(refDate);
+        updateCurrentSewoon();
         // 예: 각 세운 항목 업데이트
         updateSewoonItem(); // 만약 개별 항목 업데이트 함수가 있다면 호출
-        
-        // 월운 업데이트 (computedYear, currentMonthIndex와 함께 baseDayStem 전달)
-        // 예시: 현재 날짜를 기준으로 computedYear와 currentMonthIndex 계산
-        const today = new Date();
-        const computedYear = today.getFullYear();  // 필요에 따라 조정
-        // currentMonthIndex는 boundaries 배열이나 다른 기준을 사용해 계산해야 합니다.
-        // 예를 들어, boundaries[0]가 시작 날짜라면 현재 달이 몇 번째 인덱스인지 계산
-        const currentMonthIndex = today.getMonth(); // 간단하게 달 번호(0부터 시작)
-
-        // 그 후 updateMonthlyWoon 호출
-        updateMonthlyData();
-        updateMonthlyWoon(computedYear, currentMonthIndex);
         
         const {
           solarTermName,
@@ -3278,21 +3256,22 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // 일간 운세(묘운) 달력 생성 시에도 baseDayStem을 사용
         const calendarHTML = generateDailyFortuneCalendar(
-          solarTermName, startDate, endDate, baseDayStem, currentIndex, boundaries, solarYear
+          solarTermName, startDate, endDate, currentIndex, boundaries, solarYear
         );
         // 캘린더 컨테이너에 반영 (예시)
         document.getElementById("iljuCalender").innerHTML = calendarHTML;
-        
-        // 운(세운, 월운, 일운, 시운) 중 선택한 세운에 따른 UI 업데이트
-        registerSewoonClickHandlers(baseDayStem);
-        
-        updateHourWoon(refDate, baseDayStem);
-        updateDayWoon(refDate, baseDayStem);
-        
+
         // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
         const myowoonResult = getMyounPillars(gender, refDate);
-        updateMyowoonSection(myowoonResult, baseDayStem);
+        updateMyowoonSection(myowoonResult);
         updateExplanDetail(myowoonResult);
+
+
+        const adjustedDate = new Date(refDate.getTime());
+
+        updateDayWoon(refDate, adjustedDate);
+        updateHourWoon(refDate);
+        updateMonthlyWoonByToday(refDate);
         // 타임라인 업데이트 (필요 시)
         const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
         const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", refDate);
