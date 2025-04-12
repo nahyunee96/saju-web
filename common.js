@@ -771,6 +771,9 @@ function updateBranchInfo(prefix, branch, baseDayStem) {
   }
 
 document.addEventListener("DOMContentLoaded", function () {
+
+  let currentMyeongsik = null;
+
   window.scrollTo(0, 0);
   const inputName = document.getElementById("inputName");
   if (inputName) {
@@ -1021,10 +1024,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // detailViewBtn 이벤트 등록
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
+        
         e.stopPropagation();
         handleViewClick();
         const idx = parseInt(button.getAttribute("data-index"), 10);
         const item = savedList[idx];
+        currentMyeongsik = item;
         if (!item) return;
 
         // 🧹 묘운 상세보기 버튼 및 화면 상태 초기화 (← 요 부분이 새로 추가되는 부분!)
@@ -1081,7 +1086,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const myowoonBtn = document.getElementById("myowoonMore");
         myowoonBtn.classList.remove("active");
         myowoonBtn.innerText = "묘운력(운 전체) 상세보기";
-          
+
         // UI 전환
         document.getElementById("aside").style.display = "none";
         document.getElementById("inputWrap").style.display = "none";
@@ -1090,8 +1095,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
     
-    
-      
+ 
     // delete 버튼 이벤트 등록
     document.querySelectorAll(".delete_btn").forEach(function (button) {
       button.addEventListener("click", function (e) {
@@ -3192,17 +3196,33 @@ document.addEventListener("DOMContentLoaded", function () {
       return adjusted;
     }
 
+    function getHourBranchName(date) {
+      const hour = date.getHours();
+      const index = Math.floor((hour + 1) / 2) % 12;
+      return ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"][index];
+    }
+    
+    function getHourBranchFromPillar(pillarStr) {
+      if (!pillarStr || pillarStr.length < 2) return null;
+      return pillarStr.charAt(1); // 두 번째 글자 = 지지
+    }
+
     function radioFunc(refDate) {
       const adjustedD = getAdjustedDateWithTimeType(correctedDate); // 라디오 선택에 따라 조정된 시간
+
+      const originalBranch = getHourBranchFromPillar(currentMyeongsik.hourPillar); // ← 진, 자 등
+      const realBranch = getHourBranchName(adjustedD);
+
+      if (realBranch !== originalBranch) {
+
+        return;
+      }
       
       // 3. 새 일간/간지 계산
       const daySplit = getDaySplit(adjustedD); // ← 이걸 사용!
       const newGan = daySplit.gan;     // 새 일간
-      const newGanji = getDayGanZhi(adjustedD); // 전체 간지도 필요하면
 
       baseDayStem = newGan; // 동기화
-      console.log("🟡 새로운 일간:", baseDayStem);
-      console.log("🟢 전체 간지:", newGanji);
 
       // 원국, 묘운, 운 등의 업데이트 함수 호출
       updateFortune(inputData);
@@ -3266,10 +3286,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const branchIndex = getHourBranchIndex(correctedDate);
         const branchName = Jiji[branchIndex];
 
-        if (branchName === "자" || branchName === "축") {
-          radioFunc(refDate);
-        }
-        
+        setTimeout(() => {
+          if (branchName === "자" || branchName === "축") {
+            radioFunc(refDate);
+          }
+        }, 1);
         
         // 타임라인 업데이트 (필요 시)
         const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
