@@ -2292,8 +2292,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     
       function calculateIljuOffsetDynamic(birthDate, mode) {
-        
-      
         const dynamicIljuCycle = getDynamicIljuCycle(birthDate);
         // 1분 단위로 차이를 구하기 위해 oneMinuteMs를 사용
         const diffMinutes = (mode === "순행" ? baseTime - birthDate : birthDate - baseTime) / (60 * 1000);
@@ -2308,7 +2306,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let target = mode === "순행" ? boundaries.find(b => b.date > birthDate) : boundaries.filter(b => b.date <= birthDate).slice(-1)[0];
         if (!target) target = getSolarTermBoundaries(solarYear + (mode === "순행" ? 1 : -1))[0];
         const avg = get120YearAverages(target.date);
-        const ratio = Math.abs(target.date - birthDate) / oneDayMs / avg.averageMonth;
+        const ratio = Math.abs(target.date - baseTime) / oneDayMs / avg.averageMonth;
         return Number((ratio * avg.averageDecade).toFixed(4));
       }
     
@@ -2319,14 +2317,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     
       function calculateYeonjuOffsetDynamic(birthDate, mode) {
-        let ipchun = getSolarTermBoundaries(birthDate.getFullYear()).find(b => b.name === "입춘")?.date || findSolarTermDate(birthDate.getFullYear(), 315);
+        let ipchun = getSolarTermBoundaries(birthDate.getFullYear()).find(b => b.name === "입춘")?.date 
+        || findSolarTermDate(birthDate.getFullYear(), 315);
         let target = ipchun;
         if (mode === "순행" && birthDate >= ipchun) {
           target = getSolarTermBoundaries(birthDate.getFullYear() + 1).find(b => b.name === "입춘")?.date;
         } else if (mode === "역행" && birthDate < ipchun) {
           target = getSolarTermBoundaries(birthDate.getFullYear() - 1).find(b => b.name === "입춘")?.date;
         }
-        const ratio = Math.abs(target - birthDate) / oneDayMs / getAverageYearLength(target);
+        const ratio = Math.abs(target - baseTime) / oneDayMs / getAverageYearLength(target);
         return Math.round(ratio * yeonjuCycle * 1000) / 1000;
       }
 
@@ -2336,7 +2335,6 @@ document.addEventListener("DOMContentLoaded", function () {
       let newIljuFirst  = adjustInitial(new Date(staticBirthDate.getTime() + calculateIljuOffsetDynamic(staticBirthDate, iljuMode) * oneDayMs), iljuCycle, staticBirth);
       let newWoljuFirst = adjustInitial(new Date(staticBirthDate.getTime() + calculateWoljuOffsetDynamic(staticBirthDate, woljuMode) * oneDayMs), woljuCycle, staticBirth);
       let newYeonjuFirst= adjustInitial(new Date(staticBirthDate.getTime() + calculateYeonjuOffsetDynamic(staticBirthDate, yeonjuMode) * oneDayMs), yeonjuCycle, staticBirth);
-      console.log("🐛 newIljuFirst 최종 결과:", newIljuFirst.toLocaleString());
 
       const fullResult = getFourPillarsWithDaewoon(
         staticBirthDate.getFullYear(), staticBirthDate.getMonth() + 1, staticBirthDate.getDate(),
@@ -2706,35 +2704,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function logTimelineWindow(label, timeline, windowSize = 10) {
       const total = timeline.length;
-      if (total === 0) {
-        console.log(`${label}: 타임라인이 비어 있습니다.`);
-        return;
-      }
-      if (total <= windowSize * 2) {
-        console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
-        timeline.forEach(evt => {
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        });
-      } else {
-        console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
-        for (let i = 0; i < windowSize; i++) {
-          const evt = timeline[i];
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        }
-        console.log("... 생략 ...");
-        console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
-        for (let i = total - windowSize; i < total; i++) {
-          const evt = timeline[i];
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        }
-      }
+      // if (total === 0) {
+      //   console.log(`${label}: 타임라인이 비어 있습니다.`);
+      //   return;
+      // }
+      // if (total <= windowSize * 2) {
+      //   console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
+      //   timeline.forEach(evt => {
+      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+      //   });
+      // } else {
+      //   console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
+      //   for (let i = 0; i < windowSize; i++) {
+      //     const evt = timeline[i];
+      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+      //   }
+      //   console.log("... 생략 ...");
+      //   console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
+      //   for (let i = total - windowSize; i < total; i++) {
+      //     const evt = timeline[i];
+      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+      //   }
+      // }
     }
-    setTimeout(function(){
-      logTimelineWindow("시주", sijuTimeline);
-      logTimelineWindow("일주", iljuTimeline);
-      logTimelineWindow("월주", woljuTimeline);
-      logTimelineWindow("연주", yeonjuTimeline);
-    }, 20);
+    // setTimeout(function(){
+    //   logTimelineWindow("시주", sijuTimeline);
+    //   logTimelineWindow("일주", iljuTimeline);
+    //   logTimelineWindow("월주", woljuTimeline);
+    //   logTimelineWindow("연주", yeonjuTimeline);
+    // }, 20);
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
@@ -3368,23 +3366,20 @@ document.addEventListener("DOMContentLoaded", function () {
       updateExplanDetail(newResult, refDate);
 
       // 타임라인 업데이트 (콘솔 출력) — refDate를 인자로 추가하고 반환값을 저장
-      const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
-      const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", refDate);
-      const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", refDate);
-      const yeonjuTimeline= generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", refDate);
+      // const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
+      // const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", refDate);
+      // const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", refDate);
+      // const yeonjuTimeline= generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", refDate);
     
-      logTimelineWindow("시주", sijuTimeline);
-      logTimelineWindow("일주", iljuTimeline);
-      logTimelineWindow("월주", woljuTimeline);
-      logTimelineWindow("연주", yeonjuTimeline);
+      // logTimelineWindow("시주", sijuTimeline);
+      // logTimelineWindow("일주", iljuTimeline);
+      // logTimelineWindow("월주", woljuTimeline);
+      // logTimelineWindow("연주", yeonjuTimeline);
     });
 
     // 라디오 변경 이벤트 리스너 내부
     document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
       radio.addEventListener("change", function() {
-      console.log("🐛🐛 newIljuFirst 최종 결과:", getMyounPillars().candidateTimes.ilju.toLocaleString());
-      
-        
         // 결과창과 계산용 라디오 동기화
         const selectedValue = document.querySelector('input[name="timeChk02"]:checked').value;
         const calcRadio = document.querySelector('input[name="time2"][value="' + selectedValue + '"]');
@@ -3404,23 +3399,21 @@ document.addEventListener("DOMContentLoaded", function () {
         if (branchName === "자" || branchName === "축") {
           radioFunc(radioDate);
         }
-        
-          updateFunc(radioDate);
+        updateFunc(radioDate);
         setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
-          console.log("🐛🐛🐛 newIljuFirst 최종 결과:", getMyounPillars().candidateTimes.ilju.toLocaleString());
           const newResult = getMyounPillars(gender, radioDate);
           updateExplanDetail(newResult);
           updateMyowoonSection(newResult);
           // 타임라인 업데이트 (필요 시)
-          const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", radioDate);
-          const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", radioDate);
-          const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", radioDate);
-          const yeonjuTimeline = generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", radioDate);
-          logTimelineWindow("시주", sijuTimeline);
-          logTimelineWindow("일주", iljuTimeline);
-          logTimelineWindow("월주", woljuTimeline);
-          logTimelineWindow("연주", yeonjuTimeline);
+          // const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", radioDate);
+          // const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", radioDate);
+          // const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", radioDate);
+          // const yeonjuTimeline = generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", radioDate);
+          // logTimelineWindow("시주", sijuTimeline);
+          // logTimelineWindow("일주", iljuTimeline);
+          // logTimelineWindow("월주", woljuTimeline);
+          // logTimelineWindow("연주", yeonjuTimeline);
           
         });
       });
@@ -3442,7 +3435,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.scrollTo(0, 0);
     document.getElementById('inputWrap').style.display = 'none';
     document.getElementById("saveBtn").style.display = "inline-block";
-
   });
 
   
@@ -3559,8 +3551,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // 수정 모드 플래그 설정
     currentModifyIndex = index;
 
-    
-  
     // 버튼 텍스트 변경
     const calcBtn = document.getElementById("calcBtn");
     calcBtn.textContent = "수정하기";
@@ -3571,12 +3561,9 @@ document.addEventListener("DOMContentLoaded", function () {
     nameInput.setSelectionRange(nameInput.value.length, nameInput.value.length);
   });
   
-  
   let isModifyMode = false;
   let originalDataSnapshot = "";
 
-  
-  
   function makeNewData() {
     const birthday = document.getElementById("inputBirthday").value.trim();
     const birthtimeRaw = document.getElementById("inputBirthtime").value.trim();
@@ -3662,8 +3649,6 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("resultWrapper").style.display = "block";
     }
   });
-
-
 
   new Sortable(document.querySelector(".list_ul"), {
     handle: ".drag_btn_zone", // 요 버튼 누르고 있어야 드래그 가능
@@ -3787,4 +3772,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-
