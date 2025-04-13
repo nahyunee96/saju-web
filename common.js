@@ -3370,8 +3370,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (branchName === "자" || branchName === "축") {
           radioFunc(radioDate);
         }
-        setTimeout(function(){
+        
           updateFunc(radioDate);
+        setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
           console.log("🐛🐛🐛 newIljuFirst 최종 결과:", getMyounPillars().candidateTimes.ilju.toLocaleString());
           const newResult = getMyounPillars(gender, radioDate);
@@ -3387,7 +3388,7 @@ document.addEventListener("DOMContentLoaded", function () {
           logTimelineWindow("월주", woljuTimeline);
           logTimelineWindow("연주", yeonjuTimeline);
           
-        }, 10);
+        });
       });
     });
 
