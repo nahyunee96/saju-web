@@ -1022,19 +1022,20 @@ document.addEventListener("DOMContentLoaded", function () {
       originalDataSnapshot = "";
       currentModifyIndex = null;
     }
+  
 
     // detailViewBtn 이벤트 등록
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
-        
+    
         e.stopPropagation();
         handleViewClick();
         const idx = parseInt(button.getAttribute("data-index"), 10);
         const item = savedList[idx];
         currentMyeongsik = item;
         if (!item) return;
-
-        // 🧹 묘운 상세보기 버튼 및 화면 상태 초기화 (← 요 부분이 새로 추가되는 부분!)
+    
+        // 🧹 묘운 상세보기 버튼 및 화면 상태 초기화
         document.getElementById('wongookLM').classList.remove("w100");
         document.getElementById('luckyWrap').style.display = 'block';
         document.getElementById('woonArea').style.display = 'block';
@@ -1070,7 +1071,7 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("genderWoman").checked = true;
           document.getElementById("genderMan").checked = false;
         }
-
+    
         if (item.selectedTime2 === "jasi") {
           document.getElementById("jasi").checked = true;
           document.getElementById("timeChk02_01").checked = true;
@@ -1082,20 +1083,19 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("timeChk02_03").checked = true;
         }
     
-        // 자동 계산
         document.getElementById("calcBtn").click();
-
+    
         const myowoonBtn = document.getElementById("myowoonMore");
         myowoonBtn.classList.remove("active");
         myowoonBtn.innerText = "묘운력(운 전체) 상세보기";
-
-        // UI 전환
+    
         document.getElementById("aside").style.display = "none";
         document.getElementById("inputWrap").style.display = "none";
         document.getElementById("resultWrapper").style.display = "block";
         window.scrollTo(0, 0);
       });
     });
+    
     
  
     // delete 버튼 이벤트 등록
@@ -1331,6 +1331,16 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       const prefix = isPlaceUnknown ? "기본보정 - 30분 : " : "보정시 : ";
       bjTimeText.innerHTML = `${prefix}<b id="resbjTime">${formattedTime}</b>`;
+    }
+
+    const checkOptionEl = document.getElementById("checkOption");
+    // 예: 현재 선택된 시지 (지지)가 '자' 또는 '축'인지 확인
+    const branchName = getHourBranchName(correctedDate);  // ← 또는 현재 시간으로
+
+    if (branchName === "자" || branchName === "축") {
+      checkOptionEl.style.display = "flex";  // 보여줌
+    } else {
+      checkOptionEl.style.display = "none";   // 숨김
     }
 
     function updateOriginalSetMapping() {
@@ -3406,6 +3416,19 @@ document.addEventListener("DOMContentLoaded", function () {
     window.scrollTo(0, 0);
     document.getElementById('inputWrap').style.display = 'none';
     document.getElementById("saveBtn").style.display = "inline-block";
+
+    function resetGlobalState() {
+      baseDayStem = null;
+      baseYearBranch = null;
+      globalState = {
+        correctedBirthDate: null,
+        originalDayStem: null,
+        daewoonData: { list: [] },
+        // 필요 시 다른 항목도 초기화
+      };
+    }
+    
+    
 
   });
 
