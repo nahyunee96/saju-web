@@ -185,6 +185,10 @@
 	  color: #353535;
   }
 
+  .result_wrapper {
+    display: none;
+  }
+
   .result_wrapper .info_box {
     color: #fff; 
     border-bottom: 1px solid #fff; 

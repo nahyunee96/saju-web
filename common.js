@@ -82,7 +82,7 @@ function getEquationOfTime(dateObj) {
 function adjustBirthDate(dateObj, birthPlace, isPlaceUnknown) {
   // 출생지 모름일 경우: -30분 고정 보정
   if (isPlaceUnknown) {
-    return new Date(dateObj.getTime() - 30 * 60000); // 30분 = 1800000ms
+    //return new Date(dateObj.getTime() - 30 * 60000); // 30분 = 1800000ms
   }
 
   // 출생지 입력된 경우: 경도 + 방정시 보정
@@ -763,6 +763,8 @@ function updateBranchInfo(prefix, branch, baseDayStem) {
     return age;
   }
 
+
+
   function formatDate(dateObj) {
     const yyyy = dateObj.getFullYear();
     const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
@@ -857,11 +859,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const minute = isTimeUnknown ? 30 : parseInt(birthtimeRaw.substring(2, 4), 10);
   
     // 실제로 사용할 출생지: 모르면 서울특별시
-    const usedBirthPlace = (isPlaceUnknown || birthPlaceInput === "" || birthPlaceInput === "출생지 선택")
+    const usedBirthPlace = (isPlaceUnknown)
                             ? "서울특별시" : birthPlaceInput;
 
     // 저장용은 원래 입력 그대로 유지
-    const savedBirthPlace = isPlaceUnknown ? "" : birthPlaceInput;
+    const savedBirthPlace = isPlaceUnknown ? "기본출생지 : 서울" : birthPlaceInput;
   
     const displayHour = isTimeUnknown ? "-" : birthtimeRaw.substring(0, 2);
     const displayMinute = isTimeUnknown ? "-" : birthtimeRaw.substring(2, 4);
@@ -877,16 +879,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const hourPillar = isTimeUnknown ? "-" : (pillars[3] || "");
   
     // 보정시각 계산
-    const originalDate = new Date(year, month - 1, day, hour, minute);
+    //const originalDate = new Date(year, month - 1, day, hour, minute);
     let correctedDate;
     if (isTimeUnknown) {
       correctedDate = null;
-    } else if (isPlaceUnknown) {
+    } /*else if (isPlaceUnknown) {
       // 출생지는 모름 → 기본 -30분
       correctedDate = new Date(originalDate.getTime() - 30 * 60000);
     } else {
       correctedDate = adjustBirthDate(originalDate, usedBirthPlace);
-    }
+    }*/
   
     // 나이와 생시 표시 시간
     const age = correctedDate ? calculateAge(correctedDate) : "-";
@@ -1182,6 +1184,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("calcBtn").addEventListener("click", function () {
 
+    document.getElementById('resultWrapper').style.display = 'block';
+    window.scrollTo(0, 0);
+    document.getElementById('inputWrap').style.display = 'none';
+    document.getElementById("saveBtn").style.display = "inline-block";
+
     let refDate = new Date();
 
     // "태어난 시 모름" 체크 여부
@@ -1201,12 +1208,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 계산용: 시/분 기본값은 "0000", 출생지 기본값은 "서울특별시"
     const usedBirthtime = isTimeUnknown ? "0430" : birthtimeStr;
-    const usedBirthPlace = (isPlaceUnknown || birthPlaceInput === "" || birthPlaceInput === "출생지 선택")
+    const usedBirthPlace = (isPlaceUnknown)
                             ? "서울특별시" : birthPlaceInput;
 
     // 저장용은 원래 입력 그대로 유지
-    const savedBirthPlace = isPlaceUnknown ? "" : birthPlaceInput;
-    
+    const savedBirthPlace = isPlaceUnknown ? "기본출생지 : 서울" : birthPlaceInput;
+
+    // === 생년월일, 시간 파싱 ===
+    let year   = parseInt(birthdayStr.substring(0, 4), 10);
+    let month  = parseInt(birthdayStr.substring(4, 6), 10);
+    let day    = parseInt(birthdayStr.substring(6, 8), 10);
+    let hour = isTimeUnknown ? 4 : parseInt(usedBirthtime.substring(0, 2), 10);
+    let minute = isTimeUnknown ? 30 : parseInt(usedBirthtime.substring(2, 4), 10);
+    let birthDate = new Date(year, month - 1, day, hour, minute);
+
+    if (birthdayStr.length < 8) {
+      alert("생년월일을 YYYYMMDD 형식으로 입력하세요.");
+      return;
+    }
+
+    if (year < 1900 || year > 2099) {
+      alert("연도는 1900년부터 2099년 사이로 입력하세요.");
+      return;
+    }
+    if (month < 1 || month > 12) {
+      alert("월은 1부터 12 사이의 숫자로 입력하세요.");
+      return;
+    }
+    if (day < 1 || day > 31) {
+      alert("일은 1부터 31 사이의 숫자로 입력하세요.");
+      return;
+    }
+    const testDate = new Date(year, month - 1, day);
+    if (testDate.getFullYear() !== year || (testDate.getMonth() + 1) !== month || testDate.getDate() !== day) {
+      alert("유효한 날짜를 입력하세요.");
+      return;
+    }
+
     // 유효성 검사
     if (!isTimeUnknown) {
       if (birthtimeStr.length !== 4 || isNaN(birthtimeStr)) {
@@ -1220,30 +1258,19 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
     }
-    
-    // 출생지 유효성 검사
-    if (!isPlaceUnknown) {
-      if (birthPlaceInput === "" || birthPlaceInput === "출생지 선택") {
-        alert("출생지를 선택하세요.");
-        return;
-      }
-    }
-    if (birthdayStr.length < 8) {
-      alert("생년월일을 YYYYMMDD 형식으로 입력하세요.");
-      return;
-    }
+
     if (gender === "-") {
       alert("성별을 선택하세요.");
       return;
     }
-
-    // === 생년월일, 시간 파싱 ===
-    let year   = parseInt(birthdayStr.substring(0, 4), 10);
-    let month  = parseInt(birthdayStr.substring(4, 6), 10);
-    let day    = parseInt(birthdayStr.substring(6, 8), 10);
-    let hour = isTimeUnknown ? 4 : parseInt(usedBirthtime.substring(0, 2), 10);
-    let minute = isTimeUnknown ? 30 : parseInt(usedBirthtime.substring(2, 4), 10);
-    let birthDate = new Date(year, month - 1, day, hour, minute);
+    
+    // 출생지 유효성 검사
+    if (!isPlaceUnknown) {
+      if (birthPlaceInput === "-") {
+        alert("출생지를 선택하세요.");
+        return;
+      }
+    }
 
     // 음력/양력 변환
     const monthType = document.getElementById("monthType").value;
@@ -1307,33 +1334,26 @@ document.addEventListener("DOMContentLoaded", function () {
     
     const baseYearBranch = birthYearPillar.charAt(1); // 원국 연지 (예: "병자"에서 "자")
 
-    if (year < 1900 || year > 2099) {
-      alert("연도는 1900년부터 2099년 사이로 입력하세요.");
-      return;
-    }
-    if (month < 1 || month > 12) {
-      alert("월은 1부터 12 사이의 숫자로 입력하세요.");
-      return;
-    }
-    if (day < 1 || day > 31) {
-      alert("일은 1부터 31 사이의 숫자로 입력하세요.");
-      return;
-    }
-    const testDate = new Date(year, month - 1, day);
-    if (testDate.getFullYear() !== year || (testDate.getMonth() + 1) !== month || testDate.getDate() !== day) {
-      alert("유효한 날짜를 입력하세요.");
-      return;
-    }
+    requestAnimationFrame(() => {
+      if (hourSplit.ji === "자" || hourSplit.ji === "축") {
+        checkOption.style.display = 'flex';
+      } else {
+        checkOption.style.display = 'none';
+      }
+    });
 
     globalState.birthYear = year;
     globalState.month = month;
     globalState.day = day;
     globalState.birthPlace = usedBirthPlace;
     globalState.gender = gender;
+
+    const age = correctedDate ? calculateAge(correctedDate) : "-";
     
     const formattedTime = `${pad(hour)}:${pad(minute)}`;
     setText("resName", name);
     setText("resGender", gender);
+    setText("resAge", age);
     setText("resBirth", formattedBirth);
     setText("resTime", isTimeUnknown ? "시간모름" : formattedTime);
     setText("resAddr", isTimeUnknown ? "출생지모름" : savedBirthPlace);
@@ -1345,7 +1365,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const bjTimeTextEl = document.getElementById("bjTimeText");
     if (isPlaceUnknown) {
-      bjTimeTextEl.innerHTML = `기본보정 - 30분 : <b id="resbjTime">${correctedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
+      bjTimeTextEl.innerHTML = `기본보정 : <b id="resbjTime">${correctedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     } else {
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     }
@@ -1361,7 +1381,7 @@ document.addEventListener("DOMContentLoaded", function () {
         minute: '2-digit',
         hour12: false
       });
-      const prefix = isPlaceUnknown ? "기본보정 - 30분 : " : "보정시 : ";
+      const prefix = isPlaceUnknown ? "기본보정 : " : "보정시 : ";
       bjTimeText.innerHTML = `${prefix}<b id="resbjTime">${formattedTime}</b>`;
     }
 
@@ -1609,11 +1629,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const dyearElem = li.querySelector(".dyear");
       const currentYear = Number(dyearElem.innerText);
       li.classList.toggle("active", currentYear === displayYear);
-      document.getElementById('resultWrapper').style.display = 'block';
-      window.scrollTo(0, 0);
-      document.getElementById('inputWrap').style.display = 'none';
-      document.getElementById("backBtn").style.display = "inline-block";
-      document.getElementById("saveBtn").style.display = "inline-block";
     });
 
     function updateListMapping(list, prefixUnseong, prefixShinsal, baseDayStem, baseYearBranch) {
@@ -2298,35 +2313,83 @@ document.addEventListener("DOMContentLoaded", function () {
         // diffMinutes는 실제 분 단위 차이가 됨. 24*60은 1440으로 하루 분수입니다.
         return diffMinutes * dynamicIljuCycle / 1440;
       }
+
+      let calculateWoljuOffsetDynamic;
     
-      function calculateWoljuOffsetDynamic(birthDate, mode) {
-        const solarYear = birthDate.getFullYear();
-        let boundaries = getSolarTermBoundaries(solarYear);
-        if (!boundaries.length) return 0;
-        let target = mode === "순행" ? boundaries.find(b => b.date > birthDate) : boundaries.filter(b => b.date <= birthDate).slice(-1)[0];
-        if (!target) target = getSolarTermBoundaries(solarYear + (mode === "순행" ? 1 : -1))[0];
-        const avg = get120YearAverages(target.date);
-        const ratio = Math.abs(target.date - baseTime) / oneDayMs / avg.averageMonth;
-        return Number((ratio * avg.averageDecade).toFixed(4));
+      if (!isTimeUnknown) {
+        calculateWoljuOffsetDynamic = function (birthDate, mode) {
+          const solarYear = birthDate.getFullYear();
+          let boundaries = getSolarTermBoundaries(solarYear);
+          if (!boundaries.length) return 0;
+          let target = mode === "순행" ? boundaries.find(b => b.date > birthDate) : boundaries.filter(b => b.date <= birthDate).slice(-1)[0];
+          if (!target) target = getSolarTermBoundaries(solarYear + (mode === "순행" ? 1 : -1))[0];
+          const avg = get120YearAverages(target.date);
+          const ratio = Math.abs(target.date - baseTime) / oneDayMs / avg.averageMonth;
+          return Number((ratio * avg.averageDecade).toFixed(4));
+        }
+      } else {
+        calculateWoljuOffsetDynamic = function (birthDate, mode) {
+          const solarYear = birthDate.getFullYear();
+          const baseDateOnly = new Date(solarYear, birthDate.getMonth(), birthDate.getDate()); // 시간 제거
+          let boundaries = getSolarTermBoundaries(solarYear);
+          if (!boundaries.length) return 0;
+        
+          let target = mode === "순행"
+            ? boundaries.find(b => b.date > baseDateOnly)
+            : boundaries.filter(b => b.date <= baseDateOnly).slice(-1)[0];
+        
+          if (!target) {
+            const nextYear = solarYear + (mode === "순행" ? 1 : -1);
+            target = getSolarTermBoundaries(nextYear)[0];
+          }
+        
+          const avg = get120YearAverages(target.date);
+          const ratio = Math.abs(target.date - baseDateOnly) / oneDayMs / avg.averageMonth;
+          return Number((ratio * avg.averageDecade).toFixed(4));
+        }       
       }
-    
+
       function getAverageYearLength(date) {
         const end = new Date(date);
         end.setFullYear(date.getFullYear() + 120);
         return ((end - date) / oneDayMs) / 120;
       }
-    
-      function calculateYeonjuOffsetDynamic(birthDate, mode) {
-        let ipchun = getSolarTermBoundaries(birthDate.getFullYear()).find(b => b.name === "입춘")?.date 
-        || findSolarTermDate(birthDate.getFullYear(), 315);
-        let target = ipchun;
-        if (mode === "순행" && birthDate >= ipchun) {
-          target = getSolarTermBoundaries(birthDate.getFullYear() + 1).find(b => b.name === "입춘")?.date;
-        } else if (mode === "역행" && birthDate < ipchun) {
-          target = getSolarTermBoundaries(birthDate.getFullYear() - 1).find(b => b.name === "입춘")?.date;
+
+      let calculateYeonjuOffsetDynamic;
+      
+      if (!isTimeUnknown) {
+        
+        calculateYeonjuOffsetDynamic = function (birthDate, mode) {
+          let ipchun = getSolarTermBoundaries(birthDate.getFullYear()).find(b => b.name === "입춘")?.date 
+          || findSolarTermDate(birthDate.getFullYear(), 315);
+          let target = ipchun;
+          if (mode === "순행" && birthDate >= ipchun) {
+            target = getSolarTermBoundaries(birthDate.getFullYear() + 1).find(b => b.name === "입춘")?.date;
+          } else if (mode === "역행" && birthDate < ipchun) {
+            target = getSolarTermBoundaries(birthDate.getFullYear() - 1).find(b => b.name === "입춘")?.date;
+          }
+          const ratio = Math.abs(target - baseTime) / oneDayMs / getAverageYearLength(target);
+          return Math.round(ratio * yeonjuCycle * 1000) / 1000;
         }
-        const ratio = Math.abs(target - baseTime) / oneDayMs / getAverageYearLength(target);
-        return Math.round(ratio * yeonjuCycle * 1000) / 1000;
+      } else {
+        calculateYeonjuOffsetDynamic = function (birthDate, mode) {
+          const baseDateOnly = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate()); // 시간 제거
+        
+          let ipchun = getSolarTermBoundaries(birthDate.getFullYear()).find(b => b.name === "입춘")?.date
+            || findSolarTermDate(birthDate.getFullYear(), 315);
+        
+          let target = ipchun;
+        
+          if (mode === "순행" && baseDateOnly >= ipchun) {
+            target = getSolarTermBoundaries(birthDate.getFullYear() + 1).find(b => b.name === "입춘")?.date;
+          } else if (mode === "역행" && baseDateOnly < ipchun) {
+            target = getSolarTermBoundaries(birthDate.getFullYear() - 1).find(b => b.name === "입춘")?.date;
+          }
+        
+          const ratio = Math.abs(target - baseDateOnly) / oneDayMs / getAverageYearLength(target);
+          return Math.round(ratio * yeonjuCycle * 1000) / 1000;
+        }
+        
       }
 
       const staticBirthDate = new Date(correctedDate);
@@ -2427,23 +2490,29 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoMb12ss", getTwelveShinsal(baseYearBranch, mp[1]));
     
       // === 일주 ===
-      const dp = myowoonResult.dayEvent.ganji;
-      setText("MyoDtHanja", stemMapping[dp[0]]?.hanja || dp[0]);
-      applyColor("MyoDtHanja", dp[0]);
-      setText("MyoDtHanguel", stemMapping[dp[0]]?.hanguel || dp[0]);
-      setText("MyoDtEumyang", stemMapping[dp[0]]?.eumYang || "-");
-      setText("MyoDt10sin", getTenGodForStem(dp[0], baseDayStem));
-      setText("MyoDbHanja", branchMapping[dp[1]]?.hanja || dp[1]);
-      applyColor("MyoDbHanja", dp[1]);
-      setText("MyoDbHanguel", branchMapping[dp[1]]?.hanguel || dp[1]);
-      setText("MyoDbEumyang", branchMapping[dp[1]]?.eumYang || "-");
-      setText("MyoDb10sin", getTenGodForBranch(dp[1], baseDayStem));
-      const dbJj = hiddenStemMapping[dp[1]] || ["-", "-", "-"];
-      setText("MyoDbJj1", dbJj[0]);
-      setText("MyoDbJj2", dbJj[1]);
-      setText("MyoDbJj3", dbJj[2]);
-      setText("MyoDb12ws", getTwelveUnseong(baseDayStem, dp[1]));
-      setText("MyoDb12ss", getTwelveShinsal(baseYearBranch, dp[1]));
+      if (isTimeUnknown || !myowoonResult.hourEvent || !myowoonResult.hourEvent.ganji) {
+        ["MyoDtHanja", "MyoDtHanguel", "MyoDtEumyang", "MyoDt10sin",
+         "MyoDbHanja", "MyoDbHanguel", "MyoDbEumyang", "MyoDb10sin",
+         "MyoDbJj1", "MyoDbJj2", "MyoDbJj3", "MyoDb12ws", "MyoDb12ss"].forEach(id => setText(id, "-"));
+      } else {
+        const dp = myowoonResult.dayEvent.ganji;
+        setText("MyoDtHanja", stemMapping[dp[0]]?.hanja || dp[0]);
+        applyColor("MyoDtHanja", dp[0]);
+        setText("MyoDtHanguel", stemMapping[dp[0]]?.hanguel || dp[0]);
+        setText("MyoDtEumyang", stemMapping[dp[0]]?.eumYang || "-");
+        setText("MyoDt10sin", getTenGodForStem(dp[0], baseDayStem));
+        setText("MyoDbHanja", branchMapping[dp[1]]?.hanja || dp[1]);
+        applyColor("MyoDbHanja", dp[1]);
+        setText("MyoDbHanguel", branchMapping[dp[1]]?.hanguel || dp[1]);
+        setText("MyoDbEumyang", branchMapping[dp[1]]?.eumYang || "-");
+        setText("MyoDb10sin", getTenGodForBranch(dp[1], baseDayStem));
+        const dbJj = hiddenStemMapping[dp[1]] || ["-", "-", "-"];
+        setText("MyoDbJj1", dbJj[0]);
+        setText("MyoDbJj2", dbJj[1]);
+        setText("MyoDbJj3", dbJj[2]);
+        setText("MyoDb12ws", getTwelveUnseong(baseDayStem, dp[1]));
+        setText("MyoDb12ss", getTwelveShinsal(baseYearBranch, dp[1]));
+      }
     
       // === 시주 ===
       if (isTimeUnknown || !myowoonResult.hourEvent || !myowoonResult.hourEvent.ganji) {
@@ -2493,6 +2562,9 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById('woonArea').style.display = 'block';
           document.getElementById('woonContainer').style.display = 'none';
           document.getElementById('calArea').style.display = 'none';
+          if (hourSplit.ji !== "자" && hourSplit.ji !== "축") {
+            checkOption.style.display = 'none';
+          }
           newBtn.classList.remove("active");
           newBtn.innerText = "묘운력(운 전체) 상세보기";
         } else {
@@ -2501,6 +2573,9 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById('woonArea').style.display = 'none';
           document.getElementById('woonContainer').style.display = 'flex';
           document.getElementById('calArea').style.display = 'block';
+          if (hourSplit.ji !== "자" && hourSplit.ji !== "축") {
+            checkOption.style.display = 'flex';
+          }
           updateMyowoonSection(myowoonResult);
           newBtn.classList.add("active");
           newBtn.innerText = "원래 화면으로 가기";
@@ -3070,65 +3145,81 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${y}.${m}.${d}`;
       }
 
-      function formatByTimeKnown(date, isTimeUnknown) {
+      function formatByTimeKnown(date) {
         return isTimeUnknown ? formatDateOnly(date) : formatDateTime(date);
       }
 
       let html = "";
+
+      html += `
+      <li>계산시각 : ${formatDateTime(new Date(pikerValue))}<br>출생(보정)시각 : ${formatDateTime(correctedDate)}</li>
+      `;
     
       if (!isTimeUnknown) {
         html += `
           <li>
             <div class="pillar_title"><strong>시주</strong></div>
             원국 시주 간지: <b>${hourPillar}</b><br>
-            보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newSijuFirst)}</b><br>
-            보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(adjustedSijuTime)}</b><br>
-            다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalSijuTime)}</b><br>
+            보정 후 처음 간지 바뀌는 시간: <b>${formatDateTime(myowoonResult.newSijuFirst)}</b><br>
+            보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatDateTime(adjustedSijuTime)}</b><br>
+            다음 간지 바뀌는 날짜 : <b>${formatDateTime(finalSijuTime)}</b><br>
             동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newSijuFirst, sijuCycle, refDate)}</b><br>
             최종 업데이트 이벤트 간지: <b>${myowoonResult.hourEvent.ganji}</b><br>
             방향: <b>${sijuMode}</b><br><br>
-            예를 들어, 보정 시각이 <b>${formatByTimeKnown(correctedDate)}</b>인 명식의 경우, <br>
+            예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
             <b>${sijuMode}</b> 방식으로 계산된다면, <br>
-            보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newSijuFirst)}</b>로 산출되며, <br>
+            보정 시각에서 첫번째 간지 변환일자는 <b>${formatDateTime(myowoonResult.newSijuFirst)}</b>로 산출되며, <br>
             묘운 시주의 기간은 2시간을 10일로 치환합니다. <br>
             간지가 바뀌기까지의 시간인, <b>${getSijuTimeDifference(correctedDate, sijuMode)}</b>을 똑같이 치환한다면,<br>
             위에 치환한 것처럼, 한 타임이 바뀌기 전의 ${direction()} 간지까지의 시간인, <br>
             실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualSijuOffset.toFixed(4)}</b>일로 되며, <br>
             그 다음부터는 <b>10일</b>의 간격으로 <b>${sijuMode}</b>이 계속 진행됩니다. <br>
-            최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedSijuTime)}에 (${myowoonResult.hourEvent.ganji})</b>로 변경되었습니다.
+            최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatDateTime(adjustedSijuTime)}에 (${myowoonResult.hourEvent.ganji})</b>로 변경되었습니다.
           </li>
         `;
-      }
+      
     
       // ----- 일주 설명 -----
       html += `
         <li>
           <div class="pillar_title"><strong>일주</strong></div>
           원국 일주 간지: <b>${dayPillar}</b><br>
-          보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b><br>
-          보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(adjustedIljuTime)}</b><br>
-          다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalIljuTime)}</b><br>
+          보정 후 처음 간지 바뀌는 시간: <b>${formatDateTime(myowoonResult.newIljuFirst)}</b><br>
+          보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatDateTime(adjustedIljuTime)}</b><br>
+          다음 간지 바뀌는 날짜 : <b>${formatDateTime(finalIljuTime)}</b><br>
           동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newIljuFirst, iljuCycle, refDate)}</b><br>
           최종 업데이트 이벤트 간지: <b>${myowoonResult.dayEvent.ganji}</b><br>
           방향: <b>${iljuMode}</b><br><br>
           
-          예를 들어, 보정 시각이 <b>${formatByTimeKnown(correctedDate)}</b>인 명식의 경우, <br>
+          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
           일주는 라디오 버튼 설정에 따라 결정된 기준 시간이 적용됩니다. (현재 <b>${timeLabel}</b>적용 중)<br>
           <b>${iljuMode}</b> 방식으로 계산된다면, <br>
-          보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b>로 산출되며, <br>
+          보정 시각에서 첫번째 간지 변환일자는 <b>${formatDateTime(myowoonResult.newIljuFirst)}</b>로 산출되며, <br>
           묘운 일주의 기간은 하루(24시간)를 120년의 평균 4개월, 즉 약 <b>${expectedIljuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
           위에 치환한 것처럼, 하루가 바뀌기 전의 ${direction()} 간지까지의 시간인, 
           <b>${getIljuTimeDifference(correctedDate, iljuMode)}</b>을 똑같이 치환한다면, 
           실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualIljuOffset.toFixed(4)}</b>일로 되며, <br>
           그 다음부터는 <b>${expectedIljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${iljuMode}</b> 진행됩니다.<br>
-          최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedIljuTime)}에 (${myowoonResult.dayEvent.ganji})</b>로 변경되었습니다.
+          최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatDateTime(adjustedIljuTime)}에 (${myowoonResult.dayEvent.ganji})</b>로 변경되었습니다.
         </li>
       `;
-  
+     } else {
+      html += `
+        <li>
+          <div class="pillar_title"><strong>시주</strong> </div>
+          (시간이 없어 구할 수 없습니다.)
+        </li>
+        <li>
+          <div class="pillar_title"><strong>일주</strong> </div>
+          (시간이 없어 구할 수 없습니다.)
+        </li>
+      `
+     }
       // ----- 월주 설명 -----
       html += `
         <li>
           <div class="pillar_title"><strong>월주</strong></div>
+          (${isTimeUnknown ? '시간이 없어 계산이 정확하지 않습니다.' : ''})<br>
           원국 월주 간지: <b>${monthPillar}</b><br>
           보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newWoljuFirst)}</b><br>
           보정 후 오늘까지 마지막으로 바뀐 시간: <b>
@@ -3164,6 +3255,7 @@ document.addEventListener("DOMContentLoaded", function () {
       html += `
         <li>
           <div class="pillar_title"><strong>연주</strong></div>
+          (${isTimeUnknown ? '시간이 없어 계산이 정확하지 않습니다.' : ''})<br>
           원국 연주 간지: <b>${yearPillar}</b><br>
           보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newYeonjuFirst)}</b><br>
           보정 후 오늘까지 마지막으로 바뀐 시간: <b>
@@ -3442,6 +3534,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
+
     function getRadioBasedDate(baseDate) {
       let d = new Date(baseDate);
       if (document.getElementById("jasi").checked) {
@@ -3454,10 +3547,9 @@ document.addEventListener("DOMContentLoaded", function () {
       return d;
     }
     
-    document.getElementById('resultWrapper').style.display = 'block';
-    window.scrollTo(0, 0);
-    document.getElementById('inputWrap').style.display = 'none';
-    document.getElementById("saveBtn").style.display = "inline-block";
+    
+
+    
   });
 
   
@@ -3530,7 +3622,7 @@ document.addEventListener("DOMContentLoaded", function () {
     timeCheckbox.checked = isTimeUnknown;
 
     if (isTimeUnknown) {
-      timeInput.value = "0430"; // 계산용 값 (숨겨져 있음)
+      timeInput.value = ""; // 계산용 값 (숨겨져 있음)
       timeInput.disabled = true;
     } else {
       timeInput.value = selected.birthtime || "";
@@ -3603,7 +3695,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const hour = isTimeUnknown ? 4 : parseInt(birthtimeRaw.substring(0, 2), 10);
     const minute = isTimeUnknown ? 30 : parseInt(birthtimeRaw.substring(2, 4), 10);
   
-    const usedBirthPlace = (isPlaceUnknown || birthPlaceInput === "" || birthPlaceInput === "출생지 선택") ? "서울특별시" : birthPlaceInput;
+    const usedBirthPlace = (isPlaceUnknown) ? "서울특별시" : birthPlaceInput;
     const savedBirthPlace = isPlaceUnknown ? "" : birthPlaceInput;
   
     const displayHour = isTimeUnknown ? "-" : birthtimeRaw.substring(0, 2);
@@ -3618,11 +3710,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let correctedDate;
     if (isTimeUnknown) {
       correctedDate = null;
-    } else if (isPlaceUnknown) {
+    } /*else if (isPlaceUnknown) {
       correctedDate = new Date(originalDate.getTime() - 30 * 60000);
     } else {
       correctedDate = adjustBirthDate(originalDate, usedBirthPlace);
-    }
+    }*/
   
     const age = correctedDate ? calculateAge(correctedDate) : "-";
     const birthdayTime = correctedDate ? formatDate(correctedDate) : "?";
