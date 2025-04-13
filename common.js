@@ -775,6 +775,40 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentMyeongsik = null;
 
   window.scrollTo(0, 0);
+
+  const container = document.querySelector(".container");
+  const header = container.querySelector(".header");
+  const checkOption = container.querySelector(".check_option");
+
+  let lastScrollTop = 0;
+
+  window.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const headerHeight = header.offsetHeight;
+    const checkOptionHeight = checkOption.offsetHeight;
+
+    // 1. 스크롤 방향에 따른 top 위치 조정
+    if (scrollTop > lastScrollTop) {
+      // 스크롤 내림
+      header.style.top = `${-(headerHeight + checkOptionHeight)}px`;
+      checkOption.style.top = `-${headerHeight}px`;
+    } else {
+      // 스크롤 올림
+      header.style.top = `0px`;
+      checkOption.style.top = `${headerHeight}px`;
+    }
+
+    // 2. 스크롤 위치에 따른 fixed 클래스 추가/제거
+    if (scrollTop >= headerHeight) {
+      checkOption.classList.add("fixed");
+    } else {
+      checkOption.classList.remove("fixed");
+    }
+
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // 음수 방지
+  });
+
+
   const inputName = document.getElementById("inputName");
   if (inputName) {
     inputName.addEventListener("input", function () {
