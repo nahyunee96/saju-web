@@ -2193,7 +2193,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // getMyounPillars: 원국(출생)과 동적 운세(묘운)를 분리하여 계산
     function getMyounPillars(gender, refDate) {
-      let baseTime = new Date(birthDate);  // 기준 날짜 복사
+      let baseTime = new Date(correctedDate);  // 기준 날짜 복사
 
       const jasiElem = document.getElementById("jasi");
       const yajojasiElem = document.getElementById("yajojasi");
@@ -2263,6 +2263,13 @@ document.addEventListener("DOMContentLoaded", function () {
     
       function calculateIljuOffsetDynamic(birthDate, mode) {
         let baseTime = new Date(birthDate);
+        if (document.getElementById("jasi")?.checked) {
+          baseTime.setHours(23, 0);
+        } else if (document.getElementById("yajojasi")?.checked) {
+          baseTime.setHours(0, 0);
+        } else if (document.getElementById("insi")?.checked) {
+          baseTime.setHours(3, 0);
+        }
       
         const dynamicIljuCycle = getDynamicIljuCycle(birthDate);
         // 1분 단위로 차이를 구하기 위해 oneMinuteMs를 사용
@@ -2338,7 +2345,7 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     }
     
-    getMyounPillars();
+    getMyounPillars(gender, refDate);
 
     getMyounPillarsVr = getMyounPillars;
     
@@ -2675,25 +2682,25 @@ document.addEventListener("DOMContentLoaded", function () {
     function logTimelineWindow(label, timeline, windowSize = 10) {
       const total = timeline.length;
       if (total === 0) {
-        //console.log(`${label}: 타임라인이 비어 있습니다.`);
+        console.log(`${label}: 타임라인이 비어 있습니다.`);
         return;
       }
       if (total <= windowSize * 2) {
-        //console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
+        console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
         timeline.forEach(evt => {
-          //console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
         });
       } else {
-        //console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
+        console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
         for (let i = 0; i < windowSize; i++) {
           const evt = timeline[i];
-          //console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
         }
-        //console.log("... 생략 ...");
-        //console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
+        console.log("... 생략 ...");
+        console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
         for (let i = total - windowSize; i < total; i++) {
           const evt = timeline[i];
-          //console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
         }
       }
     }
@@ -2821,9 +2828,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
   
-      const expectedSijuDiffMinutes = Math.floor(((myowoonResult.newSijuFirst - correctedDate) / oneMinuteMs) * 2) / 2;
+      //const expectedSijuDiffMinutes = Math.floor(((myowoonResult.newSijuFirst - correctedDate) / oneMinuteMs) * 2) / 2;
   
-      const expectedSijuOffset = sijuCycle * (expectedSijuDiffMinutes / 120);
       const expectedIljuOffset = getAverageYearLength(correctedDate) * (4 / 12);  
       const expectedWoljuOffset = getAverageYearLength(correctedDate) * 12;
       const expectedYeonjuOffset = getAverageYearLength(correctedDate) * 60;        
@@ -2869,10 +2875,12 @@ document.addEventListener("DOMContentLoaded", function () {
             timeLabel = "자시";
           } else if (document.getElementById("yajojasi")?.checked) {
             timeLabel = "야 · 조자시";
-            updateExplanDetail(myowoonResult);
+            
           } else if (document.getElementById("insi")?.checked) {
             timeLabel = "인시";
           }
+
+          updateExplanDetail(myowoonResult);
         });
       });
   
@@ -2929,15 +2937,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // mode: "순행" 또는 "역행"
         let baseTime = new Date(birthDate);
         
-        
-        // 라디오 버튼에 따른 기준 시간 설정:
-        // 자시: 23:00, 야조시: 00:00, 인시: 03:00
         if (document.getElementById("jasi")?.checked) {
-          baseTime.setHours(23, 0, 0, 0);
+          baseTime.setHours(23, 0);
         } else if (document.getElementById("yajojasi")?.checked) {
-          baseTime.setHours(0, 0, 0, 0);
+          baseTime.setHours(0, 0);
         } else if (document.getElementById("insi")?.checked) {
-          baseTime.setHours(3, 0, 0, 0);
+          baseTime.setHours(3, 0);
         }
         
         // 역행 모드에서, 보정 시각(birthDate)이 기준 시간보다 작을 경우에만
@@ -3031,10 +3036,12 @@ document.addEventListener("DOMContentLoaded", function () {
       
     
       const ul = document.getElementById("explanDetail");
+      const pikerValue = document.getElementById('woonTimeSetPicker').value?.trim();
       let html = "";
     
       // ----- 시주 설명 -----
       html += `
+        <li>현재 호출하는 날짜 : ${pikerValue}</li>
         <li>
           <div class="pillar_title"><strong>시주</strong></div>
           원국 시주 간지: <b>${hourPillar}</b><br>
@@ -3258,13 +3265,12 @@ document.addEventListener("DOMContentLoaded", function () {
       // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
       const myowoonResult = getMyounPillars(gender, refDate);
       updateMyowoonSection(myowoonResult);
-      updateExplanDetail(myowoonResult);
     }
 
     function radioFunc() {
       const refDateD = getOriginalDateFromItem(currentMyeongsik);
       const correctedDate = adjustBirthDate(refDateD, currentMyeongsik.birthPlace, currentMyeongsik.isPlaceUnknown);
-      const adjustedD = getAdjustedDateWithTimeType(correctedDate);
+      //const adjustedD = getAdjustedDateWithTimeType(correctedDate);
 
       const originalBranch = getHourBranchFromPillar(currentMyeongsik.hourPillar); // "축"
       const realBranch = getHourBranchName(refDateD); // → "자"로 나오는지 확인
@@ -3290,7 +3296,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return adjusted;
       }
       
-
       const branchIndex = getHourBranchIndex(correctedDate);
       const branchName = Jiji[branchIndex];
 
@@ -3340,6 +3345,37 @@ document.addEventListener("DOMContentLoaded", function () {
       
     }
     
+    
+
+    // 버튼 클릭 이벤트: picker 날짜(refDate)를 사용하여 동적 운세(묘운)를 업데이트
+    document.getElementById("woonChangeBtn").addEventListener("click", function () {
+      // 피커에서 기준 날짜(refDate)를 가져옴
+      const picker = document.getElementById('woonTimeSetPicker');
+      refDate = (picker && picker.value) ? new Date(picker.value) : new Date();
+
+      const branchIndex = getHourBranchIndex(correctedDate);
+      const branchName = Jiji[branchIndex];
+
+      if (branchName === "자" || branchName === "축") {
+        radioFunc(refDate);
+      }
+      updateFunc(refDate);
+      // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
+      const newResult = getMyounPillars(gender, refDate);
+      updateExplanDetail(newResult);
+
+      // 타임라인 업데이트 (콘솔 출력) — refDate를 인자로 추가하고 반환값을 저장
+      const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
+      const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", refDate);
+      const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", refDate);
+      const yeonjuTimeline= generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", refDate);
+    
+      logTimelineWindow("시주", sijuTimeline);
+      logTimelineWindow("일주", iljuTimeline);
+      logTimelineWindow("월주", woljuTimeline);
+      logTimelineWindow("연주", yeonjuTimeline);
+    });
+    
     // 라디오 변경 이벤트 리스너 내부
     document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
       radio.addEventListener("change", function() {
@@ -3350,17 +3386,20 @@ document.addEventListener("DOMContentLoaded", function () {
           calcRadio.checked = true;
         }
 
-        const picker = document.getElementById("woonTimeSetPicker");
-        const refDate = picker && picker.value ? new Date(picker.value) : new Date();
+        // 피커에서 기준 날짜(refDate)를 가져옴
+        const picker = document.getElementById('woonTimeSetPicker');
+        refDate = (picker && picker.value) ? new Date(picker.value) : new Date();
 
         const branchIndex = getHourBranchIndex(correctedDate);
         const branchName = Jiji[branchIndex];
 
         if (branchName === "자" || branchName === "축") {
-          radioFunc();
+          radioFunc(refDate);
         }
-
-        updateFunc();
+        updateFunc(refDate);
+        // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
+        const newResult = getMyounPillars(gender, refDate);
+        updateExplanDetail(newResult);
 
         // 타임라인 업데이트 (필요 시)
         const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
@@ -3373,38 +3412,6 @@ document.addEventListener("DOMContentLoaded", function () {
         logTimelineWindow("연주", yeonjuTimeline);
       });
     });
-
-    // 버튼 클릭 이벤트: picker 날짜(refDate)를 사용하여 동적 운세(묘운)를 업데이트
-    document.getElementById("woonChangeBtn").addEventListener("click", function () {
-      // 피커에서 기준 날짜(refDate)를 가져옴
-      const picker = document.getElementById('woonTimeSetPicker');
-      refDate = (picker && picker.value) ? new Date(picker.value) : new Date();
-    
-      // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
-      getMyounPillars(gender, refDate);
-      
-      // 타임라인 업데이트 (콘솔 출력) — refDate를 인자로 추가하고 반환값을 저장
-      const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
-      const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", refDate);
-      const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", refDate);
-      const yeonjuTimeline= generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", refDate);
-    
-      const branchIndex = getHourBranchIndex(correctedDate);
-      const branchName = Jiji[branchIndex];
-
-      if (branchName === "자" || branchName === "축") {
-        radioFunc(refDate);
-      }
-
-      updateFunc();
-    
-      logTimelineWindow("시주", sijuTimeline);
-      logTimelineWindow("일주", iljuTimeline);
-      logTimelineWindow("월주", woljuTimeline);
-      logTimelineWindow("연주", yeonjuTimeline);
-    });
-    
-    
     
     document.getElementById('resultWrapper').style.display = 'block';
     window.scrollTo(0, 0);
