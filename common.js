@@ -3219,7 +3219,7 @@ document.addEventListener("DOMContentLoaded", function () {
       html += `
         <li>
           <div class="pillar_title"><strong>월주</strong></div>
-          (${isTimeUnknown ? '시간이 없어 계산이 정확하지 않습니다.' : ''})<br>
+          ${isTimeUnknown ? '(시간이 없어 계산이 정확하지 않습니다.)' : ''}<br>
           원국 월주 간지: <b>${monthPillar}</b><br>
           보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newWoljuFirst)}</b><br>
           보정 후 오늘까지 마지막으로 바뀐 시간: <b>
@@ -3255,7 +3255,7 @@ document.addEventListener("DOMContentLoaded", function () {
       html += `
         <li>
           <div class="pillar_title"><strong>연주</strong></div>
-          (${isTimeUnknown ? '시간이 없어 계산이 정확하지 않습니다.' : ''})<br>
+          ${isTimeUnknown ? '(시간이 없어 계산이 정확하지 않습니다.)' : ''}<br>
           원국 연주 간지: <b>${yearPillar}</b><br>
           보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newYeonjuFirst)}</b><br>
           보정 후 오늘까지 마지막으로 바뀐 시간: <b>
