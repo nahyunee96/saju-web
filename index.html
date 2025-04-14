@@ -295,15 +295,15 @@
             <p class="pharases" id="birthPlaceTxt" style="display: none;">태어난 시간을 모르면 보정값으로 들어가진 않지만, 출생지 정보 저장 자체는 가능합니다.</p>
           </div>
           <div class="input_group" id="timeType">
-            <label>시간 기준 지정 (자시 / 야 · 조자시 / 인시)</label>
+            <label>시간 기준 지정 (조자시(자시) / 야자시(자정) / 인시)</label>
             <div class="radio_box">
               <span>
                 <input type="radio" id="jasi" name="time2" value="jasi" />
-                <label for="jasi">자시</label>
+                <label for="jasi">조자시(자시)</label>
               </span>
               <span>
                 <input type="radio" id="yajojasi" name="time2" value="yajojasi" />
-                <label for="yajojasi">야 · 조자시</label>
+                <label for="yajojasi">야자시(자정)</label>
               </span>
               <span>
                 <input
@@ -347,7 +347,7 @@
                     id="timeChk02_01"
                     value="jasi"
                   />
-                  <label for="timeChk02_01">자시</label>
+                  <label for="timeChk02_01">조자시(자시)</label>
                 </span>
                 <span>
                   <input
@@ -356,7 +356,7 @@
                     id="timeChk02_02"
                     value="yajojasi"
                   />
-                  <label for="timeChk02_02">야 · 조자시</label>
+                  <label for="timeChk02_02">야자시(자정)</label>
                 </span>
                 <span>
                   <input
@@ -752,6 +752,7 @@
                 <ul id="explanDetail"></ul>
               </div>
             </div>
+            <ul class="hour_list" id="hour_list"></ul>
             <div class="woon_area" id="woonArea">
               <p class="buga_title"><span>대운 (대운의 월주)</span></p>
               <div class="scroll_x">
