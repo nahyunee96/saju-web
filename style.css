@@ -290,6 +290,7 @@
     background-color: #fff;
     text-align: center;
     font-size: 60px; 
+    border-radius: 4px;
   }
 
   .grid_box_1 li .hanja_con b,
@@ -311,6 +312,7 @@
     margin-bottom: 5px;
     text-align: center;
     font-size: 20px;
+    border-radius: 4px;
   }
 
   .w50 .grid_box_1 li p,
@@ -421,6 +423,7 @@
     margin-bottom: 5px;
     text-align: center;
     font-size: 14px;
+    border-radius: 2px;
   }
 
   .fortune_section.grid_box_12 .w {
@@ -1044,6 +1047,7 @@
       font-size: 3.248vw;
       font-weight: 700;
       background-color: #fff;
+      border-radius: 2px;
     }
 
     .fortune_section .w {
