@@ -522,8 +522,8 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
   const nominalBirthDate2 = new Date(year, month - 1, day + 1);
 	const nominalBirthDatePrev = new Date(year, month - 1, day - 1);
 	
-	const yajojasiElem = document.getElementById('yajojasi');
-	const yajojasi = yajojasiElem && yajojasiElem.checked;
+	const yajasiElem = document.getElementById('yajasi');
+	const yajasi = yajasiElem && yajasiElem.checked;
 	const jasiElem = document.getElementById('jasi');
 	const isJasi = jasiElem && jasiElem.checked;
 	const insiElem = document.getElementById('insi');
@@ -572,9 +572,9 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   }
 
-  if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3)){
+  if (hourBranchIndex === 0 && (yajasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3)){
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-  } else if (hourBranchIndex === 0 && (yajojasi && correctedDate.getHours() < 24) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
+  } else if (hourBranchIndex === 0 && (yajasi && correctedDate.getHours() < 24) || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
     hourDayPillar = getDayGanZhi(nominalBirthDate);
   }
   const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
@@ -583,7 +583,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
 
-  if (yajojasi && correctedDate.getHours() >= 24){
+  if (yajasi && correctedDate.getHours() >= 24){
     const daypillar = getDayGanZhi(nominalBirthDate);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   } 
@@ -988,7 +988,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ? "시간기준無"
     : (item.selectedTime2 === "jasi"
         ? "자시"
-        : item.selectedTime2 === "yajojasi"
+        : item.selectedTime2 === "yajasi"
           ? "야 · 조자시"
           : item.selectedTime2 === "insi"
             ? "인시"
@@ -1121,8 +1121,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (item.selectedTime2 === "jasi") {
           document.getElementById("jasi").checked = true;
           document.getElementById("timeChk02_01").checked = true;
-        } else if (item.selectedTime2 === "yajojasi") {
-          document.getElementById("yajojasi").checked = true;
+        } else if (item.selectedTime2 === "yajasi") {
+          document.getElementById("yajasi").checked = true;
           document.getElementById("timeChk02_02").checked = true;
         } else if (item.selectedTime2 === "insi") {
           document.getElementById("insi").checked = true;
@@ -1348,8 +1348,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const baseYearBranch = birthYearPillar.charAt(1); // 원국 연지 (예: "병자"에서 "자")
 
     requestAnimationFrame(() => {
-      if (hourSplit.ji === "자" || hourSplit.ji === "축") {
-        checkOption.style.display = 'flex';
+      if (!isTimeUnknown) {
+        if (hourSplit.ji === "자" || hourSplit.ji === "축") {
+          checkOption.style.display = 'flex';
+        } else {
+          checkOption.style.display = 'none';
+        }
       } else {
         checkOption.style.display = 'none';
       }
@@ -2259,7 +2263,7 @@ document.addEventListener("DOMContentLoaded", function () {
       let baseTime = new Date(correctedDate);
       if (document.getElementById("jasi")?.checked) {
         baseTime.setHours(23, 0);
-      } else if (document.getElementById("yajojasi")?.checked) {
+      } else if (document.getElementById("yajasi")?.checked) {
         baseTime.setHours(0, 0);
       } else if (document.getElementById("insi")?.checked) {
         baseTime.setHours(3, 0);
@@ -2575,8 +2579,10 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById('woonArea').style.display = 'block';
           document.getElementById('woonContainer').style.display = 'none';
           document.getElementById('calArea').style.display = 'none';
-          if (hourSplit.ji !== "자" && hourSplit.ji !== "축") {
-            checkOption.style.display = 'none';
+          if (!isTimeUnknown) {
+            if (hourSplit.ji !== "자" && hourSplit.ji !== "축") {
+              checkOption.style.display = 'none';
+            }
           }
           newBtn.classList.remove("active");
           newBtn.innerText = "묘운력(운 전체) 상세보기";
@@ -2586,8 +2592,10 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById('woonArea').style.display = 'none';
           document.getElementById('woonContainer').style.display = 'flex';
           document.getElementById('calArea').style.display = 'block';
-          if (hourSplit.ji !== "자" && hourSplit.ji !== "축") {
-            checkOption.style.display = 'flex';
+          if (!isTimeUnknown) {
+            if (hourSplit.ji !== "자" && hourSplit.ji !== "축") {
+              checkOption.style.display = 'flex';
+            }
           }
           updateMyowoonSection(myowoonResult);
           newBtn.classList.add("active");
@@ -2622,7 +2630,7 @@ document.addEventListener("DOMContentLoaded", function () {
       let adjustedDate = new Date(refDate.getTime());
       if (document.getElementById("jasi").checked && (hour >= 23 || hour < 3)) {
         adjustedDate.setHours(23, 0, 0, 0);
-      } else if (document.getElementById("yajojasi").checked && (hour >= 0 && hour < 3)) {
+      } else if (document.getElementById("yajasi").checked && (hour >= 0 && hour < 3)) {
         adjustedDate.setHours(0, 0, 0, 0);
       } else if (document.getElementById("insi").checked && (hour >= 3 && hour < 5)) {
         adjustedDate.setHours(3, 0, 0, 0);
@@ -2981,7 +2989,7 @@ document.addEventListener("DOMContentLoaded", function () {
       let timeLabel = "";
         if (document.getElementById("jasi")?.checked) {
           timeLabel = "자시";
-        } else if (document.getElementById("yajojasi")?.checked) {
+        } else if (document.getElementById("yajasi")?.checked) {
           timeLabel = "야 · 조자시";
         } else if (document.getElementById("insi")?.checked) {
           timeLabel = "인시";
@@ -3043,7 +3051,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         if (document.getElementById("jasi")?.checked) {
           baseTime.setHours(23, 0);
-        } else if (document.getElementById("yajojasi")?.checked) {
+        } else if (document.getElementById("yajasi")?.checked) {
           baseTime.setHours(0, 0);
         } else if (document.getElementById("insi")?.checked) {
           baseTime.setHours(3, 0);
@@ -3328,7 +3336,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
     //   if (document.getElementById("jasi").checked) {
     //     adjusted.setHours(23, 0, 0, 0);
-    //   } else if (document.getElementById("yajojasi").checked) {
+    //   } else if (document.getElementById("yajasi").checked) {
     //     adjusted.setHours(0, 0, 0, 0);
     //   } else if (document.getElementById("insi").checked) {
     //     adjusted.setHours(3, 0, 0, 0);
@@ -3428,7 +3436,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
         if (selectedTime === "jasi") {
           adjusted.setHours(23, 0, 0, 0); // 자시 기준
-        } else if (selectedTime === "yajojasi") {
+        } else if (selectedTime === "yajasi") {
           adjusted.setHours(0, 0, 0, 0);  // 자정 기준 (축시도 포함)
         } else if (selectedTime === "insi") {
           adjusted.setHours(3, 0, 0, 0); // 인시 기준
@@ -3552,7 +3560,7 @@ document.addEventListener("DOMContentLoaded", function () {
       let d = new Date(baseDate);
       if (document.getElementById("jasi").checked) {
         d.setHours(23, 0, 0, 0);
-      } else if (document.getElementById("yajojasi").checked) {
+      } else if (document.getElementById("yajasi").checked) {
         d.setHours(0, 0, 0, 0);
       } else if (document.getElementById("insi").checked) {
         d.setHours(3, 0, 0, 0);
@@ -3660,8 +3668,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (selected.selectedTime2 === "jasi") {
       document.getElementById("jasi").checked = true;
       document.getElementById("timeChk02_01").checked = true;
-    } else if (selected.selectedTime2 === "yajojasi") {
-      document.getElementById("yajojasi").checked = true;
+    } else if (selected.selectedTime2 === "yajasi") {
+      document.getElementById("yajasi").checked = true;
       document.getElementById("timeChk02_02").checked = true;
     } else if (selected.selectedTime2 === "insi") {
       document.getElementById("insi").checked = true;
