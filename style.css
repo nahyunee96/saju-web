@@ -193,18 +193,18 @@
     display: none;
   }
 
-  .result_wrapper .info_box {
+  .info_box {
     color: #fff; 
     border-bottom: 1px solid #fff; 
     padding-bottom: 10px; 
   }
 
-  .result_wrapper .info_box .name_gender {
+  .info_box .name_gender {
     font-size:20px;
     margin-bottom: 8px;
   }
 
-  .result_wrapper .info_box .birthday_info {
+  .info_box .birthday_info {
     font-size:18px;
   }
 
@@ -894,6 +894,47 @@
     height: 35px;
   }
 
+  .couple_mode_wrap {
+    display: none;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #011627;
+    z-index: 99;
+  } 
+
+  .couple_mode_wrap .scroll_y {
+    width: 100%;
+    height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+
+  .couple_mode_wrap .inner {
+    display: flex;
+    align-items: center;
+    max-width: 800px;
+    width: 100%;
+    margin: auto;
+    padding: 20px;
+    gap: 10px;
+  }
+
+  .couple_mode_wrap .people {
+    width: 50%;
+  }
+
+  .couple_mode_wrap .wongook_lucky {
+    flex-direction: column;
+  }
+
+  .couple_mode_wrap .woonkuk,
+  .couple_mode_wrap .myowoon {
+    width: 100%;
+  }
+
   /* 모바일 대응 */
   @media screen and (max-width:991px){
 
@@ -984,16 +1025,16 @@
       padding: 0 2vw;
     }
 
-    .result_wrapper .info_box {
+    .info_box {
       padding-bottom:2vw;
     }
 
-    .result_wrapper .info_box .name_gender {
+    .info_box .name_gender {
       font-size:3.244vw;
       margin-bottom: 1.2vw;
     }
 
-    .result_wrapper .info_box .birthday_info {
+    .info_box .birthday_info {
       font-size:2.844vw;
     }
     
@@ -1037,7 +1078,7 @@
     .grid_box_1 li .hanja_con,
 	  .ganji .hanja_con {
       font-size:8.848vw;
-      padding: 2vw;
+      padding: 2vw 0.8vw;
     }
 
     .grid_box_1 li p, 
@@ -1046,6 +1087,11 @@
     .ganji p.ten_sin,
     .fortune_section .w {
       font-size: 2.824vw;
+    }
+
+    .grid_box_1 li p,
+    .ganji p {
+      padding: 1vw 0.8vw;
     }
 
     .grid_box_1 li p.eum_yang, 
@@ -1351,5 +1397,20 @@
   
     .hour_list {
       gap: 2vw;
+    }
+
+    .couple_mode_wrap .inner {
+      padding: 2vw;
+    }
+
+    .couple_mode_wrap .inner,
+    .couple_mode_wrap .grid_box {
+      gap: 1.6vw;
+    }
+
+    .couple_mode_wrap .grid_box_1 li p.eum_yang, 
+    .couple_mode_wrap .ganji p.eum_yang, 
+    .couple_mode_wrap .wongook_lucky .grid_box_1 li p.eum_yang {
+      width: 6.2vw;
     }
   }
