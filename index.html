@@ -337,39 +337,50 @@
                 <span id="bjTimeText"> 보정시 : <b id="resbjTime"></b></span>
               </div>
             </div>
-            <ul class="check_option" id="checkOption">
-              
-              <li class="time_chk02">
+            <div class="radio_wrap">
+              <ul class="check_option" id="checkOption">
+                <li class="time_chk02">
+                  <span>
+                    <input
+                      type="radio"
+                      name="timeChk02"
+                      id="timeChk02_01"
+                      value="jasi"
+                    />
+                    <label for="timeChk02_01">조자시(자시)</label>
+                  </span>
+                  <span>
+                    <input
+                      type="radio"
+                      name="timeChk02"
+                      id="timeChk02_02"
+                      value="yajasi"
+                    />
+                    <label for="timeChk02_02">야자시(자정)</label>
+                  </span>
+                  <span>
+                    <input
+                      type="radio"
+                      name="timeChk02"
+                      id="timeChk02_03"
+                      value="insi"
+                      checked
+                    />
+                    <label for="timeChk02_03">인시</label>
+                  </span>
+                </li>
+              </ul>
+              <div class="s12_ctrl_zone" id="s12CtrlZone">
                 <span>
                   <input
-                    type="radio"
-                    name="timeChk02"
-                    id="timeChk02_01"
-                    value="jasi"
+                    type="checkbox"
+                    name="s12Ctrl"
+                    id="s12Ctrl"
                   />
-                  <label for="timeChk02_01">조자시(자시)</label>
+                  <label for="s12Ctrl">십이운성 · 십이신살 가리기</label>
                 </span>
-                <span>
-                  <input
-                    type="radio"
-                    name="timeChk02"
-                    id="timeChk02_02"
-                    value="yajasi"
-                  />
-                  <label for="timeChk02_02">야자시(자정)</label>
-                </span>
-                <span>
-                  <input
-                    type="radio"
-                    name="timeChk02"
-                    id="timeChk02_03"
-                    value="insi"
-                    checked
-                  />
-                  <label for="timeChk02_03">인시</label>
-                </span>
-              </li>
-            </ul>
+              </div>
+            </div>
             <div class="btn_box mt20">
               <button type="button" class="black_btn" id="myowoonMore">
                 묘운력(운 전체) 상세보기
@@ -1077,6 +1088,11 @@
             Copyright © 2025 Hwarim96. All rights reserved.
           </p>
         </footer>
+      </div>
+
+      <!-- 궁합모드 -->
+      <div class="couple">
+        
       </div>
       <script
         src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"

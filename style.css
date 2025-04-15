@@ -717,12 +717,23 @@
   .b_white { background-color: #a5a5a5 !important; color: #fff;}
   .b_black { background-color: #252525 !important; color: #fff;}
 
-  .check_option {
+  .radio_wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .check_option,
+  .s12_ctrl_zone {
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: #011627;
     height: 60px;
+  }
+
+  .check_option {
+    flex: 0 0 auto;
   }
 
   .check_option.fixed {
@@ -733,18 +744,23 @@
     z-index: 98;
   }
 
+  .s12_ctrl_zone  {
+    width: 100%;
+  }
+
   .check_option li {
     display: flex;
     align-items: center;
   }
   
-  .check_option li span {
+  .radio_wrap span{
     display: flex;
     align-items: center;
     margin: 0 10px;
   }
 
-  .check_option li input[type='radio'] {
+  .radio_wrap input[type='radio'],
+  .radio_wrap input[type='checkbox'] {
     position: relative;
     display: inline-block;
     width: 20px;
@@ -756,7 +772,8 @@
     
   }
 
-  .check_option li input[type='radio']::before {
+  .radio_wrap input[type='radio']::before,
+  .radio_wrap input[type='checkbox']::before {
     display: none;
     content: '';
     position: absolute;
@@ -769,11 +786,12 @@
     border-radius: 50%;
   }
 
-  .check_option li input[type='radio']:checked::before {
+  .radio_wrap input[type='radio']:checked::before,
+  .radio_wrap input[type='checkbox']:checked::before {
     display: block;
   }
 
-  .check_option li label {
+  .radio_wrap label {
     color: #fff;
     cursor: pointer;
   }
@@ -1277,7 +1295,8 @@
       font-size: 3.6vw;
     }
 
-    .check_option {
+    .check_option,
+    .s12_ctrl_zone {
       height: 10.2vw;
     }
 
@@ -1285,22 +1304,24 @@
       top: 16vw;
     }
 
-    .check_option li span {
+    .radio_wrap span{
       margin: 0 0.8vw;
     }
   
-    .check_option li input[type='radio'] {
+    .radio_wrap input[type='radio'],
+    .radio_wrap input[type='checkbox'] {
       width: 2.4vw;
       height: 2.4vw;
       margin-right: 1.2vw;
     }
   
-    .check_option li input[type='radio']::before {
+    .radio_wrap input[type='radio']::before,
+    .radio_wrap input[type='checkbox']::before {
       width: 2vw;
       height: 2vw;
     }
 
-    .check_option li label {
+    .radio_wrap label {
       font-size: 2.8vw;
     }
 
