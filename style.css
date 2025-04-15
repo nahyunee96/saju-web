@@ -52,6 +52,10 @@
     margin-bottom: 10px;
   }
 
+  .mt20 {
+    margin-top: 20px;
+  }
+
   .container {
     display: flex; 
     min-height: 100vh; 
@@ -595,6 +599,11 @@
     padding: 10px 0 0;
   }
 
+  .hour_list_wrap .pharases {
+    padding-top: 0;
+    margin-bottom: 10px;
+  }
+
   .ilju_calender {
     margin-top: 20px;
     padding: 10px;
@@ -853,8 +862,31 @@
     font-size: 20px;
   }
 
+  .hour_list {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .hour_list li button.black_btn {
+    width: 100%;
+    padding: 0;
+    height: 35px;
+  }
+
   /* 모바일 대응 */
   @media screen and (max-width:991px){
+
+    .mb10 {
+      margin-bottom: 2vw;
+    }
+  
+    .mt20 {
+      margin-top: 4vw;
+    }
+
     .info_wrapper {
       max-width: 100%; 
       padding:2.624vw; 
@@ -916,10 +948,15 @@
       margin-bottom: 12vw;
     }
 
+    
     .black_btn {
       padding: 0 10vw;
       height: 8vw;
       font-size: 3.228vw;
+    }
+
+    .hour_list li button.black_btn {
+      height: 8vw;  
     }
     
     .detailViewBtn,
@@ -1157,6 +1194,11 @@
       padding: 2vw 0 0;
     }
 
+    .hour_list_wrap .pharases {
+      padding: 0;
+      margin-bottom: 1.2vw;
+    }
+
     .grid_box_12 {
       gap: .2vw;
     }
@@ -1286,5 +1328,7 @@
       font-size: 4.4vw;
     }
   
-    
+    .hour_list {
+      gap: 2vw;
+    }
   }
