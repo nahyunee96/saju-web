@@ -3804,7 +3804,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const month = parseInt(item.birthday.substring(4, 6), 10) - 1;
       const day = parseInt(item.birthday.substring(6, 8), 10);
     
-      let hour = 3, min = 30; // 기본값
+      let hour = 3, minute = 30; // 기본값
       if (!item.isTimeUnknown && item.birthtime) {
         const raw = item.birthtime.replace(/\s/g, "");
         if (raw.length === 4) {
