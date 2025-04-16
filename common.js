@@ -3863,23 +3863,42 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function radioFunc() {
-       const refDateD = getOriginalDateFromItem(currentMyeongsik);
-      // console.log(currentMyeongsik);
-      
-      const correctedradio = adjustBirthDate(refDateD, currentMyeongsik.birthPlace, currentMyeongsik.isPlaceUnknown);
 
-      //const adjustedD = getAdjustedDateWithTimeType(correctedDate);
+      let originalDate;
+      let correctedRadio;
 
-      const originalBranch = getHourBranchFromPillar(currentMyeongsik.hourPillar); 
-      const realBranch = getHourBranchName(refDateD); 
-      console.log(realBranch, originalBranch);
-      if (realBranch !== originalBranch) {
-        return;
+      const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+      const hasSaved = 
+        typeof currentModifyIndex === "number" &&
+        savedList[currentModifyIndex] !== undefined;
+
+      if (!hasSaved) {
+        // 처음모드
+        originalDate = new Date(year, month - 1, day, hour, minute);
+        correctedRadio  = adjustBirthDate(originalDate, usedBirthPlace, isPlaceUnknown);
+        const originalBranch = getHourBranchFromPillar(hourPillar); 
+        const realBranch = getHourBranchName(originalDate); 
+        console.log(realBranch, originalBranch);
+        if (realBranch !== originalBranch) {
+          return;
+        }
+      } else {
+        // 명식보기 모드
+        // savedList[currentModifyIndex] 를 사용해야겠죠?
+        originalDate    = getOriginalDateFromItem(currentMyeongsik);
+        correctedRadio  = adjustBirthDate(originalDate, currentMyeongsik.birthPlace, currentMyeongsik.isPlaceUnknown);
+
+        const originalBranch = getHourBranchFromPillar(currentMyeongsik.hourPillar); 
+        const realBranch = getHourBranchName(originalDate); 
+        console.log(realBranch, originalBranch);
+        if (realBranch !== originalBranch) {
+          return;
+        }
       }
 
-      function getDateForGanZhiWithRadio(refDateD) {
+      function getDateForGanZhiWithRadio(originalDate) {
         const selectedTime = document.querySelector('input[name="timeChk02"]:checked')?.value;
-        const adjusted = new Date(refDateD);
+        const adjusted = new Date(originalDate);
       
         if (selectedTime === "jasi") {
           adjusted.setHours(23, 0, 0, 0); // 자시 기준
@@ -3892,18 +3911,28 @@ document.addEventListener("DOMContentLoaded", function () {
         return adjusted;
       }
       
-      const branchIndex = getHourBranchIndex(correctedradio);
+      const branchIndex = getHourBranchIndex(correctedRadio);
       const branchName = Jiji[branchIndex];
 
       if (branchName === "자" || branchName === "축") {
         console.log('자, 축');
-      
+        
+        let corrected;
         // [2] 보정된 시각
-        const corrected = adjustBirthDate(
-          refDateD,
-          currentMyeongsik.birthPlace,
-          currentMyeongsik.isPlaceUnknown
-        );
+        if (!hasSaved) {
+          corrected = adjustBirthDate(
+            originalDate,
+            usedBirthPlace,
+            isPlaceUnknown
+          );
+        } else {
+          
+          corrected = adjustBirthDate(
+            originalDate,
+            currentMyeongsik.birthPlace,
+            currentMyeongsik.isPlaceUnknown
+          );
+        }
       
         // [3] 라디오 기준 시간 적용 (자시/야조자시/인시)
         const selectedTime01 = document.getElementById("timeChk02_01")?.checked; // 자시
@@ -4268,6 +4297,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (calcRadio) {
           calcRadio.checked = true;
         }
+
+        console.log('라디오 실행중');
 
         // 피커에서 기준 날짜(refDate)를 가져옴
         const picker = document.getElementById('woonTimeSetPicker');
