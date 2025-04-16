@@ -578,7 +578,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
     hourBranchIndex = 1;
   }
 
-  if (isInsi && correctedDate.getHours() < 3) {
+  if (isInsi && correctedDate.getHours() <= 3) {
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   } else if (hourBranchIndex === 0){
     hourDayPillar = getDayGanZhi(nominalBirthDate);
@@ -607,8 +607,9 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   } 
 
-  if (isInsi && correctedDate.getHours() < 3){
+  if (isInsi && correctedDate.getHours() <= 3){
     const daypillar = getDayGanZhi(nominalBirthDatePrev);
+    console.log('daypillar', daypillar);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender)}`;
   } else {
     const daypillar = getDayGanZhi(nominalBirthDate);
@@ -943,6 +944,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const newData = {
       birthday: birthday,
       birthtime: displayBirthtimeFormatted,
+      year: year,
+      month: month,
+      day: day,
+      hour: hour,
+      minute: minute, 
       gender: gender,
       birthPlace: savedBirthPlace,
       name: name,
@@ -951,6 +957,10 @@ document.addEventListener("DOMContentLoaded", function () {
       monthPillar: monthPillar,
       dayPillar: dayPillar,
       hourPillar: hourPillar,
+      yeonjuEvent: getMyounPillarsVr.yeonjuEvent,
+      woljuEvent: getMyounPillarsVr.woljuEvent,
+      iljuEvent: getMyounPillarsVr.iljuEvent,
+      sijuEvent: getMyounPillarsVr.sijuEvent,
       age: age,
       birthdayTime: birthdayTime,
       correctedDate: correctedDate,
@@ -1316,35 +1326,47 @@ document.addEventListener("DOMContentLoaded", function () {
     // };
 
 
-    function updateOriginalAndMyowoon() {
+    function updateOriginalAndMyowoon(refDate) {
 
       // 기준 날짜(refDate) 지정 (예: 오늘 날짜 등)
-      const refDate = new Date();
       
+      const p_year = personData.year;
+      const p_month = personData.month;
+      const p_day = personData.day;
+      const p_hour = personData.hour;
+      const p_minute = personData.minute;
+
+      console.log(p_year, p_month, p_day, p_hour, p_minute);
+
       const p_correctedDate = new Date(personData.correctedDate);
-      console.log(p_correctedDate.getFullYear());
       const p_gender = personData.gender;
-      const p_year = personData.yearPillar;
-      const p_month = personData.monthPillar;
-      const p_day = personData.dayPillar;
-      const p_hour = personData.isTimeUnknown ? "-" : personData.hourPillar;
+      const p_yearPillar = personData.yearPillar;
+      const p_monthPillar = personData.monthPillar;
+      const p_dayPillar = personData.dayPillar;
+      const p_hourPillar = personData.isTimeUnknown ? "-" : personData.hourPillar;
+
+      const part_year = partnerData.year;
+      const part_month = partnerData.month;
+      const part_day = partnerData.day;
+      const part_hour = partnerData.hour;
+      const part_minute = partnerData.minute;
       
       const part_correctedDate = new Date(partnerData.correctedDate);
       const part_gender = partnerData.gender;
-      const part_year = partnerData.yearPillar;
-      const part_month = partnerData.monthPillar;
-      const part_day = partnerData.dayPillar;
-      const part_hour = partnerData.isTimeUnknown ? "-" : partnerData.hourPillar;
+      const part_yearPillar = partnerData.yearPillar;
+      const part_monthPillar = partnerData.monthPillar;
+      const part_dayPillar = partnerData.dayPillar;
+      const part_hourPillar = partnerData.isTimeUnknown ? "-" : partnerData.hourPillar;
 
-      const p_yearSplit = splitPillar(p_year);
-      const p_monthSplit = splitPillar(p_month);
-      const p_daySplit = splitPillar(p_day);
-      const p_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(p_hour);
+      const p_yearSplit = splitPillar(p_yearPillar);
+      const p_monthSplit = splitPillar(p_monthPillar);
+      const p_daySplit = splitPillar(p_dayPillar);
+      const p_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(p_hourPillar);
       
-      const part_yearSplit = splitPillar(part_year);
-      const part_monthSplit = splitPillar(part_month);
-      const part_daySplit = splitPillar(part_day);
-      const part_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(part_hour);
+      const part_yearSplit = splitPillar(part_yearPillar);
+      const part_monthSplit = splitPillar(part_monthPillar);
+      const part_daySplit = splitPillar(part_dayPillar);
+      const part_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(part_hourPillar);
 
       const baseDayStem_copy = p_daySplit.gan;
       const baseDayStem_copy2 = part_daySplit.gan;
@@ -1373,27 +1395,85 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("Yb12ss_copy2", getTwelveShinsal(baseYearBranch_copy2, baseYearBranch_copy2));
 
       const personDataMyo = {
-        birthDate: p_correctedDate,  // Date 객체
-        yearPillar: p_year,        // 이미 계산된 명식 값 (ex: "갑자")
-        monthPillar: p_month,
-        dayPillar: p_day,
-        hourPillar: p_hour,
+        birthDate: p_correctedDate, 
+        year: p_year,
+        month: p_month,
+        day: p_day,
+        hour: p_hour,
+        minute: p_minute,
+        yearPillar: p_yearPillar,       
+        monthPillar: p_monthPillar,
+        dayPillar: p_dayPillar,
+        hourPillar: p_hourPillar,
         gender: p_gender
       }
 
       const partnerDataMyo = {
-        birthDate: part_correctedDate,  // Date 객체
-        yearPillar: part_year,        // 이미 계산된 명식 값 (ex: "갑자")
-        monthPillar: part_month,
-        dayPillar: part_day,
-        hourPillar: part_hour,
+        birthDate: part_correctedDate,
+        year: part_year,
+        month: part_month,
+        day: part_day,
+        hour: part_hour, 
+        minute: part_minute, 
+        yearPillar: part_yearPillar,        
+        monthPillar: part_monthPillar,
+        dayPillar: part_dayPillar,
+        hourPillar: part_hourPillar,
         gender: part_gender
       }
+
+      console.log(personDataMyo, partnerDataMyo);
 
       // 각 사람의 묘운(동적 운세) 계산
       const myowoonResultPerson = getMyounPillarsVr(personDataMyo, refDate);
       const myowoonResultPartner = getMyounPillarsVr(partnerDataMyo, refDate);
 
+      const p_myo_year = myowoonResultPerson.yearPillar;
+      const p_myo_month = myowoonResultPerson.monthPillar;
+      const p_myo_day = myowoonResultPerson.dayPillar;
+      const p_myo_hour = myowoonResultPerson.isTimeUnknown ? "-" : myowoonResultPerson.hourPillar;
+
+      console.log(p_myo_year, p_myo_month, p_myo_day, p_myo_hour);
+
+      const part_myo_year = myowoonResultPartner.yearPillar;
+      const part_myo_month = myowoonResultPartner.monthPillar;
+      const part_myo_day = myowoonResultPartner.dayPillar;
+      const part_myo_hour = myowoonResultPartner.isTimeUnknown ? "-" : myowoonResultPartner.hourPillar;
+
+      const p_myo_yearSplit = splitPillar(p_myo_year);
+      const p_myo_monthSplit = splitPillar(p_myo_month);
+      const p_myo_daySplit = splitPillar(p_myo_day);
+      const p_myo_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(p_myo_hour);
+      
+      const part_myo_yearSplit = splitPillar(part_myo_year);
+      const part_myo_monthSplit = splitPillar(part_myo_month);
+      const part_myo_daySplit = splitPillar(part_myo_day);
+      const part_myo_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(part_myo_hour);
+
+      const p_myo_yeonjuEvent = personData.yeonjuEvent;
+      const p_myo_woljuEvent = personData.woljuEvent;
+      const p_myo_iljuEvent = personData.iljuEvent;
+      const p_myo_sijuEvent = personData.sijuEvent;
+      
+      console.log(p_myo_yeonjuEvent, p_myo_woljuEvent, p_myo_iljuEvent, p_myo_sijuEvent);
+
+      setText("MyoHb12ws_copy", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_hourSplit.ji));
+      setText("MyoHb12ss_copy", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_hourSplit.ji));
+      setText("MyoDb12ws_copy", getTwelveUnseong(baseDayStem_copy, p_myo_daySplit.ji));
+      setText("MyoDb12ss_copy", getTwelveShinsal(baseYearBranch_copy, p_myo_daySplit.ji));
+      setText("MyoMb12ws_copy", getTwelveUnseong(baseDayStem_copy, p_myo_monthSplit.ji));
+      setText("MyoMb12ss_copy", getTwelveShinsal(baseYearBranch_copy, p_myo_monthSplit.ji));
+      setText("MyoYb12ws_copy", getTwelveUnseong(baseDayStem_copy, p_myo_yearSplit.ji));
+      setText("MyoYb12ss_copy", getTwelveShinsal(baseYearBranch_copy, p_myo_yearSplit.ji));
+
+      setText("MyoHb12ws_copy2", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_hourSplit.ji));
+      setText("MyoHb12ss_copy2", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_hourSplit.ji));
+      setText("MyoDb12ws_copy2", getTwelveUnseong(baseDayStem_copy2, part_myo_daySplit.ji));
+      setText("MyoDb12ss_copy2", getTwelveShinsal(baseYearBranch_copy2, part_myo_daySplit.ji));
+      setText("MyoMb12ws_copy2", getTwelveUnseong(baseDayStem_copy2, part_myo_monthSplit.ji));
+      setText("MyoMb12ss_copy2", getTwelveShinsal(baseYearBranch_copy2, part_myo_monthSplit.ji));
+      setText("MyoYb12ws_copy2", getTwelveUnseong(baseDayStem_copy2, part_myo_yearSplit.ji));
+      setText("MyoYb12ss_copy2", getTwelveShinsal(baseYearBranch_copy2, part_myo_yearSplit.ji));
       
       
       console.log("커플 모드 - 원국 및 묘운 HTML 업데이트 완료");
@@ -1439,7 +1519,8 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("기본정보 업데이트 완료.");
       // Pillars 계산 및 전역 변수 저장
       // 원국 및 묘운 업데이트 실행
-      updateOriginalAndMyowoon();
+      const refDate = new Date();
+      updateOriginalAndMyowoon(refDate);
     }
 
     // 11. 예제: 버튼 클릭 시 couple mode view 업데이트
@@ -1473,29 +1554,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  // document.getElementById("coupleModeBtn").addEventListener("click", function() {
-  //   // 궁합모드 상태 토글
-  //    isCoupleMode = !isCoupleMode;
+  document.getElementById("coupleModeBtn").addEventListener("click", function() {
+    // 궁합모드 상태 토글
+     isCoupleMode = !isCoupleMode;
     
-  //    if (isCoupleMode) {
-  //      // 궁합모드이면 aside를 열고, 현재 detail(본인) 인덱스는 그대로 유지
-  //      // aside에 표시되는 목록은 본인 항목을 건너뛰게 됨 (loadSavedMyeongsikList에서 처리)
-  //      document.getElementById("aside").style.display = "block";
-  //      loadSavedMyeongsikList();
-  //    } else {
-  //      // 일반 모드로 돌아가면 aside 전체 목록을 다시 렌더링함
-  //      document.getElementById("aside").style.display = "block";
-  //      loadSavedMyeongsikList();
-  //   }
+     if (isCoupleMode) {
+       // 궁합모드이면 aside를 열고, 현재 detail(본인) 인덱스는 그대로 유지
+       // aside에 표시되는 목록은 본인 항목을 건너뛰게 됨 (loadSavedMyeongsikList에서 처리)
+       document.getElementById("aside").style.display = "block";
+       loadSavedMyeongsikList();
+     } else {
+       // 일반 모드로 돌아가면 aside 전체 목록을 다시 렌더링함
+       document.getElementById("aside").style.display = "block";
+       loadSavedMyeongsikList();
+    }
 
-  //   const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-  //   if (typeof currentDetailIndex !== "undefined" && savedList[currentDetailIndex]) {
-  //     personData = savedList[currentDetailIndex];
-  //     console.log("나의 데이터 저장됨:", personData);
-  //   } else {
-  //     console.warn("나의 데이터가 존재하지 않습니다. currentDetailIndex:", currentDetailIndex);
-  //   }
-  // });
+    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+    if (typeof currentDetailIndex !== "undefined" && savedList[currentDetailIndex]) {
+      personData = savedList[currentDetailIndex];
+      console.log("나의 데이터 저장됨:", personData);
+    } else {
+      console.warn("나의 데이터가 존재하지 않습니다. currentDetailIndex:", currentDetailIndex);
+    }
+  });
   
   // aside 열기/닫기 이벤트 등록
   document.getElementById("listViewBtn").addEventListener("click", function () {
@@ -1610,6 +1691,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+
     document.getElementById('resultWrapper').style.display = 'block';
     window.scrollTo(0, 0);
     document.getElementById('inputWrap').style.display = 'none';
@@ -1640,6 +1722,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let originalDate = new Date(year, month - 1, day, hour, minute);
     let correctedDate = adjustBirthDate(originalDate, usedBirthPlace, isPlaceUnknown);
+
+    
+    
+
     globalState.correctedBirthDate = correctedDate;
 
     const formattedBirth = `${year}-${pad(month)}-${pad(day)}`;
@@ -1677,6 +1763,14 @@ document.addEventListener("DOMContentLoaded", function () {
     baseDayStem = daySplit.gan; // 원국 일간
     
     const baseYearBranch = birthYearPillar.charAt(1); // 원국 연지 (예: "병자"에서 "자")
+
+    console.log(yearSplit, monthSplit, daySplit, hourSplit);
+
+    const branchIndex = getHourBranchIndex(correctedDate);
+    const branchName = Jiji[branchIndex];
+
+    if (branchName === "자" || branchName === "축") {
+    }
 
     requestAnimationFrame(() => {
       if (!isTimeUnknown) {
@@ -2600,7 +2694,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // getMyounPillars: 원국(출생)과 동적 운세(묘운)를 분리하여 계산
     function getMyounPillars(person, refDate) {
 
-      const { correctedDate, yearPillar, monthPillar, dayPillar, hourPillar, gender } = person;
+      let { correctedDate, year, month, day, hour, minute, 
+        yeonjuEvent, woljuEvent, iljuEvent, sijuEvent,
+        yearPillar, monthPillar, dayPillar, hourPillar, gender } = person;
+
+      //console.log(yeonjuEvent, woljuEvent, iljuEvent, sijuEvent);
 
       let baseTime = new Date(correctedDate);
       if (document.getElementById("jasi")?.checked) {
@@ -2612,7 +2710,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // staticBirth: 원국 계산용(출생일)
-      const staticBirth = new Date(correctedDate);
+      const originalDate = new Date(year, month - 1, day, hour, minute);
+      const staticBirth = adjustBirthDate(originalDate, usedBirthPlace);
+      console.log(staticBirth);
+      console.log(yearPillar, monthPillar, dayPillar, hourPillar);
       
       // 동적 기준 설정
       const jeolgi = getSolarTermBoundaries(staticBirth.getFullYear());
@@ -2662,7 +2763,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const endDate = new Date(birthDate);
         endDate.setFullYear(birthDate.getFullYear() + 120);
         const totalDays = (endDate - birthDate) / oneDayMs;
-        return (totalDays / (120 * 12)) * 4;
+        return (totalDays / (121.6 * 12)) * 4;
       }
     
       function calculateIljuOffsetDynamic(birthDate, mode) {
@@ -2751,6 +2852,8 @@ document.addEventListener("DOMContentLoaded", function () {
         
       }
 
+      
+
       let newSijuFirst  = adjustInitial(new Date(staticBirth.getTime() + calculateSijuOffsetDynamic(staticBirth, sijuMode) * oneDayMs), sijuCycle, staticBirth);
       let newIljuFirst  = adjustInitial(new Date(staticBirth.getTime() + calculateIljuOffsetDynamic(staticBirth, iljuMode) * oneDayMs), iljuCycle, staticBirth);
       let newWoljuFirst = adjustInitial(new Date(staticBirth.getTime() + calculateWoljuOffsetDynamic(staticBirth, woljuMode) * oneDayMs), woljuCycle, staticBirth);
@@ -2760,17 +2863,22 @@ document.addEventListener("DOMContentLoaded", function () {
         staticBirth.getFullYear(), staticBirth.getMonth() + 1, staticBirth.getDate(),
         staticBirth.getHours(), staticBirth.getMinutes(), usedBirthPlace, gender
       );
-      //const [yearPillar, monthPillar, dayPillar, hourPillar] = fullResult.split(", ")[0].split(" ");
+
+      console.log(fullResult);
+
+      //[yearPillar, monthPillar, dayPillar, hourPillar] = fullResult.split(", ")[0].split(" ");
+
+      console.log('드르렁', yearPillar, monthPillar, dayPillar, hourPillar);
     
       const sijuIndex = getGanZhiIndex(hourPillar);
       const iljuIndex = getGanZhiIndex(dayPillar);
       const woljuIndex = getGanZhiIndex(monthPillar);
       const yeonjuIndex = getGanZhiIndex(yearPillar);
       
-      const sijuEvent = applyFirstUpdateDynamicWithStep(newSijuFirst, sijuIndex, sijuCycle, sijuMode, refDate);
-      const iljuEvent = applyFirstUpdateDynamicWithStep(newIljuFirst, iljuIndex, iljuCycle, iljuMode, refDate);
-      const woljuEvent = applyFirstUpdateDynamicWithStep(newWoljuFirst, woljuIndex, woljuCycle, woljuMode, refDate);
-      const yeonjuEvent= applyFirstUpdateDynamicWithStep(newYeonjuFirst, yeonjuIndex, yeonjuCycle, yeonjuMode, refDate);
+      sijuEvent = applyFirstUpdateDynamicWithStep(newSijuFirst, sijuIndex, sijuCycle, sijuMode, refDate);
+      iljuEvent = applyFirstUpdateDynamicWithStep(newIljuFirst, iljuIndex, iljuCycle, iljuMode, refDate);
+      woljuEvent = applyFirstUpdateDynamicWithStep(newWoljuFirst, woljuIndex, woljuCycle, woljuMode, refDate);
+      yeonjuEvent = applyFirstUpdateDynamicWithStep(newYeonjuFirst, yeonjuIndex, yeonjuCycle, yeonjuMode, refDate);
 
       return {
         fullResult,
@@ -2789,12 +2897,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const personData = {
       correctedDate: correctedDate, 
+      year: year,
+      month: month,
+      day: day,
+      hour: hour,
+      minute: minute,
       yearPillar: yearPillar,       
       monthPillar: monthPillar,
       dayPillar: dayPillar,
       hourPillar: hourPillar,
       gender: gender            
     };
+
     
     getMyounPillars(personData, refDate);
 
@@ -3540,7 +3654,7 @@ document.addEventListener("DOMContentLoaded", function () {
             예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
             <b>${sijuMode}</b> 방향으로 계산이 됩니다. <br>
             간지가 바뀌기까지의 시간인, <b>${getSijuTimeDifference(correctedDate, sijuMode)} / 2시간</b>을<br>
-            실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualSijuOffset.toFixed(4)} / 10일</b>일로 치환하고, <br>
+            실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualSijuOffset.toFixed(4)}일 / 10일</b>일로 치환하고, <br>
             보정 시각에서 첫번째 간지 변환일자는 <b>${formatDateTime(myowoonResult.newSijuFirst)}</b>로 산출됩니다. <br>           
             그 다음부터는 <b>10일</b>의 간격으로 <b>${sijuMode}</b>이 계속 진행됩니다. <br>
             최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatDateTime(adjustedSijuTime)}에 (${myowoonResult.hourEvent.ganji})</b>로 변경되었습니다.
@@ -3676,7 +3790,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getHourBranchName(date) {
       const hour = date.getHours();
-      const index = Math.floor((hour + 1) / 2) % 12;
+      const index = Math.floor(hour / 2) % 12;
       return ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"][index];
     }
     
@@ -3695,11 +3809,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const raw = item.birthtime.replace(/\s/g, "");
         if (raw.length === 4) {
           hour = parseInt(raw.substring(0, 2), 10);
-          min = parseInt(raw.substring(2, 4), 10);
+          minute = parseInt(raw.substring(2, 4), 10);
         }
       }
     
-      return new Date(year, month, day, hour, min, 0);
+      return new Date(year, month, day, hour, minute, 0);
     }
 
     function updateFunc() {
@@ -3749,13 +3863,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function radioFunc() {
-      const refDateD = getOriginalDateFromItem(currentMyeongsik);
+       const refDateD = getOriginalDateFromItem(currentMyeongsik);
+      // console.log(currentMyeongsik);
+      
       const correctedradio = adjustBirthDate(refDateD, currentMyeongsik.birthPlace, currentMyeongsik.isPlaceUnknown);
+
       //const adjustedD = getAdjustedDateWithTimeType(correctedDate);
 
-      const originalBranch = getHourBranchFromPillar(currentMyeongsik.hourPillar); // "축"
-      const realBranch = getHourBranchName(refDateD); // → "자"로 나오는지 확인
-
+      const originalBranch = getHourBranchFromPillar(currentMyeongsik.hourPillar); 
+      const realBranch = getHourBranchName(refDateD); 
+      console.log(realBranch, originalBranch);
       if (realBranch !== originalBranch) {
         return;
       }
@@ -3779,6 +3896,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const branchName = Jiji[branchIndex];
 
       if (branchName === "자" || branchName === "축") {
+        console.log('자, 축');
       
         // [2] 보정된 시각
         const corrected = adjustBirthDate(
@@ -3794,7 +3912,8 @@ document.addEventListener("DOMContentLoaded", function () {
         let correctedForGanZhi = new Date(corrected); // 기본값: 보정된 날짜 그대로
       
         // [4] 축시이면서 자시/인시 선택 시 → 하루 전날로 간주해야 정간지 계산 가능
-        if (branchName === "축" && (selectedTime01 || selectedTime03)) {
+        if (selectedTime01 || selectedTime03) {
+          console.log('dayPillar5235235', dayPillar);
           correctedForGanZhi.setDate(correctedForGanZhi.getDate() - 1); // 🔥 전날로 수동 보정
         }
       
@@ -4200,6 +4319,11 @@ document.addEventListener("DOMContentLoaded", function () {
       birthday: selected.birthday,
       birthtime: selected.birthtime,
       birthtimeFormat: selected.birthtimeFormat,
+      year: selected.year,
+      month: selected.month,
+      day: selected.day,
+      hour: selected.hour,
+      minute: selected.minute, 
       gender: selected.gender,
       birthPlace: selected.birthPlace,
       name: selected.name,
@@ -4208,6 +4332,10 @@ document.addEventListener("DOMContentLoaded", function () {
       monthPillar: selected.monthPillar,
       dayPillar: selected.dayPillar,
       hourPillar: selected.hourPillar,
+      yeonjuEvent: selected.yeonjuEvent,
+      woljuEvent: selected.woljuEvent,
+      iljuEvent: selected.iljuEvent,
+      sijuEvent: selected.sijuEvent,
       age: selected.age,
       birthdayTime: selected.birthdayTime,
       correctedDate: selected.correctedDate,
@@ -4402,6 +4530,11 @@ document.addEventListener("DOMContentLoaded", function () {
     return {
       birthday: birthday,
       birthtime: birthtimeRaw,
+      year: year,
+      month: month,
+      day: day,
+      hour: hour,
+      minute: minute, 
       gender: gender,
       birthPlace: savedBirthPlace,
       name: name,
@@ -4410,6 +4543,10 @@ document.addEventListener("DOMContentLoaded", function () {
       monthPillar: pillars[1] || "",
       dayPillar: pillars[2] || "",
       hourPillar: isTimeUnknown ? "-" : (pillars[3] || ""),
+      yeonjuEvent: getMyounPillarsVr.yeonjuEvent,
+      woljuEvent: getMyounPillarsVr.woljuEvent,
+      iljuEvent: getMyounPillarsVr.iljuEvent,
+      sijuEvent: getMyounPillarsVr.sijuEvent,
       age: age,
       birthdayTime: birthdayTime ? formatTime(correctedDate) : "",
       correctedDate: correctedDate,
