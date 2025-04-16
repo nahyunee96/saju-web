@@ -11,8 +11,12 @@ let savedMyeongsikList = [];
 let isCoupleMode = false;
 // 현재 detail view(본인)로 선택된 명식의 인덱스
 let currentDetailIndex = null;
+let partnerIndex = null;
 // 현재 detail view에 표시된 명식 데이터
 let currentMyeongsik = null;
+
+let personData = null;
+let partnerData = null;
 
 // [0] 출생지 보정 및 써머타임 함수
 const cityLongitudes = {
@@ -904,22 +908,36 @@ document.addEventListener("DOMContentLoaded", function () {
     const hourPillar = isTimeUnknown ? "-" : (pillars[3] || "");
   
     // 보정시각 계산
-    //const originalDate = new Date(year, month - 1, day, hour, minute);
+    const originalDate = new Date(year, month - 1, day, hour, minute);
     let correctedDate;
     if (isTimeUnknown) {
       correctedDate = null;
-    } /*else if (isPlaceUnknown) {
+    } else {
+      correctedDate = adjustBirthDate(originalDate, usedBirthPlace);
+    }
+    
+    /*else if (isPlaceUnknown) {
       // 출생지는 모름 → 기본 -30분
       correctedDate = new Date(originalDate.getTime() - 30 * 60000);
     } else {
       correctedDate = adjustBirthDate(originalDate, usedBirthPlace);
     }*/
+
+    function formatTime(date) {
+      if (!date) return "-";
+      // 이후 기존 코드: date.getHours() 등
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      return `${hours}:${minutes < 10 ? "0" + minutes : minutes}`;
+    }
   
     // 나이와 생시 표시 시간
     const age = correctedDate ? calculateAge(correctedDate) : "-";
-    const birthdayTime = correctedDate ? formatDate(correctedDate) : "?";
+    const birthdayTime = correctedDate ? formatTime(correctedDate) : "?";
 
     const selectedTime2 = document.querySelector('input[name="time2"]:checked').value || "";
+
+    console.log('saveBtn', correctedDate);
   
     // 저장할 데이터 객체 구성
     const newData = {
@@ -935,6 +953,7 @@ document.addEventListener("DOMContentLoaded", function () {
       hourPillar: hourPillar,
       age: age,
       birthdayTime: birthdayTime,
+      correctedDate: correctedDate,
       isTimeUnknown: isTimeUnknown,
       isPlaceUnknown: isPlaceUnknown,
       selectedTime2: selectedTime2
@@ -964,7 +983,6 @@ document.addEventListener("DOMContentLoaded", function () {
     alert("저장이 성공적으로 완료 되었습니다.");
   });
   
-
   let savedMyeongsikList = [];
 
   // loadSavedMyeongsikList 함수 (목록 구성 및 detailView, delete 버튼 이벤트 등록)
@@ -1148,7 +1166,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("bitthTimeX").checked = true;
       
       // 전역 플래그 isTimeUnknown true 처리
-      isTimeUnknown = true;
+      //isTimeUnknown = true;
     }
     
 
@@ -1223,26 +1241,6 @@ document.addEventListener("DOMContentLoaded", function () {
         window.scrollTo(0, 0);
       });
     });
-
-    
-  
-    // [b] couple_btn (궁합모드일 때)
-    document.querySelectorAll(".couple_btn").forEach(function (button) {
-      button.addEventListener("click", function (e) {
-        e.stopPropagation();
-        // 버튼의 data-index는 "couple_번호" 형식에서 숫자만 추출
-        const partnerIndexStr = button.getAttribute("data-index").replace("couple_", "");
-        const partnerIndex = parseInt(partnerIndexStr, 10);
-        
-        // close aside
-        document.getElementById("aside").style.display = "none";
-        // show couple mode view
-        document.querySelector(".couple_mode_wrap").style.display = "flex";
-        // fill left(본인)와 right(선택한 상대방) 데이터를 채워줌
-        fillCoupleModeView(currentDetailIndex, partnerIndex);
-        
-      });
-    });
   
     // [c] delete_btn 이벤트
     document.querySelectorAll(".delete_btn").forEach(function (button) {
@@ -1262,142 +1260,240 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     });
-  }
 
-  // 헬퍼 함수: 해당 id의 요소가 있으면 innerText 세팅, 없으면 콘솔 경고
-// ─────────────────────────────────────────────
-// 헬퍼 함수들
-// ─────────────────────────────────────────────
-
-// 해당 id의 요소가 존재하면 innerText를 설정하고, 없으면 콘솔 경고
-function safeSetValue(elementId, value) {
-  const el = document.getElementById(elementId);
-  if (el) {
-    el.innerText = value;
-  } else {
-    console.warn("Element not found:", elementId);
-  }
-}
-
-// "YYYYMMDD" 형식의 생년월일을 "YYYY년 MM월 DD일"로 변환
-function formatBirthday(bdayStr) {
-  if (!bdayStr || bdayStr.length < 8) return "-";
-  return bdayStr.substring(0, 4) + "년 " +
-         bdayStr.substring(4, 6) + "월 " +
-         bdayStr.substring(6, 8) + "일";
-}
-
-
-// ─────────────────────────────────────────────
-// couple mode view 업데이트 함수 (mapping 방식)
-// ─────────────────────────────────────────────
-
-function fillCoupleModeView(myIndex, partnerIndex) {
-  // 로컬스토리지에서 저장된 명식 데이터를 가져옴
-  const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-  const me = savedList[myIndex];
-  const partner = savedList[partnerIndex];
-  if (!me || !partner) {
-    console.warn("데이터가 없습니다. myIndex:", myIndex, " partnerIndex:", partnerIndex);
-    return;
-  }
-
-  // 각 그룹별(기본 정보, 원국, 묘운 등)로 좌측(본인)과 우측(상대방) 업데이트 id 매핑 객체
-  const fieldMapping = {
-    basic: {
-      name: { left: "resName_copy", right: "resName_copy2" },
-      gender: { left: "resGender_copy", right: "resGender_copy2" },
-      age: { left: "resAge_copy", right: "resAge_copy2" },
-      birthday: { left: "resBirth_copy", right: "resBirth_copy2" },
-      birthtime: { left: "resTime_copy", right: "resTime_copy2" },
-      birthPlace: { left: "resAddr_copy", right: "resAddr_copy2" },
-      birthdayTime: { left: "resbjTime_copy", right: "resbjTime_copy2" }
-    },
-    original: {
-      HtEumyang: { left: "HtEumyang_copy", right: "HtEumyang_copy2" },
-      HtHanja: { left: "HtHanja_copy", right: "HtHanja_copy2" },
-      HtHanguel: { left: "HtHanguel_copy", right: "HtHanguel_copy2" },
-      Ht10sin: { left: "Ht10sin_copy", right: "Ht10sin_copy2" },
-
-      DtEumyang: { left: "DtEumyang_copy", right: "DtEumyang_copy2" },
-      DtHanja: { left: "DtHanja_copy", right: "DtHanja_copy2" },
-      DtHanguel: { left: "DtHanguel_copy", right: "DtHanguel_copy2" },
-      Dt10sin: { left: "Dt10sin_copy", right: "Dt10sin_copy2" },
-
-      MtEumyang: { left: "MtEumyang_copy", right: "MtEumyang_copy2" },
-      MtHanja: { left: "MtHanja_copy", right: "MtHanja_copy2" },
-      MtHanguel: { left: "MtHanguel_copy", right: "MtHanguel_copy2" },
-      Mt10sin: { left: "Mt10sin_copy", right: "Mt10sin_copy2" },
-
-      YtEumyang: { left: "YtEumyang_copy", right: "YtEumyang_copy2" },
-      YtHanja: { left: "YtHanja_copy", right: "YtHanja_copy2" },
-      YtHanguel: { left: "YtHanguel_copy", right: "YtHanguel_copy2" },
-      Yt10sin: { left: "Yt10sin_copy", right: "Yt10sin_copy2" }
-    },
-    myowoon: {
-      MyoHtEumyang: { left: "MyoHtEumyang_copy", right: "MyoHtEumyang_copy2" },
-      MyoHtHanja: { left: "MyoHtHanja_copy", right: "MyoHtHanja_copy2" },
-      MyoHtHanguel: { left: "MyoHtHanguel_copy", right: "MyoHtHanguel_copy2" },
-      MyoHt10sin: { left: "MyoHt10sin_copy", right: "MyoHt10sin_copy2" },
-
-      MyoDtEumyang: { left: "MyoDtEumyang_copy", right: "MyoDtEumyang_copy2" },
-      MyoDtHanja: { left: "MyoDtHanja_copy", right: "MyoDtHanja_copy2" },
-      MyoDtHanguel: { left: "MyoDtHanguel_copy", right: "MyoDtHanguel_copy2" },
-      MyoDt10sin: { left: "MyoDt10sin_copy", right: "MyoDt10sin_copy2" },
-
-      MyoMtEumyang: { left: "MyoMtEumyang_copy", right: "MyoMtEumyang_copy2" },
-      MyoMtHanja: { left: "MyoMtHanja_copy", right: "MyoMtHanja_copy2" },
-      MyoMtHanguel: { left: "MyoMtHanguel_copy", right: "MyoMtHanguel_copy2" },
-      MyoMt10sin: { left: "MyoMt10sin_copy", right: "MyoMt10sin_copy2" },
-
-      MyoYtEumyang: { left: "MyoYtEumyang_copy", right: "MyoYtEumyang_copy2" },
-      MyoYtHanja: { left: "MyoYtHanja_copy", right: "MyoYtHanja_copy2" },
-      MyoYtHanguel: { left: "MyoYtHanguel_copy", right: "MyoYtHanguel_copy2" },
-      MyoYt10sin: { left: "MyoYt10sin_copy", right: "MyoYt10sin_copy2" }
+    function safeSetValue(elementId, value) {
+      var el = document.getElementById(elementId);
+      if (el) {
+        el.textContent = value;
+        console.log("업데이트됨:", elementId, "=>", value);
+      } else {
+        console.warn("요소를 찾을 수 없음:", elementId);
+      }
     }
-  };
 
-  // 그룹별로 각 키를 순회하며 좌측과 우측에 값을 세팅
-  Object.keys(fieldMapping).forEach(group => {
-    const groupObj = fieldMapping[group];
-    Object.keys(groupObj).forEach(fieldKey => {
-      // 좌측, 우측 요소 id
-      const leftId = groupObj[fieldKey].left;
-      const rightId = groupObj[fieldKey].right;
+    // const originalMapping = {
+    //   HtEumyang: { left: "HtEumyang_copy", right: "HtEumyang_copy2" },
+    //   HtHanja:   { left: "HtHanja_copy",   right: "HtHanja_copy2" },
+    //   HtHanguel: { left: "HtHanguel_copy", right: "HtHanguel_copy2" },
+    //   Ht10sin:   { left: "Ht10sin_copy",   right: "Ht10sin_copy2" },
+      
+    //   DtEumyang: { left: "DtEumyang_copy", right: "DtEumyang_copy2" },
+    //   DtHanja:   { left: "DtHanja_copy",   right: "DtHanja_copy2" },
+    //   DtHanguel: { left: "DtHanguel_copy", right: "DtHanguel_copy2" },
+    //   Dt10sin:   { left: "Dt10sin_copy",   right: "Dt10sin_copy2" },
+      
+    //   MtEumyang: { left: "MtEumyang_copy", right: "MtEumyang_copy2" },
+    //   MtHanja:   { left: "MtHanja_copy",   right: "MtHanja_copy2" },
+    //   MtHanguel: { left: "MtHanguel_copy", right: "MtHanguel_copy2" },
+    //   Mt10sin:   { left: "Mt10sin_copy",   right: "Mt10sin_copy2" },
+      
+    //   YtEumyang: { left: "YtEumyang_copy", right: "YtEumyang_copy2" },
+    //   YtHanja:   { left: "YtHanja_copy",   right: "YtHanja_copy2" },
+    //   YtHanguel: { left: "YtHanguel_copy", right: "YtHanguel_copy2" },
+    //   Yt10sin:   { left: "Yt10sin_copy",   right: "Yt10sin_copy2" }
+    // };
 
-      // 기본정보는 저장된 값 그대로 사용하고,
-      // 생년월일은 포맷팅해서 업데이트
-      let leftVal = me[fieldKey] !== undefined ? me[fieldKey] : "-";
-      let rightVal = partner[fieldKey] !== undefined ? partner[fieldKey] : "-";
-      if (fieldKey === "birthday") {
-        leftVal = me[fieldKey] ? formatBirthday(me[fieldKey]) : "-";
-        rightVal = partner[fieldKey] ? formatBirthday(partner[fieldKey]) : "-";
+    // const myowoonMapping = {
+    //   MyoHtEumyang: { left: "MyoHtEumyang_copy", right: "MyoHtEumyang_copy2" },
+    //   MyoHtHanja:   { left: "MyoHtHanja_copy",   right: "MyoHtHanja_copy2" },
+    //   MyoHtHanguel: { left: "MyoHtHanguel_copy", right: "MyoHtHanguel_copy2" },
+    //   MyoHt10sin:   { left: "MyoHt10sin_copy",   right: "MyoHt10sin_copy2" },
+      
+    //   MyoDtEumyang: { left: "MyoDtEumyang_copy", right: "MyoDtEumyang_copy2" },
+    //   MyoDtHanja:   { left: "MyoDtHanja_copy",   right: "MyoDtHanja_copy2" },
+    //   MyoDtHanguel: { left: "MyoDtHanguel_copy", right: "MyoDtHanguel_copy2" },
+    //   MyoDt10sin:   { left: "MyoDt10sin_copy",   right: "MyoDt10sin_copy2" },
+      
+    //   MyoMtEumyang: { left: "MyoMtEumyang_copy", right: "MyoMtEumyang_copy2" },
+    //   MyoMtHanja:   { left: "MyoMtHanja_copy",   right: "MyoMtHanja_copy2" },
+    //   MyoMtHanguel: { left: "MyoMtHanguel_copy", right: "MyoMtHanguel_copy2" },
+    //   MyoMt10sin:   { left: "MyoMt10sin_copy",   right: "MyoMt10sin_copy2" },
+      
+    //   MyoYtEumyang: { left: "MyoYtEumyang_copy", right: "MyoYtEumyang_copy2" },
+    //   MyoYtHanja:   { left: "MyoYtHanja_copy",   right: "MyoYtHanja_copy2" },
+    //   MyoYtHanguel: { left: "MyoYtHanguel_copy", right: "MyoYtHanguel_copy2" },
+    //   MyoYt10sin:   { left: "MyoYt10sin_copy",   right: "MyoYt10sin_copy2" }
+    // };
+
+
+    function updateOriginalAndMyowoon() {
+
+      // 기준 날짜(refDate) 지정 (예: 오늘 날짜 등)
+      const refDate = new Date();
+      
+      const p_correctedDate = new Date(personData.correctedDate);
+      console.log(p_correctedDate.getFullYear());
+      const p_gender = personData.gender;
+      const p_year = personData.yearPillar;
+      const p_month = personData.monthPillar;
+      const p_day = personData.dayPillar;
+      const p_hour = personData.isTimeUnknown ? "-" : personData.hourPillar;
+      
+      const part_correctedDate = new Date(partnerData.correctedDate);
+      const part_gender = partnerData.gender;
+      const part_year = partnerData.yearPillar;
+      const part_month = partnerData.monthPillar;
+      const part_day = partnerData.dayPillar;
+      const part_hour = partnerData.isTimeUnknown ? "-" : partnerData.hourPillar;
+
+      const p_yearSplit = splitPillar(p_year);
+      const p_monthSplit = splitPillar(p_month);
+      const p_daySplit = splitPillar(p_day);
+      const p_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(p_hour);
+      
+      const part_yearSplit = splitPillar(part_year);
+      const part_monthSplit = splitPillar(part_month);
+      const part_daySplit = splitPillar(part_day);
+      const part_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(part_hour);
+
+      const baseDayStem_copy = p_daySplit.gan;
+      const baseDayStem_copy2 = part_daySplit.gan;
+
+      const baseYearBranch_copy = p_yearSplit.ji;
+      const baseYearBranch_copy2 = part_yearSplit.ji;
+
+      
+      // 원국
+      setText("Hb12ws_copy", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy, p_hourSplit.ji));
+      setText("Hb12ss_copy", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy, p_hourSplit.ji));
+      setText("Db12ws_copy", getTwelveUnseong(baseDayStem_copy, p_daySplit.ji));
+      setText("Db12ss_copy", getTwelveShinsal(baseYearBranch_copy, p_daySplit.ji));
+      setText("Mb12ws_copy", getTwelveUnseong(baseDayStem_copy, p_monthSplit.ji));
+      setText("Mb12ss_copy", getTwelveShinsal(baseYearBranch_copy, p_monthSplit.ji));
+      setText("Yb12ws_copy", getTwelveUnseong(baseDayStem_copy, baseYearBranch_copy));
+      setText("Yb12ss_copy", getTwelveShinsal(baseYearBranch_copy, baseYearBranch_copy));
+
+      setText("Hb12ws_copy2", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy2, part_hourSplit.ji));
+      setText("Hb12ss_copy2", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_hourSplit.ji));
+      setText("Db12ws_copy2", getTwelveUnseong(baseDayStem_copy2, part_daySplit.ji));
+      setText("Db12ss_copy2", getTwelveShinsal(baseYearBranch_copy2, part_daySplit.ji));
+      setText("Mb12ws_copy2", getTwelveUnseong(baseDayStem_copy2, part_monthSplit.ji));
+      setText("Mb12ss_copy2", getTwelveShinsal(baseYearBranch_copy2, part_monthSplit.ji));
+      setText("Yb12ws_copy2", getTwelveUnseong(baseDayStem_copy2, baseYearBranch_copy2));
+      setText("Yb12ss_copy2", getTwelveShinsal(baseYearBranch_copy2, baseYearBranch_copy2));
+
+      const personDataMyo = {
+        birthDate: p_correctedDate,  // Date 객체
+        yearPillar: p_year,        // 이미 계산된 명식 값 (ex: "갑자")
+        monthPillar: p_month,
+        dayPillar: p_day,
+        hourPillar: p_hour,
+        gender: p_gender
       }
 
-      safeSetValue(leftId, leftVal);
-      safeSetValue(rightId, rightVal);
+      const partnerDataMyo = {
+        birthDate: part_correctedDate,  // Date 객체
+        yearPillar: part_year,        // 이미 계산된 명식 값 (ex: "갑자")
+        monthPillar: part_month,
+        dayPillar: part_day,
+        hourPillar: part_hour,
+        gender: part_gender
+      }
+
+      // 각 사람의 묘운(동적 운세) 계산
+      const myowoonResultPerson = getMyounPillarsVr(personDataMyo, refDate);
+      const myowoonResultPartner = getMyounPillarsVr(partnerDataMyo, refDate);
+
+      
+      
+      console.log("커플 모드 - 원국 및 묘운 HTML 업데이트 완료");
+    }
+
+    function formatBirthday(bdayStr) {
+      if (!bdayStr || bdayStr.length < 8) return "-";
+      return bdayStr.substring(0, 4) + "년 " +
+             bdayStr.substring(4, 6) + "월 " +
+             bdayStr.substring(6, 8) + "일";
+    }
+
+    function fillCoupleModeView(myIndex, partnerIndex) {
+      const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+      const me = savedList[myIndex];
+      const partner = savedList[partnerIndex];
+      console.log(savedList[myIndex]);
+      console.log(me, partner);
+      if (!me || !partner) {
+        console.warn("데이터가 없습니다. myIndex:", myIndex, "partnerIndex:", partnerIndex);
+        return;
+      }
+      // 기본정보 업데이트 (기존 코드)
+      const basicMapping = {
+        name:         { left: "resName_copy",     right: "resName_copy2" },
+        gender:       { left: "resGender_copy",   right: "resGender_copy2" },
+        age:          { left: "resAge_copy",      right: "resAge_copy2" },
+        birthday:     { left: "resBirth_copy",    right: "resBirth_copy2" },
+        birthtime:    { left: "resTime_copy",     right: "resTime_copy2" },
+        birthPlace:   { left: "resAddr_copy",     right: "resAddr_copy2" },
+        birthdayTime: { left: "resbjTime_copy",   right: "resbjTime_copy2" }
+      };
+      Object.keys(basicMapping).forEach(function(fieldKey) {
+        let leftVal  = (me[fieldKey] !== undefined && me[fieldKey] !== "") ? me[fieldKey] : "-";
+        let rightVal = (partner[fieldKey] !== undefined && partner[fieldKey] !== "") ? partner[fieldKey] : "-";
+        if (fieldKey === "birthday") {
+          leftVal = me[fieldKey] ? formatBirthday(me[fieldKey]) : "-";
+          rightVal = partner[fieldKey] ? formatBirthday(partner[fieldKey]) : "-";
+        }
+        safeSetValue(basicMapping[fieldKey].left, leftVal);
+        safeSetValue(basicMapping[fieldKey].right, rightVal);
+      });
+      console.log("기본정보 업데이트 완료.");
+      // Pillars 계산 및 전역 변수 저장
+      // 원국 및 묘운 업데이트 실행
+      updateOriginalAndMyowoon();
+    }
+
+    // 11. 예제: 버튼 클릭 시 couple mode view 업데이트
+    document.querySelectorAll(".couple_btn").forEach(function (button) {
+      button.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const partnerIndexStr = button.getAttribute("data-index").replace("couple_", "");
+        const partnerIndex = parseInt(partnerIndexStr, 10);
+        const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+        if (savedList[partnerIndex]) {
+          partnerData = savedList[partnerIndex];
+          console.log("파트너 데이터 저장됨:", partnerData);
+        } else {
+          console.warn("파트너 데이터가 존재하지 않습니다. partnerIndex:", partnerIndex);
+          return;
+        }
+
+        document.getElementById("aside").style.display = "none";
+        document.querySelector(".couple_mode_wrap").style.display = "flex";
+        
+        // "나"의 데이터가 미리 저장되어 있어야 두 사람의 데이터를 모두 업데이트할 수 있습니다.
+        if (personData) {
+          // 두 사람의 데이터를 전달하여 원국 및 묘운 HTML 업데이트 실행
+          fillCoupleModeView(currentDetailIndex, partnerIndex);
+        } else {
+          console.warn("나의 데이터가 아직 저장되지 않았습니다. 먼저 #coupleModeBtn을 눌러 저장해주세요.");
+        }
+      });
     });
-  });
-  
-  // ※ 필요에 따라 원국/묘운 데이터를 재계산하여 업데이트할 수도 있습니다.
-  // 예: getFourPillarsWithDaewoon() 또는 getMyounPillars() 호출 후 결과를 위 mapping 객체 방식으로 업데이트
-  
-  console.log("Couple view 업데이트 완료.");
-}
+
+  }
+
 
   // document.getElementById("coupleModeBtn").addEventListener("click", function() {
   //   // 궁합모드 상태 토글
-  //   isCoupleMode = !isCoupleMode;
+  //    isCoupleMode = !isCoupleMode;
     
-  //   if (isCoupleMode) {
-  //     // 궁합모드이면 aside를 열고, 현재 detail(본인) 인덱스는 그대로 유지
-  //     // aside에 표시되는 목록은 본인 항목을 건너뛰게 됨 (loadSavedMyeongsikList에서 처리)
-  //     document.getElementById("aside").style.display = "block";
-  //     loadSavedMyeongsikList();
+  //    if (isCoupleMode) {
+  //      // 궁합모드이면 aside를 열고, 현재 detail(본인) 인덱스는 그대로 유지
+  //      // aside에 표시되는 목록은 본인 항목을 건너뛰게 됨 (loadSavedMyeongsikList에서 처리)
+  //      document.getElementById("aside").style.display = "block";
+  //      loadSavedMyeongsikList();
+  //    } else {
+  //      // 일반 모드로 돌아가면 aside 전체 목록을 다시 렌더링함
+  //      document.getElementById("aside").style.display = "block";
+  //      loadSavedMyeongsikList();
+  //   }
+
+  //   const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+  //   if (typeof currentDetailIndex !== "undefined" && savedList[currentDetailIndex]) {
+  //     personData = savedList[currentDetailIndex];
+  //     console.log("나의 데이터 저장됨:", personData);
   //   } else {
-  //     // 일반 모드로 돌아가면 aside 전체 목록을 다시 렌더링함
-  //     document.getElementById("aside").style.display = "block";
-  //     loadSavedMyeongsikList();
+  //     console.warn("나의 데이터가 존재하지 않습니다. currentDetailIndex:", currentDetailIndex);
   //   }
   // });
   
@@ -1408,6 +1504,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
   });
   document.getElementById("closeBtn").addEventListener("click", function () {
     document.getElementById("aside").style.display = "none";
+    isCoupleMode = false;
   });
   document.getElementById("backBtnAS").addEventListener("click", function () {
     window.location.reload();
@@ -2500,9 +2597,10 @@ function fillCoupleModeView(myIndex, partnerIndex) {
       return { date: date, index: updatedIndex, ganji: getGanZhiFromIndex(updatedIndex) };
     }
 
-
     // getMyounPillars: 원국(출생)과 동적 운세(묘운)를 분리하여 계산
-    function getMyounPillars(gender, refDate) {
+    function getMyounPillars(person, refDate) {
+
+      const { correctedDate, yearPillar, monthPillar, dayPillar, hourPillar, gender } = person;
 
       let baseTime = new Date(correctedDate);
       if (document.getElementById("jasi")?.checked) {
@@ -2514,7 +2612,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
       }
 
       // staticBirth: 원국 계산용(출생일)
-      const staticBirth = correctedDate;
+      const staticBirth = new Date(correctedDate);
       
       // 동적 기준 설정
       const jeolgi = getSolarTermBoundaries(staticBirth.getFullYear());
@@ -2653,18 +2751,16 @@ function fillCoupleModeView(myIndex, partnerIndex) {
         
       }
 
-      const staticBirthDate = new Date(correctedDate);
-    
-      let newSijuFirst  = adjustInitial(new Date(staticBirthDate.getTime() + calculateSijuOffsetDynamic(staticBirthDate, sijuMode) * oneDayMs), sijuCycle, staticBirth);
-      let newIljuFirst  = adjustInitial(new Date(staticBirthDate.getTime() + calculateIljuOffsetDynamic(staticBirthDate, iljuMode) * oneDayMs), iljuCycle, staticBirth);
-      let newWoljuFirst = adjustInitial(new Date(staticBirthDate.getTime() + calculateWoljuOffsetDynamic(staticBirthDate, woljuMode) * oneDayMs), woljuCycle, staticBirth);
-      let newYeonjuFirst= adjustInitial(new Date(staticBirthDate.getTime() + calculateYeonjuOffsetDynamic(staticBirthDate, yeonjuMode) * oneDayMs), yeonjuCycle, staticBirth);
+      let newSijuFirst  = adjustInitial(new Date(staticBirth.getTime() + calculateSijuOffsetDynamic(staticBirth, sijuMode) * oneDayMs), sijuCycle, staticBirth);
+      let newIljuFirst  = adjustInitial(new Date(staticBirth.getTime() + calculateIljuOffsetDynamic(staticBirth, iljuMode) * oneDayMs), iljuCycle, staticBirth);
+      let newWoljuFirst = adjustInitial(new Date(staticBirth.getTime() + calculateWoljuOffsetDynamic(staticBirth, woljuMode) * oneDayMs), woljuCycle, staticBirth);
+      let newYeonjuFirst= adjustInitial(new Date(staticBirth.getTime() + calculateYeonjuOffsetDynamic(staticBirth, yeonjuMode) * oneDayMs), yeonjuCycle, staticBirth);
 
       const fullResult = getFourPillarsWithDaewoon(
-        staticBirthDate.getFullYear(), staticBirthDate.getMonth() + 1, staticBirthDate.getDate(),
-        staticBirthDate.getHours(), staticBirthDate.getMinutes(), usedBirthPlace, gender
+        staticBirth.getFullYear(), staticBirth.getMonth() + 1, staticBirth.getDate(),
+        staticBirth.getHours(), staticBirth.getMinutes(), usedBirthPlace, gender
       );
-      const [yearPillar, monthPillar, dayPillar, hourPillar] = fullResult.split(", ")[0].split(" ");
+      //const [yearPillar, monthPillar, dayPillar, hourPillar] = fullResult.split(", ")[0].split(" ");
     
       const sijuIndex = getGanZhiIndex(hourPillar);
       const iljuIndex = getGanZhiIndex(dayPillar);
@@ -2690,8 +2786,17 @@ function fillCoupleModeView(myIndex, partnerIndex) {
         }
       };
     }
+
+    const personData = {
+      correctedDate: correctedDate, 
+      yearPillar: yearPillar,       
+      monthPillar: monthPillar,
+      dayPillar: dayPillar,
+      hourPillar: hourPillar,
+      gender: gender            
+    };
     
-    getMyounPillars(gender, refDate);
+    getMyounPillars(personData, refDate);
 
     getMyounPillarsVr = getMyounPillars;
     
@@ -2812,11 +2917,11 @@ function fillCoupleModeView(myIndex, partnerIndex) {
       btn.parentNode.replaceChild(newBtn, btn);
     
       newBtn.addEventListener("click", function () {
-        const gender = document.getElementById("genderMan").checked ? "남" : "여";
+        //const gender = document.getElementById("genderMan").checked ? "남" : "여";
         const picker = document.getElementById("woonTimeSetPicker");
         const refDate = (picker && picker.value) ? new Date(picker.value) : new Date();
     
-        const myowoonResult = getMyounPillars(gender, refDate);
+        const myowoonResult = getMyounPillars(personData, refDate);
     
         if (newBtn.classList.contains("active")) {
           document.getElementById('wongookLM').classList.remove("w100");
@@ -2953,7 +3058,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
 
     const picker = document.getElementById("woonTimeSetPicker");
     refDate = (picker && picker.value) ? new Date(picker.value) : new Date();  
-    const myowoonResult = getMyounPillars(gender, refDate);
+    const myowoonResult = getMyounPillars(personData, refDate);
     if (picker) {
       const now = new Date();
       const yearNow = now.getFullYear();
@@ -3199,7 +3304,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
   
       const expectedIljuOffset = getAverageYearLength(correctedDate) * (4 / 12);  
       const expectedWoljuOffset = getAverageYearLength(correctedDate) * 12;
-      const expectedYeonjuOffset = getAverageYearLength(correctedDate) * 60;        
+      const expectedYeonjuOffset = getAverageYearLength(correctedDate) * 120;        
       
       // 실제 후보 시각과 보정 시각 사이의 차이를 구해봅니다.
       const actualSijuOffset = Math.round(((myowoonResult.newSijuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
@@ -3528,7 +3633,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
           동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newYeonjuFirst, yeonjuCycle, refDate)}</b><br>
           최종 업데이트 이벤트 간지: <b>${myowoonResult.yearEvent.ganji}</b><br>
           방향: <b>${yeonjuMode}</b><br><br>
-          묘운 연주의 기간은 120년의 일년을 평균 60년으로, 즉 약 <b>${expectedYeonjuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
+          묘운 연주의 기간은 120년으로, 즉 약 <b>${expectedYeonjuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
           예를 들어, 보정 시각이 <b>${formatByTimeKnown(correctedDate)}</b>인 명식의 경우, <br>
           <b>${yeonjuMode}</b> 방향으로 계산합니다. <br>
           1년이 바뀌기까지의 시간인 <b>${getYeonjuTimeDifference(correctedDate, yeonjuMode)} / 1년</b>을 똑같이 치환한다면,<br>
@@ -3639,7 +3744,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
       updateDayWoon(refDate);
       
       // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
-      const myowoonResult = getMyounPillars(gender, refDate);
+      const myowoonResult = getMyounPillars(personData, refDate);
       updateMyowoonSection(myowoonResult);
     }
 
@@ -3812,7 +3917,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
       });
 
       // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
-      const newResult = getMyounPillars(gender, refDate);
+      const newResult = getMyounPillars(personData, refDate);
       updateExplanDetail(newResult, refDate);
 
 
@@ -4012,7 +4117,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
       setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, manualSplit.ji));
       setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch, manualSplit.ji));
 
-      const myowoonResult = getMyounPillars(gender, refDate);
+      const myowoonResult = getMyounPillars(personData, refDate);
       updateMyowoonSection(myowoonResult);
       updateExplanDetail(myowoonResult, refDate)
       // 묘운(동적 운세) 시주 관련 업데이트
@@ -4060,7 +4165,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
         updateFunc(radioDate);
         setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
-          const newResult = getMyounPillars(gender, radioDate);
+          const newResult = getMyounPillars(personData, radioDate);
           updateExplanDetail(newResult);
           updateMyowoonSection(newResult);
 
@@ -4094,6 +4199,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
     const snapshot = {
       birthday: selected.birthday,
       birthtime: selected.birthtime,
+      birthtimeFormat: selected.birthtimeFormat,
       gender: selected.gender,
       birthPlace: selected.birthPlace,
       name: selected.name,
@@ -4104,6 +4210,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
       hourPillar: selected.hourPillar,
       age: selected.age,
       birthdayTime: selected.birthdayTime,
+      correctedDate: selected.correctedDate,
       lunarBirthday: selected.lunarBirthday,
       isTimeUnknown: selected.isTimeUnknown,
       isPlaceUnknown: selected.isPlaceUnknown,
@@ -4206,11 +4313,14 @@ function fillCoupleModeView(myIndex, partnerIndex) {
   });
   
   let isModifyMode = false;
-  let originalDataSnapshot = "";
+  originalDataSnapshot = "";
   
   function formatTime(date) {
-    let h = date.getHours(), m = date.getMinutes();
-    return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m);
+    if (!date) return "-";
+    // 이후 기존 코드: date.getHours() 등
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    return `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes}`;
   }
   
   function makeNewData() {
@@ -4237,7 +4347,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
 
     const displayHour = isTimeUnknown ? "-" : birthtimeRaw.substring(0, 2);
     const displayMinute = isTimeUnknown ? "-" : birthtimeRaw.substring(2, 4);
-    const displayBirthtimeFormatted = `${displayHour}${displayMinute}`;
+    //const displayBirthtime = `${displayHour}:${displayMinute}`;
 
     // 음력 생일 및 양력/음력 변환
     let lunarDate = null;
@@ -4285,11 +4395,13 @@ function fillCoupleModeView(myIndex, partnerIndex) {
     }
 
     const age = correctedDate ? calculateAge(correctedDate) : "-";
-    const birthdayTime = correctedDate ? formatDate(correctedDate) : "?";
+    const birthdayTime = correctedDate ? formatTime(correctedDate) : "?";
+
+    console.log('make', correctedDate);
 
     return {
       birthday: birthday,
-      birthtime: displayBirthtimeFormatted,
+      birthtime: birthtimeRaw,
       gender: gender,
       birthPlace: savedBirthPlace,
       name: name,
@@ -4300,6 +4412,7 @@ function fillCoupleModeView(myIndex, partnerIndex) {
       hourPillar: isTimeUnknown ? "-" : (pillars[3] || ""),
       age: age,
       birthdayTime: birthdayTime ? formatTime(correctedDate) : "",
+      correctedDate: correctedDate,
       lunarBirthday: lunarBirthday,
       isTimeUnknown: isTimeUnknown,
       isPlaceUnknown: isPlaceUnknown,
