@@ -48,12 +48,20 @@
     touch-action: none; /* 드래그 반응 빠르게 */
   }
 
+  .mt0 {
+    margin-top: 0;
+  }
+
   .mb10 {
     margin-bottom: 10px;
   }
 
   .mt20 {
     margin-top: 20px;
+  }
+
+  .mt100 {
+    margin-top: 60px;
   }
 
   .container {
@@ -171,12 +179,10 @@
     gap: 10px;
   }
 
-  .btn_box.mt0 {
-    margin-top: 0;
-  }
+  
 
-  .btn_box.mt20 {
-    margin-top: 20px;
+  .btn_box.mt100 button {
+    padding:20px 120px; 
   }
 
   .btn_box button {
@@ -328,7 +334,7 @@
   .ganji p.eum_yang {
   	display: block;
     width: 45px;
-	margin: auto;
+	  margin: auto;
     padding: 2px 0;
     font-size: 12px;
     background-color: #011627;
@@ -350,6 +356,7 @@
     padding: 5px;
     width: 100%;
     background-color: #fff;
+    border-radius: 4px;
   }
 
   .jijanggan li {
@@ -477,6 +484,11 @@
   .header .flex_btn_2 button  {
     padding: 10px 20px;
     color: #353535;
+  }
+
+  .btn_box.flex_3 button.active {
+    background-color: #353535;
+    color: #e5e5e5;
   }
 
   .aside {
@@ -896,6 +908,7 @@
 
   .couple_mode_wrap {
     display: none;
+    flex-direction: column;
     align-items: center;
     position: fixed;
     top: 0;
@@ -906,9 +919,13 @@
     z-index: 99;
   } 
 
+  .couple_mode_wrap .btn_box {
+    padding: 20px;
+  }
+
   .couple_mode_wrap .scroll_y {
     width: 100%;
-    height: calc(100vh - 40px);
+    height: calc(100vh - 80px);
     overflow-y: auto;
   }
 
@@ -944,6 +961,10 @@
   
     .mt20 {
       margin-top: 4vw;
+    }
+
+    .mt100 {
+      margin-top: 8vw;
     }
 
     .info_wrapper {
@@ -997,6 +1018,15 @@
     .btn_box button {
       padding:0vw 8.448vw; 
       font-size:3.628vw;
+      gap: 2vw;
+    }
+
+    .btn_box.mt100 button {
+      padding:0vw 20.448vw; 
+    }
+
+    .btn_box.flex_3 button {
+      padding:0vw 4.048vw; 
     }
 
     .btn_box button#calcBtn {
@@ -1070,6 +1100,10 @@
       font-size: 2.824vw;
     }
 
+    .grid_box.grid_box_8 > li {
+      font-size: 2.024vw;
+    }
+
     .grid_box > li,
     .lucky_box .lucky .ganji {
       padding: 1.24vw;
@@ -1079,6 +1113,10 @@
 	  .ganji .hanja_con {
       font-size:8.848vw;
       padding: 2vw 0.8vw;
+    }
+
+    .grid_box_1.grid_box_8 li .hanja_con {
+      font-size:6.848vw;
     }
 
     .grid_box_1 li p, 
@@ -1119,8 +1157,14 @@
       font-size: 2.2vw;
     }
 
+    .w50 .grid_box_8 li p {
+      font-size: 2.8vw;
+    }
+
     .jijanggan {
       gap: .8vw;
+      padding: 1vw;
+      margin: 0 0 1vw;
     }
 
     .jijanggan li {
@@ -1399,18 +1443,26 @@
       gap: 2vw;
     }
 
+    .couple_mode_wrap .btn_box {
+      padding: 4vw;
+    }
+
+    .couple_mode_wrap .scroll_y {
+      height: calc(100vh - 16vw);
+    }
+
     .couple_mode_wrap .inner {
       padding: 2vw;
     }
 
     .couple_mode_wrap .inner,
     .couple_mode_wrap .grid_box {
-      gap: 1.6vw;
+      gap: 0.8vw;
     }
 
     .couple_mode_wrap .grid_box_1 li p.eum_yang, 
     .couple_mode_wrap .ganji p.eum_yang, 
     .couple_mode_wrap .wongook_lucky .grid_box_1 li p.eum_yang {
-      width: 6.2vw;
+      width: 8.2vw;
     }
   }

@@ -317,7 +317,7 @@
               </span>
             </div>
           </div>
-          <div class="btn_box">
+          <div class="btn_box flex_1 mt100">
             <button type="button" id="calcBtn">산출하기</button>
           </div>
         </form>
@@ -759,8 +759,22 @@
               </div>
             </div>
             <div class="cal_area" id="calArea">
+              <div class="btn_box mt20 mb10 flex_3">
+                <button class="black_btn active" id="woonVer1Change">
+                  시간까지계산
+                </button>
+                <button class="black_btn" id="woonVer2Change">
+                  일까지계산
+                </button>
+                <button class="black_btn" id="woonVer3Change">
+                  월까지계산
+                </button>
+              </div>
               <input type="datetime-local" id="woonTimeSetPicker" />
+              <input type="date" id="woonTimeSetPickerVer2" />
+              <input type="month" id="woonTimeSetPickerVer3" />
               <div class="btn_box mb40 mt20">
+                
                 <button class="black_btn" id="woonChangeBtn">
                   날짜 변경하기
                 </button>
@@ -1094,6 +1108,9 @@
 
       <!-- 궁합모드 -->
       <div class="couple_mode_wrap">
+        <div class="btn_box mt0">
+          <button id="coupleBackBtn" class="black_btn">궁합모드 닫기</button>
+        </div>
         <div class="scroll_y">
           <div class="inner">
             <div class="people people_1" id="people1">
@@ -1105,211 +1122,211 @@
                 </div>
                 <div class="birthday_info">
                   <b id="resBirth_copy"></b> (양) <br>
-                  <!--<b id="resBirth2_copy"></b> (음) -->
+                  <!--<b id="resBirth2"></b> (음) -->
                   <b id="resAddr_copy"></b> 
                   <span id="bjTimeText_copy"> / <b id="resTime_copy"></b> 보정시 : <b id="resbjTime_copy"></b></span>
                 </div>
               </div>
-              <div class="wongook_lucky" id="wongookLM_copy">
+              <div class="wongook_lucky" id="wongookLM">
                 <div class="woonkuk">
                   <p class="buga_title"><span>원국</span></p>
-                  <ul class="grid_box grid_box_1">
+                  <ul class="grid_box grid_box_1 grid_box_8">
                     <li>
                       <p>시주</p>
                       <div class="hanja_con">
-                        <p id="HtEumyang_copy" class="eum_yang"></p>
-                        <b id="HtHanja_copy"></b>
+                        <p id="CHtEumyang" class="eum_yang"></p>
+                        <b id="CHtHanja"></b>
                       </div>
-                      <p id="HtHanguel_copy"></p>
-                      <p id="Ht10sin_copy" class="ten_sin"></p>
+                      <p id="CHtHanguel"></p>
+                      <p id="CHt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>일주</p>
                       <div class="hanja_con">
-                        <p id="DtEumyang_copy" class="eum_yang"></p>
-                        <b id="DtHanja_copy"></b>
+                        <p id="CDtEumyang" class="eum_yang"></p>
+                        <b id="CDtHanja"></b>
                       </div>
-                      <p id="DtHanguel_copy"></p>
-                      <p id="Dt10sin_copy" class="ten_sin"></p>
+                      <p id="CDtHanguel"></p>
+                      <p id="CDt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>월주</p>
                       <div class="hanja_con">
-                        <p id="MtEumyang_copy" class="eum_yang"></p>
-                        <b id="MtHanja_copy"></b>
+                        <p id="CMtEumyang" class="eum_yang"></p>
+                        <b id="CMtHanja"></b>
                       </div>
-                      <p id="MtHanguel_copy"></p>
-                      <p id="Mt10sin_copy" class="ten_sin"></p>
+                      <p id="CMtHanguel"></p>
+                      <p id="CMt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>연주</p>
                       <div class="hanja_con">
-                        <p id="YtEumyang_copy" class="eum_yang"></p>
-                        <b id="YtHanja_copy"></b>
+                        <p id="CYtEumyang" class="eum_yang"></p>
+                        <b id="CYtHanja"></b>
                       </div>
-                      <p id="YtHanguel_copy"></p>
-                      <p id="Yt10sin_copy" class="ten_sin"></p>
+                      <p id="CYtHanguel"></p>
+                      <p id="CYt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="HbEumyang_copy" class="eum_yang"></p>
-                        <b id="HbHanja_copy"></b>
+                        <p id="CHbEumyang" class="eum_yang"></p>
+                        <b id="CHbHanja"></b>
                       </div>
-                      <p id="HbHanguel"></p>
-                      <ul class="jijanggan" id="HbJj_copy">
-                        <li id="HbJj1_copy"></li>
-                        <li id="HbJj2_copy"></li>
-                        <li id="HbJj3_copy"></li>
+                      <p id="CHbHanguel"></p>
+                      <ul class="jijanggan" id="CHbJj">
+                        <li id="CHbJj1"></li>
+                        <li id="CHbJj2"></li>
+                        <li id="CHbJj3"></li>
                       </ul>
-                      <p id="Hb10sin_copy" class="ten_sin"></p>
-                      <p id="Hb12ws_copy" class="woon_seong"></p>
-                      <p id="Hb12ss_copy" class="sin_sal"></p>
+                      <p id="CHb10sin" class="ten_sin"></p>
+                      <p id="CHb12ws" class="woon_seong"></p>
+                      <p id="CHb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="DbEumyang_copy" class="eum_yang"></p>
-                        <b id="DbHanja_copy"></b>
+                        <p id="CDbEumyang" class="eum_yang"></p>
+                        <b id="CDbHanja"></b>
                       </div>
-                      <p id="DbHanguel_copy"></p>
-                      <ul class="jijanggan" id="DbJj_copy">
-                        <li id="DbJj1_copy"></li>
-                        <li id="DbJj2_copy"></li>
-                        <li id="DbJj3_copy"></li>
+                      <p id="CDbHanguel"></p>
+                      <ul class="jijanggan" id="CDbJj">
+                        <li id="CDbJj1"></li>
+                        <li id="CDbJj2"></li>
+                        <li id="CDbJj3"></li>
                       </ul>
-                      <p id="Db10sin_copy" class="ten_sin"></p>
-                      <p id="Db12ws_copy" class="woon_seong"></p>
-                      <p id="Db12ss_copy" class="sin_sal"></p>
+                      <p id="CDb10sin" class="ten_sin"></p>
+                      <p id="CDb12ws" class="woon_seong"></p>
+                      <p id="CDb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MbEumyang_copy" class="eum_yang"></p>
-                        <b id="MbHanja_copy"></b>
+                        <p id="CMbEumyang" class="eum_yang"></p>
+                        <b id="CMbHanja"></b>
                       </div>
-                      <p id="MbHanguel"></p>
-                      <ul class="jijanggan" id="MbJj_copy">
-                        <li id="MbJj1_copy"></li>
-                        <li id="MbJj2_copy"></li>
-                        <li id="MbJj3_copy"></li>
+                      <p id="CMbHanguel"></p>
+                      <ul class="jijanggan" id="CMbJj">
+                        <li id="CMbJj1"></li>
+                        <li id="CMbJj2"></li>
+                        <li id="CMbJj3"></li>
                       </ul>
-                      <p id="Mb10sin_copy" class="ten_sin"></p>
-                      <p id="Mb12ws_copy" class="woon_seong"></p>
-                      <p id="Mb12ss_copy" class="sin_sal"></p>
+                      <p id="CMb10sin" class="ten_sin"></p>
+                      <p id="CMb12ws" class="woon_seong"></p>
+                      <p id="CMb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="YbEumyang_copy" class="eum_yang"></p>
-                        <b id="YbHanja_copy"></b>
+                        <p id="CYbEumyang" class="eum_yang"></p>
+                        <b id="CYbHanja"></b>
                       </div>
-                      <p id="YbHanguel"></p>
-                      <ul class="jijanggan" id="YbJj_copy">
-                        <li id="YbJj1_copy"></li>
-                        <li id="YbJj2_copy"></li>
-                        <li id="YbJj3_copy"></li>
+                      <p id="CYbHanguel"></p>
+                      <ul class="jijanggan" id="CYbJj">
+                        <li id="CYbJj1"></li>
+                        <li id="CYbJj2"></li>
+                        <li id="CYbJj3"></li>
                       </ul>
-                      <p id="Yb10sin_copy" class="ten_sin"></p>
-                      <p id="Yb12ws_copy" class="woon_seong"></p>
-                      <p id="Yb12ss_copy" class="sin_sal"></p>
+                      <p id="CYb10sin" class="ten_sin"></p>
+                      <p id="CYb12ws" class="woon_seong"></p>
+                      <p id="CYb12ss" class="sin_sal"></p>
                     </li>
                   </ul>
                 </div>
                 <div class="myowoon w50">
                   <p class="buga_title"><span>묘운 (대운팔자)</span></p>
-                  <ul class="grid_box grid_box_1">
+                  <ul class="grid_box grid_box_1 grid_box_8">
                     <li>
                       <p>시주</p>
                       <div class="hanja_con">
-                        <p id="MyoHtEumyang_copy" class="eum_yang"></p>
-                        <b id="MyoHtHanja_copy"></b>
+                        <p id="CMyoHtEumyang" class="eum_yang"></p>
+                        <b id="CMyoHtHanja"></b>
                       </div>
-                      <p id="MyoHtHanguel_copy"></p>
-                      <p id="MyoHt10sin_copy" class="ten_sin"></p>
+                      <p id="CMyoHtHanguel"></p>
+                      <p id="CMyoHt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>일주</p>
                       <div class="hanja_con">
-                        <p id="MyoDtEumyang_copy" class="eum_yang"></p>
-                        <b id="MyoDtHanja_copy"></b>
+                        <p id="CMyoDtEumyang" class="eum_yang"></p>
+                        <b id="CMyoDtHanja"></b>
                       </div>
-                      <p id="MyoDtHanguel_copy"></p>
-                      <p id="MyoDt10sin_copy" class="ten_sin"></p>
+                      <p id="CMyoDtHanguel"></p>
+                      <p id="CMyoDt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>월주</p>
                       <div class="hanja_con">
-                        <p id="MyoMtEumyang_copy" class="eum_yang"></p>
-                        <b id="MyoMtHanja_copy"></b>
+                        <p id="CMyoMtEumyang" class="eum_yang"></p>
+                        <b id="CMyoMtHanja"></b>
                       </div>
-                      <p id="MyoMtHanguel_copy"></p>
-                      <p id="MyoMt10sin_copy" class="ten_sin"></p>
+                      <p id="CMyoMtHanguel"></p>
+                      <p id="CMyoMt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>연주</p>
                       <div class="hanja_con">
-                        <p id="MyoYtEumyang_copy" class="eum_yang"></p>
-                        <b id="MyoYtHanja_copy"></b>
+                        <p id="CMyoYtEumyang" class="eum_yang"></p>
+                        <b id="CMyoYtHanja"></b>
                       </div>
-                      <p id="MyoYtHanguel_copy"></p>
-                      <p id="MyoYt10sin_copy" class="ten_sin"></p>
+                      <p id="CMyoYtHanguel"></p>
+                      <p id="CMyoYt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MyoHbEumyang_copy" class="eum_yang"></p>
-                        <b id="MyoHbHanja_copy"></b>
+                        <p id="CMyoHbEumyang" class="eum_yang"></p>
+                        <b id="CMyoHbHanja"></b>
                       </div>
-                      <p id="MyoHbHanguel"></p>
-                      <ul class="jijanggan" id="MyoHbJj">
-                        <li id="MyoHbJj1_copy"></li>
-                        <li id="MyoHbJj2_copy"></li>
-                        <li id="MyoHbJj3_copy"></li>
+                      <p id="CMyoHbHanguel"></p>
+                      <ul class="jijanggan" id="CMyoHbJj">
+                        <li id="CMyoHbJj1"></li>
+                        <li id="CMyoHbJj2"></li>
+                        <li id="CMyoHbJj3"></li>
                       </ul>
-                      <p id="MyoHb10sin_copy" class="ten_sin"></p>
-                      <p id="MyoHb12ws_copy" class="woon_seong"></p>
-                      <p id="MyoHb12ss_copy" class="sin_sal"></p>
+                      <p id="CMyoHb10sin" class="ten_sin"></p>
+                      <p id="CMyoHb12ws" class="woon_seong"></p>
+                      <p id="CMyoHb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MyoDbEumyang_copy" class="eum_yang"></p>
-                        <b id="MyoDbHanja_copy"></b>
+                        <p id="CMyoDbEumyang" class="eum_yang"></p>
+                        <b id="CMyoDbHanja"></b>
                       </div>
-                      <p id="MyoDbHanguel"></p>
-                      <ul class="jijanggan" id="MyoDbJj">
-                        <li id="MyoDbJj1_copy"></li>
-                        <li id="MyoDbJj2_copy"></li>
-                        <li id="MyoDbJj3_copy"></li>
+                      <p id="CMyoDbHanguel"></p>
+                      <ul class="jijanggan" id="CMyoDbJj">
+                        <li id="CMyoDbJj1"></li>
+                        <li id="CMyoDbJj2"></li>
+                        <li id="CMyoDbJj3"></li>
                       </ul>
-                      <p id="MyoDb10sin_copy" class="ten_sin"></p>
-                      <p id="MyoDb12ws_copy" class="woon_seong"></p>
-                      <p id="MyoDb12ss_copy" class="sin_sal"></p>
+                      <p id="CMyoDb10sin" class="ten_sin"></p>
+                      <p id="CMyoDb12ws" class="woon_seong"></p>
+                      <p id="CMyoDb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MyoMbEumyang_copy" class="eum_yang"></p>
-                        <b id="MyoMbHanja_copy"></b>
+                        <p id="CMyoMbEumyang" class="eum_yang"></p>
+                        <b id="CMyoMbHanja"></b>
                       </div>
-                      <p id="MyoMbHanguel"></p>
-                      <ul class="jijanggan" id="MyoMbJj">
-                        <li id="MyoMbJj1_copy"></li>
-                        <li id="MyoMbJj2_copy"></li>
-                        <li id="MyoMbJj3_copy"></li>
+                      <p id="CMyoMbHanguel"></p>
+                      <ul class="jijanggan" id="CMyoMbJj">
+                        <li id="CMyoMbJj1"></li>
+                        <li id="CMyoMbJj2"></li>
+                        <li id="CMyoMbJj3"></li>
                       </ul>
-                      <p id="MyoMb10sin_copy" class="ten_sin"></p>
-                      <p id="MyoMb12ws_copy" class="woon_seong"></p>
-                      <p id="MyoMb12ss_copy" class="sin_sal"></p>
+                      <p id="CMyoMb10sin" class="ten_sin"></p>
+                      <p id="CMyoMb12ws" class="woon_seong"></p>
+                      <p id="CMyoMb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MyoYbEumyang_copy" class="eum_yang"></p>
-                        <b id="MyoYbHanja_copy"></b>
+                        <p id="CMyoYbEumyang" class="eum_yang"></p>
+                        <b id="CMyoYbHanja"></b>
                       </div>
-                      <p id="MyoYbHanguel"></p>
-                      <ul class="jijanggan" id="MyoYbJj">
-                        <li id="MyoYbJj1_copy"></li>
-                        <li id="MyoYbJj2_copy"></li>
-                        <li id="MyoYbJj3_copy"></li>
+                      <p id="CMyoYbHanguel"></p>
+                      <ul class="jijanggan" id="CMyoYbJj">
+                        <li id="CMyoYbJj1"></li>
+                        <li id="CMyoYbJj2"></li>
+                        <li id="CMyoYbJj3"></li>
                       </ul>
-                      <p id="MyoYb10sin_copy" class="ten_sin"></p>
-                      <p id="MyoYb12ws_copy" class="woon_seong"></p>
-                      <p id="MyoYb12ss_copy" class="sin_sal"></p>
+                      <p id="CMyoYb10sin" class="ten_sin"></p>
+                      <p id="CMyoYb12ws" class="woon_seong"></p>
+                      <p id="CMyoYb12ss" class="sin_sal"></p>
                     </li>
                   </ul>
                 </div>
@@ -1324,211 +1341,211 @@
                 </div>
                 <div class="birthday_info">
                   <b id="resBirth_copy2"></b> (양) <br>
-                  <!--<b id="resBirth2_copy2"></b> (음) -->
+                  <!--<b id="resBirth2"></b> (음) -->
                   <b id="resAddr_copy2"></b> 
                   <span id="bjTimeText_copy2"> / <b id="resTime_copy2"></b> 보정시 : <b id="resbjTime_copy2"></b></span>
                 </div>
               </div>
-              <div class="wongook_lucky" id="wongookLM_copy2">
+              <div class="wongook_lucky" id="wongookLM">
                 <div class="woonkuk">
                   <p class="buga_title"><span>원국</span></p>
-                  <ul class="grid_box grid_box_1">
+                  <ul class="grid_box grid_box_1 grid_box_8">
                     <li>
                       <p>시주</p>
                       <div class="hanja_con">
-                        <p id="HtEumyang_copy2" class="eum_yang"></p>
-                        <b id="HtHanja_copy2"></b>
+                        <p id="CPHtEumyang" class="eum_yang"></p>
+                        <b id="CPHtHanja"></b>
                       </div>
-                      <p id="HtHanguel_copy2"></p>
-                      <p id="Ht10sin_copy2" class="ten_sin"></p>
+                      <p id="CPHtHanguel"></p>
+                      <p id="CPHt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>일주</p>
                       <div class="hanja_con">
-                        <p id="DtEumyang_copy2" class="eum_yang"></p>
-                        <b id="DtHanja_copy2"></b>
+                        <p id="CPDtEumyang" class="eum_yang"></p>
+                        <b id="CPDtHanja"></b>
                       </div>
-                      <p id="DtHanguel_copy2"></p>
-                      <p id="Dt10sin_copy2" class="ten_sin"></p>
+                      <p id="CPDtHanguel"></p>
+                      <p id="CPDt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>월주</p>
                       <div class="hanja_con">
-                        <p id="MtEumyang_copy2" class="eum_yang"></p>
-                        <b id="MtHanja_copy2"></b>
+                        <p id="CPMtEumyang" class="eum_yang"></p>
+                        <b id="CPMtHanja"></b>
                       </div>
-                      <p id="MtHanguel_copy2"></p>
-                      <p id="Mt10sin_copy2" class="ten_sin"></p>
+                      <p id="CPMtHanguel"></p>
+                      <p id="CPMt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>연주</p>
                       <div class="hanja_con">
-                        <p id="YtEumyang_copy2" class="eum_yang"></p>
-                        <b id="YtHanja_copy2"></b>
+                        <p id="CPYtEumyang" class="eum_yang"></p>
+                        <b id="CPYtHanja"></b>
                       </div>
-                      <p id="YtHanguel_copy2"></p>
-                      <p id="Yt10sin_copy2" class="ten_sin"></p>
+                      <p id="CPYtHanguel"></p>
+                      <p id="CPYt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="HbEumyang_copy2" class="eum_yang"></p>
-                        <b id="HbHanja_copy2"></b>
+                        <p id="CPHbEumyang" class="eum_yang"></p>
+                        <b id="CPHbHanja"></b>
                       </div>
-                      <p id="HbHanguel"></p>
-                      <ul class="jijanggan" id="HbJj_copy2">
-                        <li id="HbJj1_copy2"></li>
-                        <li id="HbJj2_copy2"></li>
-                        <li id="HbJj3_copy2"></li>
+                      <p id="CPHbHanguel"></p>
+                      <ul class="jijanggan" id="CPHbJj">
+                        <li id="CPHbJj1"></li>
+                        <li id="CPHbJj2"></li>
+                        <li id="CPHbJj3"></li>
                       </ul>
-                      <p id="Hb10sin_copy2" class="ten_sin"></p>
-                      <p id="Hb12ws_copy2" class="woon_seong"></p>
-                      <p id="Hb12ss_copy2" class="sin_sal"></p>
+                      <p id="CPHb10sin" class="ten_sin"></p>
+                      <p id="CPHb12ws" class="woon_seong"></p>
+                      <p id="CPHb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="DbEumyang_copy2" class="eum_yang"></p>
-                        <b id="DbHanja_copy2"></b>
+                        <p id="CPDbEumyang" class="eum_yang"></p>
+                        <b id="CPDbHanja"></b>
                       </div>
-                      <p id="DbHanguel_copy2"></p>
-                      <ul class="jijanggan" id="DbJj_copy2">
-                        <li id="DbJj1_copy2"></li>
-                        <li id="DbJj2_copy2"></li>
-                        <li id="DbJj3_copy2"></li>
+                      <p id="CPDbHanguel"></p>
+                      <ul class="jijanggan" id="CPDbJj">
+                        <li id="CPDbJj1"></li>
+                        <li id="CPDbJj2"></li>
+                        <li id="CPDbJj3"></li>
                       </ul>
-                      <p id="Db10sin_copy2" class="ten_sin"></p>
-                      <p id="Db12ws_copy2" class="woon_seong"></p>
-                      <p id="Db12ss_copy2" class="sin_sal"></p>
+                      <p id="CPDb10sin" class="ten_sin"></p>
+                      <p id="CPDb12ws" class="woon_seong"></p>
+                      <p id="CPDb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MbEumyang_copy2" class="eum_yang"></p>
-                        <b id="MbHanja_copy2"></b>
+                        <p id="CPMbEumyang" class="eum_yang"></p>
+                        <b id="CPMbHanja"></b>
                       </div>
-                      <p id="MbHanguel"></p>
-                      <ul class="jijanggan" id="MbJj_copy2">
-                        <li id="MbJj1_copy2"></li>
-                        <li id="MbJj2_copy2"></li>
-                        <li id="MbJj3_copy2"></li>
+                      <p id="CPMbHanguel"></p>
+                      <ul class="jijanggan" id="CPMbJj">
+                        <li id="CPMbJj1"></li>
+                        <li id="CPMbJj2"></li>
+                        <li id="CPMbJj3"></li>
                       </ul>
-                      <p id="Mb10sin_copy2" class="ten_sin"></p>
-                      <p id="Mb12ws_copy2" class="woon_seong"></p>
-                      <p id="Mb12ss_copy2" class="sin_sal"></p>
+                      <p id="CPMb10sin" class="ten_sin"></p>
+                      <p id="CPMb12ws" class="woon_seong"></p>
+                      <p id="CPMb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="YbEumyang_copy2" class="eum_yang"></p>
-                        <b id="YbHanja_copy2"></b>
+                        <p id="CPYbEumyang" class="eum_yang"></p>
+                        <b id="CPYbHanja"></b>
                       </div>
-                      <p id="YbHanguel"></p>
-                      <ul class="jijanggan" id="YbJj_copy2">
-                        <li id="YbJj1_copy2"></li>
-                        <li id="YbJj2_copy2"></li>
-                        <li id="YbJj3_copy2"></li>
+                      <p id="CPYbHanguel"></p>
+                      <ul class="jijanggan" id="CPYbJj">
+                        <li id="CPYbJj1"></li>
+                        <li id="CPYbJj2"></li>
+                        <li id="CPYbJj3"></li>
                       </ul>
-                      <p id="Yb10sin_copy2" class="ten_sin"></p>
-                      <p id="Yb12ws_copy2" class="woon_seong"></p>
-                      <p id="Yb12ss_copy2" class="sin_sal"></p>
+                      <p id="CPYb10sin" class="ten_sin"></p>
+                      <p id="CPYb12ws" class="woon_seong"></p>
+                      <p id="CPYb12ss" class="sin_sal"></p>
                     </li>
                   </ul>
                 </div>
                 <div class="myowoon w50">
                   <p class="buga_title"><span>묘운 (대운팔자)</span></p>
-                  <ul class="grid_box grid_box_1">
+                  <ul class="grid_box grid_box_1 grid_box_8">
                     <li>
                       <p>시주</p>
                       <div class="hanja_con">
-                        <p id="MyoHtEumyang_copy2" class="eum_yang"></p>
-                        <b id="MyoHtHanja_copy2"></b>
+                        <p id="CPMyoHtEumyang" class="eum_yang"></p>
+                        <b id="CPMyoHtHanja"></b>
                       </div>
-                      <p id="MyoHtHanguel_copy2"></p>
-                      <p id="MyoHt10sin_copy2" class="ten_sin"></p>
+                      <p id="CPMyoHtHanguel"></p>
+                      <p id="CPMyoHt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>일주</p>
                       <div class="hanja_con">
-                        <p id="MyoDtEumyang_copy2" class="eum_yang"></p>
-                        <b id="MyoDtHanja_copy2"></b>
+                        <p id="CPMyoDtEumyang" class="eum_yang"></p>
+                        <b id="CPMyoDtHanja"></b>
                       </div>
-                      <p id="MyoDtHanguel_copy2"></p>
-                      <p id="MyoDt10sin_copy2" class="ten_sin"></p>
+                      <p id="CPMyoDtHanguel"></p>
+                      <p id="CPMyoDt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>월주</p>
                       <div class="hanja_con">
-                        <p id="MyoMtEumyang_copy2" class="eum_yang"></p>
-                        <b id="MyoMtHanja_copy2"></b>
+                        <p id="CPMyoMtEumyang" class="eum_yang"></p>
+                        <b id="CPMyoMtHanja"></b>
                       </div>
-                      <p id="MyoMtHanguel_copy2"></p>
-                      <p id="MyoMt10sin_copy2" class="ten_sin"></p>
+                      <p id="CPMyoMtHanguel"></p>
+                      <p id="CPMyoMt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <p>연주</p>
                       <div class="hanja_con">
-                        <p id="MyoYtEumyang_copy2" class="eum_yang"></p>
-                        <b id="MyoYtHanja_copy2"></b>
+                        <p id="CPMyoYtEumyang" class="eum_yang"></p>
+                        <b id="CPMyoYtHanja"></b>
                       </div>
-                      <p id="MyoYtHanguel_copy2"></p>
-                      <p id="MyoYt10sin_copy2" class="ten_sin"></p>
+                      <p id="CPMyoYtHanguel"></p>
+                      <p id="CPMyoYt10sin" class="ten_sin"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MyoHbEumyang_copy2" class="eum_yang"></p>
-                        <b id="MyoHbHanja_copy2"></b>
+                        <p id="CPMyoHbEumyang" class="eum_yang"></p>
+                        <b id="CPMyoHbHanja"></b>
                       </div>
-                      <p id="MyoHbHanguel"></p>
-                      <ul class="jijanggan" id="MyoHbJj">
-                        <li id="MyoHbJj1_copy2"></li>
-                        <li id="MyoHbJj2_copy2"></li>
-                        <li id="MyoHbJj3_copy2"></li>
+                      <p id="CPMyoHbHanguel"></p>
+                      <ul class="jijanggan" id="CPMyoHbJj">
+                        <li id="CPMyoHbJj1"></li>
+                        <li id="CPMyoHbJj2"></li>
+                        <li id="CPMyoHbJj3"></li>
                       </ul>
-                      <p id="MyoHb10sin_copy2" class="ten_sin"></p>
-                      <p id="MyoHb12ws_copy2" class="woon_seong"></p>
-                      <p id="MyoHb12ss_copy2" class="sin_sal"></p>
+                      <p id="CPMyoHb10sin" class="ten_sin"></p>
+                      <p id="CPMyoHb12ws" class="woon_seong"></p>
+                      <p id="CPMyoHb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MyoDbEumyang_copy2" class="eum_yang"></p>
-                        <b id="MyoDbHanja_copy2"></b>
+                        <p id="CPMyoDbEumyang" class="eum_yang"></p>
+                        <b id="CPMyoDbHanja"></b>
                       </div>
-                      <p id="MyoDbHanguel"></p>
-                      <ul class="jijanggan" id="MyoDbJj">
-                        <li id="MyoDbJj1_copy2"></li>
-                        <li id="MyoDbJj2_copy2"></li>
-                        <li id="MyoDbJj3_copy2"></li>
+                      <p id="CPMyoDbHanguel"></p>
+                      <ul class="jijanggan" id="CPMyoDbJj">
+                        <li id="CPMyoDbJj1"></li>
+                        <li id="CPMyoDbJj2"></li>
+                        <li id="CPMyoDbJj3"></li>
                       </ul>
-                      <p id="MyoDb10sin_copy2" class="ten_sin"></p>
-                      <p id="MyoDb12ws_copy2" class="woon_seong"></p>
-                      <p id="MyoDb12ss_copy2" class="sin_sal"></p>
+                      <p id="CPMyoDb10sin" class="ten_sin"></p>
+                      <p id="CPMyoDb12ws" class="woon_seong"></p>
+                      <p id="CPMyoDb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MyoMbEumyang_copy2" class="eum_yang"></p>
-                        <b id="MyoMbHanja_copy2"></b>
+                        <p id="CPMyoMbEumyang" class="eum_yang"></p>
+                        <b id="CPMyoMbHanja"></b>
                       </div>
-                      <p id="MyoMbHanguel"></p>
-                      <ul class="jijanggan" id="MyoMbJj">
-                        <li id="MyoMbJj1_copy2"></li>
-                        <li id="MyoMbJj2_copy2"></li>
-                        <li id="MyoMbJj3_copy2"></li>
+                      <p id="CPMyoMbHanguel"></p>
+                      <ul class="jijanggan" id="CPMyoMbJj">
+                        <li id="CPMyoMbJj1"></li>
+                        <li id="CPMyoMbJj2"></li>
+                        <li id="CPMyoMbJj3"></li>
                       </ul>
-                      <p id="MyoMb10sin_copy2" class="ten_sin"></p>
-                      <p id="MyoMb12ws_copy2" class="woon_seong"></p>
-                      <p id="MyoMb12ss_copy2" class="sin_sal"></p>
+                      <p id="CPMyoMb10sin" class="ten_sin"></p>
+                      <p id="CPMyoMb12ws" class="woon_seong"></p>
+                      <p id="CPMyoMb12ss" class="sin_sal"></p>
                     </li>
                     <li>
                       <div class="hanja_con">
-                        <p id="MyoYbEumyang_copy2" class="eum_yang"></p>
-                        <b id="MyoYbHanja_copy2"></b>
+                        <p id="CPMyoYbEumyang" class="eum_yang"></p>
+                        <b id="CPMyoYbHanja"></b>
                       </div>
-                      <p id="MyoYbHanguel"></p>
-                      <ul class="jijanggan" id="MyoYbJj">
-                        <li id="MyoYbJj1_copy2"></li>
-                        <li id="MyoYbJj2_copy2"></li>
-                        <li id="MyoYbJj3_copy2"></li>
+                      <p id="CPMyoYbHanguel"></p>
+                      <ul class="jijanggan" id="CPMyoYbJj">
+                        <li id="CPMyoYbJj1"></li>
+                        <li id="CPMyoYbJj2"></li>
+                        <li id="CPMyoYbJj3"></li>
                       </ul>
-                      <p id="MyoYb10sin_copy2" class="ten_sin"></p>
-                      <p id="MyoYb12ws_copy2" class="woon_seong"></p>
-                      <p id="MyoYb12ss_copy2" class="sin_sal"></p>
+                      <p id="CPMyoYb10sin" class="ten_sin"></p>
+                      <p id="CPMyoYb12ws" class="woon_seong"></p>
+                      <p id="CPMyoYb12ss" class="sin_sal"></p>
                     </li>
                   </ul>
                 </div>
