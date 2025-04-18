@@ -1,4 +1,4 @@
-let currentModifyIndex;
+let currentModifyIndex = null;
 let getMyounPillars;
 let updateMyowoonSectionVr;
 let modifyIndex;           // 현재 수정 중인 명식 인덱스
@@ -889,6 +889,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  function updateSaveBtn() {
+    const saveBtn = document.getElementById('saveBtn');
+    if (!saveBtn) return;
+  
+    if (currentModifyIndex === null) {
+      saveBtn.style.display = 'none';        
+    } else {
+      saveBtn.style.display = '';    
+    }
+  }
+
+  updateSaveBtn();
+
   function updateMeGroupOption(selectedVal = null) {
     const sel       = document.getElementById('inputMeGroup');
     if (!sel) return;
@@ -910,17 +923,25 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function ensureGroupOption(value) {
-    if (!value) return;
+    if (!value || value === '기타입력') return;       // '기타입력' 자체는 건드리지 않음
+  
     const sel = document.getElementById('inputMeGroup');
     if (!sel) return;
   
-    // 같은 값(option.value)이 이미 있으면 패스
+    // 이미 있으면 패스
     if ([...sel.options].some(opt => opt.value === value)) return;
   
     const opt = document.createElement('option');
     opt.value = value;
     opt.textContent = value;
-    sel.appendChild(opt);
+  
+    // ――― ‘기타입력’ 옵션 찾기 ―――
+    const etcInputOpt = sel.querySelector('option[value="기타입력"]');
+    if (etcInputOpt) {
+      sel.insertBefore(opt, etcInputOpt);   // ★ 바로 앞에 끼워 넣기
+    } else {
+      sel.appendChild(opt);                 // 혹시 없으면 그냥 맨 뒤
+    }
   }
 
   const saved = JSON.parse(localStorage.getItem('customGroups') || '[]');
@@ -993,6 +1014,8 @@ document.addEventListener("DOMContentLoaded", function () {
       groupVal = inputMeGroupEct.value.trim() || '기타';   // 빈칸 방지
     }
 
+    
+
     ensureGroupOption(groupVal);
     const customGroups = JSON.parse(localStorage.getItem('customGroups') || '[]');
     if (!customGroups.includes(groupVal)) {
@@ -1051,6 +1074,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     updateCoupleModeBtnVisibility();
     updateMeGroupOption();
+    updateSaveBtn();
   });
 
   const inputMeGroupSel = document.getElementById('inputMeGroup');
@@ -1294,6 +1318,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isModifyMode = false;
       originalDataSnapshot = "";
       currentModifyIndex = null;
+      updateSaveBtn();
     }
 
     function resetHourButtons() {
@@ -1404,9 +1429,12 @@ document.addEventListener("DOMContentLoaded", function () {
           viewStar.textContent = item.isFavorite ? '★ ON' : '☆ OFF';
           viewStar.onclick = () => toggleFavorite(idx);   // idx는 detailViewBtn용 index
         }
+
+        updateSaveBtn();
     
         document.getElementById("aside").style.display = "none";
         document.getElementById("inputWrap").style.display = "none";
+        document.getElementById("backBtn").style.display = "block";
         document.getElementById("resultWrapper").style.display = "block";
         window.scrollTo(0, 0);
       });
@@ -1429,6 +1457,7 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("해당 명식이 삭제되었습니다.");
         }
         updateCoupleModeBtnVisibility();
+        updateSaveBtn();
       });
     });
 
@@ -1749,6 +1778,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("calcBtn").addEventListener("click", function () {
 
+    document.getElementById("backBtn").style.display = "block";
+
     let refDate = new Date();
 
     // "태어난 시 모름" 체크 여부
@@ -1831,6 +1862,19 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
     }
+
+    function updateTypeSpan(groupVal) {
+      const typeSpan = document.getElementById('typeSV');
+      if (typeSpan) {
+        typeSpan.innerHTML = `<b class="type_sv">${groupVal || '미선택'}</b>`;
+      }
+    }
+
+    let groupVal = document.getElementById('inputMeGroup').value;
+    if (groupVal === '기타입력') {
+      groupVal = document.getElementById('inputMeGroupEct').value.trim() || '기타';
+    }
+    updateTypeSpan(groupVal);
 
 
     document.getElementById('resultWrapper').style.display = 'block';
@@ -4696,7 +4740,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isTimeUnknown: selected.isTimeUnknown,
       isPlaceUnknown: selected.isPlaceUnknown,
       selectedTime2: selected.selectedTime2 || "",
-      group: selected.group,
+      group: selected.groupVal,
       //createdAt: selected.Date.now()
       
     };
@@ -4925,7 +4969,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isTimeUnknown: isTimeUnknown,
       isPlaceUnknown: isPlaceUnknown,
       selectedTime2: selectedTime2,
-      group: group,       
+      group: groupVal,       
       createdAt: Date.now(),
       isFavorite : false
     };
@@ -4953,6 +4997,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isModifyMode = false;
       originalDataSnapshot = "";
       currentModifyIndex = null;
+      updateSaveBtn();
 
       document.getElementById("inputWrap").style.display = "none";
       document.getElementById("resultWrapper").style.display = "block";
