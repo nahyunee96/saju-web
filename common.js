@@ -889,6 +889,44 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  function updateMeGroupOption(selectedVal = null) {
+    const sel       = document.getElementById('inputMeGroup');
+    if (!sel) return;
+  
+    const selfOpt   = sel.querySelector('option[value="본인"]');
+    if (!selfOpt) return;
+  
+    const savedList = JSON.parse(localStorage.getItem('myeongsikList')) || [];
+    const hasSelf   = savedList.some(v => v.group === '본인');
+  
+    // ① 이미 "본인"이 저장돼 있고 ② 이번 폼에서 선택된 값도 "본인"이 아니라면 → 숨김
+    if (hasSelf && selectedVal !== '본인') {
+      selfOpt.style.display = 'none';   // 완전히 숨기기
+      // selfOpt.disabled = true;       // (대신 비활성화만 하고 싶으면 주석 해제)
+    } else {
+      selfOpt.style.display = '';
+      selfOpt.disabled = false;
+    }
+  }
+
+  function ensureGroupOption(value) {
+    if (!value) return;
+    const sel = document.getElementById('inputMeGroup');
+    if (!sel) return;
+  
+    // 같은 값(option.value)이 이미 있으면 패스
+    if ([...sel.options].some(opt => opt.value === value)) return;
+  
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = value;
+    sel.appendChild(opt);
+  }
+
+  const saved = JSON.parse(localStorage.getItem('customGroups') || '[]');
+  saved.forEach(ensureGroupOption);
+  updateMeGroupOption();
+
   // saveBtn 이벤트 리스너
   document.getElementById("saveBtn").addEventListener("click", function () {
     // 입력값 읽어오기
@@ -935,13 +973,6 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       correctedDate = adjustBirthDate(originalDate, usedBirthPlace);
     }
-    
-    /*else if (isPlaceUnknown) {
-      // 출생지는 모름 → 기본 -30분
-      correctedDate = new Date(originalDate.getTime() - 30 * 60000);
-    } else {
-      correctedDate = adjustBirthDate(originalDate, usedBirthPlace);
-    }*/
 
     function formatTime(date) {
       if (!date) return "-";
@@ -956,7 +987,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const birthdayTime = correctedDate ? formatTime(correctedDate) : "?";
 
     const selectedTime2 = document.querySelector('input[name="time2"]:checked').value || "";
-  
+
+    let groupVal = inputMeGroupSel.value;
+    if (groupVal === '기타입력') {
+      groupVal = inputMeGroupEct.value.trim() || '기타';   // 빈칸 방지
+    }
+
+    ensureGroupOption(groupVal);
+    const customGroups = JSON.parse(localStorage.getItem('customGroups') || '[]');
+    if (!customGroups.includes(groupVal)) {
+      customGroups.push(groupVal);
+      localStorage.setItem('customGroups', JSON.stringify(customGroups));
+    }
+    
     // 저장할 데이터 객체 구성
     const newData = {
       birthday: birthday,
@@ -979,11 +1022,12 @@ document.addEventListener("DOMContentLoaded", function () {
       correctedDate: correctedDate,
       isTimeUnknown: isTimeUnknown,
       isPlaceUnknown: isPlaceUnknown,
-      selectedTime2: selectedTime2
+      selectedTime2: selectedTime2,
+      group: groupVal,
+      createdAt: Date.now(),
+      isFavorite : false
     };
 
-    
-  
     // 저장 중복 검사
     const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const alreadySaved = list.some(function (item) {
@@ -999,7 +1043,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!confirmSave) return;
     }
   
-  
     // 저장
     list.push(newData);
     localStorage.setItem("myeongsikList", JSON.stringify(list));
@@ -1007,14 +1050,24 @@ document.addEventListener("DOMContentLoaded", function () {
     alert("저장이 성공적으로 완료 되었습니다.");
 
     updateCoupleModeBtnVisibility();
+    updateMeGroupOption();
   });
-  
-  let savedMyeongsikList = [];
 
-  // loadSavedMyeongsikList 함수 (목록 구성 및 detailView, delete 버튼 이벤트 등록)
-  // -----------------------------------------
-  // [1] loadSavedMyeongsikList: aside에 명식 리스트 렌더링
-  // -----------------------------------------
+  const inputMeGroupSel = document.getElementById('inputMeGroup');
+  const groupEctWrap    = document.getElementById('groupEct');  // div.input_group.group_ect
+  const inputMeGroupEct = document.getElementById('inputMeGroupEct');
+
+  function toggleGroupEct () {
+    if (inputMeGroupSel.value === '기타입력') {
+      groupEctWrap.style.display = 'block';
+    } else {
+      groupEctWrap.style.display = 'none';
+      inputMeGroupEct.value = '';       // ★ 내용 초기화
+    }
+  }
+  inputMeGroupSel.addEventListener('change', toggleGroupEct);
+  toggleGroupEct();           
+
   function loadSavedMyeongsikList() {
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     savedMyeongsikList = savedList;
@@ -1024,6 +1077,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!listUl) return;
     listUl.innerHTML = "";
+
+    function toggleFavorite(index) {
+      let list = JSON.parse(localStorage.getItem('myeongsikList')) || [];
+      if (!list[index]) return;
+    
+      // 1) 해당 항목 꺼내서 isFavorite 토글
+      const [item] = list.splice(index, 1);
+      item.isFavorite = !item.isFavorite;
+    
+      if (item.isFavorite) {
+        // ── ★ ON  →  마지막 즐겨찾기 뒤에 삽입
+        const lastFavIdx = list.reduce((p, c, i) => c.isFavorite ? i : p, -1);
+        list.splice(lastFavIdx + 1, 0, item);
+      } else {
+        // ── ☆ OFF →  즐겨찾기 구역 뒤, 일반 리스트 맨 앞에 삽입
+        const lastFavIdx = list.reduce((p, c, i) => c.isFavorite ? i : p, -1);
+        list.splice(lastFavIdx + 1, 0, item);   // 즐겨찾기 블록 바로 뒤
+      }
+    
+      // 2) 저장 및 재렌더
+      localStorage.setItem('myeongsikList', JSON.stringify(list));
+      loadSavedMyeongsikList();
+    
+      // 3) 상세보기 화면과도 동기화
+      const viewStar = document.getElementById('topPs');
+      if (viewStar && currentDetailIndex === index) {
+        viewStar.textContent = item.isFavorite ? '★ ON' : '☆ OFF';
+      }
+    }
 
     // savedList의 각 아이템에 대해 li 생성
     savedList.forEach((item, index) => {
@@ -1073,6 +1155,8 @@ document.addEventListener("DOMContentLoaded", function () {
       /// (${lunarBirthDisplay})
       /// </span> <br>
 
+      const starState = item.isFavorite ? '★ ON' : '☆ OFF';
+
       li.innerHTML += `
         <div class="info_btn_zone">
           <button class="drag_btn_zone" id="dragBtn_${index + 1}">
@@ -1082,6 +1166,14 @@ document.addEventListener("DOMContentLoaded", function () {
           </button>
           <ul class="info">
             <li class="name_age" id="nameAge">
+              <div class="type_sv_wrap">
+                <b class="type_sv" id="typeSV_${index + 1}">${item.group || '미선택'}</b>
+                <button class="type_sv star_btn"
+                  id="topPs_${index + 1}"
+                  data-index="${index}">
+                  ${starState}
+                </button>
+              </div>
               <span><b id="nameSV_${index + 1}">${item.name}</b></span>
               <span>(만 <b id="ageSV_${index + 1}">${item.age}</b>세, <b id="genderSV_${index + 1}">${item.gender}</b>)</span>
             </li>
@@ -1127,6 +1219,13 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         `;
       }
+      
+      //li.querySelector('.info_btn_zone').insertAdjacentHTML('afterbegin', starBtnHtml);
+
+      li.querySelector(`#topPs_${index + 1}`).addEventListener('click', e => {
+        e.stopPropagation();
+        toggleFavorite(parseInt(e.target.dataset.index, 10));
+      });
 
       // 원본 HTML 저장 (하이라이트 복원용)
       li.querySelector(".name_age").dataset.original = li.querySelector(".name_age").innerHTML;
@@ -1135,6 +1234,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
       listUl.appendChild(li);
     });
+
+    const alignTypeSel = document.getElementById('alignType');
+    alignTypeSel.addEventListener('change', handleSortChange);
+
+    function handleSortChange () {
+      const sortKey = alignTypeSel.value;
+      let list      = JSON.parse(localStorage.getItem('myeongsikList')) || [];
+    
+      // 1) 즐겨찾기 / 일반 분리
+      const favs  = list.filter(v => v.isFavorite);
+      let others  = list.filter(v => !v.isFavorite);
+    
+      // 2) others만 정렬
+      const sorter = {
+        '관계순'   : (a, b) => (a.group   || '').localeCompare(b.group   || ''),
+        '관계역순' : (a, b) => (b.group   || '').localeCompare(a.group   || ''),
+        '나이순'   : (a, b) => (a.age ?? 0) - (b.age ?? 0),
+        '나이역순' : (a, b) => (b.age ?? 0) - (a.age ?? 0),
+        '이름순'   : (a, b) => (a.name    || '').localeCompare(b.name    || ''),
+        '이름역순' : (a, b) => (b.name    || '').localeCompare(a.name    || ''),
+        '등록순'   : (a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0),
+        '등록역순' : (a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0)
+      };
+
+      if (sorter[sortKey]) saved.sort(sorter[sortKey]);
+      localStorage.setItem('myeongsikList', JSON.stringify(saved)); // 정렬 결과 저장
+      loadSavedMyeongsikList();  // 리스트 다시 뿌리기
+      if (sorter[sortKey]) others.sort(sorter[sortKey])
+
+      list = [...favs, ...others];
+
+      localStorage.setItem('myeongsikList', JSON.stringify(list));
+      loadSavedMyeongsikList();
+    }
 
     // 드래그 버튼 안내 및 표시 조건
     if (savedList.length >= 2) {
@@ -1260,6 +1393,17 @@ document.addEventListener("DOMContentLoaded", function () {
         myowoonBtn.innerText = "묘운력(운 전체) 상세보기";
     
         resetHourButtons();
+
+        const typeSpan = document.getElementById('typeSV');
+        if (typeSpan) {
+          typeSpan.innerHTML = `<b>${item.group || '미선택'}</b>`;
+        }
+
+        const viewStar = document.getElementById('topPs');
+        if (viewStar) {
+          viewStar.textContent = item.isFavorite ? '★ ON' : '☆ OFF';
+          viewStar.onclick = () => toggleFavorite(idx);   // idx는 detailViewBtn용 index
+        }
     
         document.getElementById("aside").style.display = "none";
         document.getElementById("inputWrap").style.display = "none";
@@ -1301,28 +1445,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateOriginalAndMyowoon(refDate) {
       
-      const p_year = personData.year;
-      const p_month = personData.month;
-      const p_day = personData.day;
-      const p_hour = personData.hour;
-      const p_minute = personData.minute;
-
-
-      const p_correctedDate = new Date(personData.correctedDate);
-      const p_gender = personData.gender;
       const p_yearPillar = personData.yearPillar;
       const p_monthPillar = personData.monthPillar;
       const p_dayPillar = personData.dayPillar;
       const p_hourPillar = personData.isTimeUnknown ? "-" : personData.hourPillar;
 
-      const part_year = partnerData.year;
-      const part_month = partnerData.month;
-      const part_day = partnerData.day;
-      const part_hour = partnerData.hour;
-      const part_minute = partnerData.minute;
-      
-      const part_correctedDate = new Date(partnerData.correctedDate);
-      const part_gender = partnerData.gender;
       const part_yearPillar = partnerData.yearPillar;
       const part_monthPillar = partnerData.monthPillar;
       const part_dayPillar = partnerData.dayPillar;
@@ -1529,6 +1656,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     updateCoupleModeBtnVisibility();
+    updateMeGroupOption();
 
     // 11. 예제: 버튼 클릭 시 couple mode view 업데이트
     document.querySelectorAll(".couple_btn").forEach(function (button) {
@@ -1557,9 +1685,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     });
-
+    
   }
-
 
   document.getElementById("coupleModeBtn").addEventListener("click", function() {
     // 궁합모드 상태 토글
@@ -1737,8 +1864,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let originalDate = new Date(year, month - 1, day, hour, minute);
     let correctedDate = adjustBirthDate(originalDate, usedBirthPlace, isPlaceUnknown);
 
-    
-    
 
     globalState.correctedBirthDate = correctedDate;
 
@@ -3814,9 +3939,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('isPickerVer3', isPickerVer3);
     
       if (!isTimeUnknown) {
-        console.log('혹시 여기로 들어가나?');
         if (isPickerVer3) {
-          console.log('여기야 여기');
           html += `
             <li>
               <div class="pillar_title"><strong>시주</strong> </div>
@@ -4572,7 +4695,10 @@ document.addEventListener("DOMContentLoaded", function () {
       lunarBirthday: selected.lunarBirthday,
       isTimeUnknown: selected.isTimeUnknown,
       isPlaceUnknown: selected.isPlaceUnknown,
-      selectedTime2: selected.selectedTime2 || ""
+      selectedTime2: selected.selectedTime2 || "",
+      group: selected.group,
+      //createdAt: selected.Date.now()
+      
     };
     originalDataSnapshot = JSON.stringify(snapshot);
   }
@@ -4649,6 +4775,10 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("timeChk02_03").checked = true;
     }
 
+    ensureGroupOption(selected.group);
+    document.getElementById("inputMeGroup").value = selected.group || "미선택";
+    updateMeGroupOption(selected.group);   // ← 여기서 selected를 넘겨줍니다
+
     setTimeout(() => {
       updateMyowoonSectionVr;
     }, 10);
@@ -4660,6 +4790,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // 수정 모드 플래그 설정
     currentModifyIndex = index;
 
+    
+
     // 버튼 텍스트 변경
     const calcBtn = document.getElementById("calcBtn");
     calcBtn.textContent = "수정하기";
@@ -4668,6 +4800,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const nameInput = document.getElementById("inputName");
     nameInput.focus();
     nameInput.setSelectionRange(nameInput.value.length, nameInput.value.length);
+
   });
   
   let isModifyMode = false;
@@ -4755,6 +4888,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const age = correctedDate ? calculateAge(correctedDate) : "-";
     const birthdayTime = correctedDate ? formatTime(correctedDate) : "?";
 
+    let groupVal = inputMeGroupSel.value;
+    if (groupVal === '기타입력') {
+      groupVal = inputMeGroupEct.value.trim() || '기타';   // 빈칸 방지
+    }
+
+    ensureGroupOption(groupVal);
+    const customGroups = JSON.parse(localStorage.getItem('customGroups') || '[]');
+    if (!customGroups.includes(groupVal)) {
+      customGroups.push(groupVal);
+      localStorage.setItem('customGroups', JSON.stringify(customGroups));
+    }
+
+    updateMeGroupOption();
+
     return {
       birthday: birthday,
       birthtime: birthtimeRaw,
@@ -4777,7 +4924,10 @@ document.addEventListener("DOMContentLoaded", function () {
       lunarBirthday: lunarBirthday,
       isTimeUnknown: isTimeUnknown,
       isPlaceUnknown: isPlaceUnknown,
-      selectedTime2: selectedTime2
+      selectedTime2: selectedTime2,
+      group: groupVal,       
+      createdAt: Date.now(),
+      isFavorite : false
     };
   }
 
