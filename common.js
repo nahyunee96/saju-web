@@ -889,15 +889,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  const coupleModeBtnV = document.getElementById('coupleModeBtn');
+
   function updateSaveBtn() {
+    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const saveBtn = document.getElementById('saveBtn');
-    if (!saveBtn) return;
+    const topPsBtn = document.getElementById('topPs');
   
-    if (currentModifyIndex === null) {
-      saveBtn.style.display = 'none';        
+    if (currentDetailIndex === null) {
+      saveBtn.style.display = '';
+      topPsBtn.style.display = 'none'; 
+      coupleModeBtnV.style.display = 'none';        
     } else {
-      saveBtn.style.display = '';    
+      if (savedList.length <= 1) {
+        saveBtn.style.display = 'none';  
+        coupleModeBtnV.style.display = "none";  
+        topPsBtn.style.display = '';    
+      } else {
+        saveBtn.style.display = 'none'; 
+        coupleModeBtnV.style.display = "";
+        topPsBtn.style.display = ""; 
+      }
     }
+
+     
   }
 
   updateSaveBtn();
@@ -1072,7 +1087,7 @@ document.addEventListener("DOMContentLoaded", function () {
     loadSavedMyeongsikList();
     alert("저장이 성공적으로 완료 되었습니다.");
 
-    updateCoupleModeBtnVisibility();
+    //updateCoupleModeBtnVisibility();
     updateMeGroupOption();
     updateSaveBtn();
   });
@@ -1361,7 +1376,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const idx = parseInt(button.getAttribute("data-index"), 10);
         currentDetailIndex = idx;
         const item = savedList[idx];
-        currentDetailIndex = idx; // 현재 본인 명식 인덱스로 저장
         currentMyeongsik = item;
         if (!item) return;
   
@@ -1456,7 +1470,7 @@ document.addEventListener("DOMContentLoaded", function () {
           loadSavedMyeongsikList();
           alert("해당 명식이 삭제되었습니다.");
         }
-        updateCoupleModeBtnVisibility();
+        //updateCoupleModeBtnVisibility();
         updateSaveBtn();
       });
     });
@@ -1673,18 +1687,9 @@ document.addEventListener("DOMContentLoaded", function () {
       updateOriginalAndMyowoon(refDate);
     }
 
-    function updateCoupleModeBtnVisibility() {
-      const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-      const coupleModeBtn = document.getElementById("coupleModeBtn");
     
-      if (savedList.length <= 1) {
-        coupleModeBtn.style.display = "none";
-      } else {
-        coupleModeBtn.style.display = "";
-      }
-    }
 
-    updateCoupleModeBtnVisibility();
+    //updateCoupleModeBtnVisibility();
     updateMeGroupOption();
 
     // 11. 예제: 버튼 클릭 시 couple mode view 업데이트
