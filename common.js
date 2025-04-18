@@ -4925,7 +4925,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isTimeUnknown: isTimeUnknown,
       isPlaceUnknown: isPlaceUnknown,
       selectedTime2: selectedTime2,
-      group: groupVal,       
+      group: group,       
       createdAt: Date.now(),
       isFavorite : false
     };
