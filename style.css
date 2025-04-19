@@ -547,7 +547,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    padding: 10px 10px 0;
+    padding: 10px;
   }
 
   .aside .top_search_list > select {
@@ -582,6 +582,7 @@
 
   .aside .list_ul_wrap {
     height: calc(100vh - 136px);
+    padding-bottom: 10px;
     overflow: auto;
   }
 
@@ -1317,7 +1318,7 @@
 
     .aside .top_search_list > select {
       height: 8vw;
-      padding: 0 2vw;
+      padding: 0 2vw 1vw;
       font-size: 3.2vw;
     }
 
@@ -1355,6 +1356,7 @@
 
     .aside .list_ul_wrap {
       height: calc(100vh - 29.2vw);
+      padding-bottom: 4vw;
     }
   
     .aside .list_ul {

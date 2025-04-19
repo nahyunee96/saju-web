@@ -15,7 +15,7 @@ let partnerIndex = null;
 // 현재 detail view에 표시된 명식 데이터
 let currentMyeongsik = null;
 
-let personData = null;
+let myData = null;
 let partnerData = null;
 let isPickerVer2, isPickerVer22 = false;
 let isPickerVer3, isPickerVer23 = false;
@@ -24,6 +24,15 @@ let currentMode = "ver1";
 let handleChangeVr, updateGanzhiDisplayVr;
 
 let updateOriginalAndMyowoonVr;
+
+let lastMyIndex      = null;
+let lastPartnerIndex = null;
+
+let coupleMode      = false;
+let coupleMyIndex   = null;
+let couplePtIndex   = null;
+
+let latestMyeongsik = null;
 
 // [0] 출생지 보정 및 써머타임 함수
 const cityLongitudes = {
@@ -1075,6 +1084,8 @@ document.addEventListener("DOMContentLoaded", function () {
       isFavorite : false
     };
 
+    latestMyeongsik = newData;
+
     // 저장 중복 검사
     const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const alreadySaved = list.some(function (item) {
@@ -1099,6 +1110,13 @@ document.addEventListener("DOMContentLoaded", function () {
     //updateCoupleModeBtnVisibility();
     updateMeGroupOption();
     updateSaveBtn();
+
+    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+    if (savedList.length >= 2) {
+      coupleModeBtnV.style.display = '';   
+    } else {
+      coupleModeBtnV.style.display = 'none'; 
+    }
   });
 
   const inputMeGroupSel = document.getElementById('inputMeGroup');
@@ -1496,11 +1514,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     function updateOriginalAndMyowoon(refDate) {
+
+      const myData = latestMyeongsik;
       
-      const p_yearPillar = personData.yearPillar;
-      const p_monthPillar = personData.monthPillar;
-      const p_dayPillar = personData.dayPillar;
-      const p_hourPillar = personData.isTimeUnknown ? "-" : personData.hourPillar;
+      const p_yearPillar = myData.yearPillar;
+      const p_monthPillar = myData.monthPillar;
+      const p_dayPillar = myData.dayPillar;
+      const p_hourPillar = myData.isTimeUnknown ? "-" : myData.hourPillar;
 
       const part_yearPillar = partnerData.yearPillar;
       const part_monthPillar = partnerData.monthPillar;
@@ -1510,12 +1530,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const p_yearSplit = splitPillar(p_yearPillar);
       const p_monthSplit = splitPillar(p_monthPillar);
       const p_daySplit = splitPillar(p_dayPillar);
-      const p_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(p_hourPillar);
+      const p_hourSplit = myData.isTimeUnknown ? "-" : splitPillar(p_hourPillar);
       
       const part_yearSplit = splitPillar(part_yearPillar);
       const part_monthSplit = splitPillar(part_monthPillar);
       const part_daySplit = splitPillar(part_dayPillar);
-      const part_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(part_hourPillar);
+      const part_hourSplit = myData.isTimeUnknown ? "-" : splitPillar(part_hourPillar);
 
       const baseDayStem_copy = p_daySplit.gan;
       const baseDayStem_copy2 = part_daySplit.gan;
@@ -1561,7 +1581,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateBranchInfo("CPDb", part_daySplit.ji, baseDayStem_copy2);
       updateBranchInfo("CPHb", isTimeUnknown ? "-" : part_hourSplit.ji, baseDayStem_copy2);
 
-      const p_myo    = getMyounPillars(personData, refDate);
+      const p_myo    = getMyounPillars(myData, refDate);
       const part_myo = getMyounPillars(partnerData, refDate);
 
       const {
@@ -1586,7 +1606,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const p_myo_yearSplit = splitPillar(p_yeonjuPillar);
       const p_myo_monthSplit = splitPillar(p_woljuPillar);
       const p_myo_daySplit = splitPillar(p_iljuPillar);
-      const p_myo_hourSplit = personData.isTimeUnknown ? "-" : splitPillar(p_sijuPillar);
+      const p_myo_hourSplit = myData.isTimeUnknown ? "-" : splitPillar(p_sijuPillar);
 
       const part_sijuPillar   = partnerSijuEvent.ganji;   
       const part_iljuPillar   = partnerIljuEvent.ganji;    
@@ -1878,6 +1898,19 @@ document.addEventListener("DOMContentLoaded", function () {
              bdayStr.substring(6, 8) + "일";
     }
 
+    function renderCoupleView() {
+      const myData      = JSON.parse(sessionStorage.getItem("lastMyData")    || "null");
+      const partnerData = JSON.parse(sessionStorage.getItem("lastPartnerData")|| "null");
+
+      console.log("▶ lastMyData:",      sessionStorage.getItem("lastMyData"));
+      console.log("▶ lastPartnerData:", sessionStorage.getItem("lastPartnerData"));
+    
+      if (!myData)      return alert("내 명식을 찾을 수 없습니다.");
+      if (!partnerData) return alert("상대 명식을 찾을 수 없습니다.");
+    
+      fillCoupleModeView(myData, partnerData);
+    }
+
     function fillCoupleModeView(myIndex, partnerIndex) {
       const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
       const me = savedList[myIndex];
@@ -1918,12 +1951,35 @@ document.addEventListener("DOMContentLoaded", function () {
     //updateCoupleModeBtnVisibility();
     updateMeGroupOption();
 
+    document.getElementById("coupleModeBtn").addEventListener("click", function() {
+      isCoupleMode = true;
+      
+       if (isCoupleMode) {
+         // 궁합모드이면 aside를 열고, 현재 detail(본인) 인덱스는 그대로 유지
+         // aside에 표시되는 목록은 본인 항목을 건너뛰게 됨 (loadSavedMyeongsikList에서 처리)
+         document.getElementById("aside").style.display = "block";
+         loadSavedMyeongsikList();
+       } else {
+         // 일반 모드로 돌아가면 aside 전체 목록을 다시 렌더링함
+         document.getElementById("aside").style.display = "block";
+         loadSavedMyeongsikList();
+      }
+      
+    });
+
     // 11. 예제: 버튼 클릭 시 couple mode view 업데이트
     document.querySelectorAll(".couple_btn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
 
-        isCoupleMode = true;
+        const partnerIdx = parseInt(this.value, 10);
+        const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+        partnerData = list[partnerIdx];
+        if (partnerData) {
+          sessionStorage.setItem("lastPartnerData", JSON.stringify(partnerData));
+          renderCoupleView();  // 선택할 때마다 뷰 갱신
+        }
+        
         currentMode = "ver21";
         const partnerIndexStr = button.getAttribute("data-index").replace("couple_", "");
         const partnerIndex = parseInt(partnerIndexStr, 10);
@@ -1936,45 +1992,35 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        document.getElementById("aside").style.display = "none";
-        document.querySelector(".couple_mode_wrap").style.display = "flex";
-        document.querySelector("#woonTimeSetPicker2").style.display = "inline-block";  
+        const myData = latestMyeongsik;
+
+        const myIndex = list.findIndex(item => 
+          item.name     === latestMyeongsik.name     &&
+          item.birthday === latestMyeongsik.birthday &&
+          item.birthtime=== latestMyeongsik.birthtime
+        );
+
+        currentDetailIndex = myIndex;
         
         // "나"의 데이터가 미리 저장되어 있어야 두 사람의 데이터를 모두 업데이트할 수 있습니다.
-        if (personData) {
+        if (myData) {
           // 두 사람의 데이터를 전달하여 원국 및 묘운 HTML 업데이트 실행
-          fillCoupleModeView(currentDetailIndex, partnerIndex);
+          fillCoupleModeView(myIndex, partnerIndex);
+          document.getElementById("aside").style.display = "none";
+          document.querySelector(".couple_mode_wrap").style.display = "flex";
+          document.querySelector("#woonTimeSetPicker2").style.display = "inline-block";  
         } else {
           console.warn("나의 데이터가 아직 저장되지 않았습니다. 먼저 #coupleModeBtn을 눌러 저장해주세요.");
         }
+        
       });
     });
+
+    
     
   }
 
-  document.getElementById("coupleModeBtn").addEventListener("click", function() {
-    // 궁합모드 상태 토글
-     isCoupleMode = !isCoupleMode;
-    
-     if (isCoupleMode) {
-       // 궁합모드이면 aside를 열고, 현재 detail(본인) 인덱스는 그대로 유지
-       // aside에 표시되는 목록은 본인 항목을 건너뛰게 됨 (loadSavedMyeongsikList에서 처리)
-       document.getElementById("aside").style.display = "block";
-       loadSavedMyeongsikList();
-     } else {
-       // 일반 모드로 돌아가면 aside 전체 목록을 다시 렌더링함
-       document.getElementById("aside").style.display = "block";
-       loadSavedMyeongsikList();
-    }
-
-    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-    if (typeof currentDetailIndex !== "undefined" && savedList[currentDetailIndex]) {
-      personData = savedList[currentDetailIndex];
-      console.log("나의 데이터 저장됨:", personData);
-    } else {
-      console.warn("나의 데이터가 존재하지 않습니다. currentDetailIndex:", currentDetailIndex);
-    }
-  });
+  
 
   document.getElementById("coupleBackBtn").addEventListener("click", function(){
     isCoupleMode = false;
@@ -2016,9 +2062,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   document.getElementById("calcBtn").addEventListener("click", function () {
-
-    //document.getElementById("backBtn").style.display = "block";
-    
 
     let refDate = toKoreanTime(new Date());
 
@@ -3401,7 +3444,7 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     }
 
-    const personData = {
+    const myData = {
       correctedDate: correctedDate, 
       year: year,
       month: month,
@@ -3415,7 +3458,7 @@ document.addEventListener("DOMContentLoaded", function () {
       gender: gender            
     };
 
-    getMyounPillars(personData, refDate);
+    getMyounPillars(myData, refDate);
 
     // UI 업데이트 예시: updateMyowoonSection
     function updateMyowoonSection(myowoonResult) {
@@ -3681,7 +3724,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         const refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());
     
-        const myowoonResult = getMyounPillars(personData, refDate);
+        const myowoonResult = getMyounPillars(myData, refDate);
         
     
         if (newBtn.classList.contains("active")) {
@@ -3852,7 +3895,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
     refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());  
-    const myowoonResult = getMyounPillars(personData, refDate);
+    const myowoonResult = getMyounPillars(myData, refDate);
     if (picker) {
       const now = toKoreanTime(new Date());
       const yearNow = now.getFullYear();
@@ -4582,7 +4625,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateDayWoon(refDate);
       
       // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
-      const myowoonResult = getMyounPillars(personData, refDate);
+      const myowoonResult = getMyounPillars(myData, refDate);
       updateMyowoonSection(myowoonResult);
     }
 
@@ -4806,7 +4849,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
-      const newResult = getMyounPillars(personData, refDate);
+      const newResult = getMyounPillars(myData, refDate);
       updateExplanDetail(newResult, refDate);
 
 
@@ -5006,7 +5049,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, manualSplit.ji));
       setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch, manualSplit.ji));
 
-      const myowoonResult = getMyounPillars(personData, refDate);
+      const myowoonResult = getMyounPillars(myData, refDate);
       updateMyowoonSection(myowoonResult);
       updateExplanDetail(myowoonResult, refDate)
       // 묘운(동적 운세) 시주 관련 업데이트
@@ -5054,7 +5097,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateFunc(radioDate);
         setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
-          const newResult = getMyounPillars(personData, radioDate);
+          const newResult = getMyounPillars(myData, radioDate);
           updateExplanDetail(newResult);
           updateMyowoonSection(newResult);
 
@@ -5130,6 +5173,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!selected) return;
 
     startModify(index);
+
+    groupEctWrap.style.display = 'none';
+    inputMeGroupEct.value = '';
   
     // 화면 전환
     document.getElementById("inputWrap").style.display = "block";
@@ -5353,13 +5399,11 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  
-
-  // 수정하기 버튼 눌렀을 때
   // 수정하기 버튼 눌렀을 때
   document.getElementById("calcBtn").addEventListener("click", function () {
     // 1) 새로 수집할 데이터 만들어오기
     const newData = makeNewData();
+    latestMyeongsik = newData;
 
     // 2) 즐겨찾기 체크 상태 읽어서 newData에 추가
     const favCheckbox = document.getElementById('topPs');
@@ -5393,20 +5437,18 @@ document.addEventListener("DOMContentLoaded", function () {
       currentModifyIndex = null;
       updateSaveBtn();
 
+      const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+      if (savedList.length >= 2) {
+        coupleModeBtnV.style.display = '';   
+      } else {
+        coupleModeBtnV.style.display = 'none'; 
+      }
+
       // 9) 화면 전환
       document.getElementById("inputWrap").style.display = "none";
       document.getElementById("resultWrapper").style.display = "block";
     }
   });
-
-
-  item.isFavorite = favCheckbox.checked;
-        // 리스트 재저장
-  localStorage.setItem("myeongsikList", JSON.stringify(savedList));
-
-  // 화면 다시 그리기
-  loadSavedMyeongsikList();
-  isModifyMode = false;
 
   new Sortable(document.querySelector(".list_ul"), {
     handle: ".drag_btn_zone", // 요 버튼 누르고 있어야 드래그 가능
