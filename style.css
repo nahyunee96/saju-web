@@ -761,6 +761,20 @@
     text-align: center;
   }
 
+  .cal_area#calArea2 {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+  }
+
+  .current_ganzhi {
+    color: #fff;
+  }
+
+  .current_ganzhi b {
+    color: #EED36C;
+  }
+
   .cal_area input {
   	display: inline-block;
     width: 100%;
@@ -972,6 +986,10 @@
 
   .couple_mode_wrap .btn_box {
     padding: 20px;
+  }
+
+  .couple_mode_wrap .btn_box.flex_3 {
+    padding: 10px 0;
   }
 
   .couple_mode_wrap .scroll_y {
@@ -1516,6 +1534,14 @@
 
     .couple_mode_wrap .btn_box {
       padding: 4vw;
+    }
+
+    .cal_area#calArea2 {
+      padding: 4vw;
+    }
+
+    .current_ganzhi {
+      font-size: 3.2vw;
     }
 
     .couple_mode_wrap .scroll_y {

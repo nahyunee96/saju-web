@@ -782,13 +782,13 @@
           <!-- 날짜 컨트롤 -->
           <div class="cal_area" id="calArea">
             <div class="btn_box mt20 mb10 flex_3">
-              <button class="black_btn active" id="woonVer1Change">
+              <button class="black_btn picker_btn active" id="woonVer1Change">
                 시간까지계산
               </button>
-              <button class="black_btn" id="woonVer2Change">
+              <button class="black_btn picker_btn" id="woonVer2Change">
                 일까지계산
               </button>
-              <button class="black_btn" id="woonVer3Change">
+              <button class="black_btn picker_btn" id="woonVer3Change">
                 월까지계산
               </button>
             </div>
@@ -1582,6 +1582,31 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="cal_area" id="calArea2">
+            <div class="current_ganzhi">현재 시간 간지 : <span id="currentGanzhi"></span></div>
+            <div class="btn_box mt20 mb10 flex_3">
+              <button class="black_btn picker_btn2 active" id="woonVer1Change2">
+                시간까지계산
+              </button>
+              <button class="black_btn picker_btn2" id="woonVer2Change22">
+                일까지계산
+              </button>
+              <button class="black_btn picker_btn2" id="woonVer3Change23">
+                월까지계산
+              </button>
+            </div>
+            <input type="datetime-local" id="woonTimeSetPicker2" />
+            <input type="date" id="woonTimeSetPickerVer22" />
+            <input type="month" id="woonTimeSetPickerVer23" />
+            <div class="btn_box mb40 mt20">
+              
+              <button class="black_btn" id="woonChangeBtn2">
+                날짜 변경하기
+              </button>
+              
+            </div>
+            
           </div>
         </div>
       </div>

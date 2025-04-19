@@ -17,9 +17,13 @@ let currentMyeongsik = null;
 
 let personData = null;
 let partnerData = null;
-let isPickerVer2 = false;
-let isPickerVer3 = false;
-let currentMode = 'ver1';
+let isPickerVer2, isPickerVer22 = false;
+let isPickerVer3, isPickerVer23 = false;
+let currentMode = "ver1";
+
+let handleChangeVr, updateGanzhiDisplayVr;
+
+let updateOriginalAndMyowoonVr;
 
 // [0] 출생지 보정 및 써머타임 함수
 const cityLongitudes = {
@@ -285,7 +289,7 @@ const fixedDayMappingBasic = {
 };
 
 
-function getHourBranchIndex(dateObj, isSunTime) {
+function getHourBranchIndex(dateObj) {
   let totalMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
   const ZASI_START = 23 * 60; // 자시 시작: 23:00 (1380분)
   let adjustedMinutes = totalMinutes;
@@ -800,8 +804,16 @@ function updateBranchInfo(prefix, branch, baseDayStem, suffix = "") {
 // -------------------------
 // Helper 함수들
 // -------------------------
+
+
+function toKoreanTime(date = new Date()) {
+  const utcMs     = date.getTime() + date.getTimezoneOffset() * 60_000;
+  const kstOffset = 9 * 60 * 60_000;
+  return new Date(utcMs + kstOffset);
+}
+
 function calculateAge(birthDate) {
-  const today = new Date();
+  const today = toKoreanTime(new Date());
   let age = today.getFullYear() - birthDate.getFullYear();
   const m = today.getMonth() - birthDate.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
@@ -810,15 +822,12 @@ function calculateAge(birthDate) {
   return age;
 }
 
-
-
 function formatDate(dateObj) {
   const yyyy = dateObj.getFullYear();
   const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
   const dd = String(dateObj.getDate()).padStart(2, "0");
   return `${yyyy}.${mm}.${dd}`;
 }
-
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -891,13 +900,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const coupleModeBtnV = document.getElementById('coupleModeBtn');
 
+
+  
   function updateSaveBtn() {
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const saveBtn = document.getElementById('saveBtn');
     const topPsBtn = document.getElementById('topPs');
   
     if (currentDetailIndex === null) {
-      saveBtn.style.display = '';
+      saveBtn.style.display = 'none';
       topPsBtn.style.display = 'none'; 
       coupleModeBtnV.style.display = 'none';        
     } else {
@@ -1368,7 +1379,6 @@ document.addEventListener("DOMContentLoaded", function () {
       //isTimeUnknown = true;
     }
     
-
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
@@ -1569,20 +1579,6 @@ document.addEventListener("DOMContentLoaded", function () {
         yeonjuEvent: partnerYeonjuEvent
       } = part_myo;
 
-      console.log(
-        sijuEvent,
-        iljuEvent,
-        woljuEvent,
-        yeonjuEvent
-      );
-
-      console.log(
-        partnerSijuEvent,
-        partnerIljuEvent,
-        partnerWoljuEvent,
-        partnerYeonjuEvent
-      );
-
       const p_sijuPillar   = sijuEvent.ganji;   
       const p_iljuPillar   = iljuEvent.ganji;    
       const p_woljuPillar  = woljuEvent.ganji;  
@@ -1603,19 +1599,19 @@ document.addEventListener("DOMContentLoaded", function () {
       const part_myo_daySplit = splitPillar(part_iljuPillar);
       const part_myo_hourSplit = partnerData.isTimeUnknown ? "-" : splitPillar(part_sijuPillar);
 
-      setText("CMyoHb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_hourSplit.ji));
-      setText("CMyoHb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_hourSplit.ji));
-      setText("CMyoDb12ws", getTwelveUnseong(baseDayStem_copy, p_myo_daySplit.ji));
-      setText("CMyoDb12ss", getTwelveShinsal(baseYearBranch_copy, p_myo_daySplit.ji));
+      setText("CMyoHb12ws", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_hourSplit.ji));
+      setText("CMyoHb12ss", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_hourSplit.ji));
+      setText("CMyoDb12ws", isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_daySplit.ji));
+      setText("CMyoDb12ss", isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_daySplit.ji));
       setText("CMyoMb12ws", getTwelveUnseong(baseDayStem_copy, p_myo_monthSplit.ji));
       setText("CMyoMb12ss", getTwelveShinsal(baseYearBranch_copy, p_myo_monthSplit.ji));
       setText("CMyoYb12ws", getTwelveUnseong(baseDayStem_copy, p_myo_yearSplit.ji));
       setText("CMyoYb12ss", getTwelveShinsal(baseYearBranch_copy, p_myo_yearSplit.ji));
 
-      setText("CPMyoHb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_hourSplit.ji));
-      setText("CPMyoHb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_hourSplit.ji));
-      setText("CPMyoDb12ws", getTwelveUnseong(baseDayStem_copy2, part_myo_daySplit.ji));
-      setText("CPMyoDb12ss", getTwelveShinsal(baseYearBranch_copy2, part_myo_daySplit.ji));
+      setText("CPMyoHb12ws", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_hourSplit.ji));
+      setText("CPMyoHb12ss", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_hourSplit.ji));
+      setText("CPMyoDb12ws", isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_daySplit.ji));
+      setText("CPMyoDb12ss", isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_daySplit.ji));
       setText("CPMyoMb12ws", getTwelveUnseong(baseDayStem_copy2, part_myo_monthSplit.ji));
       setText("CPMyoMb12ss", getTwelveShinsal(baseYearBranch_copy2, part_myo_monthSplit.ji));
       setText("CPMyoYb12ws", getTwelveUnseong(baseDayStem_copy2, part_myo_yearSplit.ji));
@@ -1623,25 +1619,256 @@ document.addEventListener("DOMContentLoaded", function () {
 
       updateStemInfo("CMyoYt", p_myo_yearSplit, baseDayStem_copy);
       updateStemInfo("CMyoMt", p_myo_monthSplit, baseDayStem_copy);
-      updateStemInfo("CMyoDt", p_myo_daySplit, baseDayStem_copy);
-      updateStemInfo("CMyoHt", isTimeUnknown ? "-" : p_myo_hourSplit, baseDayStem_copy);
+      updateStemInfo("CMyoDt", isPickerVer23 ? "-" : p_myo_daySplit, baseDayStem_copy);
+      updateStemInfo("CMyoHt", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit, baseDayStem_copy);
       updateBranchInfo("CMyoYb", baseYearBranch_copy, baseDayStem_copy);
       updateBranchInfo("CMyoMb", p_myo_monthSplit.ji, baseDayStem_copy);
-      updateBranchInfo("CMyoDb", p_myo_daySplit.ji, baseDayStem_copy);
-      updateBranchInfo("CMyoHb", isTimeUnknown ? "-" : p_myo_hourSplit.ji, baseDayStem_copy);
+      updateBranchInfo("CMyoDb", isPickerVer3 ? "-" : p_myo_daySplit.ji, baseDayStem_copy);
+      updateBranchInfo("CMyoHb", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit.ji, baseDayStem_copy);
+
 
       updateStemInfo("CPMyoYt", part_myo_yearSplit, baseDayStem_copy2);
       updateStemInfo("CPMyoMt", part_myo_monthSplit, baseDayStem_copy2);
-      updateStemInfo("CPMyoDt", part_myo_daySplit, baseDayStem_copy2);
-      updateStemInfo("CPMyoHt", isTimeUnknown ? "-" : part_myo_hourSplit, baseDayStem_copy2);
+      updateStemInfo("CPMyoDt", isPickerVer23 ? "-" : part_myo_daySplit, baseDayStem_copy2);
+      updateStemInfo("CPMyoHt", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : part_myo_hourSplit, baseDayStem_copy2);
       updateBranchInfo("CPMyoYb", part_myo_yearSplit.ji, baseDayStem_copy2);
       updateBranchInfo("CPMyoMb", part_myo_monthSplit.ji, baseDayStem_copy2);
-      updateBranchInfo("CPMyoDb", part_myo_daySplit.ji, baseDayStem_copy2);
-      updateBranchInfo("CPMyoHb", isTimeUnknown ? "-" : part_myo_hourSplit.ji, baseDayStem_copy2);
+      updateBranchInfo("CPMyoDb", isPickerVer23 ? "-" : part_myo_daySplit.ji, baseDayStem_copy2);
+      updateBranchInfo("CPMyoHb", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : part_myo_hourSplit.ji, baseDayStem_copy2);
+      
       
       updateColorClasses();
       console.log("커플 모드 - 원국 및 묘운 HTML 업데이트 완료");
     }
+
+    function toGz(idx) {          
+      idx = idx % 60;                   
+      const stem = Cheongan[idx % 10];      
+      const branch = Jiji[idx % 12];   
+      return stem + branch;              
+    }
+    
+    function getYearGanZhiRef(dateObj) {
+      const solarYear = dateObj.getFullYear();
+      const ipChun    = getSolarTermBoundaries(solarYear, 315)[0].date;   // 입춘 날짜
+
+      // 입춘 이전이면 전년도 간지
+      const ganZhiYear = (dateObj < ipChun) ? solarYear - 1 : solarYear;
+
+      // 4 CE가 '갑자' (60주기 기준점)
+      const idx = (ganZhiYear - 4) % 60;
+
+      
+
+      return toGz(idx);
+    }
+
+    function getMonthGanZhiRef(dateObj) {
+      const boundaries = getSolarTermBoundaries(dateObj.getFullYear());        
+      const monthNo    = getMonthNumber(dateObj, boundaries);
+
+      const yearIdx     = Cheongan.indexOf(getYearGanZhi(dateObj, dateObj.getFullYear())[0]);
+      const branchIdx   = (monthNo + 1) % 12;           // 立春(1)→寅(2)→branchIdx=2 … 4月(3)→진(4)
+      const stemIdx     = (yearIdx * 2 + branchIdx) % 10;
+      const monthStem   = Cheongan[stemIdx];
+      const monthBranch = Jiji[branchIdx];
+      return monthStem + monthBranch;  // '경진'
+    }
+    
+
+    function getDayGanZhiRef(dateObj) {
+      // 1) 무조건 KST 기준으로 변환
+      const kstDate = toKoreanTime(dateObj);
+      const hour    = kstDate.getHours();
+
+      // 2) 복제본 준비
+      const adjustedDate = new Date(kstDate.getTime());
+
+      // 3) 자시/야자시/인시 기준으로 “일” 경계 이동
+      if (document.getElementById("jasi").checked) {
+        // 자시 기준: 23시를 하루의 시작으로 본다 → 23시 이전이면 전날 23시로 이동
+        if (hour < 23) {
+          adjustedDate.setDate(adjustedDate.getDate() - 1);
+        }
+        adjustedDate.setHours(23, 0, 0, 0);
+
+      } else if (document.getElementById("yajasi").checked) {
+        // 야자시 기준(=0시 기준): 아무 보정 없이 당일 0시로
+        adjustedDate.setHours(0, 0, 0, 0);
+
+      } else if (document.getElementById("insi").checked) {
+        // 인시 기준(=3시 기준): 3시 이전이면 전날 3시로 이동
+        if (hour < 3) {
+          adjustedDate.setDate(adjustedDate.getDate() - 1);
+        }
+        adjustedDate.setHours(3, 0, 0, 0);
+      }
+
+      // 4) 이 adjustedDate를 기준으로 일간/지지 계산
+      const dayGanZhi = getDayGanZhi(adjustedDate);
+      const { gan, ji } = splitPillar(dayGanZhi);
+      
+      return `${gan}${ji}`;
+    }
+
+    // ② 현재 시지와 인덱스 반환 (KST 기준)
+    function getCurrentHourBranch(dateObj = new Date()) {
+      const kst   = toKoreanTime(dateObj);
+      const total = kst.getHours() * 60 + kst.getMinutes();
+
+      let idx = timeRanges.findIndex(({ start, end }) =>
+        start < end
+          ? total >= start && total < end
+          : total >= start || total < end
+      );
+      if (idx === -1) idx = 0;
+
+      return { idx, branch: timeRanges[idx].branch };
+    }
+
+    // ③ 시주(時柱) 계산 – dateObj만 넘기면 내부에서 모두 KST 변환
+    function getHourGanZhiRef(dateObj) {
+      const date = new Date(dateObj);
+      const hourBranch = getHourBranchUsingArray(date);
+      const hourBranchIndex = Jiji.indexOf(hourBranch);
+      const dayGanZhi = getDayGanZhi(date);
+      const daySplitFuc = splitPillar(dayGanZhi);
+      const baseHourStem = getHourStem(daySplitFuc.gan, hourBranchIndex);
+      let idx = Cheongan.indexOf(baseHourStem);
+      if (idx === -1) idx = 0;
+      const correctedFortuneHourStem = Cheongan[(idx - 2 + Cheongan.length) % Cheongan.length];
+
+      return `${correctedFortuneHourStem}${hourBranch}`;  // ex) "정사"
+    }
+
+    function calcGanzhi(dateObj) {
+      const kstDate = toKoreanTime(dateObj);
+      return {
+        y: getYearGanZhiRef(kstDate),
+        m: getMonthGanZhiRef(kstDate),
+        d: getDayGanZhiRef(kstDate),
+        h: getHourGanZhiRef(dateObj)  // 내부에서 다시 toKoreanTime 처리하므로 원본 dateObj로 전달해도 OK
+      };
+    }
+
+    /* 0. 기본값 세팅 -------------------------------------------------- */
+    let currentMode = 'ver21';  // 시간 · 일 · 월 모드
+    function todayISO(fmt) {
+      const t = toKoreanTime(new Date());
+      if (fmt === 'datetime') return t.toISOString().slice(0,16); // YYYY-MM-DDTHH:MM
+      if (fmt === 'date')     return t.toISOString().slice(0,10); // YYYY-MM-DD
+      if (fmt === 'month')    return t.toISOString().slice(0,7);  // YYYY-MM
+    }
+
+    /* 1. 요소 --------------------------------------------------------- */
+    const pickerDt = document.getElementById('woonTimeSetPicker2');
+    const pickerD  = document.getElementById('woonTimeSetPickerVer22');
+    const pickerM  = document.getElementById('woonTimeSetPickerVer23');
+    const spanGanz = document.getElementById('currentGanzhi');
+
+    /* 2. 첫 값 지정 ---------------------------------------------------- */
+    pickerDt.value = pickerDt.value || todayISO('datetime');
+    pickerD .value = pickerD .value || todayISO('date');
+    pickerM .value = pickerM .value || todayISO('month');
+
+    /* 3. 간지 출력 ---------------------------------------------------- */
+    function updateGanzhiDisplay(dateObj) {
+      if (!dateObj || isNaN(dateObj)) return;
+      const { y, m, d, h } = calcGanzhi(dateObj);
+      if (currentMode === 'ver21') {
+        spanGanz.innerHTML = `<b>${y}</b>년 <b>${m}</b>월 <b>${d}</b>일 <b>${h}</b>시`;
+      } else if (currentMode === 'ver22') {
+        spanGanz.innerHTML = `<b>${y}</b>년 <b>${m}</b>월 <b>${d}</b>일`;
+      } else if (currentMode === 'ver23') {
+        spanGanz.innerHTML = `<b>${y}</b>년 <b>${m}</b>월`;
+      }
+
+      console.log(currentMode);
+    }
+
+    /* 4. 값 읽기 ------------------------------------------------------ */
+    /* -----------------------------------------------------------
+    *  문자열을 로컬 Date 로 변환 (UTC 보정 문제 해결)
+    * ----------------------------------------------------------- */
+    function parseLocalDateTime(dateStr) {          // 'YYYY-MM-DDTHH:MM'
+      const [y,m,d,h,mm] = dateStr
+        .match(/\d+/g)
+        .map(n => parseInt(n, 10));
+      return new Date(y, m - 1, d, h, mm);
+    }
+
+    function parseLocalDate(dateStr) {              // 'YYYY-MM-DD'
+      const [y,m,d] = dateStr.split('-').map(n => parseInt(n, 10));
+      return new Date(y, m - 1, d);
+    }
+
+    function parseLocalMonth(monthStr) {            // 'YYYY-MM'
+      const [y,m] = monthStr.split('-').map(n => parseInt(n, 10));
+      return new Date(y, m - 1, 1);
+    }
+
+    /* -----------------------------------------------------------
+    *  handleChange : 각 모드별로 독립 if 로 처리
+    * ----------------------------------------------------------- */
+
+    function updatePickerVisibility2(mode) {
+      document.getElementById("woonTimeSetPicker2").style.display = 'none';
+      document.getElementById("woonTimeSetPickerVer22").style.display = 'none';
+      document.getElementById("woonTimeSetPickerVer23").style.display = 'none';
+    
+      currentMode = mode;
+    
+      if (mode === 'ver22') {
+        document.getElementById("woonTimeSetPickerVer22").style.display = '';
+        isPickerVer22 = true;
+        isPickerVer23 = false;
+      } else if (mode === 'ver23') {
+        document.getElementById("woonTimeSetPickerVer23").style.display = '';
+        isPickerVer22 = false;
+        isPickerVer23 = true;
+      } else if (mode === 'ver21') {
+        document.getElementById("woonTimeSetPicker2").style.display = '';
+        isPickerVer22 = false;
+        isPickerVer23 = false;
+      }
+    }
+
+    document.getElementById('woonVer1Change2').addEventListener('click', () => {
+      updatePickerVisibility2('ver21');
+    });
+    document.getElementById('woonVer2Change22').addEventListener('click', () => {
+      updatePickerVisibility2('ver22');
+    });
+    document.getElementById('woonVer3Change23').addEventListener('click', () => {
+      updatePickerVisibility2('ver23');
+
+    });
+
+    function handleChange() {
+      let dateObj = null;
+
+      if (currentMode === 'ver21' && pickerDt.value) {
+        dateObj = parseLocalDateTime(pickerDt.value);
+      }
+
+      if (currentMode === 'ver22' && pickerD.value) {
+        dateObj = parseLocalDate(pickerD.value);
+      }
+
+      if (currentMode === 'ver23' && pickerM.value) {
+        dateObj = parseLocalMonth(pickerM.value);
+      }
+
+      // 값이 없으면 오늘 날짜
+      if (!dateObj) dateObj = new Date();
+
+      updateGanzhiDisplay(dateObj);
+    }
+    handleChangeVr = handleChange;
+
+    updateGanzhiDisplay(toKoreanTime(new Date()))
+
+
 
     // ============================================================== //
 
@@ -1683,8 +1910,10 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("기본정보 업데이트 완료.");
       // Pillars 계산 및 전역 변수 저장
       // 원국 및 묘운 업데이트 실행
-      const refDate = new Date();
-      updateOriginalAndMyowoon(refDate);
+      const refDate = toKoreanTime(new Date());
+      updateOriginalAndMyowoonVr = updateOriginalAndMyowoon;
+
+      updateOriginalAndMyowoonVr(refDate);
     }
 
     
@@ -1696,6 +1925,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".couple_btn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
+
+        isCoupleMode = true;
+        currentMode = "ver21";
         const partnerIndexStr = button.getAttribute("data-index").replace("couple_", "");
         const partnerIndex = parseInt(partnerIndexStr, 10);
         const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
@@ -1709,6 +1941,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById("aside").style.display = "none";
         document.querySelector(".couple_mode_wrap").style.display = "flex";
+        document.querySelector("#woonTimeSetPicker2").style.display = "inline-block";  
         
         // "나"의 데이터가 미리 저장되어 있어야 두 사람의 데이터를 모두 업데이트할 수 있습니다.
         if (personData) {
@@ -1748,6 +1981,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("coupleBackBtn").addEventListener("click", function(){
     isCoupleMode = false;
+    currentMode = "ver1";
     document.getElementById("aside").style.display = "none";
     document.querySelector(".couple_mode_wrap").style.display = "none";
 
@@ -1784,8 +2018,9 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("calcBtn").addEventListener("click", function () {
 
     document.getElementById("backBtn").style.display = "block";
+    
 
-    let refDate = new Date();
+    let refDate = toKoreanTime(new Date());
 
     // "태어난 시 모름" 체크 여부
     let isTimeUnknown = document.getElementById("bitthTimeX").checked;
@@ -2103,7 +2338,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateAllDaewoonItems(globalState.daewoonData.list);
 
     const birthDateObj = new Date(year, month - 1, day);
-    const todayObj = new Date();
+    const todayObj = toKoreanTime(new Date());
     let currentAge = todayObj.getFullYear() - birthDateObj.getFullYear();
     if (todayObj.getMonth() < birthDateObj.getMonth() ||
        (todayObj.getMonth() === birthDateObj.getMonth() && todayObj.getDate() < birthDateObj.getDate())) {
@@ -2512,11 +2747,48 @@ document.addEventListener("DOMContentLoaded", function () {
           <li class="ilwoon_10woonseong"><span>${twelveUnseong}</span></li>
           <li class="ilwoon_10sinsal"><span>${twelveShinsal}</span></li>
         </ul>`;
+
+
+        // ② 현재 사이클의 “오늘 날짜” 계산 함수
+        function getCycleDateToday() {
+          const nowKst = toKoreanTime(new Date());
+          // 날짜만 비교할 것이므로 시·분·초는 모두 0으로
+          const cycleDate = new Date(
+            nowKst.getFullYear(),
+            nowKst.getMonth(),
+            nowKst.getDate(), 
+            0, 0, 0, 0
+          );
+          const hour = nowKst.getHours();
+
+          // 자시(23:00 기준)
+          if (document.getElementById("jasi").checked) {
+            if (hour < 23) {
+              // 23시 이전이면 전날로 이동
+              cycleDate.setDate(cycleDate.getDate() - 1);
+            }
+          }
+          // 야자시(00:00 기준) → 별도 보정 없음
+
+          // 인시(03:00 기준)
+          else if (document.getElementById("insi").checked) {
+            if (hour < 3) {
+              // 3시 이전이면 전날로 이동
+              cycleDate.setDate(cycleDate.getDate() - 1);
+            }
+          }
+
+          return cycleDate;
+        }
+
+        // ③ 달력 렌더링 로직에서
+        const todayCycle = getCycleDateToday();
+
         let tdClass = "";
         if (
-          date.getFullYear() === today.getFullYear() &&
-          date.getMonth() === today.getMonth() &&
-          date.getDate() === today.getDate()
+          date.getFullYear() === todayCycle.getFullYear() &&
+          date.getMonth() === todayCycle.getMonth() &&
+          date.getDate() === todayCycle.getDate()
         ) {
           tdClass = ' class="active"';
         }
@@ -2541,7 +2813,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateMonthlyFortuneCalendar(solarTermName, computedYear, newIndexOpt) {
-      const today = new Date();
+      const today = toKoreanTime(new Date());
       const solarYear = computedYear || (function () {
         const ipChun = findSolarTermDate(today.getFullYear(), 315);
         return (today < ipChun) ? today.getFullYear() - 1 : today.getFullYear();
@@ -2593,7 +2865,7 @@ document.addEventListener("DOMContentLoaded", function () {
       globalState.boundaries = boundaries;
       globalState.currentIndex = currentIndex;
       globalState.computedYear = solarYear;
-      const now = new Date();
+      const now = toKoreanTime(new Date());
       const activeMonth = globalState.activeMonth || (now.getMonth() + 1);
       document.querySelectorAll("#mowoonList li").forEach(function (li) {
         const liMonth = parseInt(li.getAttribute("data-index3"), 10);
@@ -2804,7 +3076,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('iljuCalender').style.display = 'grid';
         const termName = li.getAttribute("data-solar-term") || "";
         const computedYear = globalState.computedYear || (function(){
-          const today = new Date();
+          const today = toKoreanTime(new Date());
           const ipChun = findSolarTermDate(today.getFullYear(), 315);
           return (today < ipChun) ? today.getFullYear() - 1 : today.getFullYear();
         })();
@@ -2863,7 +3135,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getDynamicStep(candidateTime, cycleDays, refDate) {
-      const now = refDate || new Date();
+      const now = refDate || toKoreanTime(new Date());
       const diff = now - candidateTime; // 밀리초 차이
       return diff < 0 ? 0 : Math.floor(diff / (cycleDays * oneDayMs)) + 1;
     }
@@ -3255,7 +3527,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMyowoonSectionVr = updateMyowoonSection;
 
     function initPickers() {
-      const today = new Date();
+      const today = toKoreanTime(new Date());
     
       const formatDateLocal = (d) => {
         const yyyy = d.getFullYear();
@@ -3269,9 +3541,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         return `${yyyy}-${mm}`;
       };
+
+      function toKoreanTime(date) {
+        // 1) 현재 객체가 가진 UTC 밀리초(브라우저 기준 local → UTC)
+        const utcMs = date.getTime() + date.getTimezoneOffset() * 60_000;
+        // 2) 한국 표준시(UTC+9)의 밀리초
+        const kstOffsetMs = 9 * 60 * 60_000;
+        return new Date(utcMs + kstOffsetMs);
+      }
+
+      const kstNow = toKoreanTime(new Date());
+
+      // 1) YYYY‑MM‑DDThh:mm 형식으로 맞춰 주기
+      const pad = n => String(n).padStart(2, '0');
+      const fyear   = kstNow.getFullYear();
+      const fmonth  = pad(kstNow.getMonth() + 1);
+      const fday    = pad(kstNow.getDate());
+      const fhours  = pad(kstNow.getHours());
+      const fmins   = pad(kstNow.getMinutes());
     
       // value 세팅
-      document.getElementById("woonTimeSetPicker").value = today.toISOString().slice(0, 16);
+      document.getElementById("woonTimeSetPicker").value = `${fyear}-${fmonth}-${fday}T${fhours}:${fmins}`;
       document.getElementById("woonTimeSetPickerVer2").value = formatDateLocal(today);
       document.getElementById("woonTimeSetPickerVer3").value = formatMonthLocal(today);
     
@@ -3279,6 +3569,16 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("woonTimeSetPicker").style.display = '';
       document.getElementById("woonTimeSetPickerVer2").style.display = 'none';
       document.getElementById("woonTimeSetPickerVer3").style.display = 'none';
+
+      // value 세팅
+      document.getElementById("woonTimeSetPicker2").value = `${fyear}-${fmonth}-${fday}T${fhours}:${fmins}`;
+      document.getElementById("woonTimeSetPickerVer22").value = formatDateLocal(today);
+      document.getElementById("woonTimeSetPickerVer23").value = formatMonthLocal(today);
+    
+      // display 초기화
+      document.getElementById("woonTimeSetPicker2").style.display = '';
+      document.getElementById("woonTimeSetPickerVer22").style.display = 'none';
+      document.getElementById("woonTimeSetPickerVer23").style.display = 'none';
     }
 
     initPickers();
@@ -3298,19 +3598,35 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("woonTimeSetPickerVer3").style.display = '';
         isPickerVer2 = false;
         isPickerVer3 = true;
-      } else {
+      } else if (mode === 'ver1') {
         document.getElementById("woonTimeSetPicker").style.display = '';
         isPickerVer2 = false;
         isPickerVer3 = false;
       }
+
+
     }
 
-    const pickerButtons = document.querySelectorAll('.btn_box .black_btn');
+    
+
+    const pickerButtons = document.querySelectorAll('.btn_box .picker_btn');
 
     pickerButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         // 1. 모든 버튼에서 active 제거
         pickerButtons.forEach(b => b.classList.remove('active'));
+
+        // 2. 클릭한 버튼에 active 추가
+        btn.classList.add('active');
+      });
+    });
+
+    const pickerButtons2 = document.querySelectorAll('.btn_box .picker_btn2');
+
+    pickerButtons2.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        // 1. 모든 버튼에서 active 제거
+        pickerButtons2.forEach(b => b.classList.remove('active'));
 
         // 2. 클릭한 버튼에 active 추가
         btn.classList.add('active');
@@ -3330,15 +3646,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
+
+
     function getCurrentPicker() {
       if (currentMode === 'ver2') {
         return document.getElementById("woonTimeSetPickerVer2");
       } else if (currentMode === 'ver3') {
         return document.getElementById("woonTimeSetPickerVer3");
-      } else {
+      } else if (currentMode === 'ver1') {
         return document.getElementById("woonTimeSetPicker");
       }
     }
+
+    function getCurrentPicker2() {
+      if (currentMode === 'ver22') {
+        return document.getElementById("woonTimeSetPickerVer22");
+      } else if (currentMode === 'ver23') {
+        return document.getElementById("woonTimeSetPickerVer23");
+      } else if (currentMode === 'ver21') {
+        return document.getElementById("woonTimeSetPicker2");
+      }
+    }
+
+    
     
     function registerMyowoonMoreHandler() {
       const btn = document.getElementById("myowoonMore");
@@ -3347,9 +3677,9 @@ document.addEventListener("DOMContentLoaded", function () {
     
       newBtn.addEventListener("click", function () {
         
-        const picker = getCurrentPicker();
+        const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
         
-        const refDate = (picker && picker.value) ? new Date(picker.value) : new Date();
+        const refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());
     
         const myowoonResult = getMyounPillars(personData, refDate);
         
@@ -3406,24 +3736,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // updateDayWoon 함수 수정
     function updateDayWoon(refDate) {
-      
-      const hour = refDate.getHours();
+      // 1) 무조건 KST 기준으로 변환
+      const kstDate = toKoreanTime(refDate);
+      const hour    = kstDate.getHours();
 
-      let adjustedDate = new Date(refDate.getTime());
-      if (document.getElementById("jasi").checked && (hour >= 23 || hour < 3)) {
+      // 2) 복제본 준비
+      const adjustedDate = new Date(kstDate.getTime());
+
+      // 3) 자시/야자시/인시 기준으로 “일” 경계 이동
+      if (document.getElementById("jasi").checked) {
+        // 자시 기준: 23시를 하루의 시작으로 본다 → 23시 이전이면 전날 23시로 이동
+        if (hour < 23) {
+          adjustedDate.setDate(adjustedDate.getDate() - 1);
+        }
         adjustedDate.setHours(23, 0, 0, 0);
-      } else if (document.getElementById("yajasi").checked && (hour >= 0 && hour < 3)) {
+
+      } else if (document.getElementById("yajasi").checked) {
+        // 야자시 기준(=0시 기준): 아무 보정 없이 당일 0시로
         adjustedDate.setHours(0, 0, 0, 0);
-      } else if (document.getElementById("insi").checked && (hour >= 3 && hour < 5)) {
+
+      } else if (document.getElementById("insi").checked) {
+        // 인시 기준(=3시 기준): 3시 이전이면 전날 3시로 이동
+        if (hour < 3) {
+          adjustedDate.setDate(adjustedDate.getDate() - 1);
+        }
         adjustedDate.setHours(3, 0, 0, 0);
       }
 
-      adjustedDate.setDate(adjustedDate.getDate() - 1);
-    
-      // 이 adjustedDate를 기준으로 일간 계산 (올바른 구조)
+      // 4) 이 adjustedDate를 기준으로 일간/지지 계산
       const dayGanZhi = getDayGanZhi(adjustedDate);
-      const gan = splitPillar(dayGanZhi).gan;
-      const ji = splitPillar(dayGanZhi).ji;
+      const { gan, ji } = splitPillar(dayGanZhi);
     
 
       if (isPickerVer3) {
@@ -3503,11 +3845,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     updateHourWoon(refDate);
 
-    const picker = getCurrentPicker();
-    refDate = (picker && picker.value) ? new Date(picker.value) : new Date();  
+    const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
+    refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());  
     const myowoonResult = getMyounPillars(personData, refDate);
     if (picker) {
-      const now = new Date();
+      const now = toKoreanTime(new Date());
       const yearNow = now.getFullYear();
       const monthNow = pad(now.getMonth() + 1);
       const dayNow = pad(now.getDate());
@@ -3685,7 +4027,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function getMonthlyWoonParameters() {
       // 오늘 날짜 기준
-      const today = new Date();
+      const today = toKoreanTime(new Date());
     
       // 입춘 날짜를 구합니다.
       const ipchun = findSolarTermDate(today.getFullYear(), 315);
@@ -3944,8 +4286,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
     
       const ul = document.getElementById("explanDetail");
-      const pickerValue = getCurrentPicker().value;
-      //const pikerValue = document.getElementById('woonTimeSetPicker').value?.trim();
+      const pickerValue = isCoupleMode ? getCurrentPicker2().value : getCurrentPicker().value;
 
       function formatDateTime(date) {
         const y = date.getFullYear();
@@ -3984,8 +4325,6 @@ document.addEventListener("DOMContentLoaded", function () {
       html += `
       <li>계산시각 : ${formatByTimeKnown(new Date(pickerValue))}<br>출생(보정)시각 : ${formatDateTime(correctedDate)}</li>
       `;
-
-      console.log('isPickerVer3', isPickerVer3);
     
       if (!isTimeUnknown) {
         if (isPickerVer3) {
@@ -4335,14 +4674,33 @@ document.addEventListener("DOMContentLoaded", function () {
       //updateFunc();
     }
     
-    
+    document.getElementById("woonChangeBtn2").addEventListener("click", function () {
+      const pickerDt = document.getElementById('woonTimeSetPicker2');
+      const pickerD  = document.getElementById('woonTimeSetPickerVer22');
+      const pickerM  = document.getElementById('woonTimeSetPickerVer23');
+
+      // 보이는 피커로 모드 결정 (display:none 대신 hidden 속성 써도 무방)
+      if (!pickerDt.hidden) {
+        currentMode = 'ver21';           // 시간까지
+      } else if (!pickerD.hidden) {
+        currentMode = 'ver22';           // 일까지
+      } else if (!pickerM.hidden) {
+        currentMode = 'ver23';           // 월까지
+      }
+      handleChangeVr();                   // 갱신
+      
+      const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
+      refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());
+
+      updateOriginalAndMyowoonVr(refDate);
+    });
 
     // 버튼 클릭 이벤트: picker 날짜(refDate)를 사용하여 동적 운세(묘운)를 업데이트
     document.getElementById("woonChangeBtn").addEventListener("click", function () {
       // 피커에서 기준 날짜(refDate)를 가져옴
       //const picker = document.getElementById('woonTimeSetPicker');
-      const picker = getCurrentPicker();
-      refDate = (picker && picker.value) ? new Date(picker.value) : new Date();
+      const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
+      refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());
 
       const branchIndex = getHourBranchIndex(correctedDate);
       const branchName = Jiji[branchIndex];
@@ -4351,6 +4709,7 @@ document.addEventListener("DOMContentLoaded", function () {
         radioFunc(refDate);
       }
       updateFunc(refDate);
+      
 
       // 2-2) "올해 나이" 또는 "refDate" 기준으로 대운리스트 중 현재 대운(active) 찾기
       const todayObj = refDate; // 편의상
@@ -4676,7 +5035,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // 피커에서 기준 날짜(refDate)를 가져옴
-        const picker = getCurrentPicker();
+        const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
         const rawRefDate = (picker && picker.value) ? new Date(picker.value) : new Date();
 
         const radioDate = getRadioBasedDate(rawRefDate);
