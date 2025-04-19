@@ -1398,7 +1398,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
-        backBtn.style.display = 'none';
+        backBtn.style.display = '';
         handleViewClick();
         const idx = parseInt(button.getAttribute("data-index"), 10);
         currentDetailIndex = idx;
@@ -3763,12 +3763,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelectorAll('.back_btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        //window.location.reload();
+        window.location.reload();
         document.getElementById("inputWrap").style.display = "block";
         document.getElementById("resultWrapper").style.display = "none";
         document.getElementById("aside").style.display = "none";
         isCoupleMode = false;
-        window.scrollTo(0, 0);
         window.scrollTo(0, 0);
       });
     });
@@ -5447,6 +5446,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // 9) 화면 전환
       document.getElementById("inputWrap").style.display = "none";
       document.getElementById("resultWrapper").style.display = "block";
+      backBtn.style.display = '';
     }
   });
 
