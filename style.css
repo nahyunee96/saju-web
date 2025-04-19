@@ -555,7 +555,7 @@
     width: 15%;
     max-width: 100px;
     height: 46px;
-    padding: 0;
+    padding: 0 10px;
     text-align: center;
   }
 
@@ -1315,8 +1315,9 @@
     }
 
     .aside .top_search_list > select {
-      font-size: 3.2vw;
       height: 8vw;
+      padding: 0 2vw;
+      font-size: 3.2vw;
     }
 
     .aside .search_form {

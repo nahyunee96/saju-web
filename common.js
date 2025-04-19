@@ -1996,7 +1996,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("backBtnAS").addEventListener("click", function () {
     window.location.reload();
     window.scrollTo(0, 0);
-  });
+  }); 
 
   document.getElementById("bitthTimeX").addEventListener("change", function () {
     const timeType = document.getElementById("timeType");
@@ -5078,6 +5078,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   });
 
+  const favCheckbox = document.getElementById('topPs');
+
   
   function startModify(index) {
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
@@ -5114,6 +5116,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
     };
     originalDataSnapshot = JSON.stringify(snapshot);
+    
   }
 
   document.addEventListener("click", function (event) {
@@ -5212,6 +5215,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const nameInput = document.getElementById("inputName");
     nameInput.focus();
     nameInput.setSelectionRange(nameInput.value.length, nameInput.value.length);
+
+    const favCheckbox = document.getElementById('topPs');
+    
+    favCheckbox.checked = !!selected.isFavorite;
+    currentModifyIndex = index;
+    isModifyMode = true;
 
   });
   
@@ -5347,31 +5356,57 @@ document.addEventListener("DOMContentLoaded", function () {
   
 
   // 수정하기 버튼 눌렀을 때
+  // 수정하기 버튼 눌렀을 때
   document.getElementById("calcBtn").addEventListener("click", function () {
+    // 1) 새로 수집할 데이터 만들어오기
     const newData = makeNewData();
+
+    // 2) 즐겨찾기 체크 상태 읽어서 newData에 추가
+    const favCheckbox = document.getElementById('topPs');
+    newData.isFavorite = favCheckbox.checked;
+
+    // 3) 기존 리스트 불러오기
     const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
 
+    // 4) 수정 모드인지 확인
     if (typeof currentModifyIndex === "number") {
+      // 변경 사항이 없으면 확인창
       const currentDataStr = JSON.stringify(newData);
       if (currentDataStr === originalDataSnapshot) {
         const confirmSave = confirm("수정된 부분이 없습니다. 이대로 저장하시겠습니까?");
         if (!confirmSave) return;
       }
 
+      // 5) 리스트에 덮어쓰기
       list[currentModifyIndex] = newData;
+
+      // 6) 로컬스토리지에 한 번에 저장
       localStorage.setItem("myeongsikList", JSON.stringify(list));
+
+      // 7) UI 갱신
       loadSavedMyeongsikList();
       alert("명식이 수정되었습니다.");
 
+      // 8) 모드 초기화
       isModifyMode = false;
       originalDataSnapshot = "";
       currentModifyIndex = null;
       updateSaveBtn();
 
+      // 9) 화면 전환
       document.getElementById("inputWrap").style.display = "none";
       document.getElementById("resultWrapper").style.display = "block";
     }
   });
+
+
+  item.isFavorite = favCheckbox.checked;
+        // 리스트 재저장
+  localStorage.setItem("myeongsikList", JSON.stringify(savedList));
+
+  // 화면 다시 그리기
+  loadSavedMyeongsikList();
+  isModifyMode = false;
 
   new Sortable(document.querySelector(".list_ul"), {
     handle: ".drag_btn_zone", // 요 버튼 누르고 있어야 드래그 가능
