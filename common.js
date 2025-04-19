@@ -900,8 +900,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const coupleModeBtnV = document.getElementById('coupleModeBtn');
 
-
-  
   function updateSaveBtn() {
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const saveBtn = document.getElementById('saveBtn');
@@ -1382,6 +1380,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
+        backBtn.style.display = 'none';
         handleViewClick();
         const idx = parseInt(button.getAttribute("data-index"), 10);
         currentDetailIndex = idx;
@@ -1458,7 +1457,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
         document.getElementById("aside").style.display = "none";
         document.getElementById("inputWrap").style.display = "none";
-        document.getElementById("backBtn").style.display = "block";
+        //document.getElementById("backBtn").style.display = "block";
         document.getElementById("resultWrapper").style.display = "block";
         window.scrollTo(0, 0);
       });
@@ -1916,8 +1915,6 @@ document.addEventListener("DOMContentLoaded", function () {
       updateOriginalAndMyowoonVr(refDate);
     }
 
-    
-
     //updateCoupleModeBtnVisibility();
     updateMeGroupOption();
 
@@ -1998,6 +1995,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   document.getElementById("backBtnAS").addEventListener("click", function () {
     window.location.reload();
+    window.scrollTo(0, 0);
   });
 
   document.getElementById("bitthTimeX").addEventListener("change", function () {
@@ -2015,9 +2013,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+
+
   document.getElementById("calcBtn").addEventListener("click", function () {
 
-    document.getElementById("backBtn").style.display = "block";
+    //document.getElementById("backBtn").style.display = "block";
     
 
     let refDate = toKoreanTime(new Date());
@@ -3720,7 +3720,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelectorAll('.back_btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        window.location.reload();
+        //window.location.reload();
+        document.getElementById("inputWrap").style.display = "block";
+        document.getElementById("resultWrapper").style.display = "none";
+        document.getElementById("aside").style.display = "none";
+        isCoupleMode = false;
+        window.scrollTo(0, 0);
         window.scrollTo(0, 0);
       });
     });
@@ -5114,7 +5119,8 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("click", function (event) {
     const modifyBtn = event.target.closest(".modify_btn");
     if (!modifyBtn) return;
-  
+    backBtn.style.display = 'none';
+
     const index = parseInt(modifyBtn.getAttribute("data-index"), 10);
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const selected = savedList[index];
@@ -5198,8 +5204,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // 수정 모드 플래그 설정
     currentModifyIndex = index;
 
-    
-
     // 버튼 텍스트 변경
     const calcBtn = document.getElementById("calcBtn");
     calcBtn.textContent = "수정하기";
@@ -5212,6 +5216,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   
   let isModifyMode = false;
+  
   originalDataSnapshot = "";
   
   function formatTime(date) {
