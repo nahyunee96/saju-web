@@ -1239,8 +1239,9 @@
       margin: 0 0 1vw;
     }
 
-    .jijanggan li {
-      font-size: 2.62vw;
+    .jijanggan li,
+    .w50 .jijanggan li {
+      font-size: 2vw;
     }
 
     .w50 .jijanggan li {
