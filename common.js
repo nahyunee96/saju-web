@@ -783,9 +783,9 @@ const tenGodMappingForStems = {
 };
 
 const tenGodMappingForBranches = {
-  "갑": { "자": "정인", "축": "정재", "인": "비견", "묘": "겁재", "진": "편재", "사": "상관", "오": "식신", "미": "정재", "신": "편관", "유": "정관", "술": "편재", "해": "편인" },
-  "을": { "자": "편인", "축": "편재", "인": "겁재", "묘": "비견", "진": "정재", "사": "식신", "오": "상관", "미": "편재", "신": "정관", "유": "편관", "술": "정재", "해": "정인" },
-  "병": { "자": "정관", "축": "상관", "인": "편인", "묘": "정인", "진": "식신", "사": "비견", "오": "겁살", "미": "상관", "신": "편재", "유": "정재", "술": "식신", "해": "편인" },
+  "갑": { "자": "정인", "축": "정재", "인": "비견", "묘": "겁재", "진": "편재", "사": "식신", "오": "상관", "미": "정재", "신": "편관", "유": "정관", "술": "편재", "해": "편인" },
+  "을": { "자": "편인", "축": "편재", "인": "겁재", "묘": "비견", "진": "정재", "사": "상관", "오": "식신", "미": "편재", "신": "정관", "유": "편관", "술": "정재", "해": "정인" },
+  "병": { "자": "정관", "축": "상관", "인": "편인", "묘": "정인", "진": "식신", "사": "비견", "오": "겁재", "미": "상관", "신": "편재", "유": "정재", "술": "식신", "해": "편인" },
   "정": { "자": "편관", "축": "식신", "인": "정인", "묘": "편인", "진": "상관", "사": "겁재", "오": "비견", "미": "식신", "신": "정재", "유": "편재", "술": "상관", "해": "정인" },
   "무": { "자": "정재", "축": "겁재", "인": "편관", "묘": "정관", "진": "비견", "사": "편인", "오": "정인", "미": "겁재", "신": "식신", "유": "상관", "술": "비견", "해": "편재" },
   "기": { "자": "편재", "축": "비견", "인": "정관", "묘": "편관", "진": "겁재", "사": "정인", "오": "편인", "미": "비견", "신": "상관", "유": "식신", "술": "겁재", "해": "정재" },
@@ -3344,8 +3344,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       let { correctedDate, year, month, day, hour, minute,
         yearPillar, monthPillar, dayPillar, hourPillar, gender } = person;
-
-
+      
+      const originalDate = new Date(year, month - 1, day, hour, minute);
+      correctedDate = adjustBirthDate(originalDate, birthPlaceInput, isPlaceUnknown);
       let baseTime = new Date(correctedDate);
       if (document.getElementById("jasi")?.checked) {
         baseTime.setHours(23, 0);
@@ -3356,7 +3357,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // staticBirth: 원국 계산용(출생일)
-      const originalDate = new Date(year, month - 1, day, hour, minute);
+      
       const staticBirth = new Date(correctedDate);
       
       // 동적 기준 설정
@@ -3392,6 +3393,8 @@ document.addEventListener("DOMContentLoaded", function () {
           { start: 900, end: 1020 }, { start: 1020, end: 1140 },
           { start: 1140, end: 1260 }, { start: 1260, end: 1380 }
         ];
+
+        console.log('birthMinutes', birthMinutes);
     
         let block = blocks.find(b => (b.start < b.end && birthMinutes >= b.start && birthMinutes < b.end) ||
                                       (b.start > b.end && (birthMinutes >= b.start || birthMinutes < b.end)));
@@ -4144,36 +4147,36 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function logTimelineWindow(label, timeline, windowSize = 10) {
-      // const total = timeline.length;
-      // if (total === 0) {
-      //   console.log(`${label}: 타임라인이 비어 있습니다.`);
-      //   return;
-      // }
-      // if (total <= windowSize * 2) {
-      //   console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
-      //   timeline.forEach(evt => {
-      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      //   });
-      // } else {
-      //   console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
-      //   for (let i = 0; i < windowSize; i++) {
-      //     const evt = timeline[i];
-      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      //   }
-      //   console.log("... 생략 ...");
-      //   console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
-      //   for (let i = total - windowSize; i < total; i++) {
-      //     const evt = timeline[i];
-      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      //   }
-      // }
+      const total = timeline.length;
+      if (total === 0) {
+        console.log(`${label}: 타임라인이 비어 있습니다.`);
+        return;
+      }
+      if (total <= windowSize * 2) {
+        console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
+        timeline.forEach(evt => {
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        });
+      } else {
+        console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
+        for (let i = 0; i < windowSize; i++) {
+          const evt = timeline[i];
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        }
+        console.log("... 생략 ...");
+        console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
+        for (let i = total - windowSize; i < total; i++) {
+          const evt = timeline[i];
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        }
+      }
     }
-    // setTimeout(function(){
-    //   logTimelineWindow("시주", sijuTimeline);
-    //   logTimelineWindow("일주", iljuTimeline);
-    //   logTimelineWindow("월주", woljuTimeline);
-    //   logTimelineWindow("연주", yeonjuTimeline);
-    // }, 20);
+    setTimeout(function(){
+      logTimelineWindow("시주", sijuTimeline);
+      logTimelineWindow("일주", iljuTimeline);
+      logTimelineWindow("월주", woljuTimeline);
+      logTimelineWindow("연주", yeonjuTimeline);
+    }, 20);
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
