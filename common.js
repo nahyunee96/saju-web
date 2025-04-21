@@ -3557,8 +3557,7 @@ document.addEventListener("DOMContentLoaded", function () {
         staticBirth.getHours(), staticBirth.getMinutes(), usedBirthPlace, gender
       );
 
-
-      //[yearPillar, monthPillar, dayPillar, hourPillar] = fullResult.split(", ")[0].split(" ");
+      [yearPillar, monthPillar, dayPillar, hourPillar] = fullResult.split(", ")[0].split(" ");
     
       const sijuIndex = getGanZhiIndex(hourPillar);
       const iljuIndex = getGanZhiIndex(dayPillar);
@@ -4127,35 +4126,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function logTimelineWindow(label, timeline, windowSize = 10) {
       const total = timeline.length;
-      // if (total === 0) {
-      //   console.log(`${label}: 타임라인이 비어 있습니다.`);
-      //   return;
-      // }
-      // if (total <= windowSize * 2) {
-      //   console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
-      //   timeline.forEach(evt => {
-      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      //   });
-      // } else {
-      //   console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
-      //   for (let i = 0; i < windowSize; i++) {
-      //     const evt = timeline[i];
-      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      //   }
-      //   console.log("... 생략 ...");
-      //   console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
-      //   for (let i = total - windowSize; i < total; i++) {
-      //     const evt = timeline[i];
-      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      //   }
-      // }
+      if (total === 0) {
+        console.log(`${label}: 타임라인이 비어 있습니다.`);
+        return;
+      }
+      if (total <= windowSize * 2) {
+        console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
+        timeline.forEach(evt => {
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        });
+      } else {
+        console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
+        for (let i = 0; i < windowSize; i++) {
+          const evt = timeline[i];
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        }
+        console.log("... 생략 ...");
+        console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
+        for (let i = total - windowSize; i < total; i++) {
+          const evt = timeline[i];
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        }
+      }
     }
-    // setTimeout(function(){
-    //   logTimelineWindow("시주", sijuTimeline);
-    //   logTimelineWindow("일주", iljuTimeline);
-    //   logTimelineWindow("월주", woljuTimeline);
-    //   logTimelineWindow("연주", yeonjuTimeline);
-    // }, 20);
+    setTimeout(function(){
+      logTimelineWindow("시주", sijuTimeline);
+      logTimelineWindow("일주", iljuTimeline);
+      logTimelineWindow("월주", woljuTimeline);
+      logTimelineWindow("연주", yeonjuTimeline);
+    }, 20);
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
@@ -5115,8 +5114,6 @@ document.addEventListener("DOMContentLoaded", function () {
           globalState.selectedHourPillar = siju;
           globalState.hourPillar         = siju;
           smoothUpdate(siju);
-
-          
         });
       });
     }
@@ -5215,7 +5212,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const favCheckbox = document.getElementById('topPs');
 
-  
   function startModify(index) {
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const selected = savedList[index];
