@@ -1900,9 +1900,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const date = new Date(dateObj);
       const hourBranch = getHourBranchUsingArray(date);
       const hourBranchIndex = Jiji.indexOf(hourBranch);
-      const dayGanZhi = getDayGanZhi(date);
-      const daySplitFuc = splitPillar(dayGanZhi);
-      const hourStem = getHourStem2(daySplitFuc.gan, hourBranchIndex);
+      const dayGanZhi = getDayGanZhiRef(date);
+      const dayGanZhiGan = splitPillar(getDayGanZhiRef(date));
+      const hourStem = getHourStem2(dayGanZhiGan.gan, hourBranchIndex);
 
       return `${hourStem}${hourBranch}`;  // ex) "정사"
     }
@@ -3982,6 +3982,8 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("WDb12ss", getTwelveShinsal(baseYearBranch, ji) || "-");
         updateColorClasses();
       }
+
+      return { dayGanZhi, gan, ji };
     }
 
     updateDayWoon(refDate);
@@ -4020,11 +4022,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateHourWoon(refDate) {
-      const hourBranch = getHourBranchUsingArray(refDate);
+      const date = new Date(refDate);
+      const hourBranch = getHourBranchUsingArray(date);
       const hourBranchIndex = Jiji.indexOf(hourBranch);
-      const dayGanZhi = getDayGanZhi(refDate);
-      const daySplitFuc = splitPillar(dayGanZhi);
-      const hourStem = getHourStem2(daySplitFuc.gan, hourBranchIndex);
+      const dayGanZhi = updateDayWoon(refDate).gan;
+      console.log(dayGanZhi);
+      const hourStem = getHourStem2(dayGanZhi, hourBranchIndex);
 
 
       if (isPickerVer2 || isPickerVer3) {
