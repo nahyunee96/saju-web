@@ -1391,7 +1391,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </li>
             <li class="birth_day_time" id="birthDayTime">
               <span id="birthdaySV_${index + 1}">
-                ${formattedBirthday}
+                ${formattedBirthday} (<b id="selectTime2__${index + 1}">${displayTimeLabel}</b>지정)
               </span> <br>
               
               <span id="birthtimeSV_${index + 1}">
@@ -1400,7 +1400,6 @@ document.addEventListener("DOMContentLoaded", function () {
               <span id="adjustedTimeSV_${index + 1}">
                 (보정시: ${adjustedTimeDisplay})
               </span>
-              <span><b id="selectTime2__${index + 1}">${displayTimeLabel}</b>명식</span>
             </li>
             <li>
               <span><b id="birthPlaceSV_${index + 1}">${birthPlaceDisplay}</b></span>
