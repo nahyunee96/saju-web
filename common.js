@@ -86,96 +86,139 @@ let latestMyeongsik = null;
 //   "제주시": 126.5312, "서귀포시": 126.715
 // };
 
-// 전역에 빈 객체 선언
-// 전역에 빈 객체 선언
-// 전역 저장소
-let cityLongitudes = {};
-const btn       = document.getElementById('inputBirthPlace');
-const modal     = document.getElementById('mapModal');
-const closeMap  = document.getElementById('closeMap');
-const searchBox = document.getElementById('searchBox');
-const suggList  = document.getElementById('suggestions');
-let map, marker, debounceTimer;
+// 1) 전역에 빈 객체 선언 (고정 매핑 없음)
+  let cityLongitudes = {};
 
-// 1) 버튼 클릭 → 모달 열기 + 지도 초기화
-btn.addEventListener('click', () => {
-  modal.style.display = 'block';
-  if (!map) {
-    map = L.map('map').setView([37.5665, 126.9780], 6);  // 북반구 전체가 보이도록
-    L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      {
-        subdomains: 'abcd',
-        attribution: '&copy; OpenStreetMap &copy; CARTO'
-      }
-    ).addTo(map);
-  }
-  searchBox.focus();
-});
+  const btn       = document.getElementById('inputBirthPlace');
+  const modal     = document.getElementById('mapModal');
+  const closeMap  = document.getElementById('closeMap');
+  const searchBox = document.getElementById('searchBox');
+  const suggList  = document.getElementById('suggestions');
+  let map, marker, debounceTimer;
 
-// 2) 닫기
-closeMap.addEventListener('click', () => {
-  modal.style.display = 'none';
-  searchBox.value = '';
-  suggList.innerHTML = '';
-});
-
-// 3) 입력 시 자동완성 (Nominatim + viewbox 북반구)
-searchBox.addEventListener('input', () => {
-  clearTimeout(debounceTimer);
-  const q = searchBox.value.trim();
-  if (!q) { suggList.innerHTML = ''; return; }
-
-  debounceTimer = setTimeout(async () => {
-    try {
-      const url = 'https://nominatim.openstreetmap.org/search'
-                + '?format=json'
-                + '&limit=10'
-                + '&accept-language=ko'
-                + '&viewbox=-180,90,180,0'   // 북반구만
-                + '&bounded=1'
-                + '&q=' + encodeURIComponent(q);
-      const res  = await fetch(url);
-      const data = await res.json();
-
-      // 제안 목록 렌더링
-      suggList.innerHTML = data.map(item => {
-        const name = item.display_name.split(',')[0].trim();
-        return `<li
-                  data-lon="${item.lon}"
-                  data-lat="${item.lat}"
-                  data-name="${name}"
-                >${item.display_name}</li>`;
-      }).join('');
-    } catch (err) {
-      console.error(err);
-      suggList.innerHTML = '<li>검색 중 오류 발생</li>';
+  // 2) 버튼 클릭 → 모달 열기 + 지도 초기화
+  btn.addEventListener('click', () => {
+    modal.style.display = 'block';
+    if (!map) {
+      // 서울 중심, 줌 레벨 11
+      map = L.map('map').setView([37.5665, 126.9780], 11);
+      L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        { subdomains: 'abcd', attribution: '&copy; OSM &copy; CARTO' }
+      ).addTo(map);
     }
-  }, 300);
-});
+    searchBox.focus();
+  });
 
-// 4) 후보 클릭 시
-suggList.addEventListener('click', e => {
-  if (e.target.tagName !== 'LI') return;
-  const name = e.target.dataset.name;
-  const lat  = parseFloat(e.target.dataset.lat);
-  const lon  = parseFloat(e.target.dataset.lon);
+  // 3) 닫기
+  closeMap.addEventListener('click', () => {
+    modal.style.display = 'none';
+    searchBox.value = '';
+    suggList.innerHTML = '';
+  });
 
-  // 마커 표시 & 지도 이동
-  if (!marker) marker = L.marker([lat, lon]).addTo(map);
-  else         marker.setLatLng([lat, lon]);
-  map.setView([lat, lon], 8);
+  // 4) 자동완성: Nominatim + 북반구 viewbox
+  searchBox.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const q = searchBox.value.trim();
+    if (!q) {
+      suggList.innerHTML = '';
+      return;
+    }
 
-  // 저장 & 버튼 업데이트
-  cityLongitudes[name] = lon;
-  btn.value       = name;
-  btn.textContent = name;
+    debounceTimer = setTimeout(async () => {
+      try {
+        const url =
+          'https://nominatim.openstreetmap.org/search' +
+          '?format=json&limit=10' +
+          '&accept-language=ko' +
+          '&viewbox=-180,90,180,0&bounded=1' +
+          '&q=' + encodeURIComponent(q);
+        const res = await fetch(url);
+        const data = await res.json();
 
-  // 모달 닫기
-  modal.style.display = 'none';
-  searchBox.value = '';
-  suggList.innerHTML = '';
-});
+        suggList.innerHTML = data.map(item => {
+          const parts = item.display_name.split(',').map(s => s.trim());
+          // parts[0]=행정구, parts[1]=시 혹은 시 단독 등
+          let fullName;
+          if (parts[0].match(/구$|군$/) && parts[1]?.match(/시$/)) {
+            // 시/군/구 조합 → "부산광역시 사하구"
+            fullName = `${parts[1]} ${parts[0]}`;
+          } else {
+            // 그 외(시 단독, 외국 도시 등)
+            fullName = parts[0];
+          }
+          return `
+            <li
+              data-name="${fullName}"
+              data-lon="${item.lon}"
+              data-lat="${item.lat}"
+              style="padding:6px 8px;cursor:pointer;"
+            >${fullName}</li>`;
+        }).join('');
+      } catch (e) {
+        console.error(e);
+        suggList.innerHTML = '<li>검색 중 오류 발생</li>';
+      }
+    }, 300);
+  });
+
+  // 5) 후보 클릭 시
+  suggList.addEventListener('click', e => {
+    if (e.target.tagName !== 'LI') return;
+    const name = e.target.dataset.name;        // "부산광역시 사하구"
+    const lat  = parseFloat(e.target.dataset.lat);
+    const lon  = parseFloat(e.target.dataset.lon);
+  
+    // 마커 표시 & 지도 이동
+    if (!marker) marker = L.marker([lat, lon]).addTo(map);
+    else         marker.setLatLng([lat, lon]);
+    map.setView([lat, lon], 12);
+  
+    // 동적 매핑: fullName과 시 단위 키 모두 저장
+    const cityKey = name.split(' ')[0];
+    cityLongitudes[name]    = lon;
+    cityLongitudes[cityKey] = lon;
+  
+    // 2) 변경된 매핑을 localStorage에도 저장
+    localStorage.setItem(
+      'cityLongitudes',
+      JSON.stringify(cityLongitudes)
+    );
+  
+    //console.log('cityLongitudes now:', cityLongitudes);
+  
+    // 버튼 업데이트
+    btn.value       = name;
+    btn.textContent = name;
+  
+    // 모달 닫기 및 리스트 초기화
+    modal.style.display = 'none';
+    searchBox.value = '';
+    suggList.innerHTML = '';
+  });
+
+// function extractDistrict(fullName) {
+//   // 공백 또는 쉼표로 분리
+//   const parts = fullName.split(/[\s,]+/);
+//   for (const p of parts) {
+//     if (/(시|주)$/.test(p)) {
+//       return p;
+//     }
+//   }
+//   // 없으면 맨 앞 요소
+//   return parts[0];
+// }
+
+function loadCityLongitudes() {
+  cityLongitudes = JSON.parse(localStorage.getItem('cityLongitudes') || '{}');
+}
+
+function restoreCurrentPlaceMapping(item) {
+  if (item.birthPlaceFull && item.birthPlaceLongitude != null) {
+    cityLongitudes[item.birthPlaceFull] = item.birthPlaceLongitude;
+  }
+}
 
 function getSummerTimeInterval(year) {
   let interval = null;
@@ -200,25 +243,35 @@ function getEquationOfTime(dateObj) {
   return 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
 }
 
-function adjustBirthDate(dateObj, birthPlace) {
-  // 출생지 모름일 경우: -30분 고정 보정
-  /*if (isPlaceUnknown) {
-    return new Date(dateObj.getTime() - 30 * 60000); // 30분 = 1800000ms
-  }*/
-
-  // 출생지 입력된 경우: 경도 + 방정시 보정
-  const cityLongitude = cityLongitudes[birthPlace] || cityLongitudes["서울특별시"];
-  const longitudeCorrection = (cityLongitude - 135.1) * 4; // 분 단위
-  const eqTime = getEquationOfTime(dateObj); // 분 단위
-  let correctedTime = new Date(dateObj.getTime() + (longitudeCorrection + eqTime) * 60000);
-
-  // 서머타임 적용
-  const summerInterval = getSummerTimeInterval(correctedTime.getFullYear());
-  if (summerInterval && correctedTime >= summerInterval.start && correctedTime < summerInterval.end) {
-    correctedTime = new Date(correctedTime.getTime() - 60 * 60000); // -1시간
+function adjustBirthDate(dateObj, birthPlaceFull, isPlaceUnknown = false) {
+  if (isPlaceUnknown) {
+    return new Date(dateObj.getTime() - 30 * 60 * 1000);
   }
 
-  return correctedTime;
+  //console.log(cityLongitudes);
+
+  // ① fullName 그대로, 아니면 시 단위 키로도 fallback
+  const cityLon =
+    cityLongitudes[birthPlaceFull] ||
+    cityLongitudes[birthPlaceFull.split(' ')[0]];
+
+  if (cityLon == null) {
+    console.warn(`${birthPlaceFull}에 대한 경도가 없습니다.`);
+    return dateObj;
+  }
+
+  const longitudeCorrection = (cityLon - 135.1) * 4; // 분 단위
+  const eqTime = getEquationOfTime(dateObj);
+  let corrected = new Date(
+    dateObj.getTime() + (longitudeCorrection + eqTime) * 60 * 1000
+  );
+
+  const iv = getSummerTimeInterval(corrected.getFullYear());
+  if (iv && corrected >= iv.start && corrected < iv.end) {
+    corrected = new Date(corrected.getTime() - 60 * 60 * 1000);
+  }
+
+  return corrected;
 }
 
 // [1] 천문/역법 함수
@@ -1280,6 +1333,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cleaned.length !== 4 || isNaN(cleaned)) return "-";
         return cleaned.substring(0, 2) + "시" + cleaned.substring(2, 4) + "분";
       }
+      const fullPlace = item.birthPlace.trim();
       const birthtimeDisplay = item.isTimeUnknown ? "시간모름" : formatBirthtime(item.birthtime?.replace(/\s/g, "").trim());
       const birthPlaceDisplay = (item.isPlaceUnknown === true) 
                                 ? "출생지無" 
@@ -1351,10 +1405,10 @@ document.addEventListener("DOMContentLoaded", function () {
               <span id="adjustedTimeSV_${index + 1}">
                 (보정시: ${adjustedTimeDisplay})
               </span>
+              <span><b id="selectTime2__${index + 1}">${displayTimeLabel}</b>명식</span>
             </li>
             <li>
               <span><b id="birthPlaceSV_${index + 1}">${birthPlaceDisplay}</b></span>
-              <span><b id="selectTime2__${index + 1}">${displayTimeLabel}</b>기준 명식</span>
             </li>
           </ul>
         </div>
@@ -1491,11 +1545,13 @@ document.addEventListener("DOMContentLoaded", function () {
         e.stopPropagation();
         backBtn.style.display = '';
         handleViewClick();
+        loadCityLongitudes();
         const idx = parseInt(button.getAttribute("data-index"), 10);
         currentDetailIndex = idx;
         const item = savedList[idx];
         currentMyeongsik = item;
         if (!item) return;
+        restoreCurrentPlaceMapping(item);
   
         // 원래 detail view로 전환 (기존 코드)
         document.getElementById('wongookLM').classList.remove("w100");
@@ -1893,7 +1949,7 @@ document.addEventListener("DOMContentLoaded", function () {
         spanGanz.innerHTML = `<b>${y}</b>년 <b>${m}</b>월`;
       }
 
-      console.log(currentMode);
+      //console.log(currentMode);
     }
 
     /* 4. 값 읽기 ------------------------------------------------------ */
@@ -1993,8 +2049,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const myData      = JSON.parse(sessionStorage.getItem("lastMyData")    || "null");
       const partnerData = JSON.parse(sessionStorage.getItem("lastPartnerData")|| "null");
 
-      console.log("▶ lastMyData:",      sessionStorage.getItem("lastMyData"));
-      console.log("▶ lastPartnerData:", sessionStorage.getItem("lastPartnerData"));
+      //console.log("▶ lastMyData:",      sessionStorage.getItem("lastMyData"));
+      //console.log("▶ lastPartnerData:", sessionStorage.getItem("lastPartnerData"));
     
       if (!myData)      return alert("내 명식을 찾을 수 없습니다.");
       if (!partnerData) return alert("상대 명식을 찾을 수 없습니다.");
@@ -5257,12 +5313,17 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!modifyBtn) return;
     backBtn.style.display = 'none';
 
+    loadCityLongitudes();
+
     const index = parseInt(modifyBtn.getAttribute("data-index"), 10);
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const selected = savedList[index];
     if (!selected) return;
 
+    restoreCurrentPlaceMapping(index);
+
     startModify(index);
+
 
     groupEctWrap.style.display = 'none';
     inputMeGroupEct.value = '';

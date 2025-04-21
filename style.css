@@ -656,6 +656,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    flex: 0 0 auto;
+    margin-left: 10px;
   }
 
   .pharases {
@@ -1378,6 +1380,7 @@
 
     .aside .list_ul > li .btn_zone {
       gap: 2vw;
+      margin-left: 2vw;
     }
 
     .aside .list_ul > li .info_btn_zone .drag_btn_zone {
