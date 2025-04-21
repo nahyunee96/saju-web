@@ -2909,14 +2909,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const tenGodJiji = getTenGodForBranch(branch, baseDayStem);
         const twelveUnseong = getTwelveUnseong(baseDayStem, branch);
         const twelveShinsal = getTwelveShinsal(baseYearBranch, branch);
+        const STORAGE_KEY = 'b12Visibility';
+        const hide12 = localStorage.getItem(STORAGE_KEY) === 'hidden';
         let dailyHtml = `<ul class="ilwoon">
           <li class="ilwoonday"><span>${date.getDate()}일</span></li>
           <li class="ilwoon_ganji_cheongan_10sin"><span>${tenGodCheongan}</span></li>
           <li class="ilwoon_ganji_cheongan"><span>${stem}</span></li>
           <li class="ilwoon_ganji_jiji"><span>${branch}</span></li>
           <li class="ilwoon_ganji_jiji_10sin"><span>${tenGodJiji}</span></li>
-          <li class="ilwoon_10woonseong"><span>${twelveUnseong}</span></li>
-          <li class="ilwoon_10sinsal"><span>${twelveShinsal}</span></li>
+          ${!hide12 ? `
+            <li class="ilwoon_10woonseong" id="ilwoon10woonseong_${idx}">
+              <span>${twelveUnseong}</span>
+            </li>
+            <li class="ilwoon_10sinsal" id="ilwoon10sinsal_${idx}">
+              <span>${twelveShinsal}</span>
+            </li>
+          ` : ''}
         </ul>`;
 
 
@@ -5737,71 +5745,34 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem(explanSTORAGE_KEY, nextVisible);
   });
 
-  // 로컬스토리지 키
-  const STORAGE_KEY = "b12DisplayStatus";
 
-  // b12 토글 함수 정의
-  function toggleB12Visibility(isHidden) {
-    const b12Elements = document.querySelectorAll('[id*="b12"]');
-    const dwwElements = document.querySelectorAll('[id*="DwW"]');
-    const dwsElements = document.querySelectorAll('[id*="Ds"]');
-    const swwElements = document.querySelectorAll('[id*="SwW"]');
-    const swsElements = document.querySelectorAll('[id*="Ss"]');
-    const mwwElements = document.querySelectorAll('[id*="MwW"]');
-    const mwsElements = document.querySelectorAll('[id*="Ms"]');
-    const il12wonElements = document.querySelectorAll('.ilwoon_10woonseong');
-    const il12salElements = document.querySelectorAll('.ilwoon_10sinsal');
-    b12Elements.forEach(el => {
-      if (el.id) {
-        el.style.display = isHidden ? "none" : "block";
-      }
-    });
-    dwwElements.forEach(el => {
-      el.style.display = isHidden ? "none" : "block";
-    });
-    dwsElements.forEach(el => {
-      el.style.display = isHidden ? "none" : "block";
-    });
-    swwElements.forEach(el => {
-      el.style.display = isHidden ? "none" : "block";
-    });
-    swsElements.forEach(el => {
-      el.style.display = isHidden ? "none" : "block";
-    });
-    mwwElements.forEach(el => {
-      el.style.display = isHidden ? "none" : "block";
-    });
-    mwsElements.forEach(el => {
-      el.style.display = isHidden ? "none" : "block";
-    });
-    il12wonElements.forEach(el => {
-      el.style.display = isHidden ? "none" : "block";
-    });
-    il12salElements.forEach(el => {
-      el.style.display = isHidden ? "none" : "block";
-    });
+  const STORAGE_KEY = 'b12Visibility';
+  const app         = document.getElementById('app');      // wrapper
+  const checkbox    = document.getElementById('s12Ctrl');  // 토글 체크박스
+  const label       = document.getElementById('s12Label'); // 상태 레이블
 
-    const label = document.getElementById("s12Ctrl");
-    label.innerHTML = isHidden
-      ? "십이운성 · 십이신살 보이기"
-      : "십이운성 · 십이신살 가리기";
+  function applyState(hidden) {
+    // 1) wrapper 클래스 토글
+    app.classList.toggle('hide-12', hidden);
 
-    localStorage.setItem(STORAGE_KEY, isHidden ? "hidden" : "visible");
+    // 2) 레이블 텍스트 갱신
+    label.textContent = hidden
+      ? '십이운성 · 십이신살 보이기'
+      : '십이운성 · 십이신살 가리기';
+
+    // 3) checkbox 상태 & localStorage 저장
+    checkbox.checked = hidden;
+    localStorage.setItem(STORAGE_KEY, hidden ? 'hidden' : 'visible');
   }
 
-  const storedStatus = localStorage.getItem(STORAGE_KEY);
-  const checkbox = document.getElementById("s12Ctrl");
+  // — 초기값 복원
+  const stored = localStorage.getItem(STORAGE_KEY);
+  applyState(stored === 'hidden');
 
-  if (storedStatus === "hidden") {
-    checkbox.checked = true;
-    toggleB12Visibility(true);
-  } else {
-    checkbox.checked = false;
-    toggleB12Visibility(false);
-  }
-
-  // 이벤트 리스너 연결
-  checkbox.addEventListener("change", function () {
-    toggleB12Visibility(this.checked);
+  // — 토글할 때마다 apply
+  checkbox.addEventListener('change', () => {
+    applyState(checkbox.checked);
   });
+
+  
 });

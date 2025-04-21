@@ -53,6 +53,18 @@
     transition: opacity 0.15s ease-in-out;
   }
 
+  .hide-12 .ilwoon_10woonseong,
+  .hide-12 .ilwoon_10sinsal,
+  .hide-12 [id*="b12"],
+  .hide-12 [id*="DwW"],
+  .hide-12 [id*="Ds"],
+  .hide-12 [id*="SwW"],
+  .hide-12 [id*="Ss"],
+  .hide-12 [id*="MwW"],
+  .hide-12 [id*="Ms"] {
+    display: none !important;
+  }
+
   .mt0 {
     margin-top: 0;
   }
