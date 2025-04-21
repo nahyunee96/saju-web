@@ -181,8 +181,6 @@ let latestMyeongsik = null;
       JSON.stringify(cityLongitudes)
     );
   
-    //console.log('cityLongitudes now:', cityLongitudes);
-  
     // 버튼 업데이트
     btn.value       = name;
     btn.textContent = name;
@@ -242,8 +240,6 @@ function adjustBirthDate(dateObj, birthPlaceFull, isPlaceUnknown = false) {
   //if (isPlaceUnknown) {
     //return new Date(dateObj.getTime() - 30 * 60 * 1000);
   //}
-
-  //console.log(cityLongitudes);
 
   // ① fullName 그대로, 아니면 시 단위 키로도 fallback
   const cityLon =
@@ -1647,7 +1643,6 @@ document.addEventListener("DOMContentLoaded", function () {
       var el = document.getElementById(elementId);
       if (el) {
         el.textContent = value;
-        //console.log("업데이트됨:", elementId, "=>", value);
       } else {
         console.warn("요소를 찾을 수 없음:", elementId);
       }
@@ -1942,14 +1937,8 @@ document.addEventListener("DOMContentLoaded", function () {
       } else if (currentMode === 'ver23') {
         spanGanz.innerHTML = `<b>${y}</b>년 <b>${m}</b>월`;
       }
-
-      //console.log(currentMode);
     }
 
-    /* 4. 값 읽기 ------------------------------------------------------ */
-    /* -----------------------------------------------------------
-    *  문자열을 로컬 Date 로 변환 (UTC 보정 문제 해결)
-    * ----------------------------------------------------------- */
     function parseLocalDateTime(dateStr) {          // 'YYYY-MM-DDTHH:MM'
       const [y,m,d,h,mm] = dateStr
         .match(/\d+/g)
@@ -2042,9 +2031,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderCoupleView() {
       const myData      = JSON.parse(sessionStorage.getItem("lastMyData")    || "null");
       const partnerData = JSON.parse(sessionStorage.getItem("lastPartnerData")|| "null");
-
-      //console.log("▶ lastMyData:",      sessionStorage.getItem("lastMyData"));
-      //console.log("▶ lastPartnerData:", sessionStorage.getItem("lastPartnerData"));
     
       if (!myData)      return alert("내 명식을 찾을 수 없습니다.");
       if (!partnerData) return alert("상대 명식을 찾을 수 없습니다.");
@@ -3378,8 +3364,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const totalMinutes = 1440;
         const blockLength = 120;
         const birthMinutes = birthDate.getHours() * 60 + birthDate.getMinutes();
-
-        //console.log(birthMinutes);
     
         const blocks = [
           { start: 1380, end: 60 }, { start: 60, end: 180 },
@@ -3395,7 +3379,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!block) block = blocks[0];
     
         let diff = mode === "순행" ? block.end - birthMinutes : birthMinutes - block.start;
-        //console.log(birthMinutes - block.start);
         if (diff < 0) diff += totalMinutes;
         let ratio = round4(diff / blockLength);
         return Number((ratio * sijuCycle).toFixed(4));
@@ -4129,36 +4112,36 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function logTimelineWindow(label, timeline, windowSize = 10) {
-      const total = timeline.length;
-      if (total === 0) {
-        console.log(`${label}: 타임라인이 비어 있습니다.`);
-        return;
-      }
-      if (total <= windowSize * 2) {
-        console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
-        timeline.forEach(evt => {
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        });
-      } else {
-        console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
-        for (let i = 0; i < windowSize; i++) {
-          const evt = timeline[i];
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        }
-        console.log("... 생략 ...");
-        console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
-        for (let i = total - windowSize; i < total; i++) {
-          const evt = timeline[i];
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        }
-      }
+      // const total = timeline.length;
+      // if (total === 0) {
+      //   console.log(`${label}: 타임라인이 비어 있습니다.`);
+      //   return;
+      // }
+      // if (total <= windowSize * 2) {
+      //   console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
+      //   timeline.forEach(evt => {
+      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+      //   });
+      // } else {
+      //   console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
+      //   for (let i = 0; i < windowSize; i++) {
+      //     const evt = timeline[i];
+      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+      //   }
+      //   console.log("... 생략 ...");
+      //   console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
+      //   for (let i = total - windowSize; i < total; i++) {
+      //     const evt = timeline[i];
+      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+      //   }
+      // }
     }
-    setTimeout(function(){
-      logTimelineWindow("시주", sijuTimeline);
-      logTimelineWindow("일주", iljuTimeline);
-      logTimelineWindow("월주", woljuTimeline);
-      logTimelineWindow("연주", yeonjuTimeline);
-    }, 20);
+    // setTimeout(function(){
+    //   logTimelineWindow("시주", sijuTimeline);
+    //   logTimelineWindow("일주", iljuTimeline);
+    //   logTimelineWindow("월주", woljuTimeline);
+    //   logTimelineWindow("연주", yeonjuTimeline);
+    // }, 20);
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
@@ -4175,8 +4158,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const { year, month, hour, minute, gender, birthPlace } = inputData;
       const originalDate = new Date(year, month - 1, day, hour, minute);
       const correctedDate = adjustBirthDate(originalDate, birthPlace, isPlaceUnknown);
-      // globalState.correctedBirthDate 대신 로컬 변수 correctedDate를 사용하거나,
-      // 필요하다면 globalState에 저장할 수도 있음.
       
       // 원국(사주) 계산 실행
       const fullResult = getFourPillarsWithDaewoon(
@@ -4301,7 +4282,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      console.log(myowoonResult.newSijuFirst - new Date(correctedDate) / oneDayMs);
       const actualSijuOffset = Math.round(((myowoonResult.newSijuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
       const actualIljuOffset = Math.round(((myowoonResult.newIljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
       const actualWoljuOffset = Math.round(((myowoonResult.newWoljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
@@ -4416,45 +4396,64 @@ document.addEventListener("DOMContentLoaded", function () {
         
         return `${hours}시간 ${minutes.toString().padStart(2, "0")}분`;
       }
+
+      function findNearestSolarTerm(correctedDate, mode = "순행") {
+        const year = correctedDate.getFullYear();
+        // 올해 절기들 (Date 객체가 term.date 에 들어있다고 가정)
+        let terms = getSolarTermBoundaries(year);
+      
+        if (mode === "순행") {
+          // correctedDate 이후의 첫 절기
+          const next = terms.find(t => t.date > correctedDate);
+          if (next) return next;
+          // 없으면 내년 첫 절기
+          return getSolarTermBoundaries(year + 1)[0];
+        } else {
+          // 역행: correctedDate 이전(또는 같은 시각)의 마지막 절기
+          const prev = [...terms].reverse().find(t => t.date <= correctedDate);
+          if (prev) return prev;
+          // 없으면 작년 마지막 절기
+          const lastPrevYear = getSolarTermBoundaries(year - 1);
+          return lastPrevYear[lastPrevYear.length - 1];
+        }
+      }
   
-      function getWoljuTimeDifference(correctedDate, woljuTerm, mode) {
-        // correctedDate: 보정 시각 (Date 객체)
-        // woljuTerm: 절기 경계 정보가 담긴 객체, 예: { date: Date, name: "입춘", ... }
-        // mode: "순행" 또는 "역행" (월주의 계산 방식)
+      function getWoljuTimeDifference(correctedDate, mode = "순행") {
+        // 1) 기준 절기 자동 선택
+        const term = findNearestSolarTerm(correctedDate, mode);
+      
+        // 2) woljuBase: term.date 또는 전/후년 같은 절기
         let woljuBase;
         if (mode === "순행") {
-          // 순행: 보정 시각이 절기 경계보다 이전이면 기준 시간은 절기 경계, 
-          // 아니라면 다음 해 같은 절기 경계를 기준으로 함.
-          woljuBase = (correctedDate < woljuTerm.date)
-            ? woljuTerm.date
-            : new Date(correctedDate.getFullYear() + 1, 
-                       woljuTerm.date.getMonth(), 
-                       woljuTerm.date.getDate(),
-                       woljuTerm.date.getHours(), 
-                       woljuTerm.date.getMinutes());
+          woljuBase = (correctedDate < term.date)
+            ? term.date
+            : new Date(
+                correctedDate.getFullYear() + 1,
+                term.date.getMonth(), term.date.getDate(),
+                term.date.getHours(), term.date.getMinutes()
+              );
         } else {
-          // 역행: 보정 시각이 절기 경계보다 같거나 이후이면 기준 시간은 절기 경계,
-          // 아니라면 이전 해의 같은 절기 경계를 기준으로 함.
-          woljuBase = (correctedDate >= woljuTerm.date)
-            ? woljuTerm.date
-            : new Date(correctedDate.getFullYear() - 1, 
-                       woljuTerm.date.getMonth(), 
-                       woljuTerm.date.getDate(),
-                       woljuTerm.date.getHours(), 
-                       woljuTerm.date.getMinutes());
+          woljuBase = (correctedDate >= term.date)
+            ? term.date
+            : new Date(
+                correctedDate.getFullYear() - 1,
+                term.date.getMonth(), term.date.getDate(),
+                term.date.getHours(), term.date.getMinutes()
+              );
         }
-        
-        // oneDayMs는 24*60*60*1000 (하루의 밀리초)
-        const diffMs = Math.abs(woljuBase - correctedDate);
-        const oneDayMs = 24 * 60 * 60 * 1000;
-        
-        const diffDays = Math.floor(diffMs / oneDayMs);
-        const remainderMs = diffMs % oneDayMs;
-        const diffHours = Math.floor(remainderMs / (60 * 60 * 1000));
-        const remainderMs2 = remainderMs % (60 * 60 * 1000);
-        const diffMinutes = Math.floor(remainderMs2 / (60 * 1000));
-        
-        return `${diffDays}일 ${diffHours}시간 ${diffMinutes.toString().padStart(2, "0")}분`;
+      
+        // 3) 시간 차 계산
+        const diffMs    = woljuBase - correctedDate;
+        const absMs     = Math.abs(diffMs);
+        const oneDayMs  = 24 * 60 * 60 * 1000;
+      
+        const diffDays  = Math.floor(absMs / oneDayMs);
+        const remMs     = absMs % oneDayMs;
+        const diffHrs   = Math.floor(remMs / (60 * 60 * 1000));
+        const remMs2    = remMs % (60 * 60 * 1000);
+        const diffMins  = Math.floor(remMs2 / (60 * 1000));
+      
+        return `${diffDays}일 ${diffHrs}시간 ${diffMins.toString().padStart(2, "0")}분`;
       }
 
       function getYeonjuTimeDifference(corrected, mode) {
@@ -4641,9 +4640,7 @@ document.addEventListener("DOMContentLoaded", function () {
           예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
           <b>${woljuMode}</b> 방향으로 계산됩니다. <br>
           
-          <b>${getWoljuTimeDifference(
-            correctedDate, getSolarTermBoundaries(correctedDate.getFullYear()).find(term => term.name === "입춘"), woljuMode
-          )} / 1년 (약 365.24일)</b>을 똑같이 치환한다면,<br>
+          <b>${getWoljuTimeDifference(correctedDate, woljuMode)} / 한달 (약 30.4일)</b>을 똑같이 치환한다면,<br>
           실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualWoljuOffset.toFixed(4)}일 / ${expectedWoljuOffset.toFixed(4)}일</b>로 되며, <br>
           보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newWoljuFirst)}일</b>로 산출됩니다. <br>
           그 다음부터는 <b>${expectedWoljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${woljuMode}</b> 진행됩니다.<br>
@@ -5190,8 +5187,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const corr = adjustBirthDate(orig, birthPlaceInput, isPlaceUnknown);
 
       const split = splitPillar(manualSiju);
-      // ★ 디버깅용
-      console.log('→ manualSplit:', split);
 
       updateStemInfo("Ht", split, baseDayStem);
       updateBranchInfo("Hb", split.ji, baseDayStem);
