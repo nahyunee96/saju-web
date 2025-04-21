@@ -48,6 +48,11 @@
     touch-action: none; /* 드래그 반응 빠르게 */
   }
 
+  .siju_con {
+    /* 변경할 때 자연스럽게 투명도 전환 */
+    transition: opacity 0.15s ease-in-out;
+  }
+
   .mt0 {
     margin-top: 0;
   }
@@ -974,7 +979,7 @@
     z-index: 10;
   }
 
-  .hour_list li button.black_btn {
+  .hour_list button.black_btn {
     width: 100%;
     padding: 0;
     height: 35px;
@@ -1126,7 +1131,7 @@
       font-size: 3.228vw;
     }
 
-    .hour_list li button.black_btn {
+    .hour_list button.black_btn {
       height: 8vw;  
     }
     

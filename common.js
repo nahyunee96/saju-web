@@ -251,7 +251,7 @@ function adjustBirthDate(dateObj, birthPlaceFull, isPlaceUnknown = false) {
     cityLongitudes[birthPlaceFull.split(' ')[0]];
 
   if (cityLon == null) {
-    console.warn(`${birthPlaceFull}에 대한 경도가 없습니다.`);
+    //console.warn(`${birthPlaceFull}에 대한 경도가 없습니다.`);
     return dateObj;
   }
 
@@ -1347,9 +1347,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // 양력 생일은 item.birthday를 YYYYMMDD로 받는다고 가정하고 포맷팅
       const formattedBirthday =
-      item.birthday.substring(0, 4) + "년 " +
-      item.birthday.substring(4, 6) + "월 " +
-      item.birthday.substring(6, 8) + "일";
+      item.birthday.substring(0, 4) + "." +
+      item.birthday.substring(4, 6) + "." +
+      item.birthday.substring(6, 8) + "";
 
       // 음력 생일: 값이 있으면 그대로, 없으면 "-"
       //const lunarBirthDisplay = item.lunarBirthday ? item.lunarBirthday : "-";
@@ -1391,7 +1391,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </li>
             <li class="birth_day_time" id="birthDayTime">
               <span id="birthdaySV_${index + 1}">
-                ${formattedBirthday} (<b id="selectTime2__${index + 1}">${displayTimeLabel}</b>지정)
+                ${formattedBirthday} (<b id="selectTime2__${index + 1}">${displayTimeLabel}</b>)
               </span> <br>
               
               <span id="birthtimeSV_${index + 1}">
@@ -5035,182 +5035,134 @@ document.addEventListener("DOMContentLoaded", function () {
       updateStemInfo("Dt", daySplit, baseDayStem);
       updateBranchInfo("Db", daySplit.ji, baseDayStem);
       updateOriginalSetMapping();
-   }
+    }
 
-  
+    function updateDayPillarByCurr() {
+      // correctedDate는 보정된 명식 시각 (전역변수)
+      let newDayDate = new Date(correctedDate);
+      newDayDate.setDate(newDayDate.getDate());
+      const dayPillar = getDayGanZhi(newDayDate);
+      const daySplit = splitPillar(dayPillar);
+      updateStemInfo("Dt", daySplit, baseDayStem);
+      updateBranchInfo("Db", daySplit.ji, baseDayStem);
+      updateOriginalSetMapping();
+    }
+
+    function smoothUpdate(manualSiju) {
+      const containers = document.querySelectorAll('.siju_con');
+      if (!containers.length) return;
     
-    function renderSijuButtons() {
-      const useJasiMode = document.getElementById('jasi').checked;
-      const useInsiMode = document.getElementById('insi').checked;
-      const mapping = useJasiMode ? fixedDayMappingBasic : fixedDayMapping;
-      const sijuList = mapping[baseDayStem];
-      const hourListEl = document.getElementById("hourList");
-      hourListEl.innerHTML = "";
+      // 1-1) 페이드 아웃
+      containers.forEach(c => c.style.opacity = '0');
     
-      const timeLabels = useJasiMode ? Jiji : MONTH_ZHI;
-      const colorZip = ["b_green", "b_red", "b_white", "b_black", "b_yellow"];
-      const timeMap = {
-        "자": "0035", "축": "0235", "인": "0435", "묘": "0635",
-        "진": "0835", "사": "1035", "오": "1235", "미": "1435",
-        "신": "1635", "유": "1835", "술": "2035", "해": "2235",
+      // 1-2) transitionend 이벤트 한 번만 듣고 업데이트
+      const onEnd = e => {
+        if (e.propertyName !== 'opacity') return;
+        containers.forEach(c => c.removeEventListener('transitionend', onEnd));
+    
+        // 실제 로직
+        updateFortuneWithManualHour(manualSiju);
+    
+        // 1-3) 다음 프레임에 페이드 인
+        requestAnimationFrame(() =>
+          containers.forEach(c => c.style.opacity = '1')
+        );
       };
-
-      const currentJi = globalState.selectedHourPillar
-        ? globalState.selectedHourPillar.slice(-1)
-        : null;
-    
-      sijuList.forEach((siju, index) => {
-        const currentLabel = timeLabels[index];
-        const li = document.createElement("li");
-        const btn = document.createElement("button");
-        btn.id = `siju_${index}`;
-        btn.className = "black_btn";
-        btn.innerHTML = `${currentLabel}시 (${siju})`;
-        li.appendChild(btn);
-        hourListEl.appendChild(li);
-
-        if (currentJi && siju.endsWith(currentJi)) {
-          btn.classList.add("active");
-    
-          if (["인", "묘"].includes(currentLabel)) btn.classList.add("b_green");
-          else if (["사", "오"].includes(currentLabel)) btn.classList.add("b_red");
-          else if (["신", "유"].includes(currentLabel)) btn.classList.add("b_white");
-          else if (["자", "축"].includes(currentLabel)) btn.classList.add("b_black");
-          else btn.classList.add("b_yellow");
-    
-          btn.innerHTML = `${currentLabel}시 적용중`;
-
-          updateFortuneWithManualHour(siju);
-        }
-    
-        btn.addEventListener("click", function () {
-          const isSameTimeClicked = currentLabel === globalState.selectedHourPillar?.slice(-1);
-
-          if (isSameTimeClicked) {
-            // 이미 선택된 버튼 다시 클릭: active 해제
-            this.classList.remove("active", ...colorZip);
-            this.innerHTML = `${currentLabel}시 (${siju})`;
-            document.getElementById("bitthTimeX").checked = true;
-            isTimeUnknown = true;
-            globalState.selectedHourPillar = null;
-            updateFortuneWithManualHour(siju);
-            return;
-          }
-
-          const allButtons = document.querySelectorAll("#hourList button");
-          const wasActive = this.classList.contains("active");
-    
-          allButtons.forEach((b, i) => {
-            b.classList.remove("active", ...colorZip);
-            b.innerHTML = `${timeLabels[i]}시 (${sijuList[i]})`;
-          });
-    
-          if (!wasActive) {
-            this.classList.add("active");
-            this.innerHTML = `${currentLabel}시 적용중`;
-            document.getElementById("bitthTimeX").checked = false;
-            isTimeUnknown = false;
-    
-            if (["인", "묘"].includes(currentLabel)) {
-              this.classList.add("b_green");
-            } else if (["사", "오"].includes(currentLabel)) {
-              this.classList.add("b_red");
-            } else if (["신", "유"].includes(currentLabel)) {
-              this.classList.add("b_white");
-            } else if (["자", "축"].includes(currentLabel)) {
-              this.classList.add("b_black");
-            } else {
-              this.classList.add("b_yellow");
-            }
-          } 
-    
-          const birthTimeInputEl = document.getElementById("inputBirthtime");
-          if (timeMap[currentLabel]) {
-            birthTimeInputEl.value = timeMap[currentLabel];
-          }
-
-    
-          document.getElementById("checkOption").style.display =
-            btn.classList.contains("active")
-            && document.getElementById('woonContainer').style.display === 'flex'
-            ? "flex" : "none";
-
-
-          const radio01 = document.getElementById('timeChk02_01');
-          const radio02 = document.getElementById('timeChk02_02');
-          const radio03 = document.getElementById('timeChk02_03');
-
-          if (useJasiMode) {
-            radio01.checked = false;
-            requestAnimationFrame(() => {
-              radio01.checked = true;
-              radio01.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-          } else if (useInsiMode) {
-            radio03.checked = false;
-            requestAnimationFrame(() => {
-              radio03.checked = true;
-              radio03.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-          } else {
-            radio02.checked = false;
-            requestAnimationFrame(() => {
-              radio02.checked = true;
-              radio02.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-          }
-    
-          globalState.selectedHourPillar = siju;
-          
-
-          if (useInsiMode && ["자", "축"].includes(currentLabel)) {
-            updateDayPillarByPrev();
-          }
-        });
-      });      
+      // 첫 컨테이너에만 붙이면 충분합니다
+      containers[0].addEventListener('transitionend', onEnd);
     }
     
-    function updateFortuneWithManualHour(manualSiju) {
+    // 2) renderSijuButtons()에 색상 클래스 다시 추가
+    function renderSijuButtons() {
+      const useJasiMode = document.getElementById('jasi').checked;
       
-      const newBirthTime = document.getElementById("inputBirthtime").value.replace(/\s/g, "").trim();
-      usedBirthtime = newBirthTime;
+      const mapping     = useJasiMode ? fixedDayMappingBasic : fixedDayMapping;
+      const sijuList    = mapping[baseDayStem];
+      const labels      = useJasiMode ? Jiji : MONTH_ZHI;
+      const timeMap     = { "자":"0035","축":"0235","인":"0435","묘":"0635",
+                            "진":"0835","사":"1035","오":"1235","미":"1435",
+                            "신":"1635","유":"1835","술":"2035","해":"2235" };
+      const hourListEl  = document.getElementById("hourList");
+      hourListEl.innerHTML = "";
+    
+      sijuList.forEach((siju, idx) => {
+        const lbl = labels[idx];
+        const btn = document.createElement("button");
+        btn.className   = "black_btn";
+        btn.textContent = `${lbl}시 (${siju})`;
+        hourListEl.appendChild(btn);
+    
+        btn.addEventListener("click", () => {
+          // 2-1) 리셋
+          document.querySelectorAll("#hourList button").forEach((b,i) => {
+            b.className = "black_btn";
+            b.textContent = `${labels[i]}시 (${sijuList[i]})`;
+          });
+    
+          // 2-2) 이 버튼만 active + 색상
+          btn.classList.add("active");
+          btn.textContent = `${lbl}시 적용중`;
+          if (["인","묘"].includes(lbl))      btn.classList.add("b_green");
+          else if (["사","오"].includes(lbl)) btn.classList.add("b_red");
+          else if (["신","유"].includes(lbl)) btn.classList.add("b_white");
+          else if (["자","축"].includes(lbl)) btn.classList.add("b_black");
+          else                                 btn.classList.add("b_yellow");
+    
+          // 2-3) 시간 입력 자동
+          document.getElementById("inputBirthtime").value = timeMap[lbl];
+    
+          // 2-4) 상태 갱신 & 부드러운 업데이트 호출
+          globalState.selectedHourPillar = siju;
+          globalState.hourPillar         = siju;
+          smoothUpdate(siju);
 
-      hour = isTimeUnknown ? 4 : parseInt(usedBirthtime.substring(0, 2), 10);
-      minute = isTimeUnknown ? 30 : parseInt(usedBirthtime.substring(2, 4), 10);
+          
+        });
+      });
+    }
 
-      originalDate = new Date(year, month - 1, day, hour, minute);
-      correctedDate = adjustBirthDate(originalDate, birthPlaceInput, isPlaceUnknown);
+    // 3) 간지 업데이트 함수를 가능한 최소화
+    function updateFortuneWithManualHour(manualSiju) {
+      // — 기존 DOM 조작 로직 —
+      const bt = document.getElementById('inputBirthtime').value;
+      const hr = parseInt(bt.substring(0,2),10), mi = parseInt(bt.substring(2,4),10);
+      const orig = new Date(year,month-1,day,hr,mi);
+      const corr = adjustBirthDate(orig, birthPlaceInput, isPlaceUnknown);
 
-      const manualSplit = splitPillar(manualSiju);
-      globalState.hourPillar = manualSiju;
-      // 원국(사주의 시주 부분)을 업데이트
-      updateStemInfo("Ht", isTimeUnknown ? "-" : manualSplit, baseDayStem);
-      updateBranchInfo("Hb", isTimeUnknown ? "-" : manualSplit.ji, baseDayStem);
-      setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, manualSplit.ji));
-      setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch, manualSplit.ji));
+      const split = splitPillar(manualSiju);
+      // ★ 디버깅용
+      console.log('→ manualSplit:', split);
 
-      const myowoonResult = getMyounPillars(myData, refDate);
-      updateMyowoonSection(myowoonResult);
-      updateExplanDetail(myowoonResult, refDate)
-      // 묘운(동적 운세) 시주 관련 업데이트
+      updateStemInfo("Ht", split, baseDayStem);
+      updateBranchInfo("Hb", split.ji, baseDayStem);
+      setText("Hb12ws", getTwelveUnseong(baseDayStem, split.ji));
+      setText("Hb12ss", getTwelveShinsal(baseYearBranch, split.ji));
 
-      updateColorClasses();
+      const myRes = getMyounPillars(myData, corr);
+      updateMyowoonSection(myRes);
+      updateExplanDetail(myRes, corr);
 
-      const branchName = globalState.hourPillar.charAt(1);
+      
+      const useInsiMode = document.getElementById('insi').checked;
+      const branchName  = globalState.hourPillar.charAt(1);
+      if ((branchName === "자" || branchName === "축") && useInsiMode) {
+        updateDayPillarByPrev();
+      } else {
+        updateDayPillarByCurr();
+      }
 
       document.getElementById('timeChk02_03').addEventListener("change", function() {
         if (branchName === "자" || branchName === "축") {
           updateDayPillarByPrev();
         }
       });
+      updateColorClasses();
     }
 
     globalState.originalTimeUnknown = isTimeUnknown;
     if (globalState.originalTimeUnknown) {  
       renderSijuButtons();
     }
-    
-    
 
     // 라디오 변경 이벤트 리스너 내부
     document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
