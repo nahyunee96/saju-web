@@ -4279,7 +4279,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
   
       const expectedIljuOffset = getAverageYearLength(correctedDate) * (4 / 12);  
-      const expectedWoljuOffset = getAverageYearLength(correctedDate) * 12;
+      const expectedWoljuOffset = getAverageYearLength(correctedDate) * 10;
       const expectedYeonjuOffset = getAverageYearLength(correctedDate) * 120;        
       
       // 실제 후보 시각과 보정 시각 사이의 차이를 구해봅니다.
