@@ -5038,45 +5038,41 @@ document.addEventListener("DOMContentLoaded", function () {
       'woonTimeSetPickerVer23'
     ];
     
+    // 1) 검증 로직을 함수로 추출
+    function validatePicker(picker) {
+      const selectedDate = new Date(picker.value);
+      if (selectedDate <= correctedDate) {
+        alert('생일(보정시 + 1분) 전 시간은 계산할 수 없습니다.');
+        picker.value = correctedDate.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+        return false;
+      }
+      return true;
+    }
+
+    // 2) 기존 input change 이벤트 (필요 없으면 제거해도 좋습니다)
     pickerIds.forEach(id => {
       const picker = document.getElementById(id);
       if (!picker) return;
-    
       picker.addEventListener('change', () => {
-        // input이 datetime-local 이라면
-        let selectedDate = new Date(picker.value);
-    
-        // 만약 time-only(input type="time")라면,
-        // 아래처럼 오늘 날짜에 붙여서 비교할 수도 있습니다:
-        // const [hh, mm] = picker.value.split(':').map(Number);
-        // selectedDate = new Date(
-        //   correctedDate.getFullYear(),
-        //   correctedDate.getMonth(),
-        //   correctedDate.getDate(),
-        //   hh, mm
-        // );
-    
-        if (selectedDate < correctedDate) {
-          alert('전 시간은 계산할 수 없습니다.');
-    
-          // 이전 valid 값(또는 correctedDate)로 복원
-          // datetime-local이라면:
-          picker.value = correctedDate
-            .toISOString()
-            .slice(0,16); // "YYYY-MM-DDTHH:MM"
-          
-          // time-only라면:
-          // picker.value = correctedDate
-          //   .toTimeString()
-          //   .slice(0,5); // "HH:MM"
-        }
+        //validatePicker(picker);
       });
     });
 
-    // 대운리스트 항목들마다 클릭 이벤트를 등록
-    document.querySelectorAll("#daewoonList li").forEach(li => {
-      li.addEventListener("click", function () {
-        
+    // 3) 버튼 클릭 시에도 같은 검증 로직 실행
+    ['woonChangeBtn', 'woonChangeBtn2'].forEach(btnId => {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+
+      btn.addEventListener('click', () => {
+        // 예: 각 버튼마다 대응되는 picker 하나만 검사하고 싶으면
+        // const picker = document.getElementById('woonTimeSetPicker');
+        // validatePicker(picker);
+
+        // 아니면 모든 pickerIds를 돌면서 한 번에 검사
+        pickerIds.forEach(pickerId => {
+          const picker = document.getElementById(pickerId);
+          if (picker) validatePicker(picker);
+        });
       });
     });
 
