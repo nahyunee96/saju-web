@@ -239,9 +239,9 @@ function getEquationOfTime(dateObj) {
 }
 
 function adjustBirthDate(dateObj, birthPlaceFull, isPlaceUnknown = false) {
-  if (isPlaceUnknown) {
-    return new Date(dateObj.getTime() - 30 * 60 * 1000);
-  }
+  //if (isPlaceUnknown) {
+    //return new Date(dateObj.getTime() - 30 * 60 * 1000);
+  //}
 
   //console.log(cityLongitudes);
 
@@ -2414,25 +2414,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const bjTimeTextEl = document.getElementById("bjTimeText");
     if (isPlaceUnknown) {
-      bjTimeTextEl.innerHTML = `기본보정 : <b id="resbjTime">${correctedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
+      const displayTime = new Date(correctedTime.getTime() - 30 * 60 * 1000);
+      bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${displayTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     } else {
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     }
 
-    const bjTimeText = document.getElementById("bjTimeText");
+    // const bjTimeText = document.getElementById("bjTimeText");
 
-    if (isTimeUnknown) {
-      // 시각 모름이면 보정시간 표시 없앰
-      bjTimeText.innerHTML = "보정시 알수없음";
-    } else {
-      const formattedTime = correctedTime.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-      const prefix = isPlaceUnknown ? "기본보정 : " : "보정시 : ";
-      bjTimeText.innerHTML = `${prefix}<b id="resbjTime">${formattedTime}</b>`;
-    }
+    // if (isTimeUnknown) {
+    //   // 시각 모름이면 보정시간 표시 없앰
+    //   bjTimeText.innerHTML = "보정시 알수없음";
+    // } else {
+    //   const formattedTime = correctedTime.toLocaleTimeString([], {
+    //     hour: '2-digit',
+    //     minute: '2-digit',
+    //     hour12: false
+    //   });
+    //   const prefix = isPlaceUnknown ? "기본보정 : " : "보정시 : ";
+    //   bjTimeText.innerHTML = `${prefix}<b id="resbjTime">${formattedTime}</b>`;
+    // }
 
     function updateOriginalSetMapping() {
       setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, hourSplit.ji));
