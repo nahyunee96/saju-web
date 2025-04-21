@@ -3352,7 +3352,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // staticBirth: 원국 계산용(출생일)
       const originalDate = new Date(year, month - 1, day, hour, minute);
-      const staticBirth = adjustBirthDate(originalDate, usedBirthPlace);
+      const staticBirth = correctedDate;
       
       // 동적 기준 설정
       const jeolgi = getSolarTermBoundaries(staticBirth.getFullYear());
@@ -3378,6 +3378,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const totalMinutes = 1440;
         const blockLength = 120;
         const birthMinutes = birthDate.getHours() * 60 + birthDate.getMinutes();
+
+        //console.log(birthMinutes);
     
         const blocks = [
           { start: 1380, end: 60 }, { start: 60, end: 180 },
@@ -3393,6 +3395,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!block) block = blocks[0];
     
         let diff = mode === "순행" ? block.end - birthMinutes : birthMinutes - block.start;
+        //console.log(birthMinutes - block.start);
         if (diff < 0) diff += totalMinutes;
         let ratio = round4(diff / blockLength);
         return Number((ratio * sijuCycle).toFixed(4));
@@ -4284,6 +4287,21 @@ document.addEventListener("DOMContentLoaded", function () {
       const expectedYeonjuOffset = getAverageYearLength(correctedDate) * 120;        
       
       // 실제 후보 시각과 보정 시각 사이의 차이를 구해봅니다.
+
+      function formatOffset(days, noDays = false) {
+        const totalMins = days * 24 * 60;
+        const d = Math.floor(totalMins / (24 * 60));
+        const h = Math.floor((totalMins - d*24*60) / 60);
+        const m = Math.round(totalMins - d*24*60 - h*60);
+      
+        if (noDays) {
+          return `${d*24 + h}시간 ${m}분`;
+        } else {
+          return `${d}일 ${h}시간 ${m}분`;
+        }
+      }
+
+      console.log(myowoonResult.newSijuFirst - new Date(correctedDate) / oneDayMs);
       const actualSijuOffset = Math.round(((myowoonResult.newSijuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
       const actualIljuOffset = Math.round(((myowoonResult.newIljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
       const actualWoljuOffset = Math.round(((myowoonResult.newWoljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
@@ -4558,7 +4576,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
                 <b>${sijuMode}</b> 방향으로 계산이 됩니다. <br>
                 간지가 바뀌기까지의 시간인, <b>${getSijuTimeDifference(correctedDate, sijuMode)} / 2시간</b>을<br>
-                실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualSijuOffset.toFixed(4)}일 / 10일</b>일로 치환하고, <br>
+                실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${formatOffset(actualSijuOffset)} / 10일</b>일로 치환하고, <br>
                 보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newSijuFirst)}</b>로 산출됩니다. <br>           
                 그 다음부터는 <b>10일</b>의 간격으로 <b>${sijuMode}</b>이 계속 진행됩니다. <br>
                 최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedSijuTime)}에 (${myowoonResult.sijuEvent.ganji})</b>로 변경되었습니다.
@@ -5004,6 +5022,50 @@ document.addEventListener("DOMContentLoaded", function () {
       // logTimelineWindow("일주", iljuTimeline);
       // logTimelineWindow("월주", woljuTimeline);
       // logTimelineWindow("연주", yeonjuTimeline);
+    });
+
+    const pickerIds = [
+      'woonTimeSetPicker',
+      'woonTimeSetPicker2',
+      'woonTimeSetPickerVer2',
+      'woonTimeSetPickerVer3',
+      'woonTimeSetPickerVer22',
+      'woonTimeSetPickerVer23'
+    ];
+    
+    pickerIds.forEach(id => {
+      const picker = document.getElementById(id);
+      if (!picker) return;
+    
+      picker.addEventListener('change', () => {
+        // input이 datetime-local 이라면
+        let selectedDate = new Date(picker.value);
+    
+        // 만약 time-only(input type="time")라면,
+        // 아래처럼 오늘 날짜에 붙여서 비교할 수도 있습니다:
+        // const [hh, mm] = picker.value.split(':').map(Number);
+        // selectedDate = new Date(
+        //   correctedDate.getFullYear(),
+        //   correctedDate.getMonth(),
+        //   correctedDate.getDate(),
+        //   hh, mm
+        // );
+    
+        if (selectedDate < correctedDate) {
+          alert('전 시간은 계산할 수 없습니다.');
+    
+          // 이전 valid 값(또는 correctedDate)로 복원
+          // datetime-local이라면:
+          picker.value = correctedDate
+            .toISOString()
+            .slice(0,16); // "YYYY-MM-DDTHH:MM"
+          
+          // time-only라면:
+          // picker.value = correctedDate
+          //   .toTimeString()
+          //   .slice(0,5); // "HH:MM"
+        }
+      });
     });
 
     // 대운리스트 항목들마다 클릭 이벤트를 등록
