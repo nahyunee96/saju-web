@@ -18,9 +18,86 @@
     <meta name="twitter:image" content="./og.png">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <title>묘운 만세력</title>
+
+    <style>
+    #mapModal {
+      display: none;
+      position: fixed; top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.5);
+      z-index:1005;
+    }
+    #mapContainer {
+      position: absolute; top:5%; left:5%;
+      width:90%; height:90%;
+      background:#fff; border-radius:8px;
+      box-shadow:0 0 10px rgba(0,0,0,0.3);
+      display:flex; flex-direction:column;
+    }
+    #closeMap {
+      align-self:flex-end;
+      margin:8px;
+      background:#353535; color: #fff;
+      border:none; padding:4px 8px;
+      border-radius:4px; cursor:pointer;
+    }
+    #searchBox {
+      margin:0 8px 4px;
+      padding:8px;
+      font-size:16px;
+      border:1px solid #ccc;
+      border-radius:4px;
+      width: calc(100% - 16px);
+      outline: none;
+    }
+    .Rel {
+      position: relative;
+      z-index: 1002;
+    }
+    #suggestions {
+      position: absolute;
+      width: calc(100% - 16px);
+      left: 0;
+      list-style:none; margin:0 8px;
+      padding:0; max-height:150px;
+      overflow-y:auto; border:1px solid #ccc;
+      border-radius:4px;
+      background-color: #fff;
+      z-index: 1001;
+    }
+    #suggestions li {
+      padding:6px 8px;
+      cursor:pointer;
+    }
+    #suggestions li:hover {
+      background:#eee;
+    }
+    #map { flex:1; }
+
+    @media screen and (max-width: 991px) {
+      #searchBox,
+      #closeMap,
+      #suggestions {
+        font-size: 3.2vw;
+      }
+    }
+    </style>
+     <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
+    <!-- 지도 모달 -->
+    <div id="mapModal">
+      <div id="mapContainer">
+        <button id="closeMap">닫기 ✕</button>
+        <div class="Rel">
+          <input id="searchBox" placeholder="도시나 지명 입력을 정확히 입력해주세요." autocomplete="off"/>
+          <ul id="suggestions"></ul>
+        </div>
+        <div id="map"></div>
+      </div>
+    </div>
     <div class="container" id="container">
       <!-- 헤더 -->
       <header class="header btn_box mt0">
@@ -114,7 +191,8 @@
           </div>
           <div class="input_group">
             <label for="inputBirthPlace">출생지선택</label>
-            <select id="inputBirthPlace">
+            <button type="button" class="map" id="inputBirthPlace">출생지 선택</button>
+            <!-- <select id="inputBirthPlace">
               <option value="" style="display: none;">출생지 선택</option>
               <option value="서울특별시">서울특별시</option>
               <option value="부산광역시">부산광역시</option>
@@ -296,7 +374,7 @@
                 <option value="제주시">제주시</option>
                 <option value="서귀포시">서귀포시</option>
               </optgroup>
-            </select>
+            </select> -->
             <div class="label_line"><input type="checkbox" id="bitthPlaceX"><label for="bitthPlaceX">태어난 출생지 모름</label></div>
             <p class="pharases" id="birthPlaceTxt" style="display: none;">태어난 시간을 모르면 보정값으로 들어가진 않지만, 출생지 정보 저장 자체는 가능합니다.</p>
           </div>
@@ -1610,6 +1688,7 @@
           </div>
         </div>
       </div>
+      <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
       <script
         src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"
       ></script>
