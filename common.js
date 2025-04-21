@@ -1881,6 +1881,20 @@ document.addEventListener("DOMContentLoaded", function () {
       return { idx, branch: timeRanges[idx].branch };
     }
 
+    function getHourStem2(dayPillar, hourBranchIndex) {
+      const dayStem = getDayStem(dayPillar);
+      if (fixedDayMapping.hasOwnProperty(dayStem)) {
+        const mappedArray = fixedDayMappingBasic[dayStem];
+        if (mappedArray.length === 12 && hourBranchIndex >= 0 && hourBranchIndex < 12) {
+          return mappedArray[hourBranchIndex].charAt(0);
+        }
+      }
+      const dayStemIndex = Cheongan.indexOf(dayStem);
+      return (dayStemIndex % 2 === 0)
+        ? Cheongan[(dayStemIndex * 2 + hourBranchIndex) % 10]
+        : Cheongan[(dayStemIndex * 2 + hourBranchIndex + 2) % 10];
+    }
+
     // ③ 시주(時柱) 계산 – dateObj만 넘기면 내부에서 모두 KST 변환
     function getHourGanZhiRef(dateObj) {
       const date = new Date(dateObj);
@@ -1888,12 +1902,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const hourBranchIndex = Jiji.indexOf(hourBranch);
       const dayGanZhi = getDayGanZhi(date);
       const daySplitFuc = splitPillar(dayGanZhi);
-      const baseHourStem = getHourStem(daySplitFuc.gan, hourBranchIndex);
-      let idx = Cheongan.indexOf(baseHourStem);
-      if (idx === -1) idx = 0;
-      const correctedFortuneHourStem = Cheongan[(idx - 2 + Cheongan.length) % Cheongan.length];
+      const hourStem = getHourStem2(daySplitFuc.gan, hourBranchIndex);
 
-      return `${correctedFortuneHourStem}${hourBranch}`;  // ex) "정사"
+      return `${hourStem}${hourBranch}`;  // ex) "정사"
     }
 
     function calcGanzhi(dateObj) {
@@ -3346,7 +3357,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // staticBirth: 원국 계산용(출생일)
       const originalDate = new Date(year, month - 1, day, hour, minute);
-      const staticBirth = correctedDate;
+      const staticBirth = new Date(correctedDate);
       
       // 동적 기준 설정
       const jeolgi = getSolarTermBoundaries(staticBirth.getFullYear());
@@ -3994,16 +4005,26 @@ document.addEventListener("DOMContentLoaded", function () {
       return null;
     }
 
+    function getHourStem2(dayPillar, hourBranchIndex) {
+      const dayStem = getDayStem(dayPillar);
+      if (fixedDayMapping.hasOwnProperty(dayStem)) {
+        const mappedArray = fixedDayMappingBasic[dayStem];
+        if (mappedArray.length === 12 && hourBranchIndex >= 0 && hourBranchIndex < 12) {
+          return mappedArray[hourBranchIndex].charAt(0);
+        }
+      }
+      const dayStemIndex = Cheongan.indexOf(dayStem);
+      return (dayStemIndex % 2 === 0)
+        ? Cheongan[(dayStemIndex * 2 + hourBranchIndex) % 10]
+        : Cheongan[(dayStemIndex * 2 + hourBranchIndex + 2) % 10];
+    }
+
     function updateHourWoon(refDate) {
-      const date = new Date(refDate);
-      const hourBranch = getHourBranchUsingArray(date);
+      const hourBranch = getHourBranchUsingArray(refDate);
       const hourBranchIndex = Jiji.indexOf(hourBranch);
-      const dayGanZhi = getDayGanZhi(date);
+      const dayGanZhi = getDayGanZhi(refDate);
       const daySplitFuc = splitPillar(dayGanZhi);
-      const baseHourStem = getHourStem(daySplitFuc.gan, hourBranchIndex);
-      let idx = Cheongan.indexOf(baseHourStem);
-      if (idx === -1) idx = 0;
-      const correctedFortuneHourStem = Cheongan[(idx - 2 + Cheongan.length) % Cheongan.length];
+      const hourStem = getHourStem2(daySplitFuc.gan, hourBranchIndex);
 
 
       if (isPickerVer2 || isPickerVer3) {
@@ -4011,10 +4032,10 @@ document.addEventListener("DOMContentLoaded", function () {
          "WTbHanja", "WTbHanguel", "WTbEumyang", "WTb10sin",
          "WTbJj1", "WTbJj2", "WTbJj3", "WTb12ws", "WTb12ss"].forEach(id => setText(id, "-"));
       } else {
-        setText("WTtHanja", stemMapping[correctedFortuneHourStem]?.hanja || "-");
-        setText("WTtHanguel", stemMapping[correctedFortuneHourStem]?.hanguel || "-");
-        setText("WTtEumyang", stemMapping[correctedFortuneHourStem]?.eumYang || "-");
-        setText("WTt10sin", getTenGodForStem(correctedFortuneHourStem, baseDayStem) || "-");
+        setText("WTtHanja", stemMapping[hourStem]?.hanja || "-");
+        setText("WTtHanguel", stemMapping[hourStem]?.hanguel || "-");
+        setText("WTtEumyang", stemMapping[hourStem]?.eumYang || "-");
+        setText("WTt10sin", getTenGodForStem(hourStem, baseDayStem) || "-");
         setText("WTbHanja", branchMapping[hourBranch]?.hanja || "-");
         setText("WTbHanguel", branchMapping[hourBranch]?.hanguel || "-");
         setText("WTbEumyang", branchMapping[hourBranch]?.eumYang || "-");
