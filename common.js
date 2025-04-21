@@ -2387,7 +2387,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         document.getElementById('hourListWrap').style.display = 'none';
       } else {
-        
+        checkOption.style.display = 'flex';
         document.getElementById('hourListWrap').style.display = 'block';
       }
     });
