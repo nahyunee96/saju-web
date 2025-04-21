@@ -25,12 +25,7 @@ let handleChangeVr, updateGanzhiDisplayVr;
 
 let updateOriginalAndMyowoonVr;
 
-let lastMyIndex      = null;
-let lastPartnerIndex = null;
-
 let coupleMode      = false;
-let coupleMyIndex   = null;
-let couplePtIndex   = null;
 
 let latestMyeongsik = null;
 
@@ -4539,7 +4534,7 @@ document.addEventListener("DOMContentLoaded", function () {
               최종 업데이트 이벤트 간지: <b>${myowoonResult.iljuEvent.ganji}</b><br>
               방향: <b>${iljuMode}</b><br><br>
               묘운 일주의 기간은 하루(24시간)를 120년의 평균 4개월, 즉 약 <b>${expectedIljuOffset.toFixed(4)}</b>일로 치환합니다. <br>
-              예를 들어, 보정 시각이 <b>${formatByTimeKnown(correctedDate)}</b>인 명식의 경우, <br>
+              예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
               <b>${iljuMode}</b> 방향으로 계산이 됩니다.<br>
               일주부터는 라디오 버튼 설정에 따라 결정된 기준 시간이 적용됩니다. (현재 <b>${timeLabel}</b>적용 중)<br>
               하루가 바뀌기까지의 시간인, <b>${getIljuTimeDifference(correctedDate, iljuMode)} / 24시간</b>을 똑같이 치환한다면, 
@@ -4561,7 +4556,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 최종 업데이트 이벤트 간지: <b>${myowoonResult.sijuEvent.ganji}</b><br>
                 방향: <b>${sijuMode}</b><br><br>
                 묘운 시주의 기간은 2시간을 10일로 치환합니다. <br>
-                예를 들어, 보정 시각이 <b>${formatByTimeKnown(correctedDate)}</b>인 명식의 경우, <br>
+                예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
                 <b>${sijuMode}</b> 방향으로 계산이 됩니다. <br>
                 간지가 바뀌기까지의 시간인, <b>${getSijuTimeDifference(correctedDate, sijuMode)} / 2시간</b>을<br>
                 실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualSijuOffset.toFixed(4)}일 / 10일</b>일로 치환하고, <br>
@@ -4584,7 +4579,7 @@ document.addEventListener("DOMContentLoaded", function () {
               최종 업데이트 이벤트 간지: <b>${myowoonResult.iljuEvent.ganji}</b><br>
               방향: <b>${iljuMode}</b><br><br>
               묘운 일주의 기간은 하루(24시간)를 120년의 평균 4개월, 즉 약 <b>${expectedIljuOffset.toFixed(4)}</b>일로 치환합니다. <br>
-              예를 들어, 보정 시각이 <b>${formatByTimeKnown(correctedDate)}</b>인 명식의 경우, <br>
+              예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
               <b>${iljuMode}</b> 방향으로 계산이 됩니다.<br>
               일주부터는 라디오 버튼 설정에 따라 결정된 기준 시간이 적용됩니다. (현재 <b>${timeLabel}</b>적용 중)<br>
               하루가 바뀌기까지의 시간인, <b>${getIljuTimeDifference(correctedDate, iljuMode)} / 24시간</b>을 똑같이 치환한다면, 
@@ -4626,7 +4621,7 @@ document.addEventListener("DOMContentLoaded", function () {
           최종 업데이트 이벤트 간지: <b>${myowoonResult.woljuEvent.ganji}</b><br>
           방향: <b>${woljuMode}</b><br><br>
           묘운 월주의 기간은 120년의 한달을 평균 10년으로, 즉 약 <b>${expectedWoljuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
-          예를 들어, 보정 시각이 <b>${formatByTimeKnown(correctedDate)}</b>인 명식의 경우, <br>
+          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
           <b>${woljuMode}</b> 방향으로 계산됩니다. <br>
           
           <b>${getWoljuTimeDifference(
@@ -4661,7 +4656,7 @@ document.addEventListener("DOMContentLoaded", function () {
           최종 업데이트 이벤트 간지: <b>${myowoonResult.yeonjuEvent.ganji}</b><br>
           방향: <b>${yeonjuMode}</b><br><br>
           묘운 연주의 기간은 120년으로, 즉 약 <b>${expectedYeonjuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
-          예를 들어, 보정 시각이 <b>${formatByTimeKnown(correctedDate)}</b>인 명식의 경우, <br>
+          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
           <b>${yeonjuMode}</b> 방향으로 계산합니다. <br>
           1년이 바뀌기까지의 시간인 <b>${getYeonjuTimeDifference(correctedDate, yeonjuMode)} / 1년</b>을 똑같이 치환한다면,<br>
           실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualYeonjuOffset.toFixed(4)}일 / ${expectedYeonjuOffset.toFixed(4)}일</b>로 되며, <br>
@@ -5712,16 +5707,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   setupSearchFeature();  
 
-  document.getElementById("explanViewBtn").addEventListener("click", function () {
-    const explanEl = document.getElementById("explan");
-    const currentDisplay = window.getComputedStyle(explanEl).display;
-    if (currentDisplay === "block") {
-      explanEl.style.display = "none";
-      this.innerText = "묘운 설명 보기";
-    } else {
-      explanEl.style.display = "block";
-      this.innerText = "묘운 설명 접기";
-    }
+  const explanBtn      = document.getElementById("explanViewBtn");
+  const explanEl = document.getElementById("explan");
+  const explanSTORAGE_KEY = "isExplanVisible";
+
+  // 상태 세팅 함수
+  function setExplanState(visible) {
+    explanEl.style.display = visible ? "block" : "none";
+    explanBtn.innerText = visible ? "묘운 설명 접기" : "묘운 설명 보기";
+  }
+
+  // 1) 초기 로드 시 저장된 값으로 복원 (없으면 숨김)
+  const explansaved = localStorage.getItem(explanSTORAGE_KEY);
+  const isVisible = explansaved === "true";
+  setExplanState(isVisible);
+
+  // 2) 클릭 시 토글 + 저장
+  explanBtn.addEventListener("click", function () {
+    // 현재 보이는 지 여부 판단
+    const currentlyVisible = window.getComputedStyle(explanEl).display === "block";
+    const nextVisible = !currentlyVisible;
+
+    setExplanState(nextVisible);
+    localStorage.setItem(explanSTORAGE_KEY, nextVisible);
   });
 
   // 로컬스토리지 키
