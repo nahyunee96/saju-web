@@ -2406,18 +2406,18 @@ document.addEventListener("DOMContentLoaded", function () {
     setText("resBirth", formattedBirth);
     setText("resTime", isTimeUnknown ? "시간모름" : formattedTime);
     setText("resAddr", isTimeUnknown ? "출생지모름" : savedBirthPlace);
-    const correctedTime = adjustBirthDate(originalDate, usedBirthPlace, isPlaceUnknown);
-    const resbjTimeEl = document.getElementById("resbjTime");
-    if (resbjTimeEl) {
-      resbjTimeEl.innerHTML = correctedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-    }
+    correctedDate = adjustBirthDate(originalDate, birthPlaceInput, isPlaceUnknown);
 
+    // 2) 출생지 모를 때 기본 –30분 추가 보정
+    if (isPlaceUnknown) {
+      correctedDate = new Date(correctedDate.getTime() - 30 * 60 * 1000);
+    }
+    
     const bjTimeTextEl = document.getElementById("bjTimeText");
     if (isPlaceUnknown) {
-      const displayTime = new Date(correctedTime.getTime() - 30 * 60 * 1000);
-      bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${displayTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
+      bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     } else {
-      bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
+      bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     }
 
     // const bjTimeText = document.getElementById("bjTimeText");
