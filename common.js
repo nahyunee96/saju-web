@@ -1173,7 +1173,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const saved = JSON.parse(localStorage.getItem('customGroups') || '[]');
   saved.forEach(ensureGroupOption);
-  updateMeGroupOption();
+  //updateMeGroupOption();
 
   // saveBtn 이벤트 리스너
   document.getElementById("saveBtn").addEventListener("click", function () {
@@ -1302,7 +1302,7 @@ document.addEventListener("DOMContentLoaded", function () {
     alert("저장이 성공적으로 완료 되었습니다.");
 
     //updateCoupleModeBtnVisibility();
-    updateMeGroupOption();
+    //updateMeGroupOption();
     updateSaveBtn();
 
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
@@ -2146,7 +2146,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     //updateCoupleModeBtnVisibility();
-    updateMeGroupOption();
+    //updateMeGroupOption();
 
     document.getElementById("coupleModeBtn").addEventListener("click", function() {
       isCoupleMode = true;
@@ -5474,7 +5474,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     ensureGroupOption(selected.group);
     document.getElementById("inputMeGroup").value = selected.group || "미선택";
-    updateMeGroupOption(selected.group);   // ← 여기서 selected를 넘겨줍니다
+    //updateMeGroupOption(selected.group);   // ← 여기서 selected를 넘겨줍니다
 
     setTimeout(() => {
       updateMyowoonSectionVr;
@@ -5602,7 +5602,7 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem('customGroups', JSON.stringify(customGroups));
     }
 
-    updateMeGroupOption();
+    //updateMeGroupOption();
 
     return {
       birthday: birthday,
