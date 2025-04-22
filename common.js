@@ -940,20 +940,20 @@ function updateColorClasses() {
       const container = elem.closest(".hanja_con");
       if (!container) return;
       // .hanja_con에서 기존 색상 제거
-      textColorClasses.forEach(c => container.classList.remove(c));
+      bgColorClasses.forEach(c => container.classList.remove(c));
       // 새 클래스 추가
       container.classList.add(clsToAdd);
       // 다음 형제 <p>에도 동일 적용
       const next = container.nextElementSibling;
       if (next?.tagName.toLowerCase() === "p") {
-        textColorClasses.forEach(c => next.classList.remove(c));
+        bgColorClasses.forEach(c => next.classList.remove(c));
         next.classList.add(clsToAdd);
       }
     }
     // 2) ilwoon_ganji_cheongan / jiji span은 자기 자신에만 적용
     else if (elem.matches(".ilwoon_ganji_cheongan span, .ilwoon_ganji_jiji span")) {
       // 기존 색상 클래스 제거
-      textColorClasses.forEach(c => elem.classList.remove(c));
+      bgColorClasses.forEach(c => elem.classList.remove(c));
       // 새 클래스 추가
       elem.classList.add(clsToAdd2);
     }
