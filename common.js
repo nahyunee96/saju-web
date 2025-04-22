@@ -29,6 +29,9 @@ let coupleMode      = false;
 
 let latestMyeongsik = null;
 
+let originalDate;
+let correctedDate;
+
 // [0] 출생지 보정 및 써머타임 함수
 // const cityLongitudes = {
 //   "서울특별시": 126.9780, "부산광역시": 129.1, "대구광역시": 128.6,
@@ -82,114 +85,126 @@ let latestMyeongsik = null;
 // };
 
 // 1) 전역에 빈 객체 선언 (고정 매핑 없음)
-  let cityLongitudes = {};
+let cityLongitudes = {};
 
-  const btn       = document.getElementById('inputBirthPlace');
-  const modal     = document.getElementById('mapModal');
-  const closeMap  = document.getElementById('closeMap');
-  const searchBox = document.getElementById('searchBox');
-  const suggList  = document.getElementById('suggestions');
-  let map, marker, debounceTimer;
+const placeBtn       = document.getElementById('inputBirthPlace');
+const modal     = document.getElementById('mapModal');
+const closeMap  = document.getElementById('closeMap');
+const searchBox = document.getElementById('searchBox');
+const suggList  = document.getElementById('suggestions');
+let map, marker, debounceTimer;
 
-  // 2) 버튼 클릭 → 모달 열기 + 지도 초기화
-  btn.addEventListener('click', () => {
-    modal.style.display = 'block';
-    if (!map) {
-      // 서울 중심, 줌 레벨 11
-      map = L.map('map').setView([37.5665, 126.9780], 11);
-      L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-        { subdomains: 'abcd', attribution: '&copy; OSM &copy; CARTO' }
-      ).addTo(map);
-    }
-    searchBox.focus();
-  });
+// 2) 버튼 클릭 → 모달 열기 + 지도 초기화
+placeBtn.addEventListener('click', () => {
+  modal.style.display = 'block';
+  if (!map) {
+    // 서울 중심, 줌 레벨 11
+    map = L.map('map').setView([37.5665, 126.9780], 11);
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      { subdomains: 'abcd', attribution: '&copy; OSM &copy; CARTO' }
+    ).addTo(map);
+  }
+  searchBox.focus();
+});
 
-  // 3) 닫기
-  closeMap.addEventListener('click', () => {
-    modal.style.display = 'none';
-    searchBox.value = '';
+// 3) 닫기
+closeMap.addEventListener('click', () => {
+  modal.style.display = 'none';
+  searchBox.value = '';
+  suggList.innerHTML = '';
+});
+
+// 4) 자동완성: Nominatim + 북반구 viewbox
+searchBox.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  const q = searchBox.value.trim();
+  if (!q) {
     suggList.innerHTML = '';
-  });
+    return;
+  }
 
-  // 4) 자동완성: Nominatim + 북반구 viewbox
-  searchBox.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    const q = searchBox.value.trim();
-    if (!q) {
-      suggList.innerHTML = '';
-      return;
+  debounceTimer = setTimeout(async () => {
+    try {
+      const url =
+        'https://nominatim.openstreetmap.org/search' +
+        '?format=json&limit=10' +
+        '&accept-language=ko' +
+        '&viewbox=-180,90,180,0&bounded=1' +
+        '&q=' + encodeURIComponent(q);
+      const res = await fetch(url);
+      const data = await res.json();
+
+      suggList.innerHTML = data.map(item => {
+        const parts = item.display_name.split(',').map(s => s.trim());
+        // parts[0]=행정구, parts[1]=시 혹은 시 단독 등
+        let fullName;
+        if (parts[0].match(/구$|군$/) && parts[1]?.match(/시$/)) {
+          // 시/군/구 조합 → "부산광역시 사하구"
+          fullName = `${parts[1]} ${parts[0]}`;
+        } else {
+          // 그 외(시 단독, 외국 도시 등)
+          fullName = parts[0];
+        }
+        return `
+          <li
+            data-name="${fullName}"
+            data-lon="${item.lon}"
+            data-lat="${item.lat}"
+            style="padding:6px 8px;cursor:pointer;"
+          >${fullName}</li>`;
+      }).join('');
+    } catch (e) {
+      console.error(e);
+      suggList.innerHTML = '<li>검색 중 오류 발생</li>';
     }
+  }, 300);
+});
 
-    debounceTimer = setTimeout(async () => {
-      try {
-        const url =
-          'https://nominatim.openstreetmap.org/search' +
-          '?format=json&limit=10' +
-          '&accept-language=ko' +
-          '&viewbox=-180,90,180,0&bounded=1' +
-          '&q=' + encodeURIComponent(q);
-        const res = await fetch(url);
-        const data = await res.json();
+let cityLon = null;
 
-        suggList.innerHTML = data.map(item => {
-          const parts = item.display_name.split(',').map(s => s.trim());
-          // parts[0]=행정구, parts[1]=시 혹은 시 단독 등
-          let fullName;
-          if (parts[0].match(/구$|군$/) && parts[1]?.match(/시$/)) {
-            // 시/군/구 조합 → "부산광역시 사하구"
-            fullName = `${parts[1]} ${parts[0]}`;
-          } else {
-            // 그 외(시 단독, 외국 도시 등)
-            fullName = parts[0];
-          }
-          return `
-            <li
-              data-name="${fullName}"
-              data-lon="${item.lon}"
-              data-lat="${item.lat}"
-              style="padding:6px 8px;cursor:pointer;"
-            >${fullName}</li>`;
-        }).join('');
-      } catch (e) {
-        console.error(e);
-        suggList.innerHTML = '<li>검색 중 오류 발생</li>';
-      }
-    }, 300);
-  });
+// 5) 후보 클릭 시
+suggList.addEventListener('click', e => {
+  if (e.target.tagName !== 'LI') return;
+  const name = e.target.dataset.name;        // "부산광역시 사하구"
+  const lat  = parseFloat(e.target.dataset.lat);
+  const lon  = parseFloat(e.target.dataset.lon);
 
-  // 5) 후보 클릭 시
-  suggList.addEventListener('click', e => {
-    if (e.target.tagName !== 'LI') return;
-    const name = e.target.dataset.name;        // "부산광역시 사하구"
-    const lat  = parseFloat(e.target.dataset.lat);
-    const lon  = parseFloat(e.target.dataset.lon);
-  
-    // 마커 표시 & 지도 이동
-    if (!marker) marker = L.marker([lat, lon]).addTo(map);
-    else         marker.setLatLng([lat, lon]);
-    map.setView([lat, lon], 12);
-  
-    // 동적 매핑: fullName과 시 단위 키 모두 저장
-    const cityKey = name.split(' ')[0];
-    cityLongitudes[name]    = lon;
-    cityLongitudes[cityKey] = lon;
-  
-    // 2) 변경된 매핑을 localStorage에도 저장
-    localStorage.setItem(
-      'cityLongitudes',
-      JSON.stringify(cityLongitudes)
-    );
-  
-    // 버튼 업데이트
-    btn.value       = name;
-    btn.textContent = name;
-  
-    // 모달 닫기 및 리스트 초기화
-    modal.style.display = 'none';
-    searchBox.value = '';
-    suggList.innerHTML = '';
-  });
+  // 마커 표시 & 지도 이동
+  if (!marker) marker = L.marker([lat, lon]).addTo(map);
+  else         marker.setLatLng([lat, lon]);
+  map.setView([lat, lon], 12);
+
+  // 동적 매핑: fullName과 시 단위 키 모두 저장
+  const cityKey = name.split(' ')[0];
+  cityLongitudes[name]    = lon;
+  cityLongitudes[cityKey] = lon;
+
+  cityLon = lon;
+
+  // 2) 변경된 매핑을 localStorage에도 저장
+  localStorage.setItem(
+    'cityLongitudes',
+    JSON.stringify(cityLongitudes)
+  );
+
+  // 버튼 업데이트
+  placeBtn.value       = name;
+  placeBtn.textContent = name;
+
+  // 모달 닫기 및 리스트 초기화
+  modal.style.display = 'none';
+  searchBox.value = '';
+  suggList.innerHTML = '';
+});
+
+let fixedCorrectedDate = null;  // 한번만 계산하고, 이 값을 계속 씀
+
+function initializeCorrectedDate(dateObj, cityLon, isPlaceUnknown) {
+  if (fixedCorrectedDate) return fixedCorrectedDate; // 이미 고정된 값이 있으면 그걸 반환
+  fixedCorrectedDate = adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown);
+  return fixedCorrectedDate;
+}
 
 // function extractDistrict(fullName) {
 //   // 공백 또는 쉼표로 분리
@@ -210,6 +225,9 @@ function loadCityLongitudes() {
 function restoreCurrentPlaceMapping(item) {
   if (item.birthPlaceFull && item.birthPlaceLongitude != null) {
     cityLongitudes[item.birthPlaceFull] = item.birthPlaceLongitude;
+  }
+  if (item.correctedDate) {
+    fixedCorrectedDate = new Date(item.correctedDate); // 다시 계산 X
   }
 }
 
@@ -236,26 +254,13 @@ function getEquationOfTime(dateObj) {
   return 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
 }
 
-function adjustBirthDate(dateObj, birthPlaceFull, isPlaceUnknown = false) {
-  if (isPlaceUnknown) {
-    return new Date(dateObj.getTime() - 30 * 60 * 1000);
-  }
+function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
+  if (isPlaceUnknown) return new Date(dateObj.getTime() - 30 * 60 * 1000);
+  if (cityLon == null) return dateObj;
 
-  // ① fullName 그대로, 아니면 시 단위 키로도 fallback
-  const cityLon =
-    cityLongitudes[birthPlaceFull] ||
-    cityLongitudes[birthPlaceFull.split(' ')[0]];
-
-  if (cityLon == null) {
-    //console.warn(`${birthPlaceFull}에 대한 경도가 없습니다.`);
-    return dateObj;
-  }
-
-  const longitudeCorrection = (cityLon - 135.1) * 4; // 분 단위
+  const longitudeCorrection = (cityLon - 135.1) * 4;
   const eqTime = getEquationOfTime(dateObj);
-  let corrected = new Date(
-    dateObj.getTime() + (longitudeCorrection + eqTime) * 60 * 1000
-  );
+  let corrected = new Date(dateObj.getTime() + (longitudeCorrection + eqTime) * 60 * 1000);
 
   const iv = getSummerTimeInterval(corrected.getFullYear());
   if (iv && corrected >= iv.start && corrected < iv.end) {
@@ -264,6 +269,8 @@ function adjustBirthDate(dateObj, birthPlaceFull, isPlaceUnknown = false) {
 
   return corrected;
 }
+
+//const correctedDate = adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown);
 
 // [1] 천문/역법 함수
 function calendarGregorianToJD(year, month, day, hour = 0, minute = 0) {
@@ -553,10 +560,10 @@ function getDecimalBirthYear(birthDate) {
   return birthDate.getFullYear() + diffDays / totalDays;
 }
 
-function getDaewoonData(birthPlace, gender, isPlaceUnknown) {
+function getDaewoonData(gender, originalDate, correctedDate) {
   const birthDate = globalState.correctedBirthDate;
-  const originalDate = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
-  const correctedDate = adjustBirthDate(originalDate, birthPlace, isPlaceUnknown);
+  //const originalDate = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+  //const correctedDate = initializeCorrectedDate(originalDate, cityLon, isPlaceUnknown);
   const inputYear = globalState.correctedBirthDate.getFullYear();
   const ipChunForSet = findSolarTermDate(inputYear, 315);
   //const ipChunForSet = findSolarTermDate(birthDate.getFullYear(), 315);
@@ -624,8 +631,8 @@ function getDaewoonData(birthPlace, gender, isPlaceUnknown) {
   return { base: baseNumber, list: list, dayStemRef: dayStemRef };
 }
 
-function getDaewoonDataStr(birthPlace, gender, isPlaceUnknown) {
-  const data = getDaewoonData(birthPlace, gender, isPlaceUnknown);
+function getDaewoonDataStr(gender, originalDate, correctedDate) {
+  const data = getDaewoonData(gender, originalDate, correctedDate);
   const listStr = data.list.map(item => `${item.age}(${item.stem}${item.branch})`).join(", ");
   return `대운수 ${data.base}, 대운 나이 목록: ${listStr}`;
 }
@@ -679,9 +686,9 @@ function getEffectiveYearForSet(dateObj) {
 
 }
 
-function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, gender, isPlaceUnknown) {
+function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate) {
 	const originalDate = new Date(year, month - 1, day, hour, minute);
-	const correctedDate = adjustBirthDate(originalDate, birthPlace, isPlaceUnknown);
+	//const correctedDate = initializeCorrectedDate(originalDate, cityLon, isPlaceUnknown);
   const effectiveYearForSet = getEffectiveYearForSet(correctedDate);
 	const nominalBirthDate = new Date(year, month - 1, day);
   const nominalBirthDate2 = new Date(year, month - 1, day + 1);
@@ -752,20 +759,20 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, birthPlace, g
 
   if (yajasi && correctedDate.getHours() >= 24){
     const daypillar = getDayGanZhi(nominalBirthDate);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender, isPlaceUnknown)}`;
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } 
     
   if (isJasi && correctedDate.getHours() >= 23){
     const daypillar = getDayGanZhi(nominalBirthDate2);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender, isPlaceUnknown)}`;
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } 
 
   if (isInsi && (correctedDate.getHours() <= 3 || correctedDate.getHours() >= 23)){
     const daypillar = getDayGanZhi(nominalBirthDatePrev);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender, isPlaceUnknown)}`;
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } else {
     const daypillar = getDayGanZhi(nominalBirthDate);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(birthPlace, gender, isPlaceUnknown)}`;
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   }	
 }
 
@@ -1205,7 +1212,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const displayBirthtimeFormatted = `${displayHour}${displayMinute}`;
   
     // 사주 계산
-    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, usedBirthPlace, gender, isPlaceUnknown);
+    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate);
     const pillarsPart = computedResult.split(", ")[0]; // 예: "병자 경인 정묘 무오시"
     const pillars = pillarsPart.split(" ");
     const yearPillar = pillars[0] || "";
@@ -1214,13 +1221,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const hourPillar = isTimeUnknown ? "-" : (pillars[3] || "");
   
     // 보정시각 계산
-    const originalDate = new Date(year, month - 1, day, hour, minute);
-    let correctedDate;
+    //const originalDate = new Date(year, month - 1, day, hour, minute);
+    //let correctedDate;
     if (isTimeUnknown) {
       correctedDate = null;
-    } else {
-      correctedDate = adjustBirthDate(originalDate, usedBirthPlace, isPlaceUnknown);
-    }
+    } 
 
     function formatTime(date) {
       if (!date) return "-";
@@ -1428,7 +1433,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <ul class="info">
             <li class="name_age" id="nameAge">
               <div class="type_sv_wrap">
-                <b class="type_sv" id="typeSV_${index + 1}">${item.group || '미선택'}</b>
+                <b class="type_sv" id="typeSV_${index + 1}" style="display:none;">${item.group || '미선택'}</b>
                 <button class="type_sv star_btn"
                   id="topPs_${index + 1}"
                   data-index="${index}">
@@ -1601,7 +1606,7 @@ document.addEventListener("DOMContentLoaded", function () {
         currentMyeongsik = item;
         if (!item) return;
         restoreCurrentPlaceMapping(item);
-  
+        new Date(localStorage.getItem('correctedDate'));
         // 원래 detail view로 전환 (기존 코드)
         document.getElementById('wongookLM').classList.remove("w100");
         document.getElementById('luckyWrap').style.display = 'block';
@@ -2356,6 +2361,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     updateTypeSpan(groupVal);
 
+    originalDate = new Date(year, month - 1, day, hour, minute);
+    correctedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
+
 
     document.getElementById('resultWrapper').style.display = 'block';
     window.scrollTo(0, 0);
@@ -2385,8 +2393,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    let originalDate = new Date(year, month - 1, day, hour, minute);
-    let correctedDate = adjustBirthDate(originalDate, usedBirthPlace, isPlaceUnknown);
+    
 
 
     globalState.correctedBirthDate = correctedDate;
@@ -2404,7 +2411,7 @@ document.addEventListener("DOMContentLoaded", function () {
       solarDate.getFullYear(),
       solarDate.getMonth() + 1,
       solarDate.getDate(),
-      hour, minute, usedBirthPlace, gender, isPlaceUnknown
+      hour, minute, gender, correctedDate
     );
     // 예: "병자 경인 정묘 무오시, 대운수 ..." 형식의 문자열
     const parts = fullResult.split(", ");
@@ -2462,7 +2469,6 @@ document.addEventListener("DOMContentLoaded", function () {
     setText("resBirth", formattedBirth);
     setText("resTime", isTimeUnknown ? "시간모름" : formattedTime);
     setText("resAddr", isTimeUnknown ? "출생지모름" : savedBirthPlace);
-    correctedDate = adjustBirthDate(originalDate, birthPlaceInput, isPlaceUnknown);
 
     // 2) 출생지 모를 때 기본 –30분 추가 보정
     
@@ -2510,7 +2516,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateOriginalSetMapping();
     updateColorClasses();
 
-    globalState.daewoonData = getDaewoonData(usedBirthPlace, gender, isPlaceUnknown);
+    globalState.daewoonData = getDaewoonData(gender, originalDate, correctedDate);
     function updateCurrentDaewoon(today) {
       const birthDateObj = new Date(year, month - 1, day);
       let currentAge = today.getFullYear() - birthDateObj.getFullYear();
@@ -2518,7 +2524,7 @@ document.addEventListener("DOMContentLoaded", function () {
          (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate())) {
         currentAge--;
       }
-      const daewoonData = getDaewoonData(usedBirthPlace, gender, isPlaceUnknown);
+      const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
       let currentDaewoon = null;
       for (let i = 0; i < daewoonData.list.length; i++) {
         if (daewoonData.list[i].age <= currentAge) {
@@ -2546,7 +2552,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     updateCurrentDaewoon(refDate);
     updateMonthlyWoonByToday(refDate);
-    globalState.daewoonData = getDaewoonData(usedBirthPlace, gender, isPlaceUnknown);
+    globalState.daewoonData = getDaewoonData(gender, originalDate, correctedDate);
 
     function updateAllDaewoonItems(daewoonList) {
       for (let i = 0; i < daewoonList.length; i++) {
@@ -3405,7 +3411,7 @@ document.addEventListener("DOMContentLoaded", function () {
         yearPillar, monthPillar, dayPillar, hourPillar, gender } = person;
       
       originalDate = new Date(year, month - 1, day, hour, minute);
-      correctedDate = adjustBirthDate(originalDate, birthPlaceInput, isPlaceUnknown);
+      //correctedDate = initializeCorrectedDate(originalDate, cityLon, isPlaceUnknown);
       
       let baseTime = new Date(correctedDate);
       if (document.getElementById("jasi")?.checked) {
@@ -3680,7 +3686,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(newIljuFirst);
       const fullResult = getFourPillarsWithDaewoon(
         staticBasic.getFullYear(), staticBasic.getMonth() + 1, staticBasic.getDate(),
-        staticBasic.getHours(), staticBasic.getMinutes(), usedBirthPlace, gender, isPlaceUnknown
+        staticBasic.getHours(), staticBasic.getMinutes(), gender, correctedDate
       );
       
 
@@ -4266,47 +4272,38 @@ document.addEventListener("DOMContentLoaded", function () {
       return `${y}-${m}-${d} ${hh}:${mm}`;
     }
 
-    // function getLatestEventBefore(timeline, date) {
-    //   // 해당 시점 이전의 마지막 이벤트 찾기 (혹은 undefined면 null)
-    //   let latest = null;
-    //   for (const evt of timeline) {
-    //     if (evt.date <= date) latest = evt;
-    //     else break;
-    //   }
-    //   return latest;
-    // }
+    function getLatestEventBefore(timeline, date) {
+      // 해당 시점 이전의 마지막 이벤트 찾기 (혹은 undefined면 null)
+      let latest = null;
+      for (const evt of timeline) {
+        if (evt.date <= date) latest = evt;
+        else break;
+      }
+      return latest;
+    }
     
-    // function getLatestEventBefore(timeline, date) {
-    //   let latest = null;
-    //   for (const evt of timeline) {
-    //     if (evt.date <= date) latest = evt;
-    //     else break;
-    //   }
-    //   return latest;
-    // }
+    function logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates) {
+      baseDates.forEach(date => {
+        const sijuEvt = getLatestEventBefore(sijuTimeline, date);
+        const iljuEvt = getLatestEventBefore(iljuTimeline, date);
+        const woljuEvt = getLatestEventBefore(woljuTimeline, date);
+        const yeonjuEvt = getLatestEventBefore(yeonjuTimeline, date);
     
-    // function logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates) {
-    //   baseDates.forEach(date => {
-    //     const sijuEvt = getLatestEventBefore(sijuTimeline, date);
-    //     const iljuEvt = getLatestEventBefore(iljuTimeline, date);
-    //     const woljuEvt = getLatestEventBefore(woljuTimeline, date);
-    //     const yeonjuEvt = getLatestEventBefore(yeonjuTimeline, date);
+        const dateStr = formatDateTime(date);
+        const sijuStr = sijuEvt ? getGanZhiFromIndex(sijuEvt.index) : myowoonResult.hourPillar;
+        const iljuStr = iljuEvt ? getGanZhiFromIndex(iljuEvt.index) : myowoonResult.dayPillar;
+        const woljuStr = woljuEvt ? getGanZhiFromIndex(woljuEvt.index) : myowoonResult.monthPillar;
+        const yeonjuStr = yeonjuEvt ? getGanZhiFromIndex(yeonjuEvt.index) : myowoonResult.yearPillar;
     
-    //     const dateStr = formatDateTime(date);
-    //     const sijuStr = sijuEvt ? getGanZhiFromIndex(sijuEvt.index) : myowoonResult.hourPillar;
-    //     const iljuStr = iljuEvt ? getGanZhiFromIndex(iljuEvt.index) : myowoonResult.dayPillar;
-    //     const woljuStr = woljuEvt ? getGanZhiFromIndex(woljuEvt.index) : myowoonResult.monthPillar;
-    //     const yeonjuStr = yeonjuEvt ? getGanZhiFromIndex(yeonjuEvt.index) : myowoonResult.yearPillar;
+        console.log(`${dateStr}-${sijuStr}-${iljuStr}-${woljuStr}-${yeonjuStr}`);
+      });
+    }
     
-    //     console.log(`${dateStr}-${sijuStr}-${iljuStr}-${woljuStr}-${yeonjuStr}`);
-    //   });
-    // }
-    
-    // setTimeout(() => {
-    //   const birthDate = new Date(correctedDate);
-    //   const baseDates = [birthDate, ...sijuTimeline.map(evt => evt.date)];
-    //   logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates);
-    // }, 20);
+    setTimeout(() => {
+      const birthDate = new Date(correctedDate);
+      const baseDates = [birthDate, ...sijuTimeline.map(evt => evt.date)];
+      logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates);
+    }, 20);
     
 
     function collectInputData() {
@@ -4323,7 +4320,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateFortune() {
       const { year, month, hour, minute, gender, birthPlace } = inputData;
       const originalDate = new Date(year, month - 1, day, hour, minute);
-      const correctedDate = adjustBirthDate(originalDate, birthPlace, isPlaceUnknown);
+      //const correctedDate = initializeCorrectedDate(originalDate, cityLon, isPlaceUnknown);
       
       // 원국(사주) 계산 실행
       const fullResult = getFourPillarsWithDaewoon(
@@ -4331,9 +4328,7 @@ document.addEventListener("DOMContentLoaded", function () {
         correctedDate.getMonth() + 1,
         correctedDate.getDate(),
         hour, minute,
-        birthPlace,
-        gender,
-        isPlaceUnknown
+        gender, correctedDate
       );
       
       // fullResult에서 각 기둥 분리
@@ -5450,7 +5445,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isTimeUnknown: selected.isTimeUnknown,
       isPlaceUnknown: selected.isPlaceUnknown,
       selectedTime2: selected.selectedTime2 || "",
-      group: selected.groupVal,
+      group: selected.group,
       //createdAt: selected.Date.now()
       
     };
@@ -5642,17 +5637,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, usedBirthPlace, gender, isPlaceUnknown);
+    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate);
     const pillarsPart = computedResult.split(", ")[0];
     const pillars = pillarsPart.split(" ");
 
-    const originalDate = new Date(year, month - 1, day, hour, minute);
-    let correctedDate;
+    //const originalDate = new Date(year, month - 1, day, hour, minute);
+    //let correctedDate;
     if (isTimeUnknown) {
       correctedDate = null;
-    } else {
-      correctedDate = adjustBirthDate(originalDate, usedBirthPlace, isPlaceUnknown);
-    }
+    } 
 
     const age = correctedDate ? calculateAge(correctedDate) : "-";
     const birthdayTime = correctedDate ? formatTime(correctedDate) : "?";
@@ -5669,7 +5662,7 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem('customGroups', JSON.stringify(customGroups));
     }
 
-    //updateMeGroupOption();
+    localStorage.setItem('correctedDate', correctedDate.toISOString());
 
     return {
       birthday: birthday,
