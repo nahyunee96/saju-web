@@ -931,7 +931,8 @@ function updateColorClasses() {
 
   document.querySelectorAll(selector).forEach(elem => {
     const val = elem.textContent.trim();
-    const clsToAdd = colorMapping[val]?.bgColor || colorMapping2[val]?.bgColor;
+    const clsToAdd = colorMapping[val]?.bgColor;
+    const clsToAdd2 = colorMapping2[val]?.bgColor;
     if (!clsToAdd) return;
 
     // 1) .hanja_con 내부의 <b>일 때는 부모와 다음 <p>를 처리
@@ -954,7 +955,7 @@ function updateColorClasses() {
       // 기존 색상 클래스 제거
       textColorClasses.forEach(c => elem.classList.remove(c));
       // 새 클래스 추가
-      elem.classList.add(clsToAdd);
+      elem.classList.add(clsToAdd2);
     }
   });
 }
