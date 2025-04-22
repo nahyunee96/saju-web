@@ -3376,15 +3376,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 보정 및 동적 단계 계산 함수
     function adjustInitial(candidate, cycleDays, baseDate) {
-      if (candidate >= baseDate) return candidate;
-    
-      const diffDays = (baseDate - candidate) / (24 * 60 * 60 * 1000);
-    
-      // 하루보다 작은 경우 건너뛰지 않도록 함
-      if (diffDays < 1) return candidate;
-    
-      const cycles = Math.round(diffDays / cycleDays);
-      return new Date(candidate.getTime() + cycles * cycleDays * 24 * 60 * 60 * 1000);
+      while (candidate < baseDate) {
+        candidate = new Date(candidate.getTime() + cycleDays * oneDayMs);
+      }
+      return candidate;
     }
 
     function getDynamicStep(candidateTime, cycleDays, refDate) {
@@ -3422,22 +3417,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // correctedDate: 원국 계산용(출생일)
       
-      const staticBasic = new Date(correctedDate);
+      const staticBasic = correctedDate;
       
       // 동적 기준 설정
-      const jeolgi = getSolarTermBoundaries(correctedDate.getFullYear());
+      const jeolgi = getSolarTermBoundaries(staticBasic.getFullYear());
       let targetSolarTerm;
       if (woljuMode === "역행") {
-        const pastTerms = jeolgi.filter(term => term.date <= correctedDate);
+        const pastTerms = jeolgi.filter(term => term.date <= staticBasic);
         targetSolarTerm = pastTerms.length ? pastTerms[pastTerms.length - 1] : jeolgi[0];
       } else {
-        targetSolarTerm = jeolgi.find(term => term.date > correctedDate);
+        targetSolarTerm = jeolgi.find(term => term.date > staticBasic);
         if (!targetSolarTerm) {
-          targetSolarTerm = getSolarTermBoundaries(correctedDate.getFullYear() + 1)[0];
+          targetSolarTerm = getSolarTermBoundaries(staticBasic.getFullYear() + 1)[0];
         }
       }
-    
-      //birthDate = globalState.correctedBirthDate;
+  
     
       function round4(num) {
         return Math.round((num * 10000)) / 10000;
@@ -3517,7 +3511,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const avg = get120YearAverages(target.date);
 
           // 기존 offset 계산 (ratio * averageDecade)
-          let offset = Math.floor(target.date - baseTime) / oneDayMs
+          let offset = Math.abs(target.date - baseTime) / oneDayMs
             / avg.averageMonth
             * avg.averageDecade;
           offset = Number(offset.toFixed(4));
@@ -3546,7 +3540,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
           const avg = get120YearAverages(target.date);
 
-          let offset = Math.floor(target.date - baseDateOnly) / oneDayMs
+          let offset = Math.abs(target.date - baseDateOnly) / oneDayMs
             / avg.averageMonth
             * avg.averageDecade;
           offset = Number(offset.toFixed(4));
@@ -3623,11 +3617,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      let newSijuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateSijuOffsetDynamic(staticBasic, sijuMode) * oneDayMs), sijuCycle, correctedDate);
-      let newIljuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateIljuOffsetDynamic(staticBasic, iljuMode) * oneDayMs), iljuCycle, correctedDate);
-      let newWoljuFirst = adjustInitial(new Date(staticBasic.getTime() + calculateWoljuOffsetDynamic(staticBasic, woljuMode) * oneDayMs), woljuCycle, correctedDate);
-      let newYeonjuFirst= adjustInitial(new Date(staticBasic.getTime() + calculateYeonjuOffsetDynamic(staticBasic, yeonjuMode) * oneDayMs), yeonjuCycle, correctedDate);      
+      let newSijuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateSijuOffsetDynamic(staticBasic, sijuMode) * oneDayMs), sijuCycle, staticBasic);
+      let newIljuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateIljuOffsetDynamic(staticBasic, iljuMode) * oneDayMs), iljuCycle, staticBasic);
+      let newWoljuFirst = adjustInitial(new Date(staticBasic.getTime() + calculateWoljuOffsetDynamic(staticBasic, woljuMode) * oneDayMs), woljuCycle, staticBasic);
+      let newYeonjuFirst= adjustInitial(new Date(staticBasic.getTime() + calculateYeonjuOffsetDynamic(staticBasic, yeonjuMode) * oneDayMs), yeonjuCycle, staticBasic);      
       
+      console.log(newWoljuFirst);
+
       const fullResult = getFourPillarsWithDaewoon(
         staticBasic.getFullYear(), staticBasic.getMonth() + 1, staticBasic.getDate(),
         staticBasic.getHours(), staticBasic.getMinutes(), usedBirthPlace, gender, isPlaceUnknown
@@ -3639,7 +3635,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const woljuIndex = getGanZhiIndex(monthPillar);
       const yeonjuIndex = getGanZhiIndex(yearPillar);
 
-      console.log(sijuIndex, iljuIndex, woljuIndex, yeonjuIndex);
       
       const sijuEvent = applyFirstUpdateDynamicWithStep(newSijuFirst, sijuIndex, sijuCycle, sijuMode, refDate);
       const iljuEvent = applyFirstUpdateDynamicWithStep(newIljuFirst, iljuIndex, iljuCycle, iljuMode, refDate);
@@ -4097,7 +4092,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const hourBranch = getHourBranchUsingArray(date);
       const hourBranchIndex = Jiji.indexOf(hourBranch);
       const dayGanZhi = updateDayWoon(refDate).gan;
-      console.log(dayGanZhi);
       const hourStem = getHourStem2(dayGanZhi, hourBranchIndex);
 
 
@@ -4214,37 +4208,66 @@ document.addEventListener("DOMContentLoaded", function () {
       return timeline;
     }
 
-    function logTimelineWindow(label, timeline, windowSize = 10) {
-      const total = timeline.length;
-      if (total === 0) {
-        console.log(`${label}: 타임라인이 비어 있습니다.`);
-        return;
-      }
-      if (total <= windowSize * 2) {
-        console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
-        timeline.forEach(evt => {
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        });
-      } else {
-        console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
-        for (let i = 0; i < windowSize; i++) {
-          const evt = timeline[i];
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        }
-        console.log("... 생략 ...");
-        console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
-        for (let i = total - windowSize; i < total; i++) {
-          const evt = timeline[i];
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        }
-      }
-    }
-    setTimeout(function(){
-      logTimelineWindow("시주", sijuTimeline);
-      logTimelineWindow("일주", iljuTimeline);
-      logTimelineWindow("월주", woljuTimeline);
-      logTimelineWindow("연주", yeonjuTimeline);
-    }, 20);
+    // function logGanziLines({
+    //   sijuTimeline,
+    //   iljuTimeline,
+    //   woljuTimeline,
+    //   yeonjuTimeline
+    // }) {
+    //   // helper: 주어진 날짜(date) 기준으로 timeline에서 마지막 변경된 간지 찾기
+    //   function getGForDate(timeline, date, mode) {
+    //     if (!timeline.length) return "";
+    //     // 순행: 시간 오름차순, 역행: 시간 내림차순
+    //     const filtered = timeline
+    //       .filter(e => mode === "순행" ? e.date <= date : e.date >= date);
+    //     if (!filtered.length) {
+    //       // 기준 이전/이후 이벤트가 없으면 첫 이벤트 사용
+    //       return getGanZhiFromIndex(
+    //         (mode === "순행" ? timeline[0] : timeline[timeline.length - 1]).index
+    //       );
+    //     }
+    //     // 마지막(순행→pop, 역행→shift)
+    //     const entry = mode === "순행" ? filtered.pop() : filtered.shift();
+    //     return getGanZhiFromIndex(entry.index);
+    //   }
+    
+    //   // 날짜를 "YYYY.MM.DD HH:mm" 형식으로 포맷
+    //   function fmt(dt) {
+    //     const Y = dt.getFullYear();
+    //     const M = String(dt.getMonth() + 1).padStart(2, "0");
+    //     const D = String(dt.getDate()).padStart(2, "0");
+    //     const h = String(dt.getHours()).padStart(2, "0");
+    //     const m = String(dt.getMinutes()).padStart(2, "0");
+    //     return `${Y}.${M}.${D} ${h}:${m}`;
+    //   }
+    
+    //   // 한 줄씩 출력
+    //   sijuTimeline.forEach(evt => {
+    //     const now     = evt.date;
+    //     const sijuGan = getGanZhiFromIndex(evt.index);
+    //     const iljuGan = getGForDate(iljuTimeline, now, iljuMode);
+    //     const woljuGan= getGForDate(woljuTimeline, now, woljuMode);
+    //     const yeonjuGan=getGForDate(yeonjuTimeline, now, yeonjuMode);
+    
+    //     console.log(
+    //       `${fmt(now)}-` +
+    //       `${sijuGan}-` +
+    //       `${iljuGan}-` +
+    //       `${woljuGan}-` +
+    //       `${yeonjuGan}`
+    //     );
+    //   });
+    // }
+    
+    // // 사용 예시 (20ms 뒤에 실행)
+    // setTimeout(() => {
+    //   logGanziLines({
+    //     sijuTimeline,
+    //     iljuTimeline,
+    //     woljuTimeline,
+    //     yeonjuTimeline
+    //   });
+    // }, 20);
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
