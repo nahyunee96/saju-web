@@ -781,7 +781,7 @@ const tenGodMappingForStems = {
   "경": { "갑": "편재", "을": "정재", "병": "편관", "정": "정관", "무": "편인", "기": "정인", "경": "비견", "신": "겁재", "임": "식신", "계": "상관" },
   "신": { "갑": "정재", "을": "편재", "병": "정관", "정": "편관", "무": "정인", "기": "편인", "경": "겁재", "신": "비견", "임": "상관", "계": "식신" },
   "임": { "갑": "식신", "을": "상관", "병": "편재", "정": "정재", "무": "편관", "기": "정관", "경": "편인", "신": "정인", "임": "비견", "계": "겁재" },
-  "계": { "갑": "식신", "을": "상관", "병": "편재", "정": "정재", "무": "편관", "기": "정관", "경": "편인", "신": "정인", "임": "비견", "계": "겁재" }
+  "계": { "갑": "상관", "을": "식신", "병": "정재", "정": "편재", "무": "정관", "기": "편관", "경": "정인", "신": "편인", "임": "계수", "계": "비견" }
 };
 
 const tenGodMappingForBranches = {
@@ -1129,25 +1129,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
   updateSaveBtn();
 
-  function updateMeGroupOption(selectedVal = null) {
-    const sel       = document.getElementById('inputMeGroup');
-    if (!sel) return;
+  // function updateMeGroupOption(selectedVal = null) {
+  //   const sel       = document.getElementById('inputMeGroup');
+  //   if (!sel) return;
   
-    const selfOpt   = sel.querySelector('option[value="본인"]');
-    if (!selfOpt) return;
+  //   const selfOpt   = sel.querySelector('option[value="본인"]');
+  //   if (!selfOpt) return;
   
-    const savedList = JSON.parse(localStorage.getItem('myeongsikList')) || [];
-    const hasSelf   = savedList.some(v => v.group === '본인');
+  //   const savedList = JSON.parse(localStorage.getItem('myeongsikList')) || [];
+  //   const hasSelf   = savedList.some(v => v.group === '본인');
   
-    // ① 이미 "본인"이 저장돼 있고 ② 이번 폼에서 선택된 값도 "본인"이 아니라면 → 숨김
-    if (hasSelf && selectedVal !== '본인') {
-      selfOpt.style.display = 'none';   // 완전히 숨기기
-      // selfOpt.disabled = true;       // (대신 비활성화만 하고 싶으면 주석 해제)
-    } else {
-      selfOpt.style.display = '';
-      selfOpt.disabled = false;
-    }
-  }
+  //   // ① 이미 "본인"이 저장돼 있고 ② 이번 폼에서 선택된 값도 "본인"이 아니라면 → 숨김
+  //   if (hasSelf && selectedVal !== '본인') {
+  //     selfOpt.style.display = 'none';   // 완전히 숨기기
+  //     // selfOpt.disabled = true;       // (대신 비활성화만 하고 싶으면 주석 해제)
+  //   } else {
+  //     selfOpt.style.display = '';
+  //     selfOpt.disabled = false;
+  //   }
+  // }
 
   function ensureGroupOption(value) {
     if (!value || value === '기타입력') return;       // '기타입력' 자체는 건드리지 않음
@@ -3475,6 +3475,37 @@ document.addEventListener("DOMContentLoaded", function () {
         const totalDays = (endDate - birthDate) / oneDayMs;
         return (totalDays / (121.6 * 12)) * 4;
       }
+
+      function getSelectedIljuBasis() {
+        const checkedRadio =
+          document.querySelector('#checkOption input[name="timeChk02"]:checked') ||
+          document.querySelector('#timeType input[name="time2"]:checked');
+        if (!checkedRadio) return "자시";
+        switch (checkedRadio.value) {
+          case "jasi": return "자시";
+          case "yajasi": return "야자시";
+          case "insi": return "인시";
+          default: return "자시";
+        }
+      }
+      
+
+      function getAdjustedBirthForIlju(birthDate, 기준 = "자시") {
+        const d = new Date(birthDate);
+        if (기준 === "야자시") {
+          if (d.getHours() < 1) d.setDate(d.getDate() - 1);
+          d.setHours(0, 0, 0, 0);
+        } else if (기준 === "자시") {
+          if (d.getHours() < 23) d.setDate(d.getDate() - 1);
+          d.setHours(23, 0, 0, 0);
+        } else if (기준 === "인시") {
+          if (d.getHours() < 3) d.setDate(d.getDate() - 1);
+          d.setHours(3, 0, 0, 0);
+        }
+        return d;
+      }
+
+      //const baseTimeIlju = getAdjustedBirthForIlju(correctedDate, getSelectedIljuBasis());
     
       // 1) 日運 Offset (4개월 주기)
       function calculateIljuOffsetDynamic(birthDate, mode) {
@@ -3493,6 +3524,26 @@ document.addEventListener("DOMContentLoaded", function () {
         return offset;
       }
 
+      // function setIljuBasisRadio(basis) {
+      //   const valueMap = { "자시": "jasi", "야자시": "yajasi", "인시": "insi" };
+      //   const value = valueMap[basis] || "jasi";
+      //   const input = document.querySelector(`#checkOption input[value="${value}"]`);
+      //   if (input) input.checked = true;
+      // }
+
+
+      // function setIljuBasisRadio(basis) {
+      //   const valueMap = { "자시": "jasi", "야자시": "yajasi", "인시": "insi" };
+      //   const value = valueMap[basis] || "jasi";
+      //   const input = document.querySelector(`#checkOption input[value="${value}"]`);
+      //   if (input) input.checked = true;
+      // }
+
+      // const iljuBasis = getSelectedIljuBasis();
+      // const adjustedStaticBasic = getAdjustedBirthForIlju(staticBasic, iljuBasis);
+      // //const iljuStartDate = getOffsetDate(birthDate, iljuOffset);
+      // //const iljuTimeline = generateTimeline(iljuStartDate, 120);
+      // setIljuBasisRadio(iljuBasis);
 
       // 2) 月運 Offset (절기→平均Decade 주기)
       let calculateWoljuOffsetDynamic;
@@ -3618,11 +3669,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      let newSijuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateSijuOffsetDynamic(staticBasic, sijuMode) * oneDayMs), sijuCycle, staticBasic);
-      let newIljuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateIljuOffsetDynamic(staticBasic, iljuMode) * oneDayMs), iljuCycle, staticBasic);
-      let newWoljuFirst = adjustInitial(new Date(staticBasic.getTime() + calculateWoljuOffsetDynamic(staticBasic, woljuMode) * oneDayMs), woljuCycle, staticBasic);
-      let newYeonjuFirst= adjustInitial(new Date(staticBasic.getTime() + calculateYeonjuOffsetDynamic(staticBasic, yeonjuMode) * oneDayMs), yeonjuCycle, staticBasic);      
+      // let iljuOffset = calculateIljuOffsetDynamic(staticBasic, iljuMode, iljuBasis, baseTimeIlju);
+      // if (iljuOffset === 0) iljuOffset = iljuCycle;
+      // const adjustedDate2 = new Date(staticBasic.getTime() + Math.ceil(iljuOffset) * oneDayMs);
       
+
+      let newSijuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateSijuOffsetDynamic(staticBasic, sijuMode) * oneDayMs), sijuCycle, staticBasic);
+      let newIljuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateIljuOffsetDynamic(staticBasic, iljuMode) * oneDayMs), iljuCycle, staticBasic);let newWoljuFirst = adjustInitial(new Date(staticBasic.getTime() + calculateWoljuOffsetDynamic(staticBasic, woljuMode) * oneDayMs), woljuCycle, staticBasic);
+      let newYeonjuFirst= adjustInitial(new Date(staticBasic.getTime() + calculateYeonjuOffsetDynamic(staticBasic, yeonjuMode) * oneDayMs), yeonjuCycle, staticBasic);      
+      console.log(newIljuFirst);
       const fullResult = getFourPillarsWithDaewoon(
         staticBasic.getFullYear(), staticBasic.getMonth() + 1, staticBasic.getDate(),
         staticBasic.getHours(), staticBasic.getMinutes(), usedBirthPlace, gender, isPlaceUnknown
@@ -3644,6 +3699,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       return {
         fullResult,
+        sijuIndex, iljuIndex, woljuIndex, yeonjuIndex,
         newSijuFirst, newIljuFirst, newWoljuFirst, newYeonjuFirst,
         hourPillar, dayPillar, monthPillar, yearPillar,
         sijuEvent, iljuEvent, woljuEvent, yeonjuEvent,
@@ -4210,37 +4266,48 @@ document.addEventListener("DOMContentLoaded", function () {
       return `${y}-${m}-${d} ${hh}:${mm}`;
     }
 
-    function logTimelineWindow(label, timeline, windowSize = 10) {
-      const total = timeline.length;
-      if (total === 0) {
-        console.log(`${label}: 타임라인이 비어 있습니다.`);
-        return;
+    function getLatestEventBefore(timeline, date) {
+      // 해당 시점 이전의 마지막 이벤트 찾기 (혹은 undefined면 null)
+      let latest = null;
+      for (const evt of timeline) {
+        if (evt.date <= date) latest = evt;
+        else break;
       }
-      if (total <= windowSize * 2) {
-        console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
-        timeline.forEach(evt => {
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        });
-      } else {
-        console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
-        for (let i = 0; i < windowSize; i++) {
-          const evt = timeline[i];
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        }
-        console.log("... 생략 ...");
-        console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
-        for (let i = total - windowSize; i < total; i++) {
-          const evt = timeline[i];
-          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-        }
-      }
+      return latest;
     }
-    setTimeout(function(){
-      logTimelineWindow("시주", sijuTimeline);
-      logTimelineWindow("일주", iljuTimeline);
-      logTimelineWindow("월주", woljuTimeline);
-      logTimelineWindow("연주", yeonjuTimeline);
+    
+    function getLatestEventBefore(timeline, date) {
+      let latest = null;
+      for (const evt of timeline) {
+        if (evt.date <= date) latest = evt;
+        else break;
+      }
+      return latest;
+    }
+    
+    function logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates) {
+      baseDates.forEach(date => {
+        const sijuEvt = getLatestEventBefore(sijuTimeline, date);
+        const iljuEvt = getLatestEventBefore(iljuTimeline, date);
+        const woljuEvt = getLatestEventBefore(woljuTimeline, date);
+        const yeonjuEvt = getLatestEventBefore(yeonjuTimeline, date);
+    
+        const dateStr = formatDateTime(date);
+        const sijuStr = sijuEvt ? getGanZhiFromIndex(sijuEvt.index) : myowoonResult.hourPillar;
+        const iljuStr = iljuEvt ? getGanZhiFromIndex(iljuEvt.index) : myowoonResult.dayPillar;
+        const woljuStr = woljuEvt ? getGanZhiFromIndex(woljuEvt.index) : myowoonResult.monthPillar;
+        const yeonjuStr = yeonjuEvt ? getGanZhiFromIndex(yeonjuEvt.index) : myowoonResult.yearPillar;
+    
+        console.log(`${dateStr}-${sijuStr}-${iljuStr}-${woljuStr}-${yeonjuStr}`);
+      });
+    }
+    
+    setTimeout(() => {
+      const birthDate = new Date(correctedDate);
+      const baseDates = [birthDate, ...sijuTimeline.map(evt => evt.date)];
+      logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates);
     }, 20);
+    
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
