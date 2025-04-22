@@ -822,6 +822,31 @@ const colorMapping = {
   "亥": { textColor: 'black', bgColor: 'b_black' }
 };
 
+const colorMapping2 = {
+  "갑": { textColor: 'green', bgColor: 'b_green' },
+  "을": { textColor: 'green', bgColor: 'b_green' },
+  "병": { textColor: 'red', bgColor: 'b_red' },
+  "정": { textColor: 'red', bgColor: 'b_red' },
+  "무": { textColor: 'yellow', bgColor: 'b_yellow' },
+  "기": { textColor: 'yellow', bgColor: 'b_yellow' },
+  "경": { textColor: 'white', bgColor: 'b_white' },
+  "신": { textColor: 'white', bgColor: 'b_white' },
+  "임": { textColor: 'black', bgColor: 'b_black' },
+  "계": { textColor: 'black', bgColor: 'b_black' },
+  "자": { textColor: 'black', bgColor: 'b_black' },
+  "축": { textColor: 'yellow', bgColor: 'b_yellow' },
+  "인": { textColor: 'green', bgColor: 'b_green' },
+  "묘": { textColor: 'green', bgColor: 'b_green' },
+  "진": { textColor: 'yellow', bgColor: 'b_yellow' },
+  "사": { textColor: 'red', bgColor: 'b_red' },
+  "오": { textColor: 'red', bgColor: 'b_red' },
+  "미": { textColor: 'yellow', bgColor: 'b_yellow' },
+  "신": { textColor: 'white', bgColor: 'b_white' },
+  "유": { textColor: 'white', bgColor: 'b_white' },
+  "술": { textColor: 'yellow', bgColor: 'b_yellow' },
+  "해": { textColor: 'black', bgColor: 'b_black' }
+};
+
 const hiddenStemMapping = {
   "자": ["(-)", "(-)", "계"],
   "축": ["계", "신", "기"],
@@ -896,10 +921,41 @@ function updateColorClasses() {
     bgColorClasses.forEach(cls => elem.classList.remove(cls));
     if (colorMapping[val]) elem.classList.add(colorMapping[val].bgColor);
   });
-  document.querySelectorAll(".grid_box_1 li b, .ganji b").forEach(bElem => {
-    const val = bElem.innerHTML.trim();
-    textColorClasses.forEach(cls => bElem.classList.remove(cls));
-    if (colorMapping[val]) bElem.classList.add(colorMapping[val].textColor);
+  // 처리 대상 셀렉터 확장
+  const selector = [
+    ".grid_box_1 li b",
+    ".ganji b",
+    ".ilwoon_ganji_cheongan span",
+    ".ilwoon_ganji_jiji span"
+  ].join(", ");
+
+  document.querySelectorAll(selector).forEach(elem => {
+    const val = elem.textContent.trim();
+    const clsToAdd = colorMapping[val]?.bgColor || colorMapping2[val]?.bgColor;
+    if (!clsToAdd) return;
+
+    // 1) .hanja_con 내부의 <b>일 때는 부모와 다음 <p>를 처리
+    if (elem.matches(".grid_box_1 li b, .ganji b")) {
+      const container = elem.closest(".hanja_con");
+      if (!container) return;
+      // .hanja_con에서 기존 색상 제거
+      textColorClasses.forEach(c => container.classList.remove(c));
+      // 새 클래스 추가
+      container.classList.add(clsToAdd);
+      // 다음 형제 <p>에도 동일 적용
+      const next = container.nextElementSibling;
+      if (next?.tagName.toLowerCase() === "p") {
+        textColorClasses.forEach(c => next.classList.remove(c));
+        next.classList.add(clsToAdd);
+      }
+    }
+    // 2) ilwoon_ganji_cheongan / jiji span은 자기 자신에만 적용
+    else if (elem.matches(".ilwoon_ganji_cheongan span, .ilwoon_ganji_jiji span")) {
+      // 기존 색상 클래스 제거
+      textColorClasses.forEach(c => elem.classList.remove(c));
+      // 새 클래스 추가
+      elem.classList.add(clsToAdd);
+    }
   });
 }
 
@@ -2936,7 +2992,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </li>
           ` : ''}
         </ul>`;
-
+        updateColorClasses();
 
         // ② 현재 사이클의 “오늘 날짜” 계산 함수
         function getCycleDateToday() {
@@ -2998,6 +3054,9 @@ document.addEventListener("DOMContentLoaded", function () {
         html += currentRow;
       }
       html += "</table>";
+
+      
+
       return html;
     }
 
@@ -3363,7 +3422,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // correctedDate: 원국 계산용(출생일)
       
-      //const correctedDate = new Date(correctedDate);
+      const staticBasic = new Date(correctedDate);
       
       // 동적 기준 설정
       const jeolgi = getSolarTermBoundaries(correctedDate.getFullYear());
@@ -3564,20 +3623,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      let newSijuFirst  = adjustInitial(new Date(correctedDate.getTime() + calculateSijuOffsetDynamic(correctedDate, sijuMode) * oneDayMs), sijuCycle, correctedDate);
-      let newIljuFirst  = adjustInitial(new Date(correctedDate.getTime() + calculateIljuOffsetDynamic(correctedDate, iljuMode) * oneDayMs), iljuCycle, correctedDate);
-      let newWoljuFirst = adjustInitial(new Date(correctedDate.getTime() + calculateWoljuOffsetDynamic(correctedDate, woljuMode) * oneDayMs), woljuCycle, correctedDate);
-      let newYeonjuFirst= adjustInitial(new Date(correctedDate.getTime() + calculateYeonjuOffsetDynamic(correctedDate, yeonjuMode) * oneDayMs), yeonjuCycle, correctedDate);      
+      let newSijuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateSijuOffsetDynamic(staticBasic, sijuMode) * oneDayMs), sijuCycle, correctedDate);
+      let newIljuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateIljuOffsetDynamic(staticBasic, iljuMode) * oneDayMs), iljuCycle, correctedDate);
+      let newWoljuFirst = adjustInitial(new Date(staticBasic.getTime() + calculateWoljuOffsetDynamic(staticBasic, woljuMode) * oneDayMs), woljuCycle, correctedDate);
+      let newYeonjuFirst= adjustInitial(new Date(staticBasic.getTime() + calculateYeonjuOffsetDynamic(staticBasic, yeonjuMode) * oneDayMs), yeonjuCycle, correctedDate);      
       
       const fullResult = getFourPillarsWithDaewoon(
-        correctedDate.getFullYear(), correctedDate.getMonth() + 1, correctedDate.getDate(),
-        correctedDate.getHours(), correctedDate.getMinutes(), usedBirthPlace, gender, isPlaceUnknown
+        staticBasic.getFullYear(), staticBasic.getMonth() + 1, staticBasic.getDate(),
+        staticBasic.getHours(), staticBasic.getMinutes(), usedBirthPlace, gender, isPlaceUnknown
       );
       
+
       const sijuIndex = getGanZhiIndex(hourPillar);
       const iljuIndex = getGanZhiIndex(dayPillar);
       const woljuIndex = getGanZhiIndex(monthPillar);
       const yeonjuIndex = getGanZhiIndex(yearPillar);
+
+      console.log(sijuIndex, iljuIndex, woljuIndex, yeonjuIndex);
       
       const sijuEvent = applyFirstUpdateDynamicWithStep(newSijuFirst, sijuIndex, sijuCycle, sijuMode, refDate);
       const iljuEvent = applyFirstUpdateDynamicWithStep(newIljuFirst, iljuIndex, iljuCycle, iljuMode, refDate);
@@ -4035,6 +4097,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const hourBranch = getHourBranchUsingArray(date);
       const hourBranchIndex = Jiji.indexOf(hourBranch);
       const dayGanZhi = updateDayWoon(refDate).gan;
+      console.log(dayGanZhi);
       const hourStem = getHourStem2(dayGanZhi, hourBranchIndex);
 
 
@@ -4153,35 +4216,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function logTimelineWindow(label, timeline, windowSize = 10) {
       const total = timeline.length;
-      // if (total === 0) {
-      //   console.log(`${label}: 타임라인이 비어 있습니다.`);
-      //   return;
-      // }
-      // if (total <= windowSize * 2) {
-      //   console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
-      //   timeline.forEach(evt => {
-      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      //   });
-      // } else {
-      //   console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
-      //   for (let i = 0; i < windowSize; i++) {
-      //     const evt = timeline[i];
-      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      //   }
-      //   console.log("... 생략 ...");
-      //   console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
-      //   for (let i = total - windowSize; i < total; i++) {
-      //     const evt = timeline[i];
-      //     console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
-      //   }
-      // }
+      if (total === 0) {
+        console.log(`${label}: 타임라인이 비어 있습니다.`);
+        return;
+      }
+      if (total <= windowSize * 2) {
+        console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
+        timeline.forEach(evt => {
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        });
+      } else {
+        console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
+        for (let i = 0; i < windowSize; i++) {
+          const evt = timeline[i];
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        }
+        console.log("... 생략 ...");
+        console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
+        for (let i = total - windowSize; i < total; i++) {
+          const evt = timeline[i];
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        }
+      }
     }
-    // setTimeout(function(){
-    //   logTimelineWindow("시주", sijuTimeline);
-    //   logTimelineWindow("일주", iljuTimeline);
-    //   logTimelineWindow("월주", woljuTimeline);
-    //   logTimelineWindow("연주", yeonjuTimeline);
-    // }, 20);
+    setTimeout(function(){
+      logTimelineWindow("시주", sijuTimeline);
+      logTimelineWindow("일주", iljuTimeline);
+      logTimelineWindow("월주", woljuTimeline);
+      logTimelineWindow("연주", yeonjuTimeline);
+    }, 20);
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();

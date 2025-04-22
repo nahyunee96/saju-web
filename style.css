@@ -348,6 +348,21 @@
     font-size: 44px;
   }
 
+  .hanja_con {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hanja_con p {
+    order: 2;
+    
+  }
+
+  .hanja_con b {
+    order: 1;
+    margin-bottom: 5px;
+  }
+
   .grid_box_1 li p,
   .ganji p {
     width: 100%;
@@ -371,8 +386,8 @@
 	  margin: auto;
     padding: 2px 0;
     font-size: 12px;
-    background-color: #011627;
-    color: #fff;
+    background-color: #fff;
+    color: #252525;
     border-radius: 5px;
   }
 
