@@ -1851,7 +1851,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
       
       updateColorClasses();
-      console.log("커플 모드 - 원국 및 묘운 HTML 업데이트 완료");
+      //console.log("커플 모드 - 원국 및 묘운 HTML 업데이트 완료");
     }
 
     function toGz(idx) {          
@@ -2135,7 +2135,7 @@ document.addEventListener("DOMContentLoaded", function () {
         safeSetValue(basicMapping[fieldKey].left, leftVal);
         safeSetValue(basicMapping[fieldKey].right, rightVal);
       });
-      console.log("기본정보 업데이트 완료.");
+      //console.log("기본정보 업데이트 완료.");
       // Pillars 계산 및 전역 변수 저장
       // 원국 및 묘운 업데이트 실행
       const refDate = toKoreanTime(new Date());
@@ -2182,9 +2182,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
         if (savedList[partnerIndex]) {
           partnerData = savedList[partnerIndex];
-          console.log("파트너 데이터 저장됨:", partnerData);
+          //console.log("파트너 데이터 저장됨:", partnerData);
         } else {
-          console.warn("파트너 데이터가 존재하지 않습니다. partnerIndex:", partnerIndex);
+          //console.warn("파트너 데이터가 존재하지 않습니다. partnerIndex:", partnerIndex);
           return;
         }
 
@@ -3622,8 +3622,6 @@ document.addEventListener("DOMContentLoaded", function () {
       let newWoljuFirst = adjustInitial(new Date(staticBasic.getTime() + calculateWoljuOffsetDynamic(staticBasic, woljuMode) * oneDayMs), woljuCycle, staticBasic);
       let newYeonjuFirst= adjustInitial(new Date(staticBasic.getTime() + calculateYeonjuOffsetDynamic(staticBasic, yeonjuMode) * oneDayMs), yeonjuCycle, staticBasic);      
       
-      console.log(newWoljuFirst);
-
       const fullResult = getFourPillarsWithDaewoon(
         staticBasic.getFullYear(), staticBasic.getMonth() + 1, staticBasic.getDate(),
         staticBasic.getHours(), staticBasic.getMinutes(), usedBirthPlace, gender, isPlaceUnknown
@@ -3640,6 +3638,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const iljuEvent = applyFirstUpdateDynamicWithStep(newIljuFirst, iljuIndex, iljuCycle, iljuMode, refDate);
       const woljuEvent = applyFirstUpdateDynamicWithStep(newWoljuFirst, woljuIndex, woljuCycle, woljuMode, refDate);
       const yeonjuEvent = applyFirstUpdateDynamicWithStep(newYeonjuFirst, yeonjuIndex, yeonjuCycle, yeonjuMode, refDate);
+
+      updateColorClasses();
 
       return {
         fullResult,
@@ -4200,66 +4200,46 @@ document.addEventListener("DOMContentLoaded", function () {
       return timeline;
     }
 
-    // function logGanziLines({
-    //   sijuTimeline,
-    //   iljuTimeline,
-    //   woljuTimeline,
-    //   yeonjuTimeline
-    // }) {
-    //   // helper: 주어진 날짜(date) 기준으로 timeline에서 마지막 변경된 간지 찾기
-    //   function getGForDate(timeline, date, mode) {
-    //     if (!timeline.length) return "";
-    //     // 순행: 시간 오름차순, 역행: 시간 내림차순
-    //     const filtered = timeline
-    //       .filter(e => mode === "순행" ? e.date <= date : e.date >= date);
-    //     if (!filtered.length) {
-    //       // 기준 이전/이후 이벤트가 없으면 첫 이벤트 사용
-    //       return getGanZhiFromIndex(
-    //         (mode === "순행" ? timeline[0] : timeline[timeline.length - 1]).index
-    //       );
-    //     }
-    //     // 마지막(순행→pop, 역행→shift)
-    //     const entry = mode === "순행" ? filtered.pop() : filtered.shift();
-    //     return getGanZhiFromIndex(entry.index);
-    //   }
-    
-    //   // 날짜를 "YYYY.MM.DD HH:mm" 형식으로 포맷
-    //   function fmt(dt) {
-    //     const Y = dt.getFullYear();
-    //     const M = String(dt.getMonth() + 1).padStart(2, "0");
-    //     const D = String(dt.getDate()).padStart(2, "0");
-    //     const h = String(dt.getHours()).padStart(2, "0");
-    //     const m = String(dt.getMinutes()).padStart(2, "0");
-    //     return `${Y}.${M}.${D} ${h}:${m}`;
-    //   }
-    
-    //   // 한 줄씩 출력
-    //   sijuTimeline.forEach(evt => {
-    //     const now     = evt.date;
-    //     const sijuGan = getGanZhiFromIndex(evt.index);
-    //     const iljuGan = getGForDate(iljuTimeline, now, iljuMode);
-    //     const woljuGan= getGForDate(woljuTimeline, now, woljuMode);
-    //     const yeonjuGan=getGForDate(yeonjuTimeline, now, yeonjuMode);
-    
-    //     console.log(
-    //       `${fmt(now)}-` +
-    //       `${sijuGan}-` +
-    //       `${iljuGan}-` +
-    //       `${woljuGan}-` +
-    //       `${yeonjuGan}`
-    //     );
-    //   });
-    // }
-    
-    // // 사용 예시 (20ms 뒤에 실행)
-    // setTimeout(() => {
-    //   logGanziLines({
-    //     sijuTimeline,
-    //     iljuTimeline,
-    //     woljuTimeline,
-    //     yeonjuTimeline
-    //   });
-    // }, 20);
+    function formatDateTime(date) {
+      const y = date.getFullYear();
+      const m = (date.getMonth() + 1).toString().padStart(2, "0");
+      const d = date.getDate().toString().padStart(2, "0");
+      const hh = date.getHours().toString().padStart(2, "0");
+      const mm = date.getMinutes().toString().padStart(2, "0");
+      return `${y}-${m}-${d} ${hh}:${mm}`;
+    }
+
+    function logTimelineWindow(label, timeline, windowSize = 10) {
+      const total = timeline.length;
+      if (total === 0) {
+        console.log(`${label}: 타임라인이 비어 있습니다.`);
+        return;
+      }
+      if (total <= windowSize * 2) {
+        console.log(`=== ${label} 타임라인 (전체 ${total}개) ===`);
+        timeline.forEach(evt => {
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        });
+      } else {
+        console.log(`=== ${label} 타임라인 (앞 ${windowSize}개) ===`);
+        for (let i = 0; i < windowSize; i++) {
+          const evt = timeline[i];
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        }
+        console.log("... 생략 ...");
+        console.log(`=== ${label} 타임라인 (뒤 ${windowSize}개) ===`);
+        for (let i = total - windowSize; i < total; i++) {
+          const evt = timeline[i];
+          console.log(`${formatDateTime(evt.date)} → ${label}: ${getGanZhiFromIndex(evt.index)}`);
+        }
+      }
+    }
+    setTimeout(function(){
+      logTimelineWindow("시주", sijuTimeline);
+      logTimelineWindow("일주", iljuTimeline);
+      logTimelineWindow("월주", woljuTimeline);
+      logTimelineWindow("연주", yeonjuTimeline);
+    }, 20);
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
