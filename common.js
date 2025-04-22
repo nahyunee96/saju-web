@@ -4266,47 +4266,47 @@ document.addEventListener("DOMContentLoaded", function () {
       return `${y}-${m}-${d} ${hh}:${mm}`;
     }
 
-    function getLatestEventBefore(timeline, date) {
-      // 해당 시점 이전의 마지막 이벤트 찾기 (혹은 undefined면 null)
-      let latest = null;
-      for (const evt of timeline) {
-        if (evt.date <= date) latest = evt;
-        else break;
-      }
-      return latest;
-    }
+    // function getLatestEventBefore(timeline, date) {
+    //   // 해당 시점 이전의 마지막 이벤트 찾기 (혹은 undefined면 null)
+    //   let latest = null;
+    //   for (const evt of timeline) {
+    //     if (evt.date <= date) latest = evt;
+    //     else break;
+    //   }
+    //   return latest;
+    // }
     
-    function getLatestEventBefore(timeline, date) {
-      let latest = null;
-      for (const evt of timeline) {
-        if (evt.date <= date) latest = evt;
-        else break;
-      }
-      return latest;
-    }
+    // function getLatestEventBefore(timeline, date) {
+    //   let latest = null;
+    //   for (const evt of timeline) {
+    //     if (evt.date <= date) latest = evt;
+    //     else break;
+    //   }
+    //   return latest;
+    // }
     
-    function logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates) {
-      baseDates.forEach(date => {
-        const sijuEvt = getLatestEventBefore(sijuTimeline, date);
-        const iljuEvt = getLatestEventBefore(iljuTimeline, date);
-        const woljuEvt = getLatestEventBefore(woljuTimeline, date);
-        const yeonjuEvt = getLatestEventBefore(yeonjuTimeline, date);
+    // function logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates) {
+    //   baseDates.forEach(date => {
+    //     const sijuEvt = getLatestEventBefore(sijuTimeline, date);
+    //     const iljuEvt = getLatestEventBefore(iljuTimeline, date);
+    //     const woljuEvt = getLatestEventBefore(woljuTimeline, date);
+    //     const yeonjuEvt = getLatestEventBefore(yeonjuTimeline, date);
     
-        const dateStr = formatDateTime(date);
-        const sijuStr = sijuEvt ? getGanZhiFromIndex(sijuEvt.index) : myowoonResult.hourPillar;
-        const iljuStr = iljuEvt ? getGanZhiFromIndex(iljuEvt.index) : myowoonResult.dayPillar;
-        const woljuStr = woljuEvt ? getGanZhiFromIndex(woljuEvt.index) : myowoonResult.monthPillar;
-        const yeonjuStr = yeonjuEvt ? getGanZhiFromIndex(yeonjuEvt.index) : myowoonResult.yearPillar;
+    //     const dateStr = formatDateTime(date);
+    //     const sijuStr = sijuEvt ? getGanZhiFromIndex(sijuEvt.index) : myowoonResult.hourPillar;
+    //     const iljuStr = iljuEvt ? getGanZhiFromIndex(iljuEvt.index) : myowoonResult.dayPillar;
+    //     const woljuStr = woljuEvt ? getGanZhiFromIndex(woljuEvt.index) : myowoonResult.monthPillar;
+    //     const yeonjuStr = yeonjuEvt ? getGanZhiFromIndex(yeonjuEvt.index) : myowoonResult.yearPillar;
     
-        console.log(`${dateStr}-${sijuStr}-${iljuStr}-${woljuStr}-${yeonjuStr}`);
-      });
-    }
+    //     console.log(`${dateStr}-${sijuStr}-${iljuStr}-${woljuStr}-${yeonjuStr}`);
+    //   });
+    // }
     
-    setTimeout(() => {
-      const birthDate = new Date(correctedDate);
-      const baseDates = [birthDate, ...sijuTimeline.map(evt => evt.date)];
-      logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates);
-    }, 20);
+    // setTimeout(() => {
+    //   const birthDate = new Date(correctedDate);
+    //   const baseDates = [birthDate, ...sijuTimeline.map(evt => evt.date)];
+    //   logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates);
+    // }, 20);
     
 
     function collectInputData() {
