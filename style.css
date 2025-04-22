@@ -1067,6 +1067,10 @@
     width: 100%;
   }
 
+  .grid_box.grid_box_8 {
+    padding: 5px;
+  }
+
   /* 모바일 대응 */
   @media screen and (max-width:991px){
 
@@ -1221,6 +1225,10 @@
 
     .grid_box > li {
       font-size: 2.824vw;
+    }
+
+    .grid_box.grid_box_8 {
+      padding: 1vw;
     }
 
     .grid_box.grid_box_8 > li {

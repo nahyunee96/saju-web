@@ -1226,7 +1226,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // 이후 기존 코드: date.getHours() 등
       const hours = date.getHours();
       const minutes = date.getMinutes();
-      return `${hours}:${minutes < 10 ? "0" + minutes : minutes}`;
+      return `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes}`;
     }
   
     // 나이와 생시 표시 시간
@@ -4184,14 +4184,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return { date: nextDate, index: nextIndex };
     }
  
-     function formatDateTime(dateObj) {
-       const yyyy = dateObj.getFullYear();
-       const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-       const dd = String(dateObj.getDate()).padStart(2, '0');
-       const hh = String(dateObj.getHours()).padStart(2, '0');
-       const mi = String(dateObj.getMinutes()).padStart(2, '0');
-       return `${yyyy}.${mm}.${dd} ${hh}:${mi}`;
-     }
 
      function generateTimeline(firstEvent, cycle, mode, label, refDate) {
       let timeline = [];
