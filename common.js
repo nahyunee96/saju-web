@@ -1,5 +1,5 @@
 let currentModifyIndex = null;
-let getMyounPillars;
+let getMyounPillarsVr;
 let updateMyowoonSectionVr;
 let modifyIndex;           // 현재 수정 중인 명식 인덱스
 let originalDataSnapshot;  // 기존 명식 데이터 백업\
@@ -31,6 +31,8 @@ let latestMyeongsik = null;
 
 let originalDate;
 let correctedDate;
+
+let customRadioTarget = null;
 
 // [0] 출생지 보정 및 써머타임 함수
 // const cityLongitudes = {
@@ -110,6 +112,11 @@ placeBtn.addEventListener('click', () => {
 
 // 3) 닫기
 closeMap.addEventListener('click', () => {
+  if (!placeBtn.value || placeBtn.value === "출생지선택") {
+    alert('도시를 입력하여 선택해주세요.');
+    return;
+  }
+
   modal.style.display = 'none';
   searchBox.value = '';
   suggList.innerHTML = '';
@@ -160,42 +167,39 @@ searchBox.addEventListener('input', () => {
     }
   }, 300);
 });
-
+const birthPlaceFull = placeBtn.value;
 let cityLon = null;
 
 // 5) 후보 클릭 시
 suggList.addEventListener('click', e => {
   if (e.target.tagName !== 'LI') return;
-  const name = e.target.dataset.name;        // "부산광역시 사하구"
+  const name = e.target.dataset.name;
   const lat  = parseFloat(e.target.dataset.lat);
   const lon  = parseFloat(e.target.dataset.lon);
 
-  // 마커 표시 & 지도 이동
+  // 마커 표시
   if (!marker) marker = L.marker([lat, lon]).addTo(map);
   else         marker.setLatLng([lat, lon]);
-  map.setView([lat, lon], 12);
 
-  // 동적 매핑: fullName과 시 단위 키 모두 저장
+  // 부드러운 줌인(flyTo) → 레벨 14로 0.5초 동안
+  map.flyTo([lat, lon], 14, { duration: 0.5 });
+
+  // 또는 즉시 줌인만 원하면
+  // map.setView([lat, lon], 14);
+
+  // 나머지 기존 로직
   const cityKey = name.split(' ')[0];
   cityLongitudes[name]    = lon;
   cityLongitudes[cityKey] = lon;
-
+  localStorage.setItem('cityLongitudes', JSON.stringify(cityLongitudes));
   cityLon = lon;
 
-  // 2) 변경된 매핑을 localStorage에도 저장
-  localStorage.setItem(
-    'cityLongitudes',
-    JSON.stringify(cityLongitudes)
-  );
-
-  // 버튼 업데이트
   placeBtn.value       = name;
   placeBtn.textContent = name;
 
-  // 모달 닫기 및 리스트 초기화
-  modal.style.display = 'none';
-  searchBox.value = '';
-  suggList.innerHTML = '';
+  //modal.style.display = 'none';
+  //searchBox.value     = '';
+  suggList.innerHTML  = '';
 });
 
 let fixedCorrectedDate = null;  // 한번만 계산하고, 이 값을 계속 씀
@@ -206,18 +210,6 @@ function initializeCorrectedDate(dateObj, cityLon, isPlaceUnknown) {
   return fixedCorrectedDate;
 }
 
-// function extractDistrict(fullName) {
-//   // 공백 또는 쉼표로 분리
-//   const parts = fullName.split(/[\s,]+/);
-//   for (const p of parts) {
-//     if (/(시|주)$/.test(p)) {
-//       return p;
-//     }
-//   }
-//   // 없으면 맨 앞 요소
-//   return parts[0];
-// }
-
 function loadCityLongitudes() {
   cityLongitudes = JSON.parse(localStorage.getItem('cityLongitudes') || '{}');
 }
@@ -226,9 +218,28 @@ function restoreCurrentPlaceMapping(item) {
   if (item.birthPlaceFull && item.birthPlaceLongitude != null) {
     cityLongitudes[item.birthPlaceFull] = item.birthPlaceLongitude;
   }
+
+  // ✅ 이 시점에서 fixedCorrectedDate를 강제 고정
   if (item.correctedDate) {
-    fixedCorrectedDate = new Date(item.correctedDate); // 다시 계산 X
+    fixedCorrectedDate = new Date(item.correctedDate);
+    //console.log("✅ 복원된 correctedDate:", fixedCorrectedDate.toISOString());
   }
+}
+
+function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
+  if (isPlaceUnknown) return new Date(dateObj.getTime() - 30 * 60 * 1000);
+  if (cityLon == null) return dateObj;
+
+  const longitudeCorrection = (cityLon - 135.1) * 4;
+  const eqTime = getEquationOfTime(dateObj);
+  let corrected = new Date(dateObj.getTime() + (longitudeCorrection + eqTime) * 60 * 1000);
+
+  const iv = getSummerTimeInterval(corrected.getFullYear());
+  if (iv && corrected >= iv.start && corrected < iv.end) {
+    corrected = new Date(corrected.getTime() - 60 * 60 * 1000);
+  }
+
+  return corrected;
 }
 
 function getSummerTimeInterval(year) {
@@ -254,21 +265,7 @@ function getEquationOfTime(dateObj) {
   return 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
 }
 
-function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
-  if (isPlaceUnknown) return new Date(dateObj.getTime() - 30 * 60 * 1000);
-  if (cityLon == null) return dateObj;
 
-  const longitudeCorrection = (cityLon - 135.1) * 4;
-  const eqTime = getEquationOfTime(dateObj);
-  let corrected = new Date(dateObj.getTime() + (longitudeCorrection + eqTime) * 60 * 1000);
-
-  const iv = getSummerTimeInterval(corrected.getFullYear());
-  if (iv && corrected >= iv.start && corrected < iv.end) {
-    corrected = new Date(corrected.getTime() - 60 * 60 * 1000);
-  }
-
-  return corrected;
-}
 
 //const correctedDate = adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown);
 
@@ -1136,25 +1133,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
   updateSaveBtn();
 
-  // function updateMeGroupOption(selectedVal = null) {
-  //   const sel       = document.getElementById('inputMeGroup');
-  //   if (!sel) return;
+  function updateMeGroupOption(selectedVal = null) {
+    const sel       = document.getElementById('inputMeGroup');
+    if (!sel) return;
   
-  //   const selfOpt   = sel.querySelector('option[value="본인"]');
-  //   if (!selfOpt) return;
+    const selfOpt   = sel.querySelector('option[value="본인"]');
+    if (!selfOpt) return;
   
-  //   const savedList = JSON.parse(localStorage.getItem('myeongsikList')) || [];
-  //   const hasSelf   = savedList.some(v => v.group === '본인');
+    const savedList = JSON.parse(localStorage.getItem('myeongsikList')) || [];
+    const hasSelf   = savedList.some(v => v.group === '본인');
   
-  //   // ① 이미 "본인"이 저장돼 있고 ② 이번 폼에서 선택된 값도 "본인"이 아니라면 → 숨김
-  //   if (hasSelf && selectedVal !== '본인') {
-  //     selfOpt.style.display = 'none';   // 완전히 숨기기
-  //     // selfOpt.disabled = true;       // (대신 비활성화만 하고 싶으면 주석 해제)
-  //   } else {
-  //     selfOpt.style.display = '';
-  //     selfOpt.disabled = false;
-  //   }
-  // }
+    // ① 이미 "본인"이 저장돼 있고 ② 이번 폼에서 선택된 값도 "본인"이 아니라면 → 숨김
+    if (hasSelf && selectedVal !== '본인') {
+      selfOpt.style.display = 'none';   // 완전히 숨기기
+      // selfOpt.disabled = true;       // (대신 비활성화만 하고 싶으면 주석 해제)
+    } else {
+      selfOpt.style.display = '';
+      selfOpt.disabled = false;
+    }
+  }
 
   function ensureGroupOption(value) {
     if (!value || value === '기타입력') return;       // '기타입력' 자체는 건드리지 않음
@@ -1180,7 +1177,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const saved = JSON.parse(localStorage.getItem('customGroups') || '[]');
   saved.forEach(ensureGroupOption);
-  //updateMeGroupOption();
+  updateMeGroupOption();
 
   // saveBtn 이벤트 리스너
   document.getElementById("saveBtn").addEventListener("click", function () {
@@ -1274,13 +1271,15 @@ document.addEventListener("DOMContentLoaded", function () {
       hourPillar: hourPillar,
       age: age,
       birthdayTime: birthdayTime,
-      correctedDate: correctedDate,
       isTimeUnknown: isTimeUnknown,
       isPlaceUnknown: isPlaceUnknown,
       selectedTime2: selectedTime2,
       group: groupVal,
       createdAt: Date.now(),
-      isFavorite : false
+      isFavorite : false,
+      birthPlaceFull,
+      birthPlaceLongitude: cityLon,
+      correctedDate: correctedDate.toISOString(),
     };
 
     latestMyeongsik = newData;
@@ -1307,7 +1306,7 @@ document.addEventListener("DOMContentLoaded", function () {
     alert("저장이 성공적으로 완료 되었습니다.");
 
     //updateCoupleModeBtnVisibility();
-    //updateMeGroupOption();
+    updateMeGroupOption();
     updateSaveBtn();
 
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
@@ -1433,7 +1432,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <ul class="info">
             <li class="name_age" id="nameAge">
               <div class="type_sv_wrap">
-                <b class="type_sv" id="typeSV_${index + 1}" style="display:none;">${item.group || '미선택'}</b>
+                <b class="type_sv" id="typeSV_${index + 1}">${item.group || '미선택'}</b>
                 <button class="type_sv star_btn"
                   id="topPs_${index + 1}"
                   data-index="${index}">
@@ -1597,8 +1596,11 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
+        console.clear();
         backBtn.style.display = '';
         handleViewClick();
+        const saved = localStorage.getItem("fixedCorrectedDate");
+        if (saved) fixedCorrectedDate = new Date(saved);
         loadCityLongitudes();
         const idx = parseInt(button.getAttribute("data-index"), 10);
         currentDetailIndex = idx;
@@ -1781,42 +1783,40 @@ document.addEventListener("DOMContentLoaded", function () {
       updateBranchInfo("CPDb", part_daySplit.ji, baseDayStem_copy2);
       updateBranchInfo("CPHb", isTimeUnknown ? "-" : part_hourSplit.ji, baseDayStem_copy2);
 
-      const p_myo    = getMyounPillars(myData, refDate);
-      const part_myo = getMyounPillars(partnerData, refDate);
+      const p_myo    = getMyounPillarsVr(myData, refDate, myData.selectedTime2);
+      const part_myo = getMyounPillarsVr(partnerData, refDate, partnerData.selectedTime2);
 
       const {
-        sijuEvent,
-        iljuEvent,
-        woljuEvent,
-        yeonjuEvent
+        sijuCurrentPillar:   mySijuCurrent,
+        iljuCurrentPillar:   myIljuCurrent,
+        woljuCurrentPillar:  myWoljuCurrent,
+        yeonjuCurrentPillar: myYeonjuCurrent,
+        sijuFirstChangeDate: mySijuFirstDate,
+        iljuFirstChangeDate: myIljuFirstDate,
+        woljuFirstChangeDate:myWoljuFirstDate,
+        yeonjuFirstChangeDate: myYeonjuFirstDate
       } = p_myo;
-
-      const {
-        sijuEvent:   partnerSijuEvent,
-        iljuEvent:   partnerIljuEvent,
-        woljuEvent:  partnerWoljuEvent,
-        yeonjuEvent: partnerYeonjuEvent
-      } = part_myo;
-
-      const p_sijuPillar   = sijuEvent.ganji;   
-      const p_iljuPillar   = iljuEvent.ganji;    
-      const p_woljuPillar  = woljuEvent.ganji;  
-      const p_yeonjuPillar = yeonjuEvent.ganji;   
-
-      const p_myo_yearSplit = splitPillar(p_yeonjuPillar);
-      const p_myo_monthSplit = splitPillar(p_woljuPillar);
-      const p_myo_daySplit = splitPillar(p_iljuPillar);
-      const p_myo_hourSplit = myData.isTimeUnknown ? "-" : splitPillar(p_sijuPillar);
-
-      const part_sijuPillar   = partnerSijuEvent.ganji;   
-      const part_iljuPillar   = partnerIljuEvent.ganji;    
-      const part_woljuPillar  = partnerWoljuEvent.ganji;  
-      const part_yeonjuPillar = partnerYeonjuEvent.ganji; 
       
-      const part_myo_yearSplit = splitPillar(part_yeonjuPillar);
-      const part_myo_monthSplit = splitPillar(part_woljuPillar);
-      const part_myo_daySplit = splitPillar(part_iljuPillar);
-      const part_myo_hourSplit = partnerData.isTimeUnknown ? "-" : splitPillar(part_sijuPillar);
+      const {
+        sijuCurrentPillar:   partnerSijuCurrent,
+        iljuCurrentPillar:   partnerIljuCurrent,
+        woljuCurrentPillar:  partnerWoljuCurrent,
+        yeonjuCurrentPillar: partnerYeonjuCurrent,
+        sijuFirstChangeDate: partnerSijuFirstDate,
+        iljuFirstChangeDate: partnerIljuFirstDate,
+        woljuFirstChangeDate:partnerWoljuFirstDate,
+        yeonjuFirstChangeDate: partnerYeonjuFirstDate
+      } = part_myo; 
+
+      const p_myo_yearSplit = splitPillar(myYeonjuCurrent);
+      const p_myo_monthSplit = splitPillar(myWoljuCurrent);
+      const p_myo_daySplit = splitPillar(myIljuCurrent);
+      const p_myo_hourSplit = myData.isTimeUnknown ? "-" : splitPillar(mySijuCurrent);
+      
+      const part_myo_yearSplit = splitPillar(partnerYeonjuCurrent);
+      const part_myo_monthSplit = splitPillar(partnerWoljuCurrent);
+      const part_myo_daySplit = splitPillar(partnerIljuCurrent);
+      const part_myo_hourSplit = partnerData.isTimeUnknown ? "-" : splitPillar(partnerSijuCurrent);
 
       setText("CMyoHb12ws", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_hourSplit.ji));
       setText("CMyoHb12ss", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_hourSplit.ji));
@@ -1877,8 +1877,6 @@ document.addEventListener("DOMContentLoaded", function () {
       // 4 CE가 '갑자' (60주기 기준점)
       const idx = (ganZhiYear - 4) % 60;
 
-      
-
       return toGz(idx);
     }
 
@@ -1930,20 +1928,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return `${gan}${ji}`;
     }
 
-    // ② 현재 시지와 인덱스 반환 (KST 기준)
-    function getCurrentHourBranch(dateObj = new Date()) {
-      const kst   = toKoreanTime(dateObj);
-      const total = kst.getHours() * 60 + kst.getMinutes();
-
-      let idx = timeRanges.findIndex(({ start, end }) =>
-        start < end
-          ? total >= start && total < end
-          : total >= start || total < end
-      );
-      if (idx === -1) idx = 0;
-
-      return { idx, branch: timeRanges[idx].branch };
-    }
 
     function getHourStem2(dayPillar, hourBranchIndex) {
       const dayStem = getDayStem(dayPillar);
@@ -2151,7 +2135,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     //updateCoupleModeBtnVisibility();
-    //updateMeGroupOption();
+    updateMeGroupOption();
 
     document.getElementById("coupleModeBtn").addEventListener("click", function() {
       isCoupleMode = true;
@@ -2222,14 +2206,13 @@ document.addEventListener("DOMContentLoaded", function () {
     
   }
 
-  
 
   document.getElementById("coupleBackBtn").addEventListener("click", function(){
     isCoupleMode = false;
     currentMode = "ver1";
-    document.getElementById("aside").style.display = "none";
-    document.querySelector(".couple_mode_wrap").style.display = "none";
-
+    //document.getElementById("aside").style.display = "none";
+    //document.querySelector(".couple_mode_wrap").style.display = "none";
+    window.location.reload();
   });
   
   // aside 열기/닫기 이벤트 등록
@@ -2362,8 +2345,11 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTypeSpan(groupVal);
 
     originalDate = new Date(year, month - 1, day, hour, minute);
-    correctedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
-
+    if (!fixedCorrectedDate) {
+      fixedCorrectedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
+    }
+    correctedDate = fixedCorrectedDate;
+    
 
     document.getElementById('resultWrapper').style.display = 'block';
     window.scrollTo(0, 0);
@@ -2692,7 +2678,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const originalYearPillarData = getYearGanZhi(correctedDate, birthDate.getFullYear());
     const isYangStem = ["갑", "병", "무", "경", "임"].includes(originalYearPillarData.charAt(0));
-    const direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
+    let direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
 
     function updateSewoonItem() {
       const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
@@ -3376,10 +3362,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 모드 결정 (순행/역행)
     // getYearGanZhi, correctedDate, gender는 이미 정의되어 있다고 가정
-    const yeonjuMode = direction === 1 ? "순행" : "역행";
-    const woljuMode  = direction === 1 ? "순행" : "역행";
-    const iljuMode   = direction === 1 ? "순행" : "역행";
-    const sijuMode   = direction === 1 ? "순행" : "역행";
+    
 
     // 보정 및 동적 단계 계산 함수
     function adjustInitial(candidate, cycleDays, baseDate) {
@@ -3404,320 +3387,491 @@ document.addEventListener("DOMContentLoaded", function () {
       return { date: date, index: updatedIndex, ganji: getGanZhiFromIndex(updatedIndex) };
     }
 
-    // getMyounPillars: 원국(출생)과 동적 운세(묘운)를 분리하여 계산
-    getMyounPillars = function(person, refDate) {
 
-      let { correctedDate, year, month, day, hour, minute,
-        yearPillar, monthPillar, dayPillar, hourPillar, gender } = person;
-      
-      originalDate = new Date(year, month - 1, day, hour, minute);
-      //correctedDate = initializeCorrectedDate(originalDate, cityLon, isPlaceUnknown);
-      
-      let baseTime = new Date(correctedDate);
-      if (document.getElementById("jasi")?.checked) {
-        baseTime.setHours(23, 0);
-      } else if (document.getElementById("yajasi")?.checked) {
-        baseTime.setHours(0, 0);
-      } else if (document.getElementById("insi")?.checked) {
-        baseTime.setHours(3, 0);
-      }
+    // 지지별 시간 범위 (분 단위)
+    const timeRanges2 = [
+      { branch: '子', start: 1380, end: 60 },
+      { branch: '丑', start: 60, end: 180 },
+      { branch: '寅', start: 180, end: 300 },
+      { branch: '卯', start: 300, end: 420 },
+      { branch: '辰', start: 420, end: 540 },
+      { branch: '巳', start: 540, end: 660 },
+      { branch: '午', start: 660, end: 780 },
+      { branch: '未', start: 780, end: 900 },
+      { branch: '申', start: 900, end: 1020 },
+      { branch: '酉', start: 1020, end: 1140 },
+      { branch: '戌', start: 1140, end: 1260 },
+      { branch: '亥', start: 1260, end: 1380 }
+    ];
 
-      // correctedDate: 원국 계산용(출생일)
-      
-      const staticBasic = correctedDate;
-      
-      // 동적 기준 설정
-      const jeolgi = getSolarTermBoundaries(staticBasic.getFullYear());
-      let targetSolarTerm;
-      if (woljuMode === "역행") {
-        const pastTerms = jeolgi.filter(term => term.date <= staticBasic);
-        targetSolarTerm = pastTerms.length ? pastTerms[pastTerms.length - 1] : jeolgi[0];
-      } else {
-        targetSolarTerm = jeolgi.find(term => term.date > staticBasic);
-        if (!targetSolarTerm) {
-          targetSolarTerm = getSolarTermBoundaries(staticBasic.getFullYear() + 1)[0];
+    // Helper: 주어진 Date에서 시지(地支)를 반환
+    function getHourBranch(date) {
+      const minutes = date.getHours() * 60 + date.getMinutes();
+      for (const range of timeRanges2) {
+        if (range.start < range.end) {
+          if (minutes >= range.start && minutes < range.end) return range.branch;
+        } else {
+          if (minutes >= range.start || minutes < range.end) return range.branch;
         }
       }
-  
+      return null;
+    }
+
+    function getHourBranchIndex2(date) {
+      return Math.floor(((date.getHours() + 1) % 24) / 2);
+    }
+
+    // backward compatibility alias: updateHourWoon relies on this
+    function getHourBranchReturn(date) {
+      const branches = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+      return branches[getHourBranchIndex2(date)];
+    }
+
+    function getHourGanZhiReturn(dateObj) {
+      // 1) 시지(branch) 가져오기 (예: '子','丑',…)
+      const branch = getHourBranchReturn(dateObj);
     
-      function round4(num) {
-        return Math.round((num * 10000)) / 10000;
-      }
+      // 2) 일간(day stem) 가져오기 (예: '갑','을',…)
+      const dayPillar = getDayGanZhi(dateObj);  // 예: "병자"
+      const dayStem   = dayPillar.charAt(0);
     
-      function calculateSijuOffsetDynamic(birthDate, mode) {
-        const sijuCycle = 10;
-        const totalMinutes = 1440;
-        const blockLength = 120;
-        const birthMinutes = birthDate.getHours() * 60 + birthDate.getMinutes();
+      // 4) 시지 인덱스(0~11) 계산
+      const idx = getHourBranchIndex2(dateObj);
     
-        const blocks = [
-          { start: 1380, end: 60 }, { start: 60, end: 180 },
-          { start: 180, end: 300 }, { start: 300, end: 420 },
-          { start: 420, end: 540 }, { start: 540, end: 660 },
-          { start: 660, end: 780 }, { start: 780, end: 900 },
-          { start: 900, end: 1020 }, { start: 1020, end: 1140 },
-          { start: 1140, end: 1260 }, { start: 1260, end: 1380 }
+      // 5) 해당 인덱스의 천간 추출
+      const arr = fixedDayMapping[dayStem] || [];
+      const stem = arr[idx] || '';
+    
+      // 6) 합쳐서 반환
+      return stem + branch;
+    }
+
+    const GANZHI_60 = Array.from({ length: 60 }, (_, i) =>
+      Cheongan[i % 10] + Jiji[i % 12]
+    );
+
+    function getGanZhiByIndex(idx) {
+      const i = ((idx % 60) + 60) % 60;
+      return GANZHI_60[i];
+    }
+
+    function nextEvent(prevDate, prevIdx, stepDays, mode) {
+      const dir     = mode === '순행' ?  1 : -1;
+      const oneDay  = 24 * 60 * 60 * 1000;
+      const nextDate = new Date(prevDate.getTime() + dir * stepDays * oneDay);
+      const nextIdx  = (prevIdx + dir + 60) % 60;
+      return { date: nextDate, index: nextIdx };
+    }
+
+    
+
+    function getMyounPillars(person, refDate, basisOverride = "insi") {
+     
+      const { year, month, day, hour, minute, gender, correctedDate } = person;
+      birthDate = correctedDate
+        ? new Date(correctedDate)
+        : new Date(year, month - 1, day, hour, minute);
+
+      
+
+      // 3) basis 결정 (override 있으면 우선)
+      const basis = basisOverride
+        || document.querySelector('input[name="time2"]:checked')?.value;
+      const basisMap = { jasi: 23, yajasi: 0, insi: 3 };
+      const baseTime = new Date(birthDate);
+      if (basisMap[basis] != null) baseTime.setHours(basisMap[basis], 0);
+
+      // ──────────── 여기서 **base pillars** 를 반드시 재계산 ────────────
+      // const yearPillar  = getYearGanZhi(birthDate);        
+      // const dayPillar   = getDayGanZhi(birthDate);              
+      // const hourPillar  = getHourGanZhiReturn(birthDate);        
+      // const monthPillar = getMonthGanZhi(birthDate, birthDate.getFullYear());  
+      // const fullResult = getFourPillarsWithDaewoon(
+      //   birthDate.getFullYear(),
+      //   birthDate.getMonth() + 1,
+      //   birthDate.getDate(),
+      //   hour, minute, gender, correctedDate
+      // );
+       const corrDate = typeof correctedDate === 'string'
+         ? new Date(correctedDate)
+         : correctedDate;
+      
+       // Date 객체(birthDate)를 첫 인자로 넘긴다
+       const fullResult = getFourPillarsWithDaewoon(
+        birthDate.getFullYear(),
+        birthDate.getMonth() + 1,
+        birthDate.getDate(),   // Date
+         hour,
+         minute,
+         gender,
+         corrDate     // Date
+       );
+      // 예: "병자 경인 정묘 무오시, 대운수 ..." 형식의 문자열
+      const parts = fullResult.split(", ");
+      const pillarsPart = parts[0] || "-";
+      const pillars = pillarsPart.split(" ");
+      const yearPillar  = pillars[0] || "-";
+      const monthPillar = pillars[1] || "-";
+      const dayPillar   = pillars[2] || "-";
+      const hourPillar  = pillars[3] || "-";
+
+      // 2) 순/역행 판단 (기존 로직 유지)
+      const isYangStem = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
+      const direction  = ((gender === '남' && isYangStem) || (gender === '여' && !isYangStem)) ? 1 : -1;
+      const dirMode    = direction === 1 ? '순행' : '역행';
+
+      function logDaynamic({
+        birthDate,
+        refDate,
+        dirMode,
+        basis,
+        yearPillar,
+        monthPillar,
+        dayPillar,
+        hourPillar
+      }) {
+        const correctedDate = birthDate;
+        const msMin    = 60 * 1000;
+        const cycleMin = 120;                          // 2시간
+        const cycleMs  = 10 * 24 * 60 * 60 * 1000;     // 10일
+      
+        // ── 첫 시주 전환 시점 (분 단위 스캔) ──
+        function getFirstSijuChange(dt) {
+          const branch   = getHourBranchReturn(dt);
+          const startMap = { 子:23, 丑:1, 寅:3, 卯:5, 辰:7, 巳:9,
+                             午:11, 未:13, 申:15, 酉:17, 戌:19, 亥:21 };
+          let bnd = new Date(dt);
+          const h0  = startMap[branch];
+          const h1  = (h0 + 2) % 24;
+          bnd.setHours(dirMode==='순행'? h1 : h0, 0);
+          if (dirMode==='순행' && bnd <= dt) bnd.setDate(bnd.getDate()+1);
+          if (dirMode==='역행' && bnd >= dt) bnd.setDate(bnd.getDate()-1);
+          return bnd;
+        }
+        
+
+        // ── 첫 일주 전환 시점 (인시/자시 기준 + 순/역행) ──
+        //const basis = document.querySelector('input[name="time2"]:checked')?.value || basisOverride; // 'jasi','yajasi','insi'
+        const iljuTarget = {
+          insi:   { 순행:'寅', 역행:'寅' },
+          jasi:   { 순행:'子', 역행:'子' },
+          yajasi: { 순행:'子', 역행:'子' }
+        }[basis][dirMode];
+      
+        function getFirstIljuChange(dt) {
+          const cursor = new Date(dt);
+          cursor.setSeconds(0,0);
+          while (getHourBranchReturn(cursor) !== iljuTarget) {
+            cursor.setMinutes(cursor.getMinutes() + 1);
+          }
+          return cursor;
+        }
+      
+        // ── 날짜 배열 생성 ──
+        const maxCycles = 4381; // 120년간 2시간 간격 → 4380+1
+        const sDates = [ correctedDate, getFirstSijuChange(correctedDate) ];
+        const iDates = [ correctedDate, getFirstIljuChange(correctedDate) ];
+        for (let i = 2; i < maxCycles; i++) {
+          const deltaMs = (dirMode==='순행'?1:-1) * cycleMin * msMin;
+          sDates[i] = new Date(sDates[i-1].getTime() + deltaMs);
+          iDates[i] = new Date(iDates[i-1].getTime() + deltaMs);
+        }
+      
+        // ── 시주 간지 배열 (hourPillars부터 시작) ──
+        const sPillars = [ hourPillar ];
+        for (let i = 1; i < sDates.length; i++) {
+          const idx    = getGanZhiIndex(sPillars[i - 1]);
+          const nextIx = dirMode === '순행'
+            ? (idx + 1) % 60
+            : (idx + 59) % 60;
+          sPillars[i] = getGanZhiByIndex(nextIx);
+        }
+
+        // ── 일주 간지 배열 (dayPillars부터 시작!) ──
+        const iPillars = [ dayPillar ];
+        for (let i = 1; i < sDates.length; i++) {
+          // 현재 시지(branch) 확인
+          const branch = getHourBranchReturn(sDates[i]);
+          if (branch === iljuTarget) {
+            // 지정된 시지에 도달했을 때만 60갑자 순환
+            const idx    = getGanZhiIndex(iPillars[i - 1]);
+            const nextIx = dirMode === '순행'
+              ? (idx + 1) % 60
+              : (idx + 59) % 60;
+            iPillars[i] = getGanZhiByIndex(nextIx);
+          } else {
+            // 나머지 구간에서는 이전 일주 유지
+            iPillars[i] = iPillars[i - 1];
+          }
+        }
+
+        // ── 월주 간지 배열 (monthPillars부터 시작!) ──
+        let year       = correctedDate.getFullYear();
+        let terms      = getSolarTermBoundaries(year);
+        let pointer;
+
+        // 순행일 때: correctedDate 이후의 첫 절기 인덱스
+        if (dirMode === '순행') {
+          pointer = terms.findIndex(t => t.date > correctedDate);
+          if (pointer < 0) {
+            year++;
+            terms = getSolarTermBoundaries(year);
+            pointer = 0;
+          }
+
+        // 역행일 때: correctedDate 이전의 마지막 절기 인덱스
+        } else {
+          const prev = terms.filter(t => t.date < correctedDate);
+          pointer = prev.length - 1;
+          if (pointer < 0) {
+            year--;
+            terms = getSolarTermBoundaries(year);
+            pointer = terms.length - 1;
+          }
+        }
+
+        // --- 2) mPillars 초기화 ---
+        // ——— 초기화 ———
+        const mPillars = [ monthPillar ];
+        const yPillars = [ yearPillar ];
+
+        const yeonjuTargetMap = {
+          insi:   { 순행: "寅",  역행: "丑" },
+          jasi:   { 순행: "寅",  역행: "丑" },
+          yajasi: { 순행: "寅",  역행: "丑" }
+        };
+
+        const yeonjuTarget = yeonjuTargetMap[basis][dirMode];
+
+        const principal = [
+          "입춘","경칩","청명","입하",
+          "망종","소서","입추","백로",
+          "한로","입동","대설","소한"
+        ];
+        const MONTH_ZHI2 = [
+          "寅","卯","辰","巳",
+          "午","未","申","酉",
+          "戌","亥","子","丑"
         ];
 
-        // 3. 분 단위로 정확히 블록 찾기 (start < x < end)
-        let block = blocks.find(b =>
-          (b.start < b.end && birthMinutes >= b.start && birthMinutes < b.end) ||
-          (b.start > b.end && (birthMinutes >= b.start || birthMinutes < b.end))
+        function getPrincipalTerms(year) {
+          const all = getSolarTermBoundaries(year)
+            .slice()
+            .sort((a, b) => a.date - b.date);
+          return all.filter((_, idx) => idx % 2 === 0);
+        }
+
+        function getMonthBranchReturn(dateObj) {
+          const thisYear = getPrincipalTerms(dateObj.getFullYear());
+          const nextYear = getPrincipalTerms(dateObj.getFullYear() + 1);
+
+          // nextYear이 비었을 땐 첫 절기 +1년으로 채워두면 안전
+          if (!nextYear.length) {
+            const fake = thisYear[0].date;
+            nextYear.push({ date: new Date(fake.getFullYear()+1, fake.getMonth(), fake.getDate()) });
+          }
+
+          for (let i = 0; i < thisYear.length; i++) {
+            const start = thisYear[i].date;
+            const end   = (i + 1 < thisYear.length)
+              ? thisYear[i + 1].date
+              : nextYear[0].date;
+            if (dateObj >= start && dateObj < end) {
+              // ★ 이 한 줄로 매핑 끝 ★
+              return MONTH_ZHI2[i];
+            }
+          }
+          return MONTH_ZHI2[0];
+        }
+
+        let lastMb = getMonthBranchReturn(sDates[0]);
+
+        // ——— 월주·연주 동시 계산 루프 ———
+        for (let i = 1; i < sDates.length; i++) {
+          const dt = sDates[i];
+          const thresholdDate = terms[pointer].date;
+
+          // 1) 월주(hit) 판단
+          const hit = dirMode === '순행'
+            ? dt >= thresholdDate
+            : dt <= thresholdDate;
+
+          if (hit) {
+            // — 월주 갱신 —
+            const prevMIdx = getGanZhiIndex(mPillars[i - 1]);
+            const nextMIdx = dirMode === '순행'
+              ? (prevMIdx + 1) % 60
+              : (prevMIdx + 59) % 60;
+            mPillars[i] = getGanZhiByIndex(nextMIdx);
+
+            // — pointer 이동(절기 경계 넘어가면 갱신) —
+            if (dirMode === '순행') {
+              pointer++;
+              if (pointer >= terms.length) {
+                year++;
+                terms  = getSolarTermBoundaries(year);
+                pointer = 0;
+              }
+            } else {
+              pointer--;
+              if (pointer < 0) {
+                year--;
+                terms  = getSolarTermBoundaries(year);
+                pointer = terms.length - 1;
+              }
+            }
+
+            // — 연주 판단 — 
+            // 2) 지금 만난 절기 이름
+            const termName = terms[pointer].name;
+            const princIdx = principal.indexOf(termName);
+
+            if (princIdx !== -1) {
+              // 3) 月支 구하기
+              const mb = MONTH_ZHI2[princIdx];
+
+              // 4) 순/역행 트리거 체크
+              const isTrigger = (mb === yeonjuTarget);
+
+              if (isTrigger && mb !== lastMb) {
+                const prevYIdx = getGanZhiIndex(yPillars[i - 1]);
+                const nextYIdx = dirMode === '순행'
+                  ? (prevYIdx + 1) % 60
+                  : (prevYIdx + 59) % 60;
+                yPillars[i] = getGanZhiByIndex(nextYIdx);
+              } else {
+                yPillars[i] = yPillars[i - 1];
+              }
+
+            } else {
+              // 중기절기가 아니면 연주 유지
+              yPillars[i] = yPillars[i - 1];
+            }
+
+          } else {
+            // 절기 전 구간: 월주·연주 모두 유지
+            mPillars[i] = mPillars[i - 1];
+            yPillars[i] = yPillars[i - 1];
+          }
+        }
+        
+ 
+        // ── 적용기간 계산 (시주 기준) ──
+        const periods = [];
+        // 첫 적용기간: 실제분→10일 매핑 -1분
+        const realFirstMs = Math.abs(sDates[1] - sDates[0]);
+        const firstMapMs  = realFirstMs/(cycleMin*msMin)*cycleMs - msMin;
+        periods[0] = {
+          start: new Date(sDates[0]),
+          end:   new Date(sDates[0].getTime() + firstMapMs)
+        };
+        // 이후: +10일 -1분
+        for (let i = 1; i < sDates.length; i++) {
+          const prevEnd = periods[i-1].end.getTime();
+          periods[i] = {
+            start: new Date(prevEnd + msMin),
+            end:   new Date(prevEnd + cycleMs)
+          };
+        }
+      
+        // ── 콘솔 한 줄 출력 ──
+        // console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
+        //   for (let i = 0; i < sDates.length; i++) {
+        //     console.log(
+        //       `${sPillars[i]}\t` +
+        //       `${iPillars[i]}\t` +
+        //       `${mPillars[i]}\t` +
+        //       `${yPillars[i]}\t` +
+        //       `${formatDate(sDates[i])}\t` +
+        //       `${formatDate(periods[i].start)} → ${formatDate(periods[i].end)}`
+        //     );
+        //   }
+
+        
+
+        // ── 헬퍼: 첫 변경 시점 찾기 ──
+        function findFirstChange(pillarsArr) {
+          for (let i = 1; i < pillarsArr.length; i++) {
+            if (pillarsArr[i] !== pillarsArr[i - 1]) {
+              return sDates[i];
+            }
+          }
+          return null;
+        }
+
+        
+
+        // ── 각 기둥별 첫 변경 시점 ──
+        const sijuFirstChangeDate = findFirstChange(sPillars);
+        const iljuFirstChangeDate = findFirstChange(iPillars);
+        const woljuFirstChangeDate  = findFirstChange(mPillars);
+        const yeonjuFirstChangeDate = findFirstChange(yPillars);
+
+        // ── 각 기둥별 현재 간지 ──
+
+        const idx = periods.findIndex(({start, end}) =>
+          refDate >= start && refDate < end
         );
-        if (!block) block = blocks[0];
 
-        // 4. 블록 끝 기준 남은 분 계산 (순행/역행)
-        let diffMin = mode === '순행'
-          ? block.start - birthMinutes
-          : birthMinutes - block.start;
-        if (diffMin < 0) diffMin += totalMinutes;
-        let ratio = round4(diffMin / blockLength);
-        return Number((ratio * sijuCycle).toFixed(4));
+        // ── 인덱스가 유효하면 해당 기둥, 아니면 null ──
+        const sijuCurrentPillar  = idx >= 0 ? sPillars[idx] : null;
+        const iljuCurrentPillar  = idx >= 0 ? iPillars[idx] : null;
+        const woljuCurrentPillar = idx >= 0 ? mPillars[idx] : null;
+        const yeonjuCurrentPillar= idx >= 0 ? yPillars[idx] : null;
+
+        // ── 최종 리턴 수정 ──
+        return {
+          // 묘운(오늘 구간)
+          sijuCurrentPillar,    // ex: "기사"
+          iljuCurrentPillar,    // ex: "갑술"
+          woljuCurrentPillar,   // ex: "정유"
+          yeonjuCurrentPillar,  // ex: "병자"
+
+          // 첫 변경 시점
+          sijuFirstChangeDate,
+          iljuFirstChangeDate,
+          woljuFirstChangeDate,
+          yeonjuFirstChangeDate
+        };
       }
     
-      function getDynamicIljuCycle(birthDate) {
-        const endDate = new Date(birthDate);
-        endDate.setFullYear(birthDate.getFullYear() + 120);
-        const totalDays = (endDate - birthDate) / oneDayMs;
-        return (totalDays / (121.6 * 12)) * 4;
-      }
-
-      function getSelectedIljuBasis() {
-        const checkedRadio =
-          document.querySelector('#checkOption input[name="timeChk02"]:checked') ||
-          document.querySelector('#timeType input[name="time2"]:checked');
-        if (!checkedRadio) return "자시";
-        switch (checkedRadio.value) {
-          case "jasi": return "자시";
-          case "yajasi": return "야자시";
-          case "insi": return "인시";
-          default: return "자시";
-        }
+      
+      // [보조] 날짜 포맷 함수
+      function formatDate(d) {
+        const Y  = d.getFullYear();
+        const M  = String(d.getMonth()+1).padStart(2,'0');
+        const D  = String(d.getDate()).padStart(2,'0');
+        const h  = String(d.getHours()).padStart(2,'0');
+        const m  = String(d.getMinutes()).padStart(2,'0');
+        return `${Y}-${M}-${D} ${h}:${m}`;
       }
       
-
-      function getAdjustedBirthForIlju(birthDate, 기준 = "자시") {
-        const d = new Date(birthDate);
-        if (기준 === "야자시") {
-          if (d.getHours() < 1) d.setDate(d.getDate() - 1);
-          d.setHours(0, 0, 0, 0);
-        } else if (기준 === "자시") {
-          if (d.getHours() < 23) d.setDate(d.getDate() - 1);
-          d.setHours(23, 0, 0, 0);
-        } else if (기준 === "인시") {
-          if (d.getHours() < 3) d.setDate(d.getDate() - 1);
-          d.setHours(3, 0, 0, 0);
-        }
-        return d;
-      }
-
-      //const baseTimeIlju = getAdjustedBirthForIlju(correctedDate, getSelectedIljuBasis());
+      let {
+        sijuCurrentPillar, iljuCurrentPillar,
+        woljuCurrentPillar, yeonjuCurrentPillar,
+        sijuFirstChangeDate, iljuFirstChangeDate,
+        woljuFirstChangeDate, yeonjuFirstChangeDate
+      } = logDaynamic({
+        birthDate,
+        refDate,
+        dirMode,
+        basis,
+        yearPillar,
+        monthPillar,
+        dayPillar,
+        hourPillar
+      });
     
-      // 1) 日運 Offset (4개월 주기)
-      function calculateIljuOffsetDynamic(birthDate, mode) {
-        const dynamicIljuCycle = getDynamicIljuCycle(birthDate);
-        const diffMinutes = (mode === "순행"
-          ? baseTime - birthDate
-          : birthDate - baseTime
-        ) / (60 * 1000);
-
-        // 기존 offset 계산
-        let offset = diffMinutes * dynamicIljuCycle / 1440;
-
-        // ↳ 여기서 래핑: 0 ≤ offset < dynamicIljuCycle
-        offset = ((offset % dynamicIljuCycle) + dynamicIljuCycle) % dynamicIljuCycle;
-
-        return offset;
-      }
-
-      // function setIljuBasisRadio(basis) {
-      //   const valueMap = { "자시": "jasi", "야자시": "yajasi", "인시": "insi" };
-      //   const value = valueMap[basis] || "jasi";
-      //   const input = document.querySelector(`#checkOption input[value="${value}"]`);
-      //   if (input) input.checked = true;
-      // }
-
-
-      // function setIljuBasisRadio(basis) {
-      //   const valueMap = { "자시": "jasi", "야자시": "yajasi", "인시": "insi" };
-      //   const value = valueMap[basis] || "jasi";
-      //   const input = document.querySelector(`#checkOption input[value="${value}"]`);
-      //   if (input) input.checked = true;
-      // }
-
-      // const iljuBasis = getSelectedIljuBasis();
-      // const adjustedStaticBasic = getAdjustedBirthForIlju(staticBasic, iljuBasis);
-      // //const iljuStartDate = getOffsetDate(birthDate, iljuOffset);
-      // //const iljuTimeline = generateTimeline(iljuStartDate, 120);
-      // setIljuBasisRadio(iljuBasis);
-
-      // 2) 月運 Offset (절기→平均Decade 주기)
-      let calculateWoljuOffsetDynamic;
-      if (!isTimeUnknown) {
-        calculateWoljuOffsetDynamic = function (birthDate, mode) {
-          const solarYear = birthDate.getFullYear();
-          let boundaries = getSolarTermBoundaries(solarYear);
-          if (!boundaries.length) return 0;
-          let target = mode === "순행"
-            ? boundaries.find(b => b.date > birthDate)
-            : boundaries.filter(b => b.date <= birthDate).slice(-1)[0];
-          if (!target) {
-            target = getSolarTermBoundaries(
-              solarYear + (mode === "순행" ? 1 : -1)
-            )[0];
-          }
-          const avg = get120YearAverages(target.date);
-
-          // 기존 offset 계산 (ratio * averageDecade)
-          let offset = Math.abs(target.date - baseTime) / oneDayMs
-            / avg.averageMonth
-            * avg.averageDecade;
-          offset = Number(offset.toFixed(4));
-
-          // ↳ 래핑: 0 ≤ offset < avg.averageDecade
-          const cycle = avg.averageDecade;
-          offset = ((offset % cycle) + cycle) % cycle;
-
-          return offset;
-        }
-      } else {
-        calculateWoljuOffsetDynamic = function (birthDate, mode) {
-          const solarYear = birthDate.getFullYear();
-          const baseDateOnly = new Date(
-            solarYear, birthDate.getMonth(), birthDate.getDate()
-          );
-          let boundaries = getSolarTermBoundaries(solarYear);
-          if (!boundaries.length) return 0;
-          let target = mode === "순행"
-            ? boundaries.find(b => b.date > baseDateOnly)
-            : boundaries.filter(b => b.date <= baseDateOnly).slice(-1)[0];
-          if (!target) {
-            target = getSolarTermBoundaries(
-              solarYear + (mode === "순행" ? 1 : -1)
-            )[0];
-          }
-          const avg = get120YearAverages(target.date);
-
-          let offset = Math.abs(target.date - baseDateOnly) / oneDayMs
-            / avg.averageMonth
-            * avg.averageDecade;
-          offset = Number(offset.toFixed(4));
-
-          const cycle = avg.averageDecade;
-          offset = ((offset % cycle) + cycle) % cycle;
-
-          return offset;
-        }       
-      }
-
-      function getAverageYearLength(date) {
-        const end = new Date(date);
-        end.setFullYear(date.getFullYear() + 120);
-        return ((end - date) / oneDayMs) / 120;
-      }
-
-
-      // 3) 年運 Offset (120년 주기)
-      let calculateYeonjuOffsetDynamic;
-      if (!isTimeUnknown) {
-        calculateYeonjuOffsetDynamic = function (birthDate, mode) {
-          let ipchun = getSolarTermBoundaries(birthDate.getFullYear())
-            .find(b => b.name === "입춘")?.date
-            || findSolarTermDate(birthDate.getFullYear(), 315);
-
-          let target = ipchun;
-          if (mode === "순행" && birthDate >= ipchun) {
-            target = getSolarTermBoundaries(birthDate.getFullYear() + 1)
-              .find(b => b.name === "입춘")?.date;
-          } else if (mode === "역행" && birthDate < ipchun) {
-            target = getSolarTermBoundaries(birthDate.getFullYear() - 1)
-              .find(b => b.name === "입춘")?.date;
-          }
-
-          const avgYearDays = getAverageYearLength(target) * oneDayMs;
-          let offset = Math.abs(target - baseTime) / oneDayMs
-            / getAverageYearLength(target)
-            * yeonjuCycle;
-          offset = Number(offset.toFixed(4));
-
-          // ↳ 래핑: 0 ≤ offset < yeonjuCycle
-          offset = ((offset % yeonjuCycle) + yeonjuCycle) % yeonjuCycle;
-
-          return offset;
-        }
-      } else {
-        calculateYeonjuOffsetDynamic = function (birthDate, mode) {
-          const baseDateOnly = new Date(
-            birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate()
-          );
-          let ipchun = getSolarTermBoundaries(birthDate.getFullYear())
-            .find(b => b.name === "입춘")?.date
-            || findSolarTermDate(birthDate.getFullYear(), 315);
-
-          let target = ipchun;
-          if (mode === "순행" && baseDateOnly >= ipchun) {
-            target = getSolarTermBoundaries(birthDate.getFullYear() + 1)
-              .find(b => b.name === "입춘")?.date;
-          } else if (mode === "역행" && baseDateOnly < ipchun) {
-            target = getSolarTermBoundaries(birthDate.getFullYear() - 1)
-              .find(b => b.name === "입춘")?.date;
-          }
-
-          const avgYearDays = getAverageYearLength(target) * oneDayMs;
-          let offset = Math.abs(target - baseDateOnly) / oneDayMs
-            / getAverageYearLength(target)
-            * yeonjuCycle;
-          offset = Number(offset.toFixed(4));
-
-          offset = ((offset % yeonjuCycle) + yeonjuCycle) % yeonjuCycle;
-
-          return offset;
-        }
-      }
-
-      // let iljuOffset = calculateIljuOffsetDynamic(staticBasic, iljuMode, iljuBasis, baseTimeIlju);
-      // if (iljuOffset === 0) iljuOffset = iljuCycle;
-      // const adjustedDate2 = new Date(staticBasic.getTime() + Math.ceil(iljuOffset) * oneDayMs);
-      
-
-      let newSijuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateSijuOffsetDynamic(staticBasic, sijuMode) * oneDayMs), sijuCycle, staticBasic);
-      let newIljuFirst  = adjustInitial(new Date(staticBasic.getTime() + calculateIljuOffsetDynamic(staticBasic, iljuMode) * oneDayMs), iljuCycle, staticBasic);let newWoljuFirst = adjustInitial(new Date(staticBasic.getTime() + calculateWoljuOffsetDynamic(staticBasic, woljuMode) * oneDayMs), woljuCycle, staticBasic);
-      let newYeonjuFirst= adjustInitial(new Date(staticBasic.getTime() + calculateYeonjuOffsetDynamic(staticBasic, yeonjuMode) * oneDayMs), yeonjuCycle, staticBasic);      
-      console.log(newIljuFirst);
-      const fullResult = getFourPillarsWithDaewoon(
-        staticBasic.getFullYear(), staticBasic.getMonth() + 1, staticBasic.getDate(),
-        staticBasic.getHours(), staticBasic.getMinutes(), gender, correctedDate
-      );
-      
-
-      const sijuIndex = getGanZhiIndex(hourPillar);
-      const iljuIndex = getGanZhiIndex(dayPillar);
-      const woljuIndex = getGanZhiIndex(monthPillar);
-      const yeonjuIndex = getGanZhiIndex(yearPillar);
-
-      
-      const sijuEvent = applyFirstUpdateDynamicWithStep(newSijuFirst, sijuIndex, sijuCycle, sijuMode, refDate);
-      const iljuEvent = applyFirstUpdateDynamicWithStep(newIljuFirst, iljuIndex, iljuCycle, iljuMode, refDate);
-      const woljuEvent = applyFirstUpdateDynamicWithStep(newWoljuFirst, woljuIndex, woljuCycle, woljuMode, refDate);
-      const yeonjuEvent = applyFirstUpdateDynamicWithStep(newYeonjuFirst, yeonjuIndex, yeonjuCycle, yeonjuMode, refDate);
-
+      // 첫 변경 이벤트
+ 
       updateColorClasses();
-
+    
       return {
-        fullResult,
-        sijuIndex, iljuIndex, woljuIndex, yeonjuIndex,
-        newSijuFirst, newIljuFirst, newWoljuFirst, newYeonjuFirst,
-        hourPillar, dayPillar, monthPillar, yearPillar,
-        sijuEvent, iljuEvent, woljuEvent, yeonjuEvent,
-        candidateTimes: { siju: newSijuFirst, ilju: newIljuFirst, wolju: newWoljuFirst, yeonju: newYeonjuFirst },
-        dynamicSteps: {
-          siju: getDynamicStep(newSijuFirst, sijuCycle, refDate),
-          ilju: getDynamicStep(newIljuFirst, iljuCycle, refDate),
-          wolju: getDynamicStep(newWoljuFirst, woljuCycle, refDate),
-          yeonju: getDynamicStep(newYeonjuFirst, yeonjuCycle, refDate)
-        }
+        sijuCurrentPillar, iljuCurrentPillar, woljuCurrentPillar, yeonjuCurrentPillar,
+        sijuFirstChangeDate, iljuFirstChangeDate, woljuFirstChangeDate, yeonjuFirstChangeDate
       };
     }
+     
 
     const myData = {
       correctedDate: correctedDate, 
@@ -3733,7 +3887,12 @@ document.addEventListener("DOMContentLoaded", function () {
       gender: gender            
     };
 
+    getMyounPillarsVr = getMyounPillars;
+
     getMyounPillars(myData, refDate);
+
+    let myowoonResult = getMyounPillars(myData, refDate);
+
 
     // UI 업데이트 예시: updateMyowoonSection
     function updateMyowoonSection(myowoonResult) {
@@ -3752,7 +3911,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     
       // === 연주 ===
-      const yp = myowoonResult.yeonjuEvent.ganji;
+      const yp = myowoonResult.yeonjuCurrentPillar;
       setText("MyoYtHanja", stemMapping[yp[0]]?.hanja || yp[0]);
       applyColor("MyoYtHanja", yp[0]);
       setText("MyoYtHanguel", stemMapping[yp[0]]?.hanguel || yp[0]);
@@ -3771,7 +3930,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoYb12ss", getTwelveShinsal(baseYearBranch, yp[1]));
     
       // === 월주 ===
-      const mp = myowoonResult.woljuEvent.ganji;
+      const mp = myowoonResult.woljuCurrentPillar;
       setText("MyoMtHanja", stemMapping[mp[0]]?.hanja || mp[0]);
       applyColor("MyoMtHanja", mp[0]);
       setText("MyoMtHanguel", stemMapping[mp[0]]?.hanguel || mp[0]);
@@ -3790,12 +3949,12 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoMb12ss", getTwelveShinsal(baseYearBranch, mp[1]));
     
       // === 일주 ===
-      if (isTimeUnknown || !myowoonResult.iljuEvent || !myowoonResult.iljuEvent.ganji) {
+      if (isTimeUnknown || !myowoonResult.iljuCurrentPillar) {
         ["MyoDtHanja", "MyoDtHanguel", "MyoDtEumyang", "MyoDt10sin",
          "MyoDbHanja", "MyoDbHanguel", "MyoDbEumyang", "MyoDb10sin",
          "MyoDbJj1", "MyoDbJj2", "MyoDbJj3", "MyoDb12ws", "MyoDb12ss"].forEach(id => setText(id, "-"));
       } else {
-        const dp = myowoonResult.iljuEvent.ganji;
+        const dp = myowoonResult.iljuCurrentPillar;
         setText("MyoDtHanja", stemMapping[dp[0]]?.hanja || dp[0]);
         applyColor("MyoDtHanja", dp[0]);
         setText("MyoDtHanguel", stemMapping[dp[0]]?.hanguel || dp[0]);
@@ -3815,12 +3974,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     
       // === 시주 ===
-      if (isTimeUnknown || !myowoonResult.sijuEvent || !myowoonResult.sijuEvent.ganji || isPickerVer3) {
+      if (isTimeUnknown || !myowoonResult.sijuCurrentPillar || isPickerVer3) {
         ["MyoHtHanja", "MyoHtHanguel", "MyoHtEumyang", "MyoHt10sin",
          "MyoHbHanja", "MyoHbHanguel", "MyoHbEumyang", "MyoHb10sin",
          "MyoHbJj1", "MyoHbJj2", "MyoHbJj3", "MyoHb12ws", "MyoHb12ss"].forEach(id => setText(id, "-"));
       } else {
-        const hp = myowoonResult.sijuEvent.ganji;
+        const hp = myowoonResult.sijuCurrentPillar;
         setText("MyoHtHanja", stemMapping[hp[0]]?.hanja || hp[0]);
         applyColor("MyoHtHanja", hp[0]);
         setText("MyoHtHanguel", stemMapping[hp[0]]?.hanguel || hp[0]);
@@ -3995,12 +4154,9 @@ document.addEventListener("DOMContentLoaded", function () {
     
       newBtn.addEventListener("click", function () {
         
-        const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
+        //const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
         
-        const refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());
-    
-        const myowoonResult = getMyounPillars(myData, refDate);
-        
+        //const refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());
     
         if (newBtn.classList.contains("active")) {
           document.getElementById('wongookLM').classList.remove("w100");
@@ -4119,7 +4275,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 체크박스 이벤트 리스너 등록 (체크박스 값 변경 시 재계산)
     
-    function getHourBranchUsingArray(dateObj) {
+    function getHourBranchUsingArray2(dateObj) {
       let totalMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
       for (let i = 0; i < timeRanges.length; i++) {
         const { branch, start, end } = timeRanges[i];
@@ -4152,16 +4308,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateHourWoon(refDate) {
       const date = new Date(refDate);
-      const hourBranch = getHourBranchUsingArray(date);
+      const hourBranch = getHourBranchUsingArray2(date);  // 직접 호출
       const hourBranchIndex = Jiji.indexOf(hourBranch);
       const dayGanZhi = updateDayWoon(refDate).gan;
       const hourStem = getHourStem2(dayGanZhi, hourBranchIndex);
-
-
+    
       if (isPickerVer2 || isPickerVer3) {
-        ["WTtHanja", "WTtHanguel", "WTtEumyang", "WTt10sin",
-         "WTbHanja", "WTbHanguel", "WTbEumyang", "WTb10sin",
-         "WTbJj1", "WTbJj2", "WTbJj3", "WTb12ws", "WTb12ss"].forEach(id => setText(id, "-"));
+        ["WTtHanja","WTtHanguel","WTtEumyang","WTt10sin",
+         "WTbHanja","WTbHanguel","WTbEumyang","WTb10sin",
+         "WTbJj1","WTbJj2","WTbJj3","WTb12ws","WTb12ss"].forEach(id => setText(id, "-"));
       } else {
         setText("WTtHanja", stemMapping[hourStem]?.hanja || "-");
         setText("WTtHanguel", stemMapping[hourStem]?.hanguel || "-");
@@ -4181,7 +4336,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
     refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());  
-    const myowoonResult = getMyounPillars(myData, refDate);
+    myowoonResult = getMyounPillars(myData, refDate);
     if (picker) {
       const now = toKoreanTime(new Date());
       const yearNow = now.getFullYear();
@@ -4204,107 +4359,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
  
-     // 원국 간지 기반 업데이트값을 변수에 저장 (예: firstUpdateGanjiSiju)
-     const firstUpdateGanjiSiju = myowoonResult.hourPillar;  // 원국의 시주 간지
-     const firstUpdateGanjiIlju = myowoonResult.dayPillar;    // 원국의 일주 간지
-     const firstUpdateGanjiWolju = myowoonResult.monthPillar; // 원국의 월주 간지
-     const firstUpdateGanjiYeonju = myowoonResult.yearPillar;  // 원국의 연주 간지
- 
-     // 타임라인 이벤트 객체 생성 – "후보 시각"은 그대로 사용하지만 간지값은 원국 업데이트값으로 설정
-     const sijuFirstTimelineEvent = {
-       date: myowoonResult.candidateTimes.siju,
-       index: getGanZhiIndex(firstUpdateGanjiSiju) + direction + 60,
-       ganji: firstUpdateGanjiSiju + direction + 60
-     };
-     const iljuFirstTimelineEvent = {
-       date: myowoonResult.candidateTimes.ilju,
-       index: getGanZhiIndex(firstUpdateGanjiIlju) + direction + 60,
-       ganji: firstUpdateGanjiIlju + direction + 60
-     };
-     const woljuFirstTimelineEvent = {
-       date: myowoonResult.candidateTimes.wolju,
-       index: getGanZhiIndex(firstUpdateGanjiWolju) + direction + 60,
-       ganji: firstUpdateGanjiWolju + direction + 60
-     };
-     const yeonjuFirstTimelineEvent = {
-       date: myowoonResult.candidateTimes.yeonju,
-       index: getGanZhiIndex(firstUpdateGanjiYeonju) + direction + 60,
-       ganji: firstUpdateGanjiYeonju + direction + 60
-     };
-
-     // 타임라인 생성 (콘솔 출력)
-     const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
-     const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", refDate);
-     const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", refDate);
-     const yeonjuTimeline = generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", refDate);
- 
-     // ========== 타임라인 관련 함수 ==========
-     function nextEvent(date, index, cycle, mode) {
-      // 날짜는 항상 cycle만큼 더해서 진행 (피커 날짜까지 늘어남)
-      const nextDate = new Date(date.getTime() + cycle * oneDayMs);
-      // 인덱스는 mode에 따라 달라짐: "순행"이면 +1, "역행"이면 -1
-      const nextIndex = mode === "순행" ? ((index + 1) % 60) : ((index - 1 + 60) % 60);
-      return { date: nextDate, index: nextIndex };
-    }
- 
-
-     function generateTimeline(firstEvent, cycle, mode, label, refDate) {
-      let timeline = [];
-      let currentEvent = firstEvent;
-      
-      // 첫 이벤트부터 refDate까지 계속 nextEvent로 진행
-      while (currentEvent && currentEvent.date.getTime() <= refDate && refDate.getTime()) {
-        timeline.push(currentEvent);
-        let next = nextEvent(currentEvent.date, currentEvent.index, cycle, mode);
-        // 안전장치: 날짜 변화가 없으면 종료
-        if (!next || next.date.getTime() === currentEvent.date.getTime()) break;
-        currentEvent = next;
-      }
-      return timeline;
-    }
-
-    function formatDateTime(date) {
-      const y = date.getFullYear();
-      const m = (date.getMonth() + 1).toString().padStart(2, "0");
-      const d = date.getDate().toString().padStart(2, "0");
-      const hh = date.getHours().toString().padStart(2, "0");
-      const mm = date.getMinutes().toString().padStart(2, "0");
-      return `${y}-${m}-${d} ${hh}:${mm}`;
-    }
-
-    function getLatestEventBefore(timeline, date) {
-      // 해당 시점 이전의 마지막 이벤트 찾기 (혹은 undefined면 null)
-      let latest = null;
-      for (const evt of timeline) {
-        if (evt.date <= date) latest = evt;
-        else break;
-      }
-      return latest;
-    }
-    
-    function logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates) {
-      baseDates.forEach(date => {
-        const sijuEvt = getLatestEventBefore(sijuTimeline, date);
-        const iljuEvt = getLatestEventBefore(iljuTimeline, date);
-        const woljuEvt = getLatestEventBefore(woljuTimeline, date);
-        const yeonjuEvt = getLatestEventBefore(yeonjuTimeline, date);
-    
-        const dateStr = formatDateTime(date);
-        const sijuStr = sijuEvt ? getGanZhiFromIndex(sijuEvt.index) : myowoonResult.hourPillar;
-        const iljuStr = iljuEvt ? getGanZhiFromIndex(iljuEvt.index) : myowoonResult.dayPillar;
-        const woljuStr = woljuEvt ? getGanZhiFromIndex(woljuEvt.index) : myowoonResult.monthPillar;
-        const yeonjuStr = yeonjuEvt ? getGanZhiFromIndex(yeonjuEvt.index) : myowoonResult.yearPillar;
-    
-        console.log(`${dateStr}-${sijuStr}-${iljuStr}-${woljuStr}-${yeonjuStr}`);
-      });
-    }
-    
-    setTimeout(() => {
-      const birthDate = new Date(correctedDate);
-      const baseDates = [birthDate, ...sijuTimeline.map(evt => evt.date)];
-      logTimelineMergedByDate(sijuTimeline, iljuTimeline, woljuTimeline, yeonjuTimeline, baseDates);
-    }, 20);
-    
 
     function collectInputData() {
       const birthdayStr = document.getElementById("inputBirthday").value.trim();
@@ -4409,444 +4463,444 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelector(".check_option").style.display = ""; // or "block" 등
     }
 
-    function updateExplanDetail(myowoonResult, refDate) {
+    // function updateExplanDetail(myowoonResult, refDate) {
 
-      function getAverageYearLength(date) {
-        const end = new Date(date);
-        end.setFullYear(date.getFullYear() + 120);
-        return ((end - date) / oneDayMs) / 120;
-      }
+    //   function getAverageYearLength(date) {
+    //     const end = new Date(date);
+    //     end.setFullYear(date.getFullYear() + 120);
+    //     return ((end - date) / oneDayMs) / 120;
+    //   }
   
-      function direction() {
-        if (iljuMode === "순행") {
-          return '다음';
-        } else {
-          return '전';
-        }
-      }
+    //   function direction() {
+    //     if (iljuMode === "순행") {
+    //       return '다음';
+    //     } else {
+    //       return '전';
+    //     }
+    //   }
   
-      const expectedIljuOffset = getAverageYearLength(correctedDate) * (4 / 12);  
-      const expectedWoljuOffset = getAverageYearLength(correctedDate) * 10;
-      const expectedYeonjuOffset = getAverageYearLength(correctedDate) * 120;        
+    //   const expectedIljuOffset = getAverageYearLength(correctedDate) * (4 / 12);  
+    //   const expectedWoljuOffset = getAverageYearLength(correctedDate) * 10;
+    //   const expectedYeonjuOffset = getAverageYearLength(correctedDate) * 120;        
       
-      // 실제 후보 시각과 보정 시각 사이의 차이를 구해봅니다.
+    //   // 실제 후보 시각과 보정 시각 사이의 차이를 구해봅니다.
 
-      function formatOffset(days, noDays = false) {
-        const totalMins = days * 24 * 60;
-        const d = Math.floor(totalMins / (24 * 60));
-        const h = Math.floor((totalMins - d*24*60) / 60);
-        const m = Math.round(totalMins - d*24*60 - h*60);
+    //   function formatOffset(days, noDays = false) {
+    //     const totalMins = days * 24 * 60;
+    //     const d = Math.floor(totalMins / (24 * 60));
+    //     const h = Math.floor((totalMins - d*24*60) / 60);
+    //     const m = Math.round(totalMins - d*24*60 - h*60);
       
-        if (noDays) {
-          return `${d*24 + h}시간 ${m}분`;
-        } else {
-          return `${d}일 ${h}시간 ${m}분`;
-        }
-      }
+    //     if (noDays) {
+    //       return `${d*24 + h}시간 ${m}분`;
+    //     } else {
+    //       return `${d}일 ${h}시간 ${m}분`;
+    //     }
+    //   }
 
-      const actualSijuOffset = Math.round(((myowoonResult.newSijuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
-      const actualIljuOffset = Math.round(((myowoonResult.newIljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
-      const actualWoljuOffset = Math.round(((myowoonResult.newWoljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
-      const actualYeonjuOffset = Math.round(((myowoonResult.newYeonjuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
+    //   const actualSijuOffset = Math.round(((myowoonResult.newSijuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
+    //   const actualIljuOffset = Math.round(((myowoonResult.newIljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
+    //   const actualWoljuOffset = Math.round(((myowoonResult.newWoljuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
+    //   const actualYeonjuOffset = Math.round(((myowoonResult.newYeonjuFirst - correctedDate) / oneDayMs) * 1000) / 1000;
       
       
-      const finalSijuTime = new Date(
-        myowoonResult.newSijuFirst.getTime() + getDynamicStep(myowoonResult.newSijuFirst, sijuCycle, refDate) * sijuCycle * oneDayMs
-      );
-      const finalIljuTime = new Date(
-        myowoonResult.newIljuFirst.getTime() + getDynamicStep(myowoonResult.newIljuFirst, iljuCycle, refDate) * iljuCycle * oneDayMs
-      );
-      const finalWoljuTime = new Date(
-        myowoonResult.newWoljuFirst.getTime() + getDynamicStep(myowoonResult.newWoljuFirst, woljuCycle, refDate) * woljuCycle * oneDayMs
-      );
-      const finalYeonjuTime = new Date(
-        myowoonResult.newYeonjuFirst.getTime() + getDynamicStep(myowoonResult.newYeonjuFirst, yeonjuCycle, refDate) * yeonjuCycle * oneDayMs
-      );
+    //   const finalSijuTime = new Date(
+    //     myowoonResult.newSijuFirst.getTime() + getDynamicStep(myowoonResult.newSijuFirst, sijuCycle, refDate) * sijuCycle * oneDayMs
+    //   );
+    //   const finalIljuTime = new Date(
+    //     myowoonResult.newIljuFirst.getTime() + getDynamicStep(myowoonResult.newIljuFirst, iljuCycle, refDate) * iljuCycle * oneDayMs
+    //   );
+    //   const finalWoljuTime = new Date(
+    //     myowoonResult.newWoljuFirst.getTime() + getDynamicStep(myowoonResult.newWoljuFirst, woljuCycle, refDate) * woljuCycle * oneDayMs
+    //   );
+    //   const finalYeonjuTime = new Date(
+    //     myowoonResult.newYeonjuFirst.getTime() + getDynamicStep(myowoonResult.newYeonjuFirst, yeonjuCycle, refDate) * yeonjuCycle * oneDayMs
+    //   );
   
-      const adjustedSijuTime = new Date(finalSijuTime.getTime() - sijuCycle * oneDayMs);
-      const adjustedIljuTime = new Date(finalIljuTime.getTime() - iljuCycle * oneDayMs);
-      const adjustedWoljuTime = new Date(finalWoljuTime.getTime() - woljuCycle * oneDayMs);
-      const adjustedYeonjuTime = new Date(finalYeonjuTime.getTime() - yeonjuCycle * oneDayMs);  
+    //   const adjustedSijuTime = new Date(finalSijuTime.getTime() - sijuCycle * oneDayMs);
+    //   const adjustedIljuTime = new Date(finalIljuTime.getTime() - iljuCycle * oneDayMs);
+    //   const adjustedWoljuTime = new Date(finalWoljuTime.getTime() - woljuCycle * oneDayMs);
+    //   const adjustedYeonjuTime = new Date(finalYeonjuTime.getTime() - yeonjuCycle * oneDayMs);  
       
 
-      let timeLabel = "";
-        if (document.getElementById("jasi")?.checked) {
-          timeLabel = "자시";
-        } else if (document.getElementById("yajasi")?.checked) {
-          timeLabel = "야 · 조자시";
-        } else if (document.getElementById("insi")?.checked) {
-          timeLabel = "인시";
-      }
+    //   let timeLabel = "";
+    //     if (document.getElementById("jasi")?.checked) {
+    //       timeLabel = "자시";
+    //     } else if (document.getElementById("yajasi")?.checked) {
+    //       timeLabel = "야 · 조자시";
+    //     } else if (document.getElementById("insi")?.checked) {
+    //       timeLabel = "인시";
+    //   }
 
   
-      function findNextOrPrevBlock(h, mode) {
-        const sortedBlocks = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23];
-        if (mode === "순행") {
-          const bigger = sortedBlocks.filter(x => x > h);
-          return (bigger.length === 0) ? sortedBlocks[0] : bigger[0];
-        } else {
-          const smaller = sortedBlocks.filter(x => x < h);
-          return (smaller.length === 0) ? sortedBlocks[sortedBlocks.length - 1] : smaller[smaller.length - 1];
-        }
-      }
+    //   function findNextOrPrevBlock(h, mode) {
+    //     const sortedBlocks = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23];
+    //     if (mode === "순행") {
+    //       const bigger = sortedBlocks.filter(x => x > h);
+    //       return (bigger.length === 0) ? sortedBlocks[0] : bigger[0];
+    //     } else {
+    //       const smaller = sortedBlocks.filter(x => x < h);
+    //       return (smaller.length === 0) ? sortedBlocks[sortedBlocks.length - 1] : smaller[smaller.length - 1];
+    //     }
+    //   }
   
-      function getSijuTimeDifference(birthDate, mode) {
-        // birthDate: 보정 시각 (예: correctedDate)
-        // mode: "순행" 또는 "역행"
-        let base = new Date(birthDate); // 복사본 생성
-        const h = birthDate.getHours();
-        const sijuBlock = findNextOrPrevBlock(h, mode);
+    //   function getSijuTimeDifference(birthDate, mode) {
+    //     // birthDate: 보정 시각 (예: correctedDate)
+    //     // mode: "순행" 또는 "역행"
+    //     let base = new Date(birthDate); // 복사본 생성
+    //     const h = birthDate.getHours();
+    //     const sijuBlock = findNextOrPrevBlock(h, mode);
       
-        if (mode === "순행") {
-          if (sijuBlock <= h) {
-            base.setDate(base.getDate() + 1);
-          }
-          base.setHours(sijuBlock, 0, 0, 0);
+    //     if (mode === "순행") {
+    //       if (sijuBlock <= h) {
+    //         base.setDate(base.getDate() + 1);
+    //       }
+    //       base.setHours(sijuBlock, 0, 0, 0);
           
-        } else { // 역행
-          if (sijuBlock > h) {
-            base.setDate(base.getDate() - 1);
-          }
-          base.setHours(sijuBlock, 0, 0, 0);
+    //     } else { // 역행
+    //       if (sijuBlock > h) {
+    //         base.setDate(base.getDate() - 1);
+    //       }
+    //       base.setHours(sijuBlock, 0, 0, 0);
           
-        }
+    //     }
       
-        let diffMs = Math.abs(base.getTime() - birthDate.getTime());
-        let diffMinutes = Math.floor(diffMs / (60 * 1000));
+    //     let diffMs = Math.abs(base.getTime() - birthDate.getTime());
+    //     let diffMinutes = Math.floor(diffMs / (60 * 1000));
       
-        // 기존 계산 결과가 174분(=2시간 54분) 나올 경우, 원하는 값은 54분이므로 120분을 빼줍니다.
-        if (diffMinutes >= 120) {
-          diffMinutes -= 120;
-        }
+    //     // 기존 계산 결과가 174분(=2시간 54분) 나올 경우, 원하는 값은 54분이므로 120분을 빼줍니다.
+    //     if (diffMinutes >= 120) {
+    //       diffMinutes -= 120;
+    //     }
       
-        const hours = Math.floor(diffMinutes / 60);
-        const minutes = diffMinutes % 60;
-        return `${hours}시간 ${minutes}분`;
-      }
+    //     const hours = Math.floor(diffMinutes / 60);
+    //     const minutes = diffMinutes % 60;
+    //     return `${hours}시간 ${minutes}분`;
+    //   }
       
   
-      function getIljuTimeDifference(birthDate, mode) {
-        // birthDate: 태어난 시각 (Date 객체)
-        // mode: "순행" 또는 "역행"
-        let baseTime = new Date(birthDate);
+    //   function getIljuTimeDifference(birthDate, mode) {
+    //     // birthDate: 태어난 시각 (Date 객체)
+    //     // mode: "순행" 또는 "역행"
+    //     let baseTime = new Date(birthDate);
         
-        if (document.getElementById("jasi")?.checked) {
-          baseTime.setHours(23, 0);
-        } else if (document.getElementById("yajasi")?.checked) {
-          baseTime.setHours(0, 0);
-        } else if (document.getElementById("insi")?.checked) {
-          baseTime.setHours(3, 0);
-        }
+    //     if (document.getElementById("jasi")?.checked) {
+    //       baseTime.setHours(23, 0);
+    //     } else if (document.getElementById("yajasi")?.checked) {
+    //       baseTime.setHours(0, 0);
+    //     } else if (document.getElementById("insi")?.checked) {
+    //       baseTime.setHours(3, 0);
+    //     }
         
-        // 역행 모드에서, 보정 시각(birthDate)이 기준 시간보다 작을 경우에만
-        // 기준 시간이 전날로 설정되도록 합니다.
-        if (mode === "역행" && birthDate < baseTime) {
-          baseTime.setDate(baseTime.getDate() - 1);
-        }
-        // 순행 모드의 경우, 태어난 시간이 기준 시간보다 같거나 이후이면
-        // 기준 시간을 다음날로 설정(필요에 따라) -- 여기서는 역행만 처리합니다.
+    //     // 역행 모드에서, 보정 시각(birthDate)이 기준 시간보다 작을 경우에만
+    //     // 기준 시간이 전날로 설정되도록 합니다.
+    //     if (mode === "역행" && birthDate < baseTime) {
+    //       baseTime.setDate(baseTime.getDate() - 1);
+    //     }
+    //     // 순행 모드의 경우, 태어난 시간이 기준 시간보다 같거나 이후이면
+    //     // 기준 시간을 다음날로 설정(필요에 따라) -- 여기서는 역행만 처리합니다.
         
-        // 차이를 분 단위로 계산 (절대값)
-        const diffMinutes = Math.floor(Math.abs(birthDate - baseTime) / (60 * 1000));
-        const hours = Math.floor(diffMinutes / 60);
-        const minutes = diffMinutes % 60;
+    //     // 차이를 분 단위로 계산 (절대값)
+    //     const diffMinutes = Math.floor(Math.abs(birthDate - baseTime) / (60 * 1000));
+    //     const hours = Math.floor(diffMinutes / 60);
+    //     const minutes = diffMinutes % 60;
         
-        return `${hours}시간 ${minutes.toString().padStart(2, "0")}분`;
-      }
+    //     return `${hours}시간 ${minutes.toString().padStart(2, "0")}분`;
+    //   }
 
-      function findNearestSolarTerm(correctedDate, mode = "순행") {
-        const year = correctedDate.getFullYear();
-        // 올해 절기들 (Date 객체가 term.date 에 들어있다고 가정)
-        let terms = getSolarTermBoundaries(year);
+    //   function findNearestSolarTerm(correctedDate, mode = "순행") {
+    //     const year = correctedDate.getFullYear();
+    //     // 올해 절기들 (Date 객체가 term.date 에 들어있다고 가정)
+    //     let terms = getSolarTermBoundaries(year);
       
-        if (mode === "순행") {
-          // correctedDate 이후의 첫 절기
-          const next = terms.find(t => t.date > correctedDate);
-          if (next) return next;
-          // 없으면 내년 첫 절기
-          return getSolarTermBoundaries(year + 1)[0];
-        } else {
-          // 역행: correctedDate 이전(또는 같은 시각)의 마지막 절기
-          const prev = [...terms].reverse().find(t => t.date <= correctedDate);
-          if (prev) return prev;
-          // 없으면 작년 마지막 절기
-          const lastPrevYear = getSolarTermBoundaries(year - 1);
-          return lastPrevYear[lastPrevYear.length - 1];
-        }
-      }
+    //     if (mode === "순행") {
+    //       // correctedDate 이후의 첫 절기
+    //       const next = terms.find(t => t.date > correctedDate);
+    //       if (next) return next;
+    //       // 없으면 내년 첫 절기
+    //       return getSolarTermBoundaries(year + 1)[0];
+    //     } else {
+    //       // 역행: correctedDate 이전(또는 같은 시각)의 마지막 절기
+    //       const prev = [...terms].reverse().find(t => t.date <= correctedDate);
+    //       if (prev) return prev;
+    //       // 없으면 작년 마지막 절기
+    //       const lastPrevYear = getSolarTermBoundaries(year - 1);
+    //       return lastPrevYear[lastPrevYear.length - 1];
+    //     }
+    //   }
   
-      function getWoljuTimeDifference(correctedDate, mode = "순행") {
-        // 1) 기준 절기 자동 선택
-        const term = findNearestSolarTerm(correctedDate, mode);
+    //   function getWoljuTimeDifference(correctedDate, mode = "순행") {
+    //     // 1) 기준 절기 자동 선택
+    //     const term = findNearestSolarTerm(correctedDate, mode);
       
-        // 2) woljuBase: term.date 또는 전/후년 같은 절기
-        let woljuBase;
-        if (mode === "순행") {
-          woljuBase = (correctedDate < term.date)
-            ? term.date
-            : new Date(
-                correctedDate.getFullYear() + 1,
-                term.date.getMonth(), term.date.getDate(),
-                term.date.getHours(), term.date.getMinutes()
-              );
-        } else {
-          woljuBase = (correctedDate >= term.date)
-            ? term.date
-            : new Date(
-                correctedDate.getFullYear() - 1,
-                term.date.getMonth(), term.date.getDate(),
-                term.date.getHours(), term.date.getMinutes()
-              );
-        }
+    //     // 2) woljuBase: term.date 또는 전/후년 같은 절기
+    //     let woljuBase;
+    //     if (mode === "순행") {
+    //       woljuBase = (correctedDate < term.date)
+    //         ? term.date
+    //         : new Date(
+    //             correctedDate.getFullYear() + 1,
+    //             term.date.getMonth(), term.date.getDate(),
+    //             term.date.getHours(), term.date.getMinutes()
+    //           );
+    //     } else {
+    //       woljuBase = (correctedDate >= term.date)
+    //         ? term.date
+    //         : new Date(
+    //             correctedDate.getFullYear() - 1,
+    //             term.date.getMonth(), term.date.getDate(),
+    //             term.date.getHours(), term.date.getMinutes()
+    //           );
+    //     }
       
-        // 3) 시간 차 계산
-        const diffMs    = woljuBase - correctedDate;
-        const absMs     = Math.abs(diffMs);
-        const oneDayMs  = 24 * 60 * 60 * 1000;
+    //     // 3) 시간 차 계산
+    //     const diffMs    = woljuBase - correctedDate;
+    //     const absMs     = Math.abs(diffMs);
+    //     const oneDayMs  = 24 * 60 * 60 * 1000;
       
-        const diffDays  = Math.floor(absMs / oneDayMs);
-        const remMs     = absMs % oneDayMs;
-        const diffHrs   = Math.floor(remMs / (60 * 60 * 1000));
-        const remMs2    = remMs % (60 * 60 * 1000);
-        const diffMins  = Math.floor(remMs2 / (60 * 1000));
+    //     const diffDays  = Math.floor(absMs / oneDayMs);
+    //     const remMs     = absMs % oneDayMs;
+    //     const diffHrs   = Math.floor(remMs / (60 * 60 * 1000));
+    //     const remMs2    = remMs % (60 * 60 * 1000);
+    //     const diffMins  = Math.floor(remMs2 / (60 * 1000));
       
-        return `${diffDays}일 ${diffHrs}시간 ${diffMins.toString().padStart(2, "0")}분`;
-      }
+    //     return `${diffDays}일 ${diffHrs}시간 ${diffMins.toString().padStart(2, "0")}분`;
+    //   }
 
-      function getYeonjuTimeDifference(corrected, mode) {
-        // corrected: 보정 시각 (Date 객체)
-        // mode: "순행" 또는 "역행"
+    //   function getYeonjuTimeDifference(corrected, mode) {
+    //     // corrected: 보정 시각 (Date 객체)
+    //     // mode: "순행" 또는 "역행"
         
-        // 이 함수에서는 현재 보정 시각의 연도에 해당하는 입춘(태양절기, solarDegree 315)을 기준으로 targetIpchun을 결정합니다.
-        const thisYearIpchun = findSolarTermDate(corrected.getFullYear(), 315);
-        let targetIpchun;
-        if (mode === "순행") {
-          // 순행: 보정 시각이 이번 해의 입춘보다 이전이면 이번 해의 입춘, 그렇지 않으면 다음 해의 입춘
-          targetIpchun = (corrected < thisYearIpchun)
-            ? thisYearIpchun
-            : findSolarTermDate(corrected.getFullYear() + 1, 315);
-        } else {
-          // 역행: 보정 시각이 이번 해의 입춘보다 이전이면 지난 해의 입춘, 그렇지 않으면 이번 해의 입춘
-          targetIpchun = (corrected < thisYearIpchun)
-            ? findSolarTermDate(corrected.getFullYear() - 1, 315)
-            : thisYearIpchun;
-        }
+    //     // 이 함수에서는 현재 보정 시각의 연도에 해당하는 입춘(태양절기, solarDegree 315)을 기준으로 targetIpchun을 결정합니다.
+    //     const thisYearIpchun = findSolarTermDate(corrected.getFullYear(), 315);
+    //     let targetIpchun;
+    //     if (mode === "순행") {
+    //       // 순행: 보정 시각이 이번 해의 입춘보다 이전이면 이번 해의 입춘, 그렇지 않으면 다음 해의 입춘
+    //       targetIpchun = (corrected < thisYearIpchun)
+    //         ? thisYearIpchun
+    //         : findSolarTermDate(corrected.getFullYear() + 1, 315);
+    //     } else {
+    //       // 역행: 보정 시각이 이번 해의 입춘보다 이전이면 지난 해의 입춘, 그렇지 않으면 이번 해의 입춘
+    //       targetIpchun = (corrected < thisYearIpchun)
+    //         ? findSolarTermDate(corrected.getFullYear() - 1, 315)
+    //         : thisYearIpchun;
+    //     }
         
-        // targetIpchun과 보정 시각 사이의 차이를 밀리초 단위로 구합니다.
-        const diffMs = Math.abs(targetIpchun - corrected);
-        const oneDayMs = 24 * 60 * 60 * 1000;
+    //     // targetIpchun과 보정 시각 사이의 차이를 밀리초 단위로 구합니다.
+    //     const diffMs = Math.abs(targetIpchun - corrected);
+    //     const oneDayMs = 24 * 60 * 60 * 1000;
         
-        // 일(day) 단위, 시간(hour) 단위, 분(minute) 단위로 계산합니다.
-        const days = Math.floor(diffMs / oneDayMs);
-        const remainderMs = diffMs % oneDayMs;
-        const hours = Math.floor(remainderMs / (60 * 60 * 1000));
-        const remainderMs2 = remainderMs % (60 * 60 * 1000);
-        const minutes = Math.floor(remainderMs2 / (60 * 1000));
+    //     // 일(day) 단위, 시간(hour) 단위, 분(minute) 단위로 계산합니다.
+    //     const days = Math.floor(diffMs / oneDayMs);
+    //     const remainderMs = diffMs % oneDayMs;
+    //     const hours = Math.floor(remainderMs / (60 * 60 * 1000));
+    //     const remainderMs2 = remainderMs % (60 * 60 * 1000);
+    //     const minutes = Math.floor(remainderMs2 / (60 * 1000));
         
-        return `${days}일 ${hours}시간 ${minutes.toString().padStart(2, "0")}분`;
-      }
+    //     return `${days}일 ${hours}시간 ${minutes.toString().padStart(2, "0")}분`;
+    //   }
       
     
-      const ul = document.getElementById("explanDetail");
-      const pickerValue = isCoupleMode ? getCurrentPicker2().value : getCurrentPicker().value;
+    //   const ul = document.getElementById("explanDetail");
+    //   const pickerValue = isCoupleMode ? getCurrentPicker2().value : getCurrentPicker().value;
 
-      function formatDateTime(date) {
-        const y = date.getFullYear();
-        const m = (date.getMonth() + 1).toString().padStart(2, "0");
-        const d = date.getDate().toString().padStart(2, "0");
-        const hh = date.getHours().toString().padStart(2, "0");
-        const mm = date.getMinutes().toString().padStart(2, "0");
-        return `${y}-${m}-${d} ${hh}:${mm}`;
-      }
+    //   function formatDateTime(date) {
+    //     const y = date.getFullYear();
+    //     const m = (date.getMonth() + 1).toString().padStart(2, "0");
+    //     const d = date.getDate().toString().padStart(2, "0");
+    //     const hh = date.getHours().toString().padStart(2, "0");
+    //     const mm = date.getMinutes().toString().padStart(2, "0");
+    //     return `${y}-${m}-${d} ${hh}:${mm}`;
+    //   }
       
-      function formatDateOnly(date) {
-        const y = date.getFullYear();
-        const m = (date.getMonth() + 1).toString().padStart(2, "0");
-        const d = date.getDate().toString().padStart(2, "0");
-        return `${y}.${m}.${d}`;
-      }
+    //   function formatDateOnly(date) {
+    //     const y = date.getFullYear();
+    //     const m = (date.getMonth() + 1).toString().padStart(2, "0");
+    //     const d = date.getDate().toString().padStart(2, "0");
+    //     return `${y}.${m}.${d}`;
+    //   }
 
-      function formatMonthOnly(date) {
-        const y = date.getFullYear();
-        const m = (date.getMonth() + 1).toString().padStart(2, "0");
-        return `${y}.${m}`;
-      }
+    //   function formatMonthOnly(date) {
+    //     const y = date.getFullYear();
+    //     const m = (date.getMonth() + 1).toString().padStart(2, "0");
+    //     return `${y}.${m}`;
+    //   }
 
-      function formatByTimeKnown(date) {
-        if (isPickerVer3) {
-          return formatMonthOnly(date);
-        } else if (isTimeUnknown || isPickerVer2) {
-          return formatDateOnly(date);
-        } else {
-          return formatDateTime(date);
-        }
-      }
+    //   function formatByTimeKnown(date) {
+    //     if (isPickerVer3) {
+    //       return formatMonthOnly(date);
+    //     } else if (isTimeUnknown || isPickerVer2) {
+    //       return formatDateOnly(date);
+    //     } else {
+    //       return formatDateTime(date);
+    //     }
+    //   }
 
-      let html = "";
+    //   let html = "";
 
-      html += `
-      <li>계산시각 : ${formatByTimeKnown(new Date(pickerValue))}<br>출생(보정)시각 : ${formatDateTime(correctedDate)}</li>
-      `;
+    //   html += `
+    //   <li>계산시각 : ${formatByTimeKnown(new Date(pickerValue))}<br>출생(보정)시각 : ${formatDateTime(correctedDate)}</li>
+    //   `;
     
-      if (!isTimeUnknown) {
-        if (isPickerVer3) {
-          html += `
-            <li>
-              <div class="pillar_title"><strong>시주</strong> </div>
-              (측정 일자와 시간이 없어 구할 수 없습니다.)
-            </li>
-          `;
-          html += `
-            <li>
-              <div class="pillar_title"><strong>일주</strong></div>
-              원국 일주 간지: <b>${dayPillar}</b><br>
-              보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b><br>
-              보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(adjustedIljuTime)}</b><br>
-              다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalIljuTime)}</b><br>
-              동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newIljuFirst, iljuCycle, refDate)}</b><br>
-              최종 업데이트 이벤트 간지: <b>${myowoonResult.iljuEvent.ganji}</b><br>
-              방향: <b>${iljuMode}</b><br><br>
-              묘운 일주의 기간은 하루(24시간)를 120년의 평균 4개월, 즉 약 <b>${expectedIljuOffset.toFixed(4)}</b>일로 치환합니다. <br>
-              예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
-              <b>${iljuMode}</b> 방향으로 계산이 됩니다.<br>
-              일주부터는 라디오 버튼 설정에 따라 결정된 기준 시간이 적용됩니다. (현재 <b>${timeLabel}</b>적용 중)<br>
-              하루가 바뀌기까지의 시간인, <b>${getIljuTimeDifference(correctedDate, iljuMode)} / 24시간</b>을 똑같이 치환한다면, 
-              실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualIljuOffset.toFixed(4)}일 / ${expectedIljuOffset.toFixed(4)}일</b>로 치환하고, <br>         
-              보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b>로 산출됩니다. <br>
-              그 다음부터는 <b>${expectedIljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${iljuMode}</b> 진행됩니다.<br>
-              최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedIljuTime)}에 (${myowoonResult.iljuEvent.ganji})</b>로 변경되었습니다.
-            </li>
-          `;
-         } else {
-          html += `
-              <li>
-                <div class="pillar_title"><strong>시주</strong></div>
-                원국 시주 간지: <b>${hourPillar}</b><br>
-                보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newSijuFirst)}</b><br>
-                보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(adjustedSijuTime)}</b><br>
-                다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalSijuTime)}</b><br>
-                동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newSijuFirst, sijuCycle, refDate)}</b><br>
-                최종 업데이트 이벤트 간지: <b>${myowoonResult.sijuEvent.ganji}</b><br>
-                방향: <b>${sijuMode}</b><br><br>
-                묘운 시주의 기간은 2시간을 10일로 치환합니다. <br>
-                예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
-                <b>${sijuMode}</b> 방향으로 계산이 됩니다. <br>
-                간지가 바뀌기까지의 시간인, <b>${getSijuTimeDifference(correctedDate, sijuMode)} / 2시간</b>을<br>
-                실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${formatOffset(actualSijuOffset)} / 10일</b>일로 치환하고, <br>
-                보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newSijuFirst)}</b>로 산출됩니다. <br>           
-                그 다음부터는 <b>10일</b>의 간격으로 <b>${sijuMode}</b>이 계속 진행됩니다. <br>
-                최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedSijuTime)}에 (${myowoonResult.sijuEvent.ganji})</b>로 변경되었습니다.
-              </li>
-            `;
+    //   if (!isTimeUnknown) {
+    //     if (isPickerVer3) {
+    //       html += `
+    //         <li>
+    //           <div class="pillar_title"><strong>시주</strong> </div>
+    //           (측정 일자와 시간이 없어 구할 수 없습니다.)
+    //         </li>
+    //       `;
+    //       html += `
+    //         <li>
+    //           <div class="pillar_title"><strong>일주</strong></div>
+    //           원국 일주 간지: <b>${dayPillar}</b><br>
+    //           보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b><br>
+    //           보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(adjustedIljuTime)}</b><br>
+    //           다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalIljuTime)}</b><br>
+    //           동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newIljuFirst, iljuCycle, refDate)}</b><br>
+    //           최종 업데이트 이벤트 간지: <b>${myowoonResult.iljuEvent.ganji}</b><br>
+    //           방향: <b>${iljuMode}</b><br><br>
+    //           묘운 일주의 기간은 하루(24시간)를 120년의 평균 4개월, 즉 약 <b>${expectedIljuOffset.toFixed(4)}</b>일로 치환합니다. <br>
+    //           예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+    //           <b>${iljuMode}</b> 방향으로 계산이 됩니다.<br>
+    //           일주부터는 라디오 버튼 설정에 따라 결정된 기준 시간이 적용됩니다. (현재 <b>${timeLabel}</b>적용 중)<br>
+    //           하루가 바뀌기까지의 시간인, <b>${getIljuTimeDifference(correctedDate, iljuMode)} / 24시간</b>을 똑같이 치환한다면, 
+    //           실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualIljuOffset.toFixed(4)}일 / ${expectedIljuOffset.toFixed(4)}일</b>로 치환하고, <br>         
+    //           보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b>로 산출됩니다. <br>
+    //           그 다음부터는 <b>${expectedIljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${iljuMode}</b> 진행됩니다.<br>
+    //           최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedIljuTime)}에 (${myowoonResult.iljuEvent.ganji})</b>로 변경되었습니다.
+    //         </li>
+    //       `;
+    //      } else {
+    //       html += `
+    //           <li>
+    //             <div class="pillar_title"><strong>시주</strong></div>
+    //             원국 시주 간지: <b>${hourPillar}</b><br>
+    //             보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newSijuFirst)}</b><br>
+    //             보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(adjustedSijuTime)}</b><br>
+    //             다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalSijuTime)}</b><br>
+    //             동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newSijuFirst, sijuCycle, refDate)}</b><br>
+    //             최종 업데이트 이벤트 간지: <b>${myowoonResult.sijuEvent.ganji}</b><br>
+    //             방향: <b>${sijuMode}</b><br><br>
+    //             묘운 시주의 기간은 2시간을 10일로 치환합니다. <br>
+    //             예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+    //             <b>${sijuMode}</b> 방향으로 계산이 됩니다. <br>
+    //             간지가 바뀌기까지의 시간인, <b>${getSijuTimeDifference(correctedDate, sijuMode)} / 2시간</b>을<br>
+    //             실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${formatOffset(actualSijuOffset)} / 10일</b>일로 치환하고, <br>
+    //             보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newSijuFirst)}</b>로 산출됩니다. <br>           
+    //             그 다음부터는 <b>10일</b>의 간격으로 <b>${sijuMode}</b>이 계속 진행됩니다. <br>
+    //             최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedSijuTime)}에 (${myowoonResult.sijuEvent.ganji})</b>로 변경되었습니다.
+    //           </li>
+    //         `;
           
         
-          // ----- 일주 설명 -----
-          html += `
-            <li>
-              <div class="pillar_title"><strong>일주</strong></div>
-              원국 일주 간지: <b>${dayPillar}</b><br>
-              보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b><br>
-              보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(adjustedIljuTime)}</b><br>
-              다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalIljuTime)}</b><br>
-              동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newIljuFirst, iljuCycle, refDate)}</b><br>
-              최종 업데이트 이벤트 간지: <b>${myowoonResult.iljuEvent.ganji}</b><br>
-              방향: <b>${iljuMode}</b><br><br>
-              묘운 일주의 기간은 하루(24시간)를 120년의 평균 4개월, 즉 약 <b>${expectedIljuOffset.toFixed(4)}</b>일로 치환합니다. <br>
-              예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
-              <b>${iljuMode}</b> 방향으로 계산이 됩니다.<br>
-              일주부터는 라디오 버튼 설정에 따라 결정된 기준 시간이 적용됩니다. (현재 <b>${timeLabel}</b>적용 중)<br>
-              하루가 바뀌기까지의 시간인, <b>${getIljuTimeDifference(correctedDate, iljuMode)} / 24시간</b>을 똑같이 치환한다면, 
-              실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualIljuOffset.toFixed(4)}일 / ${expectedIljuOffset.toFixed(4)}일</b>로 치환하고, <br>         
-              보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b>로 산출됩니다. <br>
-              그 다음부터는 <b>${expectedIljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${iljuMode}</b> 진행됩니다.<br>
-              최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedIljuTime)}에 (${myowoonResult.iljuEvent.ganji})</b>로 변경되었습니다.
-            </li>
-          `;
-         }
-     } else {
-      html += `
-        <li>
-          <div class="pillar_title"><strong>시주</strong> </div>
-          (시간이 없어 구할 수 없습니다.)
-        </li>
-        <li>
-          <div class="pillar_title"><strong>일주</strong> </div>
-          (시간이 없어 구할 수 없습니다.)
-        </li>
-      `
-     } 
+    //       // ----- 일주 설명 -----
+    //       html += `
+    //         <li>
+    //           <div class="pillar_title"><strong>일주</strong></div>
+    //           원국 일주 간지: <b>${dayPillar}</b><br>
+    //           보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b><br>
+    //           보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(adjustedIljuTime)}</b><br>
+    //           다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalIljuTime)}</b><br>
+    //           동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newIljuFirst, iljuCycle, refDate)}</b><br>
+    //           최종 업데이트 이벤트 간지: <b>${myowoonResult.iljuEvent.ganji}</b><br>
+    //           방향: <b>${iljuMode}</b><br><br>
+    //           묘운 일주의 기간은 하루(24시간)를 120년의 평균 4개월, 즉 약 <b>${expectedIljuOffset.toFixed(4)}</b>일로 치환합니다. <br>
+    //           예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+    //           <b>${iljuMode}</b> 방향으로 계산이 됩니다.<br>
+    //           일주부터는 라디오 버튼 설정에 따라 결정된 기준 시간이 적용됩니다. (현재 <b>${timeLabel}</b>적용 중)<br>
+    //           하루가 바뀌기까지의 시간인, <b>${getIljuTimeDifference(correctedDate, iljuMode)} / 24시간</b>을 똑같이 치환한다면, 
+    //           실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualIljuOffset.toFixed(4)}일 / ${expectedIljuOffset.toFixed(4)}일</b>로 치환하고, <br>         
+    //           보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newIljuFirst)}</b>로 산출됩니다. <br>
+    //           그 다음부터는 <b>${expectedIljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${iljuMode}</b> 진행됩니다.<br>
+    //           최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedIljuTime)}에 (${myowoonResult.iljuEvent.ganji})</b>로 변경되었습니다.
+    //         </li>
+    //       `;
+    //      }
+    //  } else {
+    //   html += `
+    //     <li>
+    //       <div class="pillar_title"><strong>시주</strong> </div>
+    //       (시간이 없어 구할 수 없습니다.)
+    //     </li>
+    //     <li>
+    //       <div class="pillar_title"><strong>일주</strong> </div>
+    //       (시간이 없어 구할 수 없습니다.)
+    //     </li>
+    //   `
+    //  } 
      
      
-      // ----- 월주 설명 -----
-      html += `
-        <li>
-          <div class="pillar_title"><strong>월주</strong></div>
-          ${isTimeUnknown ? '(시간이 없어 계산이 정확하지 않습니다.)' : ''}<br>
-          원국 월주 간지: <b>${monthPillar}</b><br>
-          보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newWoljuFirst)}</b><br>
-          보정 후 오늘까지 마지막으로 바뀐 시간: <b>
-          ${ myowoonResult.dynamicSteps.wolju == 0 
-            ? `변경없음` 
-            : `${formatByTimeKnown(adjustedWoljuTime)}` }
-          </b><br>
-          다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalWoljuTime)}</b><br>
-          동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newWoljuFirst, woljuCycle, refDate)}</b><br>
-          최종 업데이트 이벤트 간지: <b>${myowoonResult.woljuEvent.ganji}</b><br>
-          방향: <b>${woljuMode}</b><br><br>
-          묘운 월주의 기간은 120년의 한달을 평균 10년으로, 즉 약 <b>${expectedWoljuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
-          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
-          <b>${woljuMode}</b> 방향으로 계산됩니다. <br>
+    //   // ----- 월주 설명 -----
+    //   html += `
+    //     <li>
+    //       <div class="pillar_title"><strong>월주</strong></div>
+    //       ${isTimeUnknown ? '(시간이 없어 계산이 정확하지 않습니다.)' : ''}<br>
+    //       원국 월주 간지: <b>${monthPillar}</b><br>
+    //       보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newWoljuFirst)}</b><br>
+    //       보정 후 오늘까지 마지막으로 바뀐 시간: <b>
+    //       ${ myowoonResult.dynamicSteps.wolju == 0 
+    //         ? `변경없음` 
+    //         : `${formatByTimeKnown(adjustedWoljuTime)}` }
+    //       </b><br>
+    //       다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalWoljuTime)}</b><br>
+    //       동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newWoljuFirst, woljuCycle, refDate)}</b><br>
+    //       최종 업데이트 이벤트 간지: <b>${myowoonResult.woljuEvent.ganji}</b><br>
+    //       방향: <b>${woljuMode}</b><br><br>
+    //       묘운 월주의 기간은 120년의 한달을 평균 10년으로, 즉 약 <b>${expectedWoljuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
+    //       예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+    //       <b>${woljuMode}</b> 방향으로 계산됩니다. <br>
           
-          <b>${getWoljuTimeDifference(correctedDate, woljuMode)} / 한달 (약 30.4일)</b>을 똑같이 치환한다면,<br>
-          실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualWoljuOffset.toFixed(4)}일 / ${expectedWoljuOffset.toFixed(4)}일</b>로 되며, <br>
-          보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newWoljuFirst)}일</b>로 산출됩니다. <br>
-          그 다음부터는 <b>${expectedWoljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${woljuMode}</b> 진행됩니다.<br>
-          ${ myowoonResult.dynamicSteps.wolju == 0 
-            ? `따라서, 변화가 한 번도 발생하지 않아 최초 후보 시각과 최종 후보 시각은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.wolju)}일</b>로 동일합니다.` 
-            : `최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedWoljuTime)} (${myowoonResult.woljuEvent.ganji})월</b>로 변경되었습니다.` }<br>
-          ${ myowoonResult.dynamicSteps.wolju == 0 
-            ? `최초 간지 전환 시점은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.wolju)}</b>입니다.` 
-            : `최초 간지 전환 시점은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.wolju)}</b>입니다.` }
-        </li>
-      `;
+    //       <b>${getWoljuTimeDifference(correctedDate, woljuMode)} / 한달 (약 30.4일)</b>을 똑같이 치환한다면,<br>
+    //       실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualWoljuOffset.toFixed(4)}일 / ${expectedWoljuOffset.toFixed(4)}일</b>로 되며, <br>
+    //       보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newWoljuFirst)}일</b>로 산출됩니다. <br>
+    //       그 다음부터는 <b>${expectedWoljuOffset.toFixed(4)}</b>일의 간격으로 계속 <b>${woljuMode}</b> 진행됩니다.<br>
+    //       ${ myowoonResult.dynamicSteps.wolju == 0 
+    //         ? `따라서, 변화가 한 번도 발생하지 않아 최초 후보 시각과 최종 후보 시각은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.wolju)}일</b>로 동일합니다.` 
+    //         : `최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedWoljuTime)} (${myowoonResult.woljuEvent.ganji})월</b>로 변경되었습니다.` }<br>
+    //       ${ myowoonResult.dynamicSteps.wolju == 0 
+    //         ? `최초 간지 전환 시점은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.wolju)}</b>입니다.` 
+    //         : `최초 간지 전환 시점은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.wolju)}</b>입니다.` }
+    //     </li>
+    //   `;
 
-      // ----- 연주 설명 -----
-      html += `
-        <li>
-          <div class="pillar_title"><strong>연주</strong></div>
-          ${isTimeUnknown ? '(시간이 없어 계산이 정확하지 않습니다.)' : ''}<br>
-          원국 연주 간지: <b>${yearPillar}</b><br>
-          보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newYeonjuFirst)}</b><br>
-          보정 후 오늘까지 마지막으로 바뀐 시간: <b>
-          ${ myowoonResult.dynamicSteps.yeonju == 0 
-            ? `변경없음` 
-            : `${formatByTimeKnown(adjustedYeonjuTime)}` }
-          </b><br>
-          다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalYeonjuTime)}</b><br>
-          동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newYeonjuFirst, yeonjuCycle, refDate)}</b><br>
-          최종 업데이트 이벤트 간지: <b>${myowoonResult.yeonjuEvent.ganji}</b><br>
-          방향: <b>${yeonjuMode}</b><br><br>
-          묘운 연주의 기간은 120년으로, 즉 약 <b>${expectedYeonjuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
-          예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
-          <b>${yeonjuMode}</b> 방향으로 계산합니다. <br>
-          1년이 바뀌기까지의 시간인 <b>${getYeonjuTimeDifference(correctedDate, yeonjuMode)} / 1년</b>을 똑같이 치환한다면,<br>
-          실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualYeonjuOffset.toFixed(4)}일 / ${expectedYeonjuOffset.toFixed(4)}일</b>로 되며, <br>
-          보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newYeonjuFirst)}일</b>로 산출됩니다. <br>
-          그 다음부터는 <b>${expectedYeonjuOffset.toFixed(4)}일</b>의 간격으로 계속 <b>${yeonjuMode}</b> 진행됩니다.<br>
+    //   // ----- 연주 설명 -----
+    //   html += `
+    //     <li>
+    //       <div class="pillar_title"><strong>연주</strong></div>
+    //       ${isTimeUnknown ? '(시간이 없어 계산이 정확하지 않습니다.)' : ''}<br>
+    //       원국 연주 간지: <b>${yearPillar}</b><br>
+    //       보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.newYeonjuFirst)}</b><br>
+    //       보정 후 오늘까지 마지막으로 바뀐 시간: <b>
+    //       ${ myowoonResult.dynamicSteps.yeonju == 0 
+    //         ? `변경없음` 
+    //         : `${formatByTimeKnown(adjustedYeonjuTime)}` }
+    //       </b><br>
+    //       다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(finalYeonjuTime)}</b><br>
+    //       동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.newYeonjuFirst, yeonjuCycle, refDate)}</b><br>
+    //       최종 업데이트 이벤트 간지: <b>${myowoonResult.yeonjuEvent.ganji}</b><br>
+    //       방향: <b>${yeonjuMode}</b><br><br>
+    //       묘운 연주의 기간은 120년으로, 즉 약 <b>${expectedYeonjuOffset.toFixed(4)}</b>일로 치환됩니다. <br>
+    //       예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+    //       <b>${yeonjuMode}</b> 방향으로 계산합니다. <br>
+    //       1년이 바뀌기까지의 시간인 <b>${getYeonjuTimeDifference(correctedDate, yeonjuMode)} / 1년</b>을 똑같이 치환한다면,<br>
+    //       실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${actualYeonjuOffset.toFixed(4)}일 / ${expectedYeonjuOffset.toFixed(4)}일</b>로 되며, <br>
+    //       보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.newYeonjuFirst)}일</b>로 산출됩니다. <br>
+    //       그 다음부터는 <b>${expectedYeonjuOffset.toFixed(4)}일</b>의 간격으로 계속 <b>${yeonjuMode}</b> 진행됩니다.<br>
             
-          ${ myowoonResult.dynamicSteps.yeonju == 0 
-            ? `따라서, 변화가 한 번도 발생하지 않아 최초 후보 시각과 최종 후보 시각은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.yeonju)}</b>일로 동일합니다.` 
-            : `최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedYeonjuTime)} (${myowoonResult.yeonjuEvent.ganji})</b>일로 변경되었습니다.` }<br>
-          ${ myowoonResult.dynamicSteps.yeonju == 0 
-            ? `최초 간지 전환 시점은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.yeonju)}일</b>입니다.` 
-            : `최초 간지 전환 시점은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.yeonju)}일</b>입니다.` }
-        </li>
-      `;
+    //       ${ myowoonResult.dynamicSteps.yeonju == 0 
+    //         ? `따라서, 변화가 한 번도 발생하지 않아 최초 후보 시각과 최종 후보 시각은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.yeonju)}</b>일로 동일합니다.` 
+    //         : `최종적으로 다 더했을 때 마지막으로 간지가 바뀐 시간은 <b>${formatByTimeKnown(adjustedYeonjuTime)} (${myowoonResult.yeonjuEvent.ganji})</b>일로 변경되었습니다.` }<br>
+    //       ${ myowoonResult.dynamicSteps.yeonju == 0 
+    //         ? `최초 간지 전환 시점은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.yeonju)}일</b>입니다.` 
+    //         : `최초 간지 전환 시점은 <b>${formatByTimeKnown(myowoonResult.candidateTimes.yeonju)}일</b>입니다.` }
+    //     </li>
+    //   `;
     
       
-      ul.innerHTML = html;
-    }
-    updateExplanDetail(myowoonResult, refDate);
+    //   ul.innerHTML = html;
+    // }
+    // updateExplanDetail(myowoonResult, refDate);
 
     function getDaySplit(dateObj) {
       // (1) 예: getDayGanZhi(dateObj)가 "경자" 같은 문자열을 리턴한다고 가정
@@ -4937,7 +4991,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateDayWoon(refDate);
       
       // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
-      const myowoonResult = getMyounPillars(myData, refDate);
+      myowoonResult = getMyounPillars(myData, refDate);
       updateMyowoonSection(myowoonResult);
     }
 
@@ -5099,7 +5153,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // 3) 세운 리스트도 다시 그림
       updateSewoonItem(refDate);  // (이미 구현돼 있다고 가정)
       // 3-1) 세운 중 올해(or refDate) 항목에 .active 주기
-      const computedYear = /* 세운이 시작되는 연도 + index 계산 로직 */ globalState.sewoonStartYear;
+      const computedYear = globalState.sewoonStartYear;
       // -> 혹은, 올해(=refDate.getFullYear())와 비교해도 됨
 
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
@@ -5160,22 +5214,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
-      const newResult = getMyounPillars(myData, refDate);
-      updateExplanDetail(newResult, refDate);
-
-
-
-      // 타임라인 업데이트 (콘솔 출력) — refDate를 인자로 추가하고 반환값을 저장
-      // const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", refDate);
-      // const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", refDate);
-      // const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", refDate);
-      // const yeonjuTimeline= generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", refDate);
-    
-      // logTimelineWindow("시주", sijuTimeline);
-      // logTimelineWindow("일주", iljuTimeline);
-      // logTimelineWindow("월주", woljuTimeline);
-      // logTimelineWindow("연주", yeonjuTimeline);
     });
 
     const pickerIds = [
@@ -5340,7 +5378,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const myRes = getMyounPillars(myData, corr);
       updateMyowoonSection(myRes);
-      updateExplanDetail(myRes, corr);
+      //updateExplanDetail(myRes, corr);
 
       
       const useInsiMode = document.getElementById('insi').checked;
@@ -5364,11 +5402,11 @@ document.addEventListener("DOMContentLoaded", function () {
       renderSijuButtons();
     }
 
-    // 라디오 변경 이벤트 리스너 내부
     document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
       radio.addEventListener("change", function() {
         // 결과창과 계산용 라디오 동기화
-        const selectedValue = document.querySelector('input[name="timeChk02"]:checked').value;
+        const selectedValue = this.value;
+        console.clear();
         const calcRadio = document.querySelector('input[name="time2"][value="' + selectedValue + '"]');
         if (calcRadio) {
           calcRadio.checked = true;
@@ -5386,22 +5424,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (branchName === "자" || branchName === "축") {
           radioFunc(radioDate);
         }
-        updateFunc(radioDate);
+        updateFunc(rawRefDate);
         setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
-          const newResult = getMyounPillars(myData, radioDate);
-          updateExplanDetail(newResult);
+          const newResult = getMyounPillars(myData, rawRefDate, selectedValue);
+          //updateExplanDetail(newResult);
           updateMyowoonSection(newResult);
 
-          // 타임라인 업데이트 (필요 시)
-          // const sijuTimeline  = generateTimeline(sijuFirstTimelineEvent, sijuCycle, sijuMode, "시주", radioDate);
-          // const iljuTimeline  = generateTimeline(iljuFirstTimelineEvent, iljuCycle, iljuMode, "일주", radioDate);
-          // const woljuTimeline = generateTimeline(woljuFirstTimelineEvent, woljuCycle, woljuMode, "월주", radioDate);
-          // const yeonjuTimeline = generateTimeline(yeonjuFirstTimelineEvent, yeonjuCycle, yeonjuMode, "연주", radioDate);
-          // logTimelineWindow("시주", sijuTimeline);
-          // logTimelineWindow("일주", iljuTimeline);
-          // logTimelineWindow("월주", woljuTimeline);
-          // logTimelineWindow("연주", yeonjuTimeline);
         });
         if (globalState.originalTimeUnknown) {  
           requestAnimationFrame(function(){
@@ -5411,6 +5440,8 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });    
 
+    // 라디오 변경 이벤트 리스너 내부
+    
   });
 
   const favCheckbox = document.getElementById('topPs');
@@ -5440,12 +5471,14 @@ document.addEventListener("DOMContentLoaded", function () {
       hourPillar: selected.hourPillar,
       age: selected.age,
       birthdayTime: selected.birthdayTime,
-      correctedDate: selected.correctedDate,
       lunarBirthday: selected.lunarBirthday,
       isTimeUnknown: selected.isTimeUnknown,
       isPlaceUnknown: selected.isPlaceUnknown,
       selectedTime2: selected.selectedTime2 || "",
       group: selected.group,
+      birthPlaceFull: selected.birthPlaceFull,
+      birthPlaceLongitude: selected.cityLon,
+      correctedDate: selected.fixedCorrectedDate,
       //createdAt: selected.Date.now()
       
     };
@@ -5536,9 +5569,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     ensureGroupOption(selected.group);
     document.getElementById("inputMeGroup").value = selected.group || "미선택";
-    //updateMeGroupOption(selected.group);   // ← 여기서 selected를 넘겨줍니다
+    updateMeGroupOption(selected.group);   // ← 여기서 selected를 넘겨줍니다
 
     setTimeout(() => {
+      getMyounPillarsVr;
       updateMyowoonSectionVr;
     }, 10);
 
@@ -5587,6 +5621,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const birthPlaceInput = document.getElementById("inputBirthPlace").value;
     const name = document.getElementById("inputName").value.trim() || "이름없음";
     const selectedTime2 = document.querySelector('input[name="time2"]:checked')?.value || "";
+    const birthPlaceFull = document.getElementById("inputBirthPlace").value || "";
+    const cityLon =
+      cityLongitudes[birthPlaceFull] || cityLongitudes[birthPlaceFull.split(' ')[0]] || null;
 
     // monthType: "양력", "음력", "음력(윤달)" 등의 값이 있어야 함
     const monthType = document.getElementById("monthType").value;
@@ -5662,7 +5699,7 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem('customGroups', JSON.stringify(customGroups));
     }
 
-    localStorage.setItem('correctedDate', correctedDate.toISOString());
+    localStorage.setItem("fixedCorrectedDate", fixedCorrectedDate.toISOString());
 
     return {
       birthday: birthday,
@@ -5682,14 +5719,16 @@ document.addEventListener("DOMContentLoaded", function () {
       hourPillar: isTimeUnknown ? "-" : (pillars[3] || ""),
       age: age,
       birthdayTime: birthdayTime ? formatTime(correctedDate) : "",
-      correctedDate: correctedDate,
       lunarBirthday: lunarBirthday,
       isTimeUnknown: isTimeUnknown,
       isPlaceUnknown: isPlaceUnknown,
       selectedTime2: selectedTime2,
       group: groupVal,       
       createdAt: Date.now(),
-      isFavorite : false
+      isFavorite : false,
+      birthPlaceFull,
+      birthPlaceLongitude: cityLon,
+      correctedDate: correctedDate.toISOString(),
     };
   }
 
@@ -5909,5 +5948,14 @@ document.addEventListener("DOMContentLoaded", function () {
     applyState(checkbox.checked);
   });
 
+  Object.defineProperty(window, 'correctedDate', {
+    set(val) {
+      console.warn("⚠️ correctedDate 변경됨:", val.toISOString());
+      this._correctedDate = val;
+    },
+    get() {
+      return this._correctedDate;
+    }
+  });
   
 });

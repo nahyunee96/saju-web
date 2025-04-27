@@ -35,23 +35,30 @@
       display:flex; flex-direction:column;
     }
     #closeMap {
+      position: absolute;
+      right: 0;
+      top: 0;
       align-self:flex-end;
-      margin:8px;
       background:#353535; color: #fff;
-      border:none; padding:4px 8px;
+      border:none; height: 40px;
       border-radius:4px; cursor:pointer;
+      padding: 0 20px;
     }
     #searchBox {
-      margin:0 8px 4px;
-      padding:8px;
+      height: 40px;
       font-size:16px;
       border:1px solid #ccc;
       border-radius:4px;
       width: calc(100% - 16px);
       outline: none;
+      padding: 0 10px;
     }
     .Rel {
-      position: relative;
+      position: absolute;
+      top: 2.4%;
+      left: 50%;
+      width: 90%;
+      transform: translateX(-50%);
       z-index: 1002;
     }
     #suggestions {
@@ -74,6 +81,13 @@
     }
     #map { flex:1; }
 
+    .leaflet-left .leaflet-control {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1001;
+    }
+
     @media screen and (max-width: 991px) {
       #searchBox,
       #closeMap,
@@ -90,9 +104,10 @@
     <!-- 지도 모달 -->
     <div id="mapModal">
       <div id="mapContainer">
-        <button id="closeMap">닫기 ✕</button>
+        
         <div class="Rel">
           <input id="searchBox" placeholder="도시나 지명 입력을 정확히 입력해주세요." autocomplete="off"/>
+          <button id="closeMap">선택하기</button>
           <ul id="suggestions"></ul>
         </div>
         <div id="map"></div>
@@ -134,7 +149,7 @@
               <button class="black_btn search_btn" id="searchBtn">검색</button>
             </form>
             <select name="align_type" id="alignType">
-              <option value="정렬" style="display: none;">정렬</option>
+              <option value="정렬">정렬</option>
               <option value="관계순">관계순</option>
               <option value="관계역순">관계역순</option>
               <option value="나이순">나이순</option>
@@ -395,7 +410,7 @@
               </span>
             </div>
           </div>
-          <div class="input_group" style="display: none;">
+          <div class="input_group">
             <label for="inputMeGroup">관계 <span>* 필수체크사항은 아니며, 미선택시 "미선택" 항목으로 저장됩니다.</span></label>
             <select name="inputMeGroup" id="inputMeGroup">
               <option value="미선택" selected>미선택</option>
@@ -423,7 +438,7 @@
           <!-- 정보 출력 -->
           <div class="info_box">
             <div class="type_sv_wrap info_type" >
-              <span id="typeSV" class="type_sv" style="display: none;"></span>
+              <span id="typeSV" class="type_sv"></span>
               <button class="type_sv" id="topPs" >☆ OFF</button>
             </div>
             <div class="name_gender">
@@ -882,9 +897,10 @@
               </button>
               <button class="black_btn" id="explanViewBtn">묘운 설명 접기</button>
             </div>
-            <div class="explan" id="explan">
-              <p class="pharases">묘운 계산은 기본적으로 8x8x8로 명식을 본다고 생각하시면 됩니다.</p>
-              <ul id="explanDetail"></ul>
+            <div class="explan" id="explan" style="text-align: center;">
+              <p class="pharases">묘운 설명 : 업데이트 준비중입니다.</p>
+              <ul id="explanDetail">
+              </ul>
             </div>
           </div>
           
