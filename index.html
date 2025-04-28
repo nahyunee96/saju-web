@@ -49,12 +49,17 @@
         border-radius:4px; cursor:pointer;
         padding: 0 20px;
       }
+      
+      .awesomplete {
+        width: calc(100% - 16px);
+      }
+
       #searchBox {
         height: 40px;
         font-size:16px;
         border:1px solid #ccc;
         border-radius:4px;
-        width: calc(100% - 16px);
+        width: calc(100% - 90px);
         outline: none;
         padding: 0 10px;
       }
@@ -148,6 +153,18 @@
         #closeMap,
         #suggestions {
           font-size: 3.2vw;
+        }
+
+        #searchBox {
+          width: calc(100% - 85px);
+          height: 8vw;
+          border-radius: 0px;
+        }
+
+        #closeMap {
+          width: 85px;
+          padding: 0;
+          height: 8vw;
         }
 
         #infoModal .title {
@@ -1845,7 +1862,19 @@
           </div>
         </div>
       </div>
-      <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+      <!-- 1) Leaflet CSS/JS -->
+      <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+      />
+      <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+      <!-- 2) Leaflet-Geosearch CSS/Bundle -->
+      <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/leaflet-geosearch@4.2.0/dist/bundle.min.js"></script>
       <script
         src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"
       ></script>

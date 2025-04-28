@@ -165,7 +165,7 @@ searchBox.addEventListener('input', () => {
       console.error(e);
       suggList.innerHTML = '<li>검색 중 오류 발생</li>';
     }
-  }, 300);
+  }, 150);
 });
 const birthPlaceFull = placeBtn.value;
 let cityLon = null;
@@ -5092,7 +5092,7 @@ document.addEventListener("DOMContentLoaded", function () {
         radioFunc(refDate);
       }
       updateFunc(refDate);
-      
+      updateExplanDetail(myowoonResult, refDate);
 
       // 2-2) "올해 나이" 또는 "refDate" 기준으로 대운리스트 중 현재 대운(active) 찾기
       const todayObj = refDate; // 편의상
@@ -5397,7 +5397,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
           const newResult = getMyounPillars(myData, rawRefDate, selectedValue);
-          updateExplanDetail(newResult);
+          updateExplanDetail(newResult, refDate);
           updateMyowoonSection(newResult);
 
         });
