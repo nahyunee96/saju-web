@@ -165,7 +165,7 @@ searchBox.addEventListener('input', () => {
       console.error(e);
       suggList.innerHTML = '<li>검색 중 오류 발생</li>';
     }
-  }, 150);
+  }, 500);
 });
 const birthPlaceFull = placeBtn.value;
 let cityLon = null;

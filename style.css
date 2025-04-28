@@ -855,6 +855,16 @@
     height: 60px;
   }
 
+  .s12_ctrl_zone {
+    flex-direction: column;
+    height: auto;
+    text-align: center;
+  }
+
+  .s12_ctrl_zone a {
+    color: #fff;
+  }
+
   .check_option {
     flex: 0 0 auto;
   }
@@ -1537,8 +1547,7 @@
       font-size: 3.6vw;
     }
 
-    .check_option,
-    .s12_ctrl_zone {
+    .check_option {
       height: 10.2vw;
     }
 
