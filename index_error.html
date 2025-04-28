@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>묘운력</title>
+</head>
+<style>
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .container h2 {
+    font-size: 20px;
+  }
+
+  .container p {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  button {
+    background-color: #ff0000;
+    color: #fff;
+    width: 150px;
+    height: 40px;
+    border: none;
+  }
+</style>
+<body>
+  <div class="container">
+    <h2>오류가 있어 잠시 사이트를 중단합니다 !</h2>
+    <p>오류 수정뒤에, 찾아 뵙겠습니다 !</p>
+    <button id="backBtn">뒤로가기</button>
+  </div>
+  <script>
+    document.getElementById("backBtn").addEventListener("click", function () {
+      window.history.back();
+    });
+  </script>
+</body>
+</html>
