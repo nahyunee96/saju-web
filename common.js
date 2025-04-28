@@ -5347,7 +5347,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const myRes = getMyounPillars(myData, corr);
       updateMyowoonSection(myRes);
-      //updateExplanDetail(myRes, corr);
+      updateExplanDetail(myRes, corr);
 
       
       const useInsiMode = document.getElementById('insi').checked;
@@ -5397,7 +5397,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
           const newResult = getMyounPillars(myData, rawRefDate, selectedValue);
-          //updateExplanDetail(newResult);
+          updateExplanDetail(newResult);
           updateMyowoonSection(newResult);
 
         });
