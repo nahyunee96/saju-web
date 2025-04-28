@@ -193,7 +193,7 @@ suggList.addEventListener('click', e => {
   cityLongitudes[cityKey] = lon;
   localStorage.setItem('cityLongitudes', JSON.stringify(cityLongitudes));
   cityLon = lon;
-
+  fixedCorrectedDate = null;
   placeBtn.value       = name;
   placeBtn.textContent = name;
 
@@ -5497,6 +5497,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // 출생시간 모름 체크박스 복원
     const timeCheckbox = document.getElementById("bitthTimeX");
     const timeInput = document.getElementById("inputBirthtime");
+    timeInput.addEventListener('change', () => {
+      // 기존 보정시 고정 해제
+      fixedCorrectedDate = null;
+    });
     isTimeUnknown = selected.isTimeUnknown === true;
 
     timeCheckbox.checked = isTimeUnknown;
@@ -5512,6 +5516,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // 출생지 모름 체크박스 복원
     const placeCheckbox = document.getElementById("bitthPlaceX");
     const placeInput = document.getElementById("inputBirthPlace");
+    placeInput.addEventListener('change', () => {
+      // 사용자가 직접 텍스트를 바꿨다면 보정시 초기화
+      fixedCorrectedDate = null;
+    });
     const isPlaceUnknown = selected.isPlaceUnknown === true;
 
     placeCheckbox.checked = isPlaceUnknown;
