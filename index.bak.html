@@ -19,86 +19,161 @@
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <title>묘운 만세력</title>
 
-    <style>
-    #mapModal {
-      display: none;
-      position: fixed; top:0; left:0;
-      width:100%; height:100%;
-      background: rgba(0,0,0,0.5);
-      z-index:1005;
-    }
-    #mapContainer {
-      position: absolute; top:5%; left:5%;
-      width:90%; height:90%;
-      background:#fff; border-radius:8px;
-      box-shadow:0 0 10px rgba(0,0,0,0.3);
-      display:flex; flex-direction:column;
-    }
-    #closeMap {
-      position: absolute;
-      right: 0;
-      top: 0;
-      align-self:flex-end;
-      background:#353535; color: #fff;
-      border:none; height: 40px;
-      border-radius:4px; cursor:pointer;
-      padding: 0 20px;
-    }
-    #searchBox {
-      height: 40px;
-      font-size:16px;
-      border:1px solid #ccc;
-      border-radius:4px;
-      width: calc(100% - 16px);
-      outline: none;
-      padding: 0 10px;
-    }
-    .Rel {
-      position: absolute;
-      top: 2.4%;
-      left: 50%;
-      width: 90%;
-      transform: translateX(-50%);
-      z-index: 1002;
-    }
-    #suggestions {
-      position: absolute;
-      width: calc(100% - 16px);
-      left: 0;
-      list-style:none; margin:0 8px;
-      padding:0; max-height:150px;
-      overflow-y:auto; border:1px solid #ccc;
-      border-radius:4px;
-      background-color: #fff;
-      z-index: 1001;
-    }
-    #suggestions li {
-      padding:6px 8px;
-      cursor:pointer;
-    }
-    #suggestions li:hover {
-      background:#eee;
-    }
-    #map { flex:1; }
 
-    .leaflet-left .leaflet-control {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1001;
-    }
-
-    @media screen and (max-width: 991px) {
-      #searchBox,
-      #closeMap,
-      #suggestions {
-        font-size: 3.2vw;
-      }
-    }
-    </style>
      <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <link rel="stylesheet" href="./style.css" />
+
+    <style>
+      #mapModal {
+        display: none;
+        position: fixed; top:0; left:0;
+        width:100%; height:100%;
+        background: rgba(0,0,0,0.5);
+        z-index:1005;
+      }
+      #mapContainer {
+        position: absolute; top:5%; left:5%;
+        width:90%; height:90%;
+        background:#fff; border-radius:8px;
+        box-shadow:0 0 10px rgba(0,0,0,0.3);
+        display:flex; flex-direction:column;
+      }
+      #closeMap {
+        position: absolute;
+        right: 0;
+        top: 0;
+        align-self:flex-end;
+        background:#353535; color: #fff;
+        border:none; height: 40px;
+        border-radius:4px; cursor:pointer;
+        padding: 0 20px;
+      }
+      #searchBox {
+        height: 40px;
+        font-size:16px;
+        border:1px solid #ccc;
+        border-radius:4px;
+        width: calc(100% - 16px);
+        outline: none;
+        padding: 0 10px;
+      }
+      .Rel {
+        position: absolute;
+        top: 2.4%;
+        left: 50%;
+        width: 90%;
+        transform: translateX(-50%);
+        z-index: 1002;
+      }
+      #suggestions {
+        position: absolute;
+        width: calc(100% - 16px);
+        left: 0;
+        list-style:none; margin:0 8px;
+        padding:0; max-height:150px;
+        overflow-y:auto; border:1px solid #ccc;
+        border-radius:4px;
+        background-color: #fff;
+        z-index: 1001;
+      }
+      #suggestions li {
+        padding:6px 8px;
+        cursor:pointer;
+      }
+      #suggestions li:hover {
+        background:#eee;
+      }
+      #map { flex:1; }
+  
+      .leaflet-left .leaflet-control {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1001;
+      }
+  
+      /* 인포모달 */
+      #infoModal {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 700px;
+        z-index: 1005;
+        border: 2px solid #252525;
+      }
+  
+      #infoModal .title {
+        width: 100%;
+        background-color: #252525;
+        color: #fff;
+        font-size: 16px;
+        padding: 10px;
+      }
+  
+      #infoModal .title b {
+        font-size: 14px;
+        color: #ccc;
+      }
+  
+      #infoModal .content {
+        width: 100%;
+        padding: 20px;
+        background-color: #fff;
+        color: #252525;
+      }
+
+      #infoModal .content li {
+        margin-bottom: 8px;
+      }
+
+      #infoModal .content li:last-child{
+        margin-bottom: 0;
+      }
+
+      #infoModal .btn_box {
+        background-color: #252525;
+        padding: 10px;
+      }
+
+      #infoModal .btn_box button {
+        padding: 4px 12px;
+        font-size: 14px;
+      }
+  
+      @media screen and (max-width: 991px) {
+        #searchBox,
+        #closeMap,
+        #suggestions {
+          font-size: 3.2vw;
+        }
+
+        #infoModal .title {
+          font-size:5.2vw;
+          padding: 2.4vw;
+        }
+    
+        #infoModal .title b {
+          font-size: 4.4vw;
+        }
+    
+        #infoModal .content {
+          padding: 2vw;
+          font-size: 3.6vw;
+        }
+
+        #infoModal .content li {
+          margin-bottom: 1.2vw;
+        }
+
+        #infoModal .btn_box button {
+          padding: 1.2vw 2vw;
+          font-size: 2.4vw;
+        }
+      }
+      </style>
   </head>
   <body id="app">
     <!-- 지도 모달 -->
@@ -113,6 +188,62 @@
         <div id="map"></div>
       </div>
     </div>
+    <div id="infoModal">
+      <div class="inner">
+        <div class="title">
+          <span>!! 안내드립니다 !! <b>만세력 UPDATE 2 ver.</b></span>
+        </div>
+        <div class="content">
+          <ul class="infoContent">
+            <li>묘운 계산법이 변경 되었습니다. (묘운설명참고)</li>
+            <li>새로운 명식 추가 시, 보정시 덮어씌워지던 문제를 해결하였습니다.</li>
+            <li>UI 변경이 이루어졌습니다.</li>
+            <li>위의 수정에 따라, 사이드바에 있는 "명식 모두삭제" 버튼을 한번 눌러주신후에, 
+              명식을 새로 저장하여 사용하여 주시기 바랍니다. (이용에 불편드려 죄송합니다.)</li>
+            <li>이용시 불편하신점은 <a href="Mail:unique950318@gmail.com">unique950318@gmail.com</a>으로 언제든 문의주세요!</li>
+            <li>꼼꼼한 사용후기와 피드백은 사랑입니다 💕</li>
+          </ul>
+        </div>
+      </div>
+      <div class="btn_box">
+        <button id="lognTimeX">이 이후 브라우저에서 보지 않기</button>
+        <button id="closeX">닫기</button>
+      </div>
+    </div>
+    <script>
+      function clearAllMyoStorage() {
+        if (confirm('모든 저장된 명식을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+          localStorage.clear();
+          alert('모든 로컬 스토리지 데이터가 삭제되었습니다. 페이지를 새로고침합니다.');
+          location.reload();
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const modal       = document.getElementById('infoModal');
+        const hideForever = document.getElementById('lognTimeX');  // ← 수정
+        const closeBtn    = document.getElementById('closeX');
+
+        // 1) 페이지 로드 시, 숨김 플래그 확인
+        const hidden = localStorage.getItem('infoModalHidden');
+        if (hidden === 'true') {
+          modal.style.display = 'none';
+        } else {
+          modal.style.display = 'block';
+        }
+
+        // 2) “이 이후 브라우저에서 보지 않기” 클릭
+        hideForever.addEventListener('click', () => {
+          localStorage.setItem('infoModalHidden', 'true');
+          modal.style.display = 'none';
+        });
+
+        // 3) “닫기” 클릭 (이번 세션만 닫기)
+        closeBtn.addEventListener('click', () => {
+          modal.style.display = 'none';
+        });
+      });
+    </script>
     <div class="container" id="container">
       <!-- 헤더 -->
       <header class="header btn_box mt0">
@@ -133,9 +264,14 @@
       <aside id="aside" class="aside">
         <div class="inner">
           <div class="head">
-            <button id="backBtnAS" class="black_btn head_btn back_btn">
-              명식추가 +
-            </button>
+            <div class="left">
+              <button id="backBtnAS" class="black_btn head_btn back_btn">
+                명식추가 +
+              </button>
+              <button class="black_btn head_btn back_btn" onclick="clearAllMyoStorage()">
+                명식 모두 삭제하기
+              </button>
+            </div>
             <button class="black_btn close_btn" id="closeBtn"><span>&times;</span></button>
           </div>
           <div class="top_search_list">
@@ -898,7 +1034,7 @@
               <button class="black_btn" id="explanViewBtn">묘운 설명 접기</button>
             </div>
             <div class="explan" id="explan" style="text-align: center;">
-              <p class="pharases">묘운 설명 : 업데이트 준비중입니다.</p>
+              <p class="pharases">묘운에 대한 설명 (1년 = 120년)</p>
               <ul id="explanDetail">
               </ul>
             </div>
