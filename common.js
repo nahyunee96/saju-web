@@ -5467,10 +5467,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const selected = savedList[index];
     if (!selected) return;
 
-    restoreCurrentPlaceMapping(index);
+    restoreCurrentPlaceMapping(selected);
 
     startModify(index);
-
 
     groupEctWrap.style.display = 'none';
     inputMeGroupEct.value = '';
@@ -5541,8 +5540,9 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMeGroupOption(selected.group);   // ← 여기서 selected를 넘겨줍니다
 
     setTimeout(() => {
-      getMyounPillarsVr;
-      updateMyowoonSectionVr;
+      getMyounPillarsVr(myData, refDate);
+      let myowoonResult = getMyounPillars(myData, refDate);
+      updateMyowoonSectionVr(myowoonResult);
     }, 10);
 
     const myowoonBtn = document.getElementById("myowoonMore");
