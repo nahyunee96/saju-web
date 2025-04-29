@@ -560,6 +560,59 @@ function getDecimalBirthYear(birthDate) {
   return birthDate.getFullYear() + diffDays / totalDays;
 }
 
+function computeCustomMonthPillar(correctedDate, gender) {
+  // 1) 대운 진행 방향 결정 (남은 순행, 여는 역행)
+  const yearPillar = getYearGanZhi(correctedDate, correctedDate.getFullYear());
+  const isYang     = ["갑","병","무","경","임"].includes(yearPillar.charAt(0));
+  const isForward  = (gender === "남" && isYang) || (gender === "여" && !isYang);
+
+  // 2) 기준 절기들 가져오기
+  let year       = correctedDate.getFullYear();
+  let terms      = getSolarTermBoundaries(year);
+  let pointer    = isForward
+    ? terms.findIndex(t => correctedDate < t.date)
+    : terms.slice().reverse().findIndex(t => correctedDate >= t.date);
+
+  // 포인터 보정 (역행 분기)
+  if (!isForward) {
+    pointer = terms.length - 1 - pointer;
+  }
+  if (pointer < 0) pointer = 0;
+
+  // 3) sDates: 절기 기준 날짜 배열
+  const sDates = terms.map(t => t.date);
+
+  // 4) mPillars 초기화: 첫 원본 월주
+  const mPillars = [];
+  mPillars[0] = getMonthGanZhi(correctedDate, correctedDate.getFullYear());
+
+  // 5) 루프 돌며 각 절기마다 다음 GanZhi 계산
+  for (let i = 1; i < sDates.length; i++) {
+    const dt  = sDates[i];
+    const hit = isForward
+      ? dt >= correctedDate
+      : dt <= correctedDate;
+
+    if (hit) {
+      const prevIdx = getGanZhiIndex(mPillars[i - 1]);
+      const nextIdx = isForward
+        ? (prevIdx + 1) % 60
+        : (prevIdx + 59) % 60;
+      mPillars[i] = getGanZhiIndex(nextIdx);
+      // pointer 이동
+      pointer = isForward ? pointer + 1 : pointer - 1;
+      if (pointer < 0) pointer = terms.length - 1;
+      if (pointer >= terms.length) pointer = 0;
+    } else {
+      // 아직 해당 절기 전이면 전 값 그대로
+      mPillars[i] = mPillars[i - 1];
+    }
+  }
+
+  // 6) 최종 월주 반환 (pointer 위치의 GanZhi)
+  return mPillars[pointer];
+}
+
 function getDaewoonData(gender, originalDate, correctedDate) {
   const birthDate = globalState.correctedBirthDate;
   //const originalDate = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
@@ -570,7 +623,7 @@ function getDaewoonData(gender, originalDate, correctedDate) {
   const effectiveYearForSet = (originalDate < ipChunForSet) ? inputYear - 1 : inputYear;
   const effectiveYearForDaewoon = inputYear;
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
-  const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
+  const monthPillar = computeCustomMonthPillar(correctedDate, gender);
   const dayStemRef = getDayGanZhi(correctedDate).charAt(0);
   const isYang = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
   const isForward = (gender === "남" && isYang) || (gender === "여" && !isYang);
@@ -630,6 +683,8 @@ function getDaewoonData(gender, originalDate, correctedDate) {
   
   return { base: baseNumber, list: list, dayStemRef: dayStemRef };
 }
+
+
 
 function getDaewoonDataStr(gender, originalDate, correctedDate) {
   const data = getDaewoonData(gender, originalDate, correctedDate);
