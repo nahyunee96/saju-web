@@ -329,13 +329,13 @@
         <form class="input_wrap" id="inputWrap">
           <div class="input_group">
             <label for="inputName">명주이름</label>
-            <input type="text" id="inputName" maxlength="10" placeholder="10글자 이내로 이름 입력" />
+            <input type="text" class="valueClear" id="inputName" maxlength="10" placeholder="10글자 이내로 이름 입력" />
           </div>
           <div class="input_group">
             <label for="inputBirthday">출생일</label>
             <div class="flex_input">
-              <input type="tel" id="inputBirthday" maxlength="8" placeholder="예) 19900101" />
-              <select name="monthType" id="monthType">
+              <input type="tel" class="valueClear" id="inputBirthday" maxlength="8" placeholder="예) 19900101" />
+              <select name="monthType" id="monthType" class="valueClear">
                 <option value="양력">양력</option>
                 <option value="음력">음력</option>
                 <option value="음력(윤달)">음력(윤달)</option>
@@ -344,25 +344,25 @@
           </div>
           <div class="input_group">
             <label for="inputBirthtime">출생시간</label>
-            <input type="tel" id="inputBirthtime" placeholder="예) 1534" maxlength="4" />
-            <div class="label_line"><input type="checkbox" id="bitthTimeX"><label for="bitthTimeX">태어난 시 모름</label></div>
+            <input type="tel" id="inputBirthtime" placeholder="예) 1534" maxlength="4" class="valueClear" />
+            <div class="label_line"><input type="checkbox" id="bitthTimeX" class="chkValueClear"><label for="bitthTimeX">태어난 시 모름</label></div>
           </div>
           <div class="input_group">
             <label>성별</label>
             <div class="radio_box">
               <span>
-                <input type="radio" id="genderMan" name="gender" />
+                <input type="radio" id="genderMan" name="gender" class="chkValueClear" />
                 <label for="genderMan">남성</label>
               </span>
               <span>
-                <input type="radio" id="genderWoman" name="gender" />
+                <input type="radio" id="genderWoman" name="gender" class="chkValueClear" />
                 <label for="genderWoman">여성</label>
               </span>
             </div>
           </div>
           <div class="input_group">
             <label for="inputBirthPlace">출생지선택</label>
-            <input type="button" class="map" id="inputBirthPlace" value="출생지선택">
+            <input type="button" class="map" id="inputBirthPlace" value="출생지선택" class="valueClear">
             <!-- <select id="inputBirthPlace">
               <option value="" style="display: none;">출생지 선택</option>
               <option value="서울특별시">서울특별시</option>
@@ -546,29 +546,29 @@
                 <option value="서귀포시">서귀포시</option>
               </optgroup>
             </select> -->
-            <div class="label_line"><input type="checkbox" id="bitthPlaceX"><label for="bitthPlaceX">태어난 출생지 모름</label></div>
+            <div class="label_line"><input type="checkbox" id="bitthPlaceX" class="chkValueClear"><label for="bitthPlaceX">태어난 출생지 모름</label></div>
             <p class="pharases" id="birthPlaceTxt" style="display: none;">태어난 시간을 모르면 보정값으로 들어가진 않지만, 출생지 정보 저장 자체는 가능합니다.</p>
           </div>
           <div class="input_group" id="timeType">
             <label>시간 기준 지정 (조자시(자시) / 야자시(자정) / 인시)</label>
             <div class="radio_box">
               <span>
-                <input type="radio" id="jasi" name="time2" value="jasi" />
+                <input type="radio" id="jasi" name="time2" value="jasi" class="chkValueClear" />
                 <label for="jasi">조자시(자시)</label>
               </span>
               <span>
-                <input type="radio" id="yajasi" name="time2" value="yajasi" />
+                <input type="radio" id="yajasi" name="time2" value="yajasi" class="chkValueClear" />
                 <label for="yajasi">야자시(자정)</label>
               </span>
               <span>
-                <input type="radio" id="insi" name="time2" value="insi" checked/>
+                <input type="radio" id="insi" name="time2" value="insi" class="chkValueClear" checked/>
                 <label for="insi">인시</label>
               </span>
             </div>
           </div>
           <div class="input_group">
             <label for="inputMeGroup">관계 <span>* 필수체크사항은 아니며, 미선택시 "미선택" 항목으로 저장됩니다.</span></label>
-            <select name="inputMeGroup" id="inputMeGroup">
+            <select name="inputMeGroup" id="inputMeGroup" class="selectValueClear">
               <option value="미선택" selected>미선택</option>
               <option value="본인">본인</option>
               <option value="가족">가족</option>
@@ -581,7 +581,7 @@
             </select>
           </div>
           <div class="input_group group_ect" id="groupEct">
-            <input type="text" id="inputMeGroupEct" placeholder="10글자이내로 관계를 입력해주세요." maxlength="10"/>
+            <input type="text" id="inputMeGroupEct" placeholder="10글자이내로 관계를 입력해주세요." class="valueClear" maxlength="10"/>
           </div>
           <div class="btn_box flex_1 mt100">
             <button type="button" id="calcBtn">산출하기</button>
@@ -615,15 +615,15 @@
             <ul class="check_option" id="checkOption">
               <li class="time_chk02">
                 <span>
-                  <input type="radio" name="timeChk02"  id="timeChk02_01" value="jasi" />
+                  <input type="radio" name="timeChk02"  id="timeChk02_01" value="jasi" class="chkValueClear" />
                   <label for="timeChk02_01">조자시(자시)</label>
                 </span>
                 <span>
-                  <input type="radio" name="timeChk02" id="timeChk02_02" value="yajasi"/>
+                  <input type="radio" name="timeChk02" id="timeChk02_02" value="yajasi" class="chkValueClear"/>
                   <label for="timeChk02_02">야자시(자정)</label>
                 </span>
                 <span>
-                  <input type="radio" name="timeChk02" id="timeChk02_03" value="insi" checked />
+                  <input type="radio" name="timeChk02" id="timeChk02_03" value="insi" class="chkValueClear" checked />
                   <label for="timeChk02_03">인시</label>
                 </span>
               </li>
@@ -833,99 +833,99 @@
                 <li>
                   <p>시주</p>
                   <div class="hanja_con">
-                    <p id="MyoHtEumyang" class="eum_yang"></p>
-                    <b id="MyoHtHanja"></b>
+                    <p id="MyoHtEumyang" class="eum_yang innerClear"></p>
+                    <b id="MyoHtHanja" class="innerClear"></b>
                   </div>
-                  <p id="MyoHtHanguel"></p>
-                  <p id="MyoHt10sin" class="ten_sin"></p>
+                  <p id="MyoHtHanguel" class="innerClear"></p>
+                  <p id="MyoHt10sin" class="ten_sin innerClear"></p>
                 </li>
                 <li>
                   <p>일주</p>
                   <div class="hanja_con">
-                    <p id="MyoDtEumyang" class="eum_yang"></p>
-                    <b id="MyoDtHanja"></b>
+                    <p id="MyoDtEumyang" class="eum_yang innerClear"></p>
+                    <b id="MyoDtHanja" class="innerClear"></b>
                   </div>
-                  <p id="MyoDtHanguel"></p>
-                  <p id="MyoDt10sin" class="ten_sin"></p>
+                  <p id="MyoDtHanguel" class="innerClear"></p>
+                  <p id="MyoDt10sin" class="ten_sin innerClear"></p>
                 </li>
                 <li>
                   <p>월주</p>
                   <div class="hanja_con">
-                    <p id="MyoMtEumyang" class="eum_yang"></p>
-                    <b id="MyoMtHanja"></b>
+                    <p id="MyoMtEumyang" class="eum_yang innerClear"></p>
+                    <b id="MyoMtHanja" class="innerClear"></b>
                   </div>
-                  <p id="MyoMtHanguel"></p>
-                  <p id="MyoMt10sin" class="ten_sin"></p>
+                  <p id="MyoMtHanguel" class="innerClear"></p>
+                  <p id="MyoMt10sin" class="ten_sin innerClear"></p>
                 </li>
                 <li>
                   <p>연주</p>
                   <div class="hanja_con">
-                    <p id="MyoYtEumyang" class="eum_yang"></p>
-                    <b id="MyoYtHanja"></b>
+                    <p id="MyoYtEumyang" class="eum_yang innerClear"></p>
+                    <b id="MyoYtHanja" class="innerClear"></b>
                   </div>
-                  <p id="MyoYtHanguel"></p>
-                  <p id="MyoYt10sin" class="ten_sin"></p>
+                  <p id="MyoYtHanguel" class="innerClear"></p>
+                  <p id="MyoYt10sin" class="ten_sin innerClear"></p>
                 </li>
                 <!-- =================지지시작 ==========================-->
                 <li>
                   <div class="hanja_con">
-                    <p id="MyoHbEumyang" class="eum_yang"></p>
-                    <b id="MyoHbHanja"></b>
+                    <p id="MyoHbEumyang" class="eum_yang innerClear"></p>
+                    <b id="MyoHbHanja" class="innerClear"></b>
                   </div>
-                  <p id="MyoHbHanguel"></p>
+                  <p id="MyoHbHanguel" class="innerClear"></p>
                   <ul class="jijanggan" id="MyoHbJj">
-                    <li id="MyoHbJj1"></li>
-                    <li id="MyoHbJj2"></li>
-                    <li id="MyoHbJj3"></li>
+                    <li id="MyoHbJj1" class="innerClear"></li>
+                    <li id="MyoHbJj2" class="innerClear"></li>
+                    <li id="MyoHbJj3" class="innerClear"></li>
                   </ul>
-                  <p id="MyoHb10sin" class="ten_sin"></p>
-                  <p id="MyoHb12ws" class="woon_seong"></p>
-                  <p id="MyoHb12ss" class="sin_sal"></p>
+                  <p id="MyoHb10sin" class="ten_sin innerClear"></p>
+                  <p id="MyoHb12ws" class="woon_seong innerClear"></p>
+                  <p id="MyoHb12ss" class="sin_sal innerClear"></p>
                 </li>
                 <li>
                   <div class="hanja_con">
-                    <p id="MyoDbEumyang" class="eum_yang"></p>
-                    <b id="MyoDbHanja"></b>
+                    <p id="MyoDbEumyang" class="eum_yang innerClear"></p>
+                    <b id="MyoDbHanja" class="innerClear"></b>
                   </div>
                   <p id="MyoDbHanguel"></p>
                   <ul class="jijanggan" id="MyoDbJj">
-                    <li id="MyoDbJj1"></li>
-                    <li id="MyoDbJj2"></li>
-                    <li id="MyoDbJj3"></li>
+                    <li id="MyoDbJj1" class="innerClear"></li>
+                    <li id="MyoDbJj2" class="innerClear"></li>
+                    <li id="MyoDbJj3" class="innerClear"></li>
                   </ul>
-                  <p id="MyoDb10sin" class="ten_sin"></p>
-                  <p id="MyoDb12ws" class="woon_seong"></p>
-                  <p id="MyoDb12ss" class="sin_sal"></p>
+                  <p id="MyoDb10sin" class="ten_sin innerClear"></p>
+                  <p id="MyoDb12ws" class="woon_seong innerClear"></p>
+                  <p id="MyoDb12ss" class="sin_sal innerClear"></p>
                 </li>
                 <li>
                   <div class="hanja_con">
-                    <p id="MyoMbEumyang" class="eum_yang"></p>
-                    <b id="MyoMbHanja"></b>
+                    <p id="MyoMbEumyang" class="eum_yang innerClear"></p>
+                    <b id="MyoMbHanja" class="innerClear"></b>
                   </div>
                   <p id="MyoMbHanguel"></p>
                   <ul class="jijanggan" id="MyoMbJj">
-                    <li id="MyoMbJj1"></li>
-                    <li id="MyoMbJj2"></li>
-                    <li id="MyoMbJj3"></li>
+                    <li id="MyoMbJj1" class="innerClear"></li>
+                    <li id="MyoMbJj2" class="innerClear"></li>
+                    <li id="MyoMbJj3" class="innerClear"></li>
                   </ul>
-                  <p id="MyoMb10sin" class="ten_sin"></p>
-                  <p id="MyoMb12ws" class="woon_seong"></p>
-                  <p id="MyoMb12ss" class="sin_sal"></p>
+                  <p id="MyoMb10sin" class="ten_sin innerClear"></p>
+                  <p id="MyoMb12ws" class="woon_seong innerClear"></p>
+                  <p id="MyoMb12ss" class="sin_sal innerClear"></p>
                 </li>
                 <li>
                   <div class="hanja_con">
-                    <p id="MyoYbEumyang" class="eum_yang"></p>
-                    <b id="MyoYbHanja"></b>
+                    <p id="MyoYbEumyang" class="eum_yang innerClear"></p>
+                    <b id="MyoYbHanja" class="innerClear"></b>
                   </div>
                   <p id="MyoYbHanguel"></p>
                   <ul class="jijanggan" id="MyoYbJj">
-                    <li id="MyoYbJj1"></li>
-                    <li id="MyoYbJj2"></li>
-                    <li id="MyoYbJj3"></li>
+                    <li id="MyoYbJj1" class="innerClear"></li>
+                    <li id="MyoYbJj2" class="innerClear"></li>
+                    <li id="MyoYbJj3" class="innerClear"></li>
                   </ul>
-                  <p id="MyoYb10sin" class="ten_sin"></p>
-                  <p id="MyoYb12ws" class="woon_seong"></p>
-                  <p id="MyoYb12ss" class="sin_sal"></p>
+                  <p id="MyoYb10sin" class="ten_sin innerClear"></p>
+                  <p id="MyoYb12ws" class="woon_seong innerClear"></p>
+                  <p id="MyoYb12ss" class="sin_sal innerClear"></p>
                 </li>
               </ul>
             </div>
@@ -935,99 +935,99 @@
                 <li>
                   <p>세운</p>
                   <div class="hanja_con">
-                    <p id="WSwtEumyang" class="eum_yang"></p>
-                    <b id="WSwtHanja"></b>
+                    <p id="WSwtEumyang" class="eum_yang innerClear"></p>
+                    <b id="WSwtHanja" class="innerClear"></b>
                   </div>
-                  <p id="WSwtHanguel"></p>
-                  <p id="WSwt10sin" class="ten_sin"></p>
+                  <p id="WSwtHanguel" class="innerClear"></p>
+                  <p id="WSwt10sin" class="ten_sin innerClear"></p>
                 </li>
                 <li>
                   <p>월운</p>
                   <div class="hanja_con">
-                    <p id="WMtEumyang" class="eum_yang"></p>
-                    <b id="WMtHanja"></b>
+                    <p id="WMtEumyang" class="eum_yang innerClear"></p>
+                    <b id="WMtHanja" class="innerClear"></b>
                   </div>
-                  <p id="WMtHanguel"></p>
-                  <p id="WMt10sin" class="ten_sin"></p>
+                  <p id="WMtHanguel" class="innerClear"></p>
+                  <p id="WMt10sin" class="ten_sin innerClear"></p>
                 </li>
                 <li>
                   <p>일운</p>
                   <div class="hanja_con">
-                    <p id="WDtEumyang" class="eum_yang"></p>
-                    <b id="WDtHanja"></b>
+                    <p id="WDtEumyang" class="eum_yang innerClear"></p>
+                    <b id="WDtHanja" class="innerClear"></b>
                   </div>
-                  <p id="WDtHanguel"></p>
-                  <p id="WDt10sin" class="ten_sin"></p>
+                  <p id="WDtHanguel" class="innerClear"></p>
+                  <p id="WDt10sin" class="ten_sin innerClear"></p>
                 </li>
                 <li>
                   <p>시운</p>
                   <div class="hanja_con">
-                    <p id="WTtEumyang" class="eum_yang"></p>
-                    <b id="WTtHanja"></b>
+                    <p id="WTtEumyang" class="eum_yang innerClear"></p>
+                    <b id="WTtHanja" class="innerClear"></b>
                   </div>
-                  <p id="WTtHanguel"></p>
-                  <p id="WTt10sin" class="ten_sin"></p>
+                  <p id="WTtHanguel" class="innerClear"></p>
+                  <p id="WTt10sin" class="ten_sin innerClear"></p>
                 </li>
                 <!-- =================지지시작 ==========================-->
                 <li>
                   <div class="hanja_con">
-                    <p id="WSwbEumyang" class="eum_yang"></p>
-                    <b id="WSwbHanja"></b>
+                    <p id="WSwbEumyang" class="eum_yang innerClear"></p>
+                    <b id="WSwbHanja" class="innerClear"></b>
                   </div>
                   <p id="WSwbHanguel"></p>
                   <ul class="jijanggan" id="WHbJj">
-                    <li id="WSwJj1"></li>
-                    <li id="WSwJj2"></li>
-                    <li id="WSwJj3"></li>
+                    <li id="WSwJj1" class="innerClear"></li>
+                    <li id="WSwJj2" class="innerClear"></li>
+                    <li id="WSwJj3" class="innerClear"></li>
                   </ul>
-                  <p id="WSwb10sin" class="ten_sin"></p>
-                  <p id="WSWb12ws" class="woon_seong"></p>
-                  <p id="WSWb12ss" class="sin_sal"></p>
+                  <p id="WSwb10sin" class="ten_sin innerClear"></p>
+                  <p id="WSWb12ws" class="woon_seong innerClear"></p>
+                  <p id="WSWb12ss" class="sin_sal innerClear"></p>
                 </li>
                 <li>
                   <div class="hanja_con">
-                    <p id="WMbEumyang" class="eum_yang"></p>
-                    <b id="WMbHanja"></b>
+                    <p id="WMbEumyang" class="eum_yang innerClear"></p>
+                    <b id="WMbHanja" class="innerClear"></b>
                   </div>
                   <p id="WMbHanguel"></p>
                   <ul class="jijanggan" id="WDbJj">
-                    <li id="WMbJj1"></li>
-                    <li id="WMbJj2"></li>
-                    <li id="WMbJj3"></li>
+                    <li id="WMbJj1" class="innerClear"></li>
+                    <li id="WMbJj2" class="innerClear"></li>
+                    <li id="WMbJj3" class="innerClear"></li>
                   </ul>
-                  <p id="WMb10sin" class="ten_sin"></p>
-                  <p id="WMb12ws" class="woon_seong"></p>
-                  <p id="WMb12ss" class="sin_sal"></p>
+                  <p id="WMb10sin" class="ten_sin innerClear"></p>
+                  <p id="WMb12ws" class="woon_seong innerClear"></p>
+                  <p id="WMb12ss" class="sin_sal innerClear"></p>
                 </li>
                 <li>
                   <div class="hanja_con">
-                    <p id="WDbEumyang" class="eum_yang"></p>
-                    <b id="WDbHanja"></b>
+                    <p id="WDbEumyang" class="eum_yang innerClear"></p>
+                    <b id="WDbHanja" class="innerClear"></b>
                   </div>
                   <p id="WDbHanguel"></p>
                   <ul class="jijanggan" id="WMbJj">
-                    <li id="WDbJj1"></li>
-                    <li id="WDbJj2"></li>
-                    <li id="WDbJj3"></li>
+                    <li id="WDbJj1" class="innerClear"></li>
+                    <li id="WDbJj2" class="innerClear"></li>
+                    <li id="WDbJj3" class="innerClear"></li>
                   </ul>
-                  <p id="WDb10sin" class="ten_sin"></p>
-                  <p id="WDb12ws" class="woon_seong"></p>
-                  <p id="WDb12ss" class="sin_sal"></p>
+                  <p id="WDb10sin" class="ten_sin innerClear"></p>
+                  <p id="WDb12ws" class="woon_seong innerClear"></p>
+                  <p id="WDb12ss" class="sin_sal innerClear"></p>
                 </li>
                 <li>
                   <div class="hanja_con">
-                    <p id="WTbEumyang" class="eum_yang"></p>
-                    <b id="WTbHanja"></b>
+                    <p id="WTbEumyang" class="eum_yang innerClear"></p>
+                    <b id="WTbHanja" class="innerClear"></b>
                   </div>
                   <p id="WTbHanguel"></p>
                   <ul class="jijanggan" id="WYbJj">
-                    <li id="WTbJj1"></li>
-                    <li id="WTbJj2"></li>
-                    <li id="WTbJj3"></li>
+                    <li id="WTbJj1" class="innerClear"></li>
+                    <li id="WTbJj2" class="innerClear"></li>
+                    <li id="WTbJj3" class="innerClear"></li>
                   </ul>
-                  <p id="WTb10sin" class="ten_sin"></p>
-                  <p id="WTb12ws" class="woon_seong"></p>
-                  <p id="WTb12ss" class="sin_sal"></p>
+                  <p id="WTb10sin" class="ten_sin innerClear"></p>
+                  <p id="WTb12ws" class="woon_seong innerClear"></p>
+                  <p id="WTb12ss" class="sin_sal innerClear"></p>
                 </li>
               </ul>
             </div>
@@ -1046,9 +1046,9 @@
                 월까지계산
               </button>
             </div>
-            <input type="datetime-local" id="woonTimeSetPicker" />
-            <input type="date" id="woonTimeSetPickerVer2" />
-            <input type="month" id="woonTimeSetPickerVer3" />
+            <input type="datetime-local" id="woonTimeSetPicker" class="currentValueClear" />
+            <input type="date" id="woonTimeSetPickerVer2" class="currentValueClear" />
+            <input type="month" id="woonTimeSetPickerVer3" class="currentValueClear" />
             <div class="btn_box mb40 mt20">
               
               <button class="black_btn" id="woonChangeBtn">
@@ -1070,94 +1070,94 @@
               <!-- 대운리스트 -->
               <ul class="grid_box grid_box_10 fortune_section reverse" id="daewoonList">
                 <li id="daewoon_1" data-index="1">
-                  <div class="dt10sin1 w" id="dt10sin1"></div>
-                  <div class="ganji_w" id="DC_1"></div>
-                  <div class="ganji_w" id="DJ_1"></div>
-                  <div class="db10sin1 w" id="db10sin1"></div>
-                  <div class="dwoo1 w" id="DwW1"></div>
-                  <div class="dsin1 w" id="Ds1"></div>
-                  <div class="dage w" id="Da1"></div>
+                  <div class="dt10sin1 w innerClear" id="dt10sin1"></div>
+                  <div class="ganji_w innerClear" id="DC_1"></div>
+                  <div class="ganji_w innerClear" id="DJ_1"></div>
+                  <div class="db10sin1 w innerClear" id="db10sin1"></div>
+                  <div class="dwoo1 w innerClear" id="DwW1"></div>
+                  <div class="dsin1 w innerClear" id="Ds1"></div>
+                  <div class="dage w innerClear" id="Da1"></div>
                 </li>
                 <li id="daewoon_2" data-index="2">
-                  <div class="dt10sin2 w" id="dt10sin2"></div>
-                  <div class="ganji_w" id="DC_2"></div>
-                  <div class="ganji_w" id="DJ_2"></div>
-                  <div class="db10sin2 w" id="db10sin2"></div>
-                  <div class="dwoo2 w" id="DwW2"></div>
-                  <div class="dsin2 w" id="Ds2"></div>
-                  <div class="dage w" id="Da2"></div>
+                  <div class="dt10sin2 w innerClear" id="dt10sin2"></div>
+                  <div class="ganji_w innerClear" id="DC_2"></div>
+                  <div class="ganji_w innerClear" id="DJ_2"></div>
+                  <div class="db10sin2 w innerClear" id="db10sin2"></div>
+                  <div class="dwoo2 w innerClear" id="DwW2"></div>
+                  <div class="dsin2 w innerClear" id="Ds2"></div>
+                  <div class="dage w innerClear" id="Da2"></div>
                 </li>
                 <li id="daewoon_3" data-index="3">
-                  <div class="dt10sin3 w" id="dt10sin3"></div>
-                  <div class="ganji_w" id="DC_3"></div>
-                  <div class="ganji_w" id="DJ_3"></div>
-                  <div class="db10sin3 w" id="db10sin3"></div>
-                  <div class="dwoo3 w" id="DwW3"></div>
-                  <div class="dsin3 w" id="Ds3"></div>
-                  <div class="dage w" id="Da3"></div>
+                  <div class="dt10sin3 w innerClear" id="dt10sin3"></div>
+                  <div class="ganji_w innerClear" id="DC_3"></div>
+                  <div class="ganji_w innerClear" id="DJ_3"></div>
+                  <div class="db10sin3 w innerClear" id="db10sin3"></div>
+                  <div class="dwoo3 w innerClear" id="DwW3"></div>
+                  <div class="dsin3 w innerClear" id="Ds3"></div>
+                  <div class="dage w innerClear" id="Da3"></div>
                 </li>
                 <li id="daewoon_4" data-index="4">
-                  <div class="dt10sin4 w" id="dt10sin4"></div>
-                  <div class="ganji_w" id="DC_4"></div>
-                  <div class="ganji_w" id="DJ_4"></div>
-                  <div class="db10sin4 w" id="db10sin4"></div>
-                  <div class="dwoo4 w" id="DwW4"></div>
-                  <div class="dsin4 w" id="Ds4"></div>
-                  <div class="dage w" id="Da4"></div>
+                  <div class="dt10sin4 w innerClear" id="dt10sin4"></div>
+                  <div class="ganji_w innerClear" id="DC_4"></div>
+                  <div class="ganji_w innerClear" id="DJ_4"></div>
+                  <div class="db10sin4 w innerClear" id="db10sin4"></div>
+                  <div class="dwoo4 w innerClear" id="DwW4"></div>
+                  <div class="dsin4 w innerClear" id="Ds4"></div>
+                  <div class="dage w innerClear" id="Da4"></div>
                 </li>
                 <li id="daewoon_5" data-index="5">
-                  <div class="dt10sin3 w" id="dt10sin5"></div>
-                  <div class="ganji_w" id="DC_5"></div>
-                  <div class="ganji_w" id="DJ_5"></div>
-                  <div class="db10sin5 w" id="db10sin5"></div>
-                  <div class="dwoo5 w" id="DwW5"></div>
-                  <div class="dsin5 w" id="Ds5"></div>
-                  <div class="dage w" id="Da5"></div>
+                  <div class="dt10sin3 w innerClear" id="dt10sin5"></div>
+                  <div class="ganji_w innerClear" id="DC_5"></div>
+                  <div class="ganji_w innerClear" id="DJ_5"></div>
+                  <div class="db10sin5 w innerClear" id="db10sin5"></div>
+                  <div class="dwoo5 w innerClear" id="DwW5"></div>
+                  <div class="dsin5 w innerClear" id="Ds5"></div>
+                  <div class="dage w innerClear" id="Da5"></div>
                 </li>
                 <li id="daewoon_6" data-index="6">
-                  <div class="dt10sin3 w" id="dt10sin6"></div>
-                  <div class="ganji_w" id="DC_6"></div>
-                  <div class="ganji_w" id="DJ_6"></div>
-                  <div class="db10sin6 w" id="db10sin6"></div>
-                  <div class="dwoo6 w" id="DwW6"></div>
-                  <div class="dsin6 w" id="Ds6"></div>
-                  <div class="dage w" id="Da6"></div>
+                  <div class="dt10sin3 w innerClear" id="dt10sin6"></div>
+                  <div class="ganji_w innerClear" id="DC_6"></div>
+                  <div class="ganji_w innerClear" id="DJ_6"></div>
+                  <div class="db10sin6 w innerClear" id="db10sin6"></div>
+                  <div class="dwoo6 w innerClear" id="DwW6"></div>
+                  <div class="dsin6 w innerClear" id="Ds6"></div>
+                  <div class="dage w innerClear" id="Da6"></div>
                 </li>
                 <li id="daewoon_7" data-index="7">
-                  <div class="dt10sin3 w" id="dt10sin7"></div>
-                  <div class="ganji_w" id="DC_7"></div>
-                  <div class="ganji_w" id="DJ_7"></div>
-                  <div class="db10sin7 w" id="db10sin7"></div>
-                  <div class="dwoo7 w" id="DwW7"></div>
-                  <div class="dsin7 w" id="Ds7"></div>
-                  <div class="dage w" id="Da7"></div>
+                  <div class="dt10sin3 w innerClear" id="dt10sin7"></div>
+                  <div class="ganji_w innerClear" id="DC_7"></div>
+                  <div class="ganji_w innerClear" id="DJ_7"></div>
+                  <div class="db10sin7 w innerClear" id="db10sin7"></div>
+                  <div class="dwoo7 w innerClear" id="DwW7"></div>
+                  <div class="dsin7 w innerClear" id="Ds7"></div>
+                  <div class="dage w innerClear" id="Da7"></div>
                 </li>
                 <li id="daewoon_8" data-index="8">
-                  <div class="dt10sin3 w" id="dt10sin8"></div>
-                  <div class="ganji_w" id="DC_8"></div>
-                  <div class="ganji_w" id="DJ_8"></div>
-                  <div class="db10sin8 w" id="db10sin8"></div>
-                  <div class="dwoo8 w" id="DwW8"></div>
-                  <div class="dsin8 w" id="Ds8"></div>
-                  <div class="dage w" id="Da8"></div>
+                  <div class="dt10sin3 w innerClear" id="dt10sin8"></div>
+                  <div class="ganji_w innerClear" id="DC_8"></div>
+                  <div class="ganji_w innerClear" id="DJ_8"></div>
+                  <div class="db10sin8 w innerClear" id="db10sin8"></div>
+                  <div class="dwoo8 w innerClear" id="DwW8"></div>
+                  <div class="dsin8 w innerClear" id="Ds8"></div>
+                  <div class="dage w innerClear" id="Da8"></div>
                 </li>
                 <li id="daewoon_9" data-index="9">
-                  <div class="dt10sin3 w" id="dt10sin9"></div>
-                  <div class="ganji_w" id="DC_9"></div>
-                  <div class="ganji_w" id="DJ_9"></div>
-                  <div class="db10sin9 w" id="db10sin9"></div>
-                  <div class="dwoo9 w" id="DwW9"></div>
-                  <div class="dsin9 w" id="Ds9"></div>
-                  <div class="dage w" id="Da9"></div>
+                  <div class="dt10sin3 w innerClear" id="dt10sin9"></div>
+                  <div class="ganji_w innerClear" id="DC_9"></div>
+                  <div class="ganji_w innerClear" id="DJ_9"></div>
+                  <div class="db10sin9 w innerClear" id="db10sin9"></div>
+                  <div class="dwoo9 w innerClear" id="DwW9"></div>
+                  <div class="dsin9 w innerClear" id="Ds9"></div>
+                  <div class="dage w innerClear" id="Da9"></div>
                 </li>
                 <li id="daewoon_10" data-index="10">
-                  <div class="dt10sin3 w" id="dt10sin10"></div>
-                  <div class="ganji_w" id="DC_10"></div>
-                  <div class="ganji_w" id="DJ_10"></div>
-                  <div class="db10sin10 w" id="db10sin10"></div>
-                  <div class="dwoo10 w" id="DwW10"></div>
-                  <div class="dsin10 w" id="Ds10"></div>
-                  <div class="dage w" id="Da10"></div>
+                  <div class="dt10sin3 w innerClear" id="dt10sin10"></div>
+                  <div class="ganji_w innerClear" id="DC_10"></div>
+                  <div class="ganji_w innerClear" id="DJ_10"></div>
+                  <div class="db10sin10 w innerClear" id="db10sin10"></div>
+                  <div class="dwoo10 w innerClear" id="DwW10"></div>
+                  <div class="dsin10 w innerClear" id="Ds10"></div>
+                  <div class="dage w innerClear" id="Da10"></div>
                 </li>
               </ul>
             </div>
@@ -1851,9 +1851,9 @@
                 월까지계산
               </button>
             </div>
-            <input type="datetime-local" id="woonTimeSetPicker2" />
-            <input type="date" id="woonTimeSetPickerVer22" />
-            <input type="month" id="woonTimeSetPickerVer23" />
+            <input type="datetime-local" id="woonTimeSetPicker2" class="currentValueClear" />
+            <input type="date" id="woonTimeSetPickerVer22" class="currentValueClear" />
+            <input type="month" id="woonTimeSetPickerVer23" class="currentValueClear" />
             <div class="btn_box mb40 mt20">
               
               <button class="black_btn" id="woonChangeBtn2">

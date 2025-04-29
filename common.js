@@ -34,6 +34,9 @@ let correctedDate;
 
 let customRadioTarget = null;
 
+let hourSplitGlobal, daySplitGlobal;
+let manualOverride = false;
+
 // [0] 출생지 보정 및 써머타임 함수
 // const cityLongitudes = {
 //   "서울특별시": 126.9780, "부산광역시": 129.1, "대구광역시": 128.6,
@@ -733,7 +736,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
     hourBranchIndex = 1;
   }
 
-  if (isInsi && correctedDate.getHours() <= 3 || correctedDate.getHours() >= 23) {
+  if (isInsi && correctedDate.getHours() < 3 || correctedDate.getHours() >= 23) {
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   } else if (hourBranchIndex === 0){
     hourDayPillar = getDayGanZhi(nominalBirthDate);
@@ -741,8 +744,8 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   }
 
-  if (hourBranchIndex === 0 && (yajasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3) 
-  || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() <= 3)){
+  if (hourBranchIndex === 0 && (yajasi && correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) 
+  || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() < 3)){
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   } else if (hourBranchIndex === 0 && (yajasi && correctedDate.getHours() < 24) 
   || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
@@ -764,7 +767,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } 
 
-  if (isInsi && (correctedDate.getHours() <= 3 || correctedDate.getHours() >= 23)){
+  if (isInsi && (correctedDate.getHours() < 3 || correctedDate.getHours() >= 23)){
     const daypillar = getDayGanZhi(nominalBirthDatePrev);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } else {
@@ -1596,63 +1599,65 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
-        console.clear();
-        backBtn.style.display = '';
+    
+        // ── ① 시·지·묘운·세운 전부 하이픈+클래스 제거 ──
+        
         handleViewClick();
+    
         const saved = localStorage.getItem("fixedCorrectedDate");
         if (saved) fixedCorrectedDate = new Date(saved);
+    
         loadCityLongitudes();
         const idx = parseInt(button.getAttribute("data-index"), 10);
         currentDetailIndex = idx;
         const item = savedList[idx];
         currentMyeongsik = item;
         if (!item) return;
+    
         restoreCurrentPlaceMapping(item);
         new Date(localStorage.getItem('correctedDate'));
-        // 원래 detail view로 전환 (기존 코드)
-        document.getElementById('wongookLM').classList.remove("w100");
-        document.getElementById('luckyWrap').style.display = 'block';
-        document.getElementById('woonArea').style.display = 'block';
-        document.getElementById('woonContainer').style.display = 'none';
-        document.getElementById('calArea').style.display = 'none';
     
-        document.getElementById("inputName").value = item.name;
+        // 원래 detail view로 전환
+        document.getElementById('wongookLM').classList.remove("w100");
+        document.getElementById('luckyWrap').style.display   = 'block';
+        document.getElementById('woonArea').style.display    = 'block';
+        document.getElementById('woonContainer').style.display = 'none';
+        document.getElementById('calArea').style.display     = 'none';
+    
+        document.getElementById("inputName").value     = item.name;
         document.getElementById("inputBirthday").value = item.birthday;
     
         if (item.isTimeUnknown) {
-          document.getElementById("bitthTimeX").checked = true;
-          document.getElementById("inputBirthtime").value = "0430";
+          document.getElementById("bitthTimeX").checked     = true;
+          document.getElementById("inputBirthtime").value = null;
         } else {
-          document.getElementById("bitthTimeX").checked = false;
+          document.getElementById("bitthTimeX").checked     = false;
           document.getElementById("inputBirthtime").value = item.birthtime.replace(/\s/g, "").trim();
         }
     
         if (item.isPlaceUnknown) {
-          document.getElementById("bitthPlaceX").checked = true;
+          document.getElementById("bitthPlaceX").checked     = true;
           document.getElementById("inputBirthPlace").value = "출생지 선택";
         } else {
-          document.getElementById("bitthPlaceX").checked = false;
+          document.getElementById("bitthPlaceX").checked     = false;
           document.getElementById("inputBirthPlace").value = item.birthPlace;
         }
     
         if (item.gender === "남") {
-          document.getElementById("genderMan").checked = true;
+          document.getElementById("genderMan").checked   = true;
           document.getElementById("genderWoman").checked = false;
         } else {
           document.getElementById("genderWoman").checked = true;
-          document.getElementById("genderMan").checked = false;
+          document.getElementById("genderMan").checked   = false;
         }
     
-        if (item.selectedTime2 === "jasi") {
-          document.getElementById("jasi").checked = true;
-          document.getElementById("timeChk02_01").checked = true;
-        } else if (item.selectedTime2 === "yajasi") {
-          document.getElementById("yajasi").checked = true;
-          document.getElementById("timeChk02_02").checked = true;
-        } else if (item.selectedTime2 === "insi") {
-          document.getElementById("insi").checked = true;
-          document.getElementById("timeChk02_03").checked = true;
-        }
+        requestAnimationFrame(function(){
+          const selTime = item.selectedTime2 || 'insi';
+          const r1 = document.querySelector(`input[name="time2"][value="${selTime}"]`);
+          const r2 = document.querySelector(`input[name="timeChk02"][value="${selTime}"]`);
+          if (r1) r1.checked = true;
+          if (r2) r2.checked = true;
+        });
     
         // 자동 계산
         document.getElementById("calcBtn").click();
@@ -1662,25 +1667,25 @@ document.addEventListener("DOMContentLoaded", function () {
         myowoonBtn.innerText = "묘운력(운 전체) 상세보기";
     
         resetHourButtons();
-
+    
         const typeSpan = document.getElementById('typeSV');
         if (typeSpan) {
           typeSpan.innerHTML = `<b>${item.group || '미선택'}</b>`;
         }
-
+    
         const viewStar = document.getElementById('topPs');
         if (viewStar) {
           viewStar.textContent = item.isFavorite ? '★ ON' : '☆ OFF';
-          viewStar.onclick = () => toggleFavorite(idx);   // idx는 detailViewBtn용 index
+          viewStar.onclick = () => toggleFavorite(idx);
         }
-
+    
         updateSaveBtn();
     
-        document.getElementById("aside").style.display = "none";
-        document.getElementById("inputWrap").style.display = "none";
-        //document.getElementById("backBtn").style.display = "block";
+        document.getElementById("aside").style.display      = "none";
+        document.getElementById("inputWrap").style.display  = "none";
         document.getElementById("resultWrapper").style.display = "block";
         window.scrollTo(0, 0);
+        // ── 상세뷰 로직 끝 ──
       });
     });
   
@@ -2257,7 +2262,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const name = document.getElementById("inputName").value.trim() || "-";
     const birthdayStr = document.getElementById("inputBirthday").value.trim();
     const birthtimeStr = isTimeUnknown 
-                          ? "0430" 
+                          ? null 
                           : document.getElementById("inputBirthtime").value.replace(/\s/g, "").trim();
     const gender = document.getElementById("genderMan").checked ? "남" 
                   : (document.getElementById("genderWoman").checked ? "여" : "-");
@@ -2266,7 +2271,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
 
     // 계산용: 시/분 기본값은 "0000", 출생지 기본값은 "서울특별시"
-    let usedBirthtime = isTimeUnknown ? "0430" : birthtimeStr;
+    let usedBirthtime = isTimeUnknown ? null : birthtimeStr;
     const usedBirthPlace = (isPlaceUnknown)
                             ? "서울특별시" : birthPlaceInput;
 
@@ -2379,9 +2384,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    
-
-
+  
     globalState.correctedBirthDate = correctedDate;
 
     const formattedBirth = `${year}-${pad(month)}-${pad(day)}`;
@@ -2406,13 +2409,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const yearPillar  = pillars[0] || "-";
     const monthPillar = pillars[1] || "-";
     const dayPillar   = pillars[2] || "-";
-    const hourPillar  = pillars[3] || "-";
+    const hourPillar  = isTimeUnknown ? null : pillars[3] || "-";
+
+    
 
     // 원국 기둥 분리
     const yearSplit  = splitPillar(yearPillar);
     const monthSplit = splitPillar(monthPillar);
     const daySplit   = splitPillar(dayPillar);
-    const hourSplit  = splitPillar(hourPillar);
+    daySplitGlobal = daySplit;
+    let hourSplit  = isTimeUnknown ? null : splitPillar(hourPillar);
+    hourSplitGlobal = hourSplit;
 
     const birthYearPillar = yearPillar;
 
@@ -2429,6 +2436,7 @@ document.addEventListener("DOMContentLoaded", function () {
     requestAnimationFrame(() => {
       if (!isTimeUnknown) {
         if (hourSplit.ji === "자" || hourSplit.ji === "축") {
+          
           checkOption.style.display = 'flex';
         } else {
           checkOption.style.display = 'none';
@@ -2480,7 +2488,10 @@ document.addEventListener("DOMContentLoaded", function () {
     //   bjTimeText.innerHTML = `${prefix}<b id="resbjTime">${formattedTime}</b>`;
     // }
 
-    function updateOriginalSetMapping() {
+    function updateOriginalSetMapping(daySplit, hourSplit) {
+      if (manualOverride) {
+        return;
+      }
       setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, hourSplit.ji));
       setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch, hourSplit.ji));
       setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
@@ -2499,7 +2510,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateBranchInfo("Mb", monthSplit.ji, baseDayStem);
     updateBranchInfo("Db", daySplit.ji, baseDayStem);
     updateBranchInfo("Hb", isTimeUnknown ? "-" : hourSplit.ji, baseDayStem);
-    updateOriginalSetMapping();
+    updateOriginalSetMapping(daySplit, hourSplit);
     updateColorClasses();
 
     globalState.daewoonData = getDaewoonData(gender, originalDate, correctedDate);
@@ -2748,7 +2759,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const monthlyContainer = document.getElementById("walwoonArea");
     if (monthlyContainer) { monthlyContainer.style.display = "grid"; }
     updateColorClasses();
-    updateOriginalSetMapping();
+    updateOriginalSetMapping(daySplit, hourSplit);
     updateListMapping(globalState.daewoonData.list, "DwW", "Ds", baseDayStem, baseYearBranch);
     if (globalState.sewoonList && globalState.sewoonList.length > 0) {
       updateListMapping(globalState.sewoonList, "SwW", "Ss", baseDayStem, baseYearBranch);
@@ -4218,7 +4229,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     
     
-    function registerMyowoonMoreHandler() {
+    function registerMyowoonMoreHandler(hourSplit) {
       const btn = document.getElementById("myowoonMore");
       const newBtn = btn.cloneNode(true);
       btn.parentNode.replaceChild(newBtn, btn);
@@ -4260,7 +4271,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }    
   
-    registerMyowoonMoreHandler();
+    registerMyowoonMoreHandler(hourSplit);
     
 
     document.querySelectorAll('.back_btn').forEach(function(btn) {
@@ -4478,10 +4489,11 @@ document.addEventListener("DOMContentLoaded", function () {
       updateBranchInfo("Mb", monthSplit.ji, baseDayStem);
       updateBranchInfo("Db", daySplit.ji, baseDayStem);
       updateBranchInfo("Hb", isTimeUnknown ? "-" : hourSplit.ji, baseDayStem);
-      updateOriginalSetMapping();
+      updateOriginalSetMapping(daySplit, hourSplit);
       updateColorClasses();
     }
     
+  
     const inputData = collectInputData();
     
     function getMonthlyWoonParameters() {
@@ -4534,7 +4546,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelector(".check_option").style.display = ""; // or "block" 등
     }
 
-    function updateExplanDetail(myowoonResult, refDate) {
+    function updateExplanDetail(myowoonResult, refDate, hourPillar) {
   
       function direction() {
         if (myowoonResult.dirMode === "순행") {
@@ -4712,19 +4724,23 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       function formatDiffDaysHours(fromDate, toDate) {
-        const diffMs    = toDate.getTime() - fromDate.getTime();    // 밀리초 차이
-        const dayMs     = 24 * 60 * 60 * 1000;                      // 하루 밀리초
-        const hourMs    = 60 * 60 * 1000;                           // 한 시간 밀리초
-      
-        const days      = Math.floor(diffMs / dayMs);               // 전체 일
-        const hours     = Math.floor((diffMs - days * dayMs) / hourMs); // 나머지 시간
-      
+        const f = new Date(fromDate), t = new Date(toDate);
+        if (isNaN(f.getTime()) || isNaN(t.getTime())) {
+          console.warn('✕ 잘못된 날짜 입력:', fromDate, toDate);
+          return '';
+        }
+        const diff = t.getTime() - f.getTime();
+        const dayMs = 24*60*60*1000, hourMs = 60*60*1000;
+        const days = Math.floor(diff / dayMs);
+        const hours = Math.floor((diff - days*dayMs) / hourMs);
         return `${days}일 ${hours}시간`;
       }
 
-      const birthDate = correctedDate;
-      const firstSijuDate = myowoonResult.sijuFirstChangeDate;
-      const durationStr = formatDiffDaysHours(birthDate, firstSijuDate);
+      const firstSijuRaw = myowoonResult.sijuFirstChangeDate;
+      const firstSijuDate = firstSijuRaw ? new Date(firstSijuRaw) : null;
+      const durationStr = firstSijuDate
+        ? formatDiffDaysHours(correctedDate, firstSijuDate)
+        : '';
 
       let html = "";
 
@@ -4869,7 +4885,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
       ul.innerHTML = html;
     }
-    updateExplanDetail(myowoonResult, refDate);
+    updateExplanDetail(myowoonResult, refDate, hourPillar);
 
     function getDaySplit(dateObj) {
       // (1) 예: getDayGanZhi(dateObj)가 "경자" 같은 문자열을 리턴한다고 가정
@@ -4921,7 +4937,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateFunc() {
       // 원국, 묘운, 운 등의 업데이트 함수 호출
       updateFortune();
-      updateOriginalSetMapping(refDate);
+      updateOriginalSetMapping(daySplitGlobal, hourSplitGlobal);
       updateColorClasses();
       
       // 운(대운) 관련 업데이트: 원국 십신, 십이운성 등
@@ -4977,7 +4993,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!hasSaved) {
         // 처음모드
         originalDate = new Date(year, month - 1, day, hour, minute);
-        correctedRadio  = adjustBirthDate(originalDate, usedBirthPlace, isPlaceUnknown);
+        correctedRadio  = adjustBirthDateWithLon(originalDate, usedBirthPlace, isPlaceUnknown);
         const originalBranch = getHourBranchFromPillar(hourPillar); 
         const realBranch = getHourBranchName(originalDate); 
         if (realBranch !== originalBranch) {
@@ -4987,13 +5003,14 @@ document.addEventListener("DOMContentLoaded", function () {
         // 명식보기 모드
         // savedList[currentModifyIndex] 를 사용해야겠죠?
         originalDate    = getOriginalDateFromItem(currentMyeongsik);
-        correctedRadio  = adjustBirthDate(originalDate, currentMyeongsik.birthPlace, currentMyeongsik.isPlaceUnknown);
+        correctedRadio  = adjustBirthDateWithLon(originalDate, currentMyeongsik.birthPlace, currentMyeongsik.isPlaceUnknown);
 
         const originalBranch = getHourBranchFromPillar(currentMyeongsik.hourPillar); 
         const realBranch = getHourBranchName(originalDate); 
         if (realBranch !== originalBranch) {
           return;
         }
+        
       }
 
       function getDateForGanZhiWithRadio(originalDate) {
@@ -5019,14 +5036,14 @@ document.addEventListener("DOMContentLoaded", function () {
         let corrected;
         // [2] 보정된 시각
         if (!hasSaved) {
-          corrected = adjustBirthDate(
+          corrected = adjustBirthDateWithLon(
             originalDate,
             usedBirthPlace,
             isPlaceUnknown
           );
         } else {
           
-          corrected = adjustBirthDate(
+          corrected = adjustBirthDateWithLon(
             originalDate,
             currentMyeongsik.birthPlace,
             currentMyeongsik.isPlaceUnknown
@@ -5049,8 +5066,8 @@ document.addEventListener("DOMContentLoaded", function () {
       
         // [6] 간지 계산
         //const ganZhi = getDayGanZhi(ganZhiDate);
-        const _daySplit = getDaySplit(ganZhiDate);
-        const newGan = _daySplit.gan;
+        const __daySplit = getDaySplit(ganZhiDate);
+        const newGan = __daySplit.gan;
       
         baseDayStem = newGan;
       }
@@ -5092,7 +5109,7 @@ document.addEventListener("DOMContentLoaded", function () {
         radioFunc(refDate);
       }
       updateFunc(refDate);
-      updateExplanDetail(myowoonResult, refDate);
+      updateExplanDetail(myowoonResult, refDate, hourPillar);
 
       // 2-2) "올해 나이" 또는 "refDate" 기준으로 대운리스트 중 현재 대운(active) 찾기
       const todayObj = refDate; // 편의상
@@ -5237,27 +5254,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return d;
     }
 
-    function updateDayPillarByPrev() {
-      // correctedDate는 보정된 명식 시각 (전역변수)
-      let newDayDate = new Date(correctedDate);
-      newDayDate.setDate(newDayDate.getDate() - 1);
-      const dayPillar = getDayGanZhi(newDayDate);
-      const daySplit = splitPillar(dayPillar);
-      updateStemInfo("Dt", daySplit, baseDayStem);
-      updateBranchInfo("Db", daySplit.ji, baseDayStem);
-      updateOriginalSetMapping();
-    }
-
-    function updateDayPillarByCurr() {
-      // correctedDate는 보정된 명식 시각 (전역변수)
-      let newDayDate = new Date(correctedDate);
-      newDayDate.setDate(newDayDate.getDate());
-      const dayPillar = getDayGanZhi(newDayDate);
-      const daySplit = splitPillar(dayPillar);
-      updateStemInfo("Dt", daySplit, baseDayStem);
-      updateBranchInfo("Db", daySplit.ji, baseDayStem);
-      updateOriginalSetMapping();
-    }
 
     function smoothUpdate(manualSiju) {
       const containers = document.querySelectorAll('.siju_con');
@@ -5284,85 +5280,226 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     // 2) renderSijuButtons()에 색상 클래스 다시 추가
+    // 1) 최초 버튼 렌더링 한 번만
+    let initialized = false;
+
+    // 2) 시간 문자열 파싱 유틸
+    function parseTimeStr(tstr) {
+      return {
+        hour:   parseInt(tstr.slice(0,2), 10),  // "00"→0, "12"→12
+        minute: parseInt(tstr.slice(2),   10),
+      };
+    }
+
+
+    // 4) 버튼 렌더링 & 토글 적용
     function renderSijuButtons() {
       const useJasiMode = document.getElementById('jasi').checked;
-      
       const mapping     = useJasiMode ? fixedDayMappingBasic : fixedDayMapping;
       const sijuList    = mapping[baseDayStem];
       const labels      = useJasiMode ? Jiji : MONTH_ZHI;
-      const timeMap     = { "자":"0035","축":"0235","인":"0435","묘":"0635",
-                            "진":"0835","사":"1035","오":"1235","미":"1435",
-                            "신":"1635","유":"1835","술":"2035","해":"2235" };
+      const timeMap     = {
+        "자":"0035","축":"0235","인":"0435","묘":"0635",
+        "진":"0835","사":"1035","오":"1235","미":"1435",
+        "신":"1635","유":"1835","술":"2035","해":"2235"
+      };
       const hourListEl  = document.getElementById("hourList");
-      hourListEl.innerHTML = "";
-    
-      sijuList.forEach((siju, idx) => {
-        const lbl = labels[idx];
-        const btn = document.createElement("button");
-        btn.className   = "black_btn";
-        btn.textContent = `${lbl}시 (${siju})`;
-        hourListEl.appendChild(btn);
-    
-        btn.addEventListener("click", () => {
-          // 2-1) 리셋
-          document.querySelectorAll("#hourList button").forEach((b,i) => {
-            b.className = "black_btn";
-            b.textContent = `${labels[i]}시 (${sijuList[i]})`;
+
+      // innerHTML 클리어는 최초 한 번만
+      if (!initialized) {
+        hourListEl.innerHTML = "";
+        sijuList.forEach((siju, idx) => {
+          const lbl = labels[idx];
+          // 버튼 생성
+          const btn = document.createElement("button");
+          btn.id        = `siju-btn-${idx}`;
+          btn.className = "black_btn";
+          btn.textContent = `${lbl}시 (${siju})`;
+
+
+          btn.addEventListener("click", () => {
+            // ── 토글 로직 시작 ──
+            if (btn.classList.contains("active")) {
+              // 1) active 해제
+              btn.className = "black_btn";
+              btn.textContent = `${lbl}시 (${siju})`;
+              btn.classList.remove("b_green","b_red","b_white","b_black","b_yellow","active");
+          
+              // 2) 시간 미확인 모드 복귀
+              isTimeUnknown = true;
+              document.getElementById("inputBirthtime").value = "";
+
+              
+          
+              // 3) 시·지 영역은 업데이트 함수로 클리어
+              updateStemInfo("Ht", { gan: "-", ji: "-" }, baseDayStem);
+              updateBranchInfo("Hb", "-", baseDayStem);
+          
+              // 4) 나머지 요소는 하이픈으로 클리어
+              ["Hb12ws","Hb12ss"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = "-";
+              });
+          
+              // 5) 명운/설명 영역도 기본값 리셋
+              const resetData = {
+                correctedDate,
+                year, month, day,
+                hour: null, minute: null,
+                yearPillar, monthPillar, dayPillar,
+                hourPillar: null,
+                gender
+              };
+              const resetResult = getMyounPillarsVr(resetData, refDate);
+              updateMyowoonSection(resetResult);
+              updateExplanDetail(resetResult, refDate, hourPillar);
+              registerMyowoonMoreHandler(hourSplit = null);
+          
+              return;  // 활성화 로직 생략
+            }
+            // ── 토글 로직 끝 ──
+
+            // 2-1) 기타 버튼 모두 리셋
+            sijuList.forEach((_, i) => {
+              const b = document.getElementById(`siju-btn-${i}`);
+              if (!b) return;
+              b.className = "black_btn";
+              b.textContent = `${labels[i]}시 (${sijuList[i]})`;
+              b.classList.remove("b_green","b_red","b_white","b_black","b_yellow","active");
+            });
+
+            // 2-2) 이 버튼만 활성화 + 색상
+            btn.classList.add("active");
+            btn.textContent = `${lbl}시 적용중`;
+            if (["인","묘"].includes(lbl))      btn.classList.add("b_green");
+            else if (["사","오"].includes(lbl)) btn.classList.add("b_red");
+            else if (["신","유"].includes(lbl)) btn.classList.add("b_white");
+            else if (["자","해"].includes(lbl)) btn.classList.add("b_black");
+            else                                 btn.classList.add("b_yellow");
+
+            // 2-3) 시간 파싱 & correctedDate 세팅
+            const { hour, minute } = parseTimeStr(timeMap[lbl]);
+            const orig = new Date(birthYear, birthMonth - 1, birthDay, hour, minute);
+            const corr = adjustBirthDateWithLon(orig, birthPlaceInput, isPlaceUnknown);
+            correctedDate = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
+            document.getElementById("inputBirthtime").value = timeMap[lbl];
+
+            // 2-4) 시간 확인 모드로 전환
+            isTimeUnknown = false;
+
+            // 2-5) 명운 예측 & UI 업데이트
+            const myData2 = {
+              correctedDate,
+              year, month, day,
+              hour, minute,
+              yearPillar, monthPillar, dayPillar,
+              hourPillar: siju,
+              gender
+            };
+            const myResult = getMyounPillarsVr(myData2, refDate);
+            updateMyowoonSection(myResult);
+            updateExplanDetail(myResult, refDate, siju);
+            manualOverride = true;
+            const hourSplit2 = splitPillar(siju);
+            updateOriginalSetMapping(daySplitGlobal, hourSplit2);
+            registerMyowoonMoreHandler(hourSplit2)
+
+            // 2-6) 부드러운 업데이트 (Day Pillar 포함)
+            
+            smoothUpdate(siju);
           });
-    
-          // 2-2) 이 버튼만 active + 색상
-          btn.classList.add("active");
-          btn.textContent = `${lbl}시 적용중`;
-          if (["인","묘"].includes(lbl))      btn.classList.add("b_green");
-          else if (["사","오"].includes(lbl)) btn.classList.add("b_red");
-          else if (["신","유"].includes(lbl)) btn.classList.add("b_white");
-          else if (["자","축"].includes(lbl)) btn.classList.add("b_black");
-          else                                 btn.classList.add("b_yellow");
-    
-          // 2-3) 시간 입력 자동
-          document.getElementById("inputBirthtime").value = timeMap[lbl];
-    
-          // 2-4) 상태 갱신 & 부드러운 업데이트 호출
-          globalState.selectedHourPillar = siju;
-          globalState.hourPillar         = siju;
-          smoothUpdate(siju);
+
+          hourListEl.appendChild(btn);
         });
-      });
+        initialized = true;
+      }
     }
 
-    // 3) 간지 업데이트 함수를 가능한 최소화
+    // 렌더링 한 번 실행
+    //renderSijuButtons();
+
+
+    const birthYear  = year;
+    const birthMonth = month;
+    const birthDay   = day;
+
+    //1) Day Pillar 계산 함수 시그니처에 파라미터 추가
+    function updateDayPillarByPrev(baseDate = correctedDate) {
+      const newDayDate = new Date(baseDate);
+      newDayDate.setDate(newDayDate.getDate() - 1);
+      const dayPillar = getDayGanZhi(newDayDate);
+      const daySplit  = splitPillar(dayPillar);
+      updateStemInfo("Dt", daySplit, baseDayStem);
+      updateBranchInfo("Db", daySplit.ji, baseDayStem);
+      setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
+      setText("Db12ss", getTwelveShinsal(baseYearBranch, daySplit.ji));
+    }
+
+    function updateDayPillarByCurr(baseDate = correctedDate) {
+      const newDayDate = new Date(baseDate);
+      // setDate 그대로 ← 같은 날
+      const dayPillar = getDayGanZhi(newDayDate);
+      const daySplit  = splitPillar(dayPillar);
+      updateStemInfo("Dt", daySplit, baseDayStem);
+      updateBranchInfo("Db", daySplit.ji, baseDayStem);
+      setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
+      setText("Db12ss", getTwelveShinsal(baseYearBranch, daySplit.ji));
+    }
+    
+    // Day Pillar 계산 (시간 제거, 날짜만)
+    function updateDayPillar(manualSiju) {
+      // ① correctedDate의 날짜만 추출 (시간 모두 0시로)
+      const cd = correctedDate instanceof Date && !isNaN(correctedDate.getTime())
+        ? correctedDate
+        : new Date(birthYear, birthMonth-1, birthDay);
+      const base = new Date(cd.getFullYear(), cd.getMonth(), cd.getDate());
+    
+      // ② 자·축(子,丑) 시는 전날로
+      const branch = manualSiju.charAt(1);
+      const useInsi = document.getElementById('insi').checked;
+      if (["자","축"].includes(branch) && useInsi) {
+        base.setDate(base.getDate() - 1);
+      }
+    
+      // ③ 순수 날짜(base)로 Day GanZhi 계산
+      const dayPillar = getDayGanZhi(base);
+      const split     = splitPillar(dayPillar);
+      updateStemInfo("Dt", split, baseDayStem);
+      updateBranchInfo("Db", split.ji, baseDayStem);
+      setText("Db12ws", getTwelveUnseong(baseDayStem, split.ji));
+      setText("Db12ss", getTwelveShinsal(baseYearBranch, split.ji));
+    }
+    
+    // 2) updateFortuneWithManualHour 내부에서 orig을 넘기도록 변경
     function updateFortuneWithManualHour(manualSiju) {
-      // — 기존 DOM 조작 로직 —
+      // …시간 파싱 & orig 생성…
       const bt = document.getElementById('inputBirthtime').value;
-      const hr = parseInt(bt.substring(0,2),10), mi = parseInt(bt.substring(2,4),10);
-      const orig = new Date(year,month-1,day,hr,mi);
-      const corr = adjustBirthDate(orig, birthPlaceInput, isPlaceUnknown);
+      const hr = parseInt(bt.slice(0,2),10);
+      const mi = parseInt(bt.slice(2),10);
+      const orig = new Date(birthYear, birthMonth - 1, birthDay, hr, mi);
 
+      // 시차 보정은 Hour Pillar 용으로만 쓰고
+      const corr = adjustBirthDateWithLon(orig, birthPlaceInput, isPlaceUnknown);
+      correctedDate = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
+
+      // — Hour Pillar 업데이트 (unchanged) —
       const split = splitPillar(manualSiju);
-
       updateStemInfo("Ht", split, baseDayStem);
       updateBranchInfo("Hb", split.ji, baseDayStem);
       setText("Hb12ws", getTwelveUnseong(baseDayStem, split.ji));
       setText("Hb12ss", getTwelveShinsal(baseYearBranch, split.ji));
 
-      const myRes = getMyounPillars(myData, corr);
-      updateMyowoonSection(myRes);
-      updateExplanDetail(myRes, corr);
+      // — 기타 로직 생략 —
 
-      
+      // — Day Pillar 계산: 항상 orig 기준으로 —
       const useInsiMode = document.getElementById('insi').checked;
-      const branchName  = globalState.hourPillar.charAt(1);
+      const branchName  = manualSiju.charAt(1);
       if ((branchName === "자" || branchName === "축") && useInsiMode) {
-        updateDayPillarByPrev();
+        updateDayPillarByPrev(orig);    // ← orig 넘김
       } else {
-        updateDayPillarByCurr();
+        updateDayPillarByCurr(orig);    // ← orig 넘김
       }
-
-      document.getElementById('timeChk02_03').addEventListener("change", function() {
-        if (branchName === "자" || branchName === "축") {
-          updateDayPillarByPrev();
-        }
-      });
+      updateDayPillar(manualSiju);
       updateColorClasses();
     }
 
@@ -5393,11 +5530,48 @@ document.addEventListener("DOMContentLoaded", function () {
         if (branchName === "자" || branchName === "축") {
           radioFunc(radioDate);
         }
+
         updateFunc(rawRefDate);
+
+        // 1) 감지할 요소와 라디오 동기화 함수 정의
+        function syncRadioByDayPillar(dayPillar) {
+          // ex) dayPillar='기해','을인' 등
+          const branch = dayPillar.charAt(1); // 지지 한 글자
+          // 자/축 → 'jasi', 그 외 → 'insi' 로 예시
+          const value = (branch === '자' || branch === '축') ? 'jasi' : 'insi';
+          const radio = document.querySelector(`input[name="timeChk02"][value="${value}"]`);
+          if (radio) radio.checked = true;
+          console.log('🔄 일주 감지:', dayPillar, '→ 라디오:', value);
+
+          const daySplit_ = splitPillar(dayPillar);
+          setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit_.ji));
+          setText("Db12ss", getTwelveShinsal(baseYearBranch, daySplit_.ji));
+        }
+
+        // 2) MutationObserver 콜백
+        function observeDayPillar() {
+          const elDt = document.getElementById('DtHanguel');
+          const elDb = document.getElementById('DbHanguel');
+          if (!elDt || !elDb) return;
+
+          const handler = () => {
+            const a = elDt.textContent.trim().charAt(0);
+            const b = elDb.textContent.trim().charAt(0);
+            const dayPillar = a + b;
+            syncRadioByDayPillar(dayPillar);
+          };
+
+          const obs = new MutationObserver(handler);
+          obs.observe(elDt, { childList: true });
+          obs.observe(elDb, { childList: true });
+        }
+
+        observeDayPillar();
+
         setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
           const newResult = getMyounPillars(myData, rawRefDate, selectedValue);
-          updateExplanDetail(newResult, refDate);
+          updateExplanDetail(newResult, refDate, hourPillar);
           updateMyowoonSection(newResult);
 
         });
@@ -5547,11 +5721,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("inputMeGroup").value = selected.group || "미선택";
     updateMeGroupOption(selected.group);   // ← 여기서 selected를 넘겨줍니다
 
-    setTimeout(() => {
-      getMyounPillarsVr(myData, refDate);
-      let myowoonResult = getMyounPillars(myData, refDate);
-      updateMyowoonSectionVr(myowoonResult);
-    }, 10);
 
     const myowoonBtn = document.getElementById("myowoonMore");
     myowoonBtn.classList.remove("active");
@@ -5705,12 +5874,13 @@ document.addEventListener("DOMContentLoaded", function () {
       isFavorite : false,
       birthPlaceFull,
       birthPlaceLongitude: cityLon,
-      correctedDate: correctedDate.toISOString(),
+      correctedDate: fixedCorrectedDate,
     };
   }
 
   // 수정하기 버튼 눌렀을 때
   document.getElementById("calcBtn").addEventListener("click", function () {
+
     // 1) 새로 수집할 데이터 만들어오기
     const newData = makeNewData();
     latestMyeongsik = newData;
