@@ -4816,7 +4816,7 @@ document.addEventListener("DOMContentLoaded", function () {
           years--;
         }
       
-        return `${years}년 ${months}월 ${days}일 ${hours}시간`;
+        return `${years}년 ${months}개월 ${days}일 ${hours}시간`;
       }
 
       const firstSijuRaw = myowoonResult.sijuFirstChangeDate;
@@ -4950,8 +4950,6 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
       `;
       
-
-      const nextY = myowoonResult.yeonjuNextChange;
       //----- 연주 설명 -----
       html += `
       <li>
@@ -4959,16 +4957,19 @@ document.addEventListener("DOMContentLoaded", function () {
         ${isTimeUnknown ? '(시간이 없어 계산이 정확하지 않습니다.)' : ''}<br>
         원국 연주 간지: <b>${yearPillar}</b><br>
         보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.yeonjuFirstChangeDate)}</b><br>
-        보정 후 오늘까지 마지막으로 바뀐 시간: <b>${
-          myowoonResult.yeonjuLastChangeDate == null
-            ? '변경없음'
-            : formatByTimeKnown(myowoonResult.yeonjuLastChangeDate)
-        }</b><br>
-        다음 간지 바뀌는 날짜 : <b>${
-          nextY && nextY > refDate
-            ? formatByTimeKnown(nextY)
-            : '이미 한 번 변경이 되었기에 때문에, 다음 변경 시점이 없습니다.'
-        }</b><br>
+        보정 후 오늘까지 마지막으로 바뀐 시간: `;
+        if (myowoonResult.yeonjuLastChangeDate == null) {
+          html += `<b>변경없음</b><br>
+           다음간지 바뀌는 날짜 : <b>${formatByTimeKnown(myowoonResult.yeonjuFirstChangeDate)}</b><br>
+           최종 업데이트 이벤트 간지: <b>변경없음</b>
+          `;
+        } else {
+          html +=`<br><b>이미 한번 간지가 바뀌었기때문에 다음 시점이 없습니다.</b><br>
+          최종 업데이트 이벤트 간지: <b>${myowoonResult.yeonjuCurrentPillar}</b>
+          `;
+        }
+        html +=`<br>
+        방향: <b>${myowoonResult.dirMode}</b><br><br>
         묘운 연주의 경우, 시주가 일주의 12개의 팔이기 때문에, 묘운 인월에 변경됩니다.<br>
         월주(월지)기준으로, 순행은 인월 역행은 축월(역으로 흐르기 때문에)에 따라 연주가 바뀝니다.
       </li>
