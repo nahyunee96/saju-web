@@ -3720,16 +3720,16 @@ document.addEventListener("DOMContentLoaded", function () {
           "戌","亥","子","丑"
         ];
 
-        function getPrincipalTerms(year) {
-          const all = getSolarTermBoundaries(year)
-            .slice()
-            .sort((a, b) => a.date - b.date);
-          return all.filter((_, idx) => idx % 2 === 0);
-        }
+        // function getPrincipalTerms(year) {
+        //   const all = getSolarTermBoundaries(year)
+        //     .slice()
+        //     .sort((a, b) => a.date - b.date);
+        //   return all.filter((_, idx) => idx % 2 === 0);
+        // }
 
         function getMonthBranchReturn(dateObj) {
-          const thisYear = getPrincipalTerms(dateObj.getFullYear());
-          const nextYear = getPrincipalTerms(dateObj.getFullYear() + 1);
+          const thisYear = getSolarTermBoundaries(dateObj.getFullYear());
+          const nextYear = getSolarTermBoundaries(dateObj.getFullYear() + 1);
 
           // nextYear이 비었을 땐 첫 절기 +1년으로 채워두면 안전
           if (!nextYear.length) {
@@ -3751,41 +3751,38 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         let lastMb = getMonthBranchReturn(sDates[0]);
+        let principalTerms = getSolarTermBoundaries(year);
 
         // ——— 월주·연주 동시 계산 루프 ———
         for (let i = 1; i < sDates.length; i++) {
           const dt = sDates[i];
-          const thresholdDate = terms[pointer].date;
+          const thresholdDate = principalTerms[pointer].date;
 
-          // 1) 월주(hit) 판단
+          // 절기(hit) 판단: 순행은 dt >=, 역행은 dt <=
           const hit = dirMode === '순행'
             ? dt >= thresholdDate
             : dt <= thresholdDate;
 
-          if (hit) {
-            // — 월주 갱신 —
-            const prevMIdx = getGanZhiIndex(mPillars[i - 1]);
-            const nextMIdx = dirMode === '순행'
-              ? (prevMIdx + 1) % 60
-              : (prevMIdx + 59) % 60;
-            mPillars[i] = getGanZhiByIndex(nextMIdx);
+            if (hit) {
+              // 1) 실제 dt 시점의 월간지로 바로 갱신
+              mPillars[i] = getMonthGanZhi(dt, dt.getFullYear());
 
-            // — pointer 이동(절기 경계 넘어가면 갱신) —
-            if (dirMode === '순행') {
-              pointer++;
-              if (pointer >= terms.length) {
-                year++;
-                terms  = getSolarTermBoundaries(year);
-                pointer = 0;
+              // 2) 다음 절기로 포인터 이동
+              if (dirMode === '순행') {
+                pointer++;
+                if (pointer >= getSolarTermBoundaries.length) {
+                  year++;
+                  principalTerms = getSolarTermBoundaries(year);
+                  pointer = 0;
+                }
+              } else {
+                pointer--;
+                if (pointer < 0) {
+                  year--;
+                  principalTerms = getSolarTermBoundaries(year);
+                  pointer = principalTerms.length - 1;
+                }
               }
-            } else {
-              pointer--;
-              if (pointer < 0) {
-                year--;
-                terms  = getSolarTermBoundaries(year);
-                pointer = terms.length - 1;
-              }
-            }
 
             // — 연주 판단 — 
             // 2) 지금 만난 절기 이름
@@ -3840,7 +3837,7 @@ document.addEventListener("DOMContentLoaded", function () {
           };
         }
       
-        // ── 콘솔 한 줄 출력 ──
+        //── 콘솔 한 줄 출력 ──
         // console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
         //   for (let i = 0; i < sDates.length; i++) {
         //     console.log(
@@ -3852,7 +3849,6 @@ document.addEventListener("DOMContentLoaded", function () {
         //       `${formatDate(periods[i].start)} → ${formatDate(periods[i].end)}`
         //     );
         //   }
-
         
 
         // ── 헬퍼: 첫 변경 시점 찾기 ──
@@ -4791,10 +4787,48 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${days}일 ${hours}시간`;
       }
 
+      function formatDiffDetailed(fromDate, toDate) {
+        const f = new Date(fromDate), t = new Date(toDate);
+        if (isNaN(f) || isNaN(t)) {
+          console.warn('✕ 잘못된 날짜 입력:', fromDate, toDate);
+          return '';
+        }
+      
+        let years  = t.getFullYear() - f.getFullYear();
+        let months = t.getMonth()     - f.getMonth();
+        let days   = t.getDate()      - f.getDate();
+        let hours  = t.getHours()     - f.getHours();
+      
+        // 시간 보정
+        if (hours < 0) {
+          hours += 24;
+          days--;
+        }
+        // 일 보정 (이전 달의 일수 구하기)
+        if (days < 0) {
+          const prevMonthLastDay = new Date(t.getFullYear(), t.getMonth(), 0).getDate();
+          days += prevMonthLastDay;
+          months--;
+        }
+        // 월 보정
+        if (months < 0) {
+          months += 12;
+          years--;
+        }
+      
+        return `${years}년 ${months}월 ${days}일 ${hours}시간`;
+      }
+
       const firstSijuRaw = myowoonResult.sijuFirstChangeDate;
+      const firstWoljuRaw = myowoonResult.woljuFirstChangeDate;
       const firstSijuDate = firstSijuRaw ? new Date(firstSijuRaw) : null;
+      const firstWoljuDate = firstWoljuRaw ? new Date(firstWoljuRaw) : null;
       const durationStr = firstSijuDate
         ? formatDiffDaysHours(correctedDate, firstSijuDate)
+        : '';
+
+      const monthStr = firstWoljuDate
+        ? formatDiffDetailed(correctedDate, firstWoljuDate)
         : '';
 
       let html = "";
@@ -4904,12 +4938,15 @@ document.addEventListener("DOMContentLoaded", function () {
           방향: <b>${myowoonResult.dirMode}</b><br><br>
           묘운 월주의 경우, 대운수를 구하는 방법과 동일하고,<br> 대운수 구하는 방법으로 구하셔도 됩니다.
           하지만, 대운수의 경우도 만세력마다 차이가 있기 때문에, 분단위로 구해보겠습니다. <br>
-          순행은 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.
+          순행은 생일 기준으로, 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.
           이 명식은 <b>${myowoonResult.dirMode}</b>이므로, ${direction()} 절기의 까지의 기간을 산출합니다.
           보정시에서 ${direction()} 절기의 기간까지 산출했을 때, <br>
           <b>${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)}</b> 나오게 되며, <br>
-          ${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)} / 한달을 → 10년으로 치환하여 구하게 됩니다.
-          
+          ${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)} / 한달을 → <b>${monthStr}</b> / 10년으로 치환하여 구하게 됩니다.<br>
+          위에서 구한 년도가 몇년이냐에 따라 대운수가 정해지게 됩니다. <br>
+          그 뒤에는 그 뒤의 다음(순행) 혹은 이전(역행) 절기의 날짜와 시간을 보고 시간을 구하게 되는데,<br>
+          순행은 절기가 지난 바로 다음시간, 역행은 절기가 지나기 바로 전시간을 보게 됩니다.<br>
+          그것을 120년으로 확장하면, 약 10년이라는 시간뒤에 다음 월주가 변하는 것입니다.
         </li>
       `;
       
