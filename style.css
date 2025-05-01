@@ -42,7 +42,8 @@
     border-radius: 5px;
   }
 
-  .drag_btn_zone {
+  .drag_btn_zone,
+  .drag_btn_zone2 {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     touch-action: none; /* 드래그 반응 빠르게 */
@@ -134,8 +135,20 @@
   .input_group .flex_input input[type='tel'] {
     width: 60%;
   }
+  
   .input_group .flex_input select {
     width: 38%;
+  }
+
+  .input_group .flex_input2 input[type='text'],
+  .input_group .flex_input2 select {
+    width: 80%;
+  }
+
+  .input_group .flex_input2 button {
+    width: 19%;
+    padding: 0;
+    font-size: 20px;
   }
   .input_group:last-child {
     margin-bottom: 0;
@@ -669,7 +682,8 @@
     align-items: center;
   }
 
-  .aside .list_ul > li .info_btn_zone .drag_btn_zone {
+  .aside .list_ul > li .info_btn_zone .drag_btn_zone,
+  .drag_btn_zone2 {
     height: 20px;
     margin-right: 10px;
     background: transparent;
@@ -678,14 +692,16 @@
     cursor: pointer;
   }
 
-  .aside .list_ul > li .info_btn_zone .drag_btn_zone .line {
+  .aside .list_ul > li .info_btn_zone .drag_btn_zone .line,
+  .drag_btn_zone2 .line {
     width: 24px;
     height: 4px;
     background-color: #EED36C;
     margin-bottom: 4px;
   }
 
-  .aside .list_ul > li .info_btn_zone .drag_btn_zone .line:last-child {
+  .aside .list_ul > li .info_btn_zone .drag_btn_zone .line:last-child,
+  .drag_btn_zone2 .line:last-child {
     margin-bottom: 0;
   }
 
@@ -1131,6 +1147,13 @@
       font-size:3.244vw;
     }
 
+    .input_group .flex_input2 button {
+      width: 17%;
+      padding: 0 2.44vw;
+      font-size: 3.244vw;
+      height: 10.8vw;
+    }
+
     .label_line input[type='checkbox'] {
       width: 3.2vw;
       height: 3.2vw;
@@ -1443,12 +1466,14 @@
       margin-left: 2vw;
     }
 
-    .aside .list_ul > li .info_btn_zone .drag_btn_zone {
+    .aside .list_ul > li .info_btn_zone .drag_btn_zone,
+    .drag_btn_zone2 {
       height: 6.4vw;
       margin-right: 2.8vw;
     }
   
-    .aside .list_ul > li .info_btn_zone .drag_btn_zone .line {
+    .aside .list_ul > li .info_btn_zone .drag_btn_zone .line,
+    .drag_btn_zone2 .line {
       width: 6.4vw;
       height: 1.2vw;
       background-color: #EED36C;

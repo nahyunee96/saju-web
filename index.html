@@ -568,25 +568,101 @@
           </div>
           <div class="input_group">
             <label for="inputMeGroup">관계 <span>* 필수체크사항은 아니며, 미선택시 "미선택" 항목으로 저장됩니다.</span></label>
-            <select name="inputMeGroup" id="inputMeGroup" class="selectValueClear">
-              <option value="미선택" selected>미선택</option>
-              <option value="본인">본인</option>
-              <option value="가족">가족</option>
-              <option value="고객">고객</option>
-              <option value="동료">동료</option>
-              <option value="연인/배우자">연인/배우자</option>
-              <option value="지인">지인</option>
-              <option value="기타">기타</option>
-              <option value="기타입력">기타입력(항목추가)</option>
-            </select>
+            <div class="flex_input flex_input2">
+              <select name="inputMeGroup" id="inputMeGroup" class="selectValueClear">
+                <option value="미선택" selected>미선택</option>
+                <option value="본인">본인</option>
+                <option value="가족">가족</option>
+                <option value="고객">고객</option>
+                <option value="동료">동료</option>
+                <option value="연인/배우자">연인/배우자</option>
+                <option value="지인">지인</option>
+                <option value="기타">기타</option>
+                <option value="기타입력">기타입력(항목추가)</option>
+              </select>
+              <button id="inputMeGroupSet" type="button" class="black_btn">관리</button>
+            </div>
           </div>
           <div class="input_group group_ect" id="groupEct">
-            <input type="text" id="inputMeGroupEct" placeholder="10글자이내로 관계를 입력해주세요." class="valueClear" maxlength="10"/>
+            <div class="flex_input flex_input2">
+              <input type="text" id="inputMeGroupEct" placeholder="10글자이내로 관계를 입력해주세요." class="valueClear" maxlength="10"/>
+              <button id="inputMeGroupAdd" type="button" class="black_btn">추가</button>
+            </div>
           </div>
           <div class="btn_box flex_1 mt100">
             <button type="button" id="calcBtn">산출하기</button>
           </div>
         </form>
+
+        <style>
+          .input_me_group_set_modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 600px;
+            width: 96%;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 1003;
+            border: 2px solid #252525;
+          }
+
+          .input_me_group_set_modal .close_btn {
+            position: absolute;
+            right: 0;
+            top: -50px;
+            width: 40px;
+            height: 40px;
+            padding: 0 !important;
+            font-size: 40px;
+            line-height: 100%;
+          }
+
+          .input_me_group_set_ul > li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            background-color: #fff;
+            border-bottom: 1px solid #252525;
+          }
+
+          .input_me_group_set_ul > li:last-child {
+            border-bottom: 0px;
+          }
+
+          .input_me_group_set_ul > li button {
+            padding: 8px 25px;
+            font-size: 14px;
+          }
+
+          @media screen and (max-width: 991px) {
+            .input_me_group_set_modal .close_btn {
+              top: -10.4vw;
+              width: 8vw;
+              height: 8vw;
+              font-size: 8vw;
+            }
+
+            .input_me_group_set_ul > li {
+              font-size: 3.2vw;
+            }
+
+            .input_me_group_set_ul > li button {
+              padding: 0 3.2vw;
+              font-size: 2.8vw;
+            }
+          }
+        </style>
+
+        <div class="input_me_group_set_modal" id="inputMeGroupSetModal">
+          <button type="button" class="black_btn close_btn" id="modalCloseBtn" ><span>&times;</span></button>
+          <ul class="input_me_group_set_ul" id="inputMeGroupSetUl"></ul>
+        </div>
+        
 
         <!-- 결과 출력 -->
         <div class="result_wrapper" id="resultWrapper">

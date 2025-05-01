@@ -1296,12 +1296,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const selectedTime2 = document.querySelector('input[name="time2"]:checked').value || "";
 
-    let groupVal = inputMeGroupSel.value;
-    if (groupVal === '기타입력') {
-      groupVal = inputMeGroupEct.value.trim() || '기타';   // 빈칸 방지
-    }
-
-    
 
     ensureGroupOption(groupVal);
     const customGroups = JSON.parse(localStorage.getItem('customGroups') || '[]');
@@ -6042,6 +6036,156 @@ document.addEventListener("DOMContentLoaded", function () {
 
       localStorage.setItem("myeongsikList", JSON.stringify(newOrder));
       loadSavedMyeongsikList(); // 재렌더링하여 인덱스 재정렬
+    }
+  });
+
+  const selectEl       = document.getElementById('inputMeGroup');
+  const manageBtn      = document.getElementById('inputMeGroupSet');
+  const modalSet       = document.getElementById('inputMeGroupSetModal');
+  const modalCloseBtn  = document.getElementById('modalCloseBtn');
+  const listContainer  = document.getElementById('inputMeGroupSetUl');
+  const ectInput       = document.getElementById('inputMeGroupEct');
+  const addBtn         = document.getElementById('inputMeGroupAdd');
+
+  const GROUP_STORAGE_KEY    = 'inputMeGroupOptions';
+
+  // 1) 로컬스토리지에서 불러와 <select> 재생성
+  function loadOptionsFromStorage() {
+    const stored = localStorage.getItem(GROUP_STORAGE_KEY);
+    if (!stored) return;
+    try {
+      const values = JSON.parse(stored);
+      selectEl.innerHTML = '';    
+      values.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.text  = (val === '기타입력')
+                    ? '기타입력(항목추가)'
+                    : val;
+        selectEl.add(opt);
+      });
+    } catch (err) {
+      console.error('파싱 오류:', err);
+    }
+  }
+
+  // 2) 현재 <select> 옵션을 저장
+  function saveOptionsToStorage() {
+    const values = Array.from(selectEl.options).map(o => o.value);
+    localStorage.setItem(GROUP_STORAGE_KEY, JSON.stringify(values));
+  }
+
+  // 3) 모달 리스트(<ul>) 렌더링
+  function populateList() {
+    let html = '';
+    Array.from(selectEl.options).forEach((opt, idx) => {
+      const val = opt.value;
+      if (val === '미선택' || val === '기타입력') return;
+      html += `
+        <li data-index="${idx}">
+          <button class="drag_btn_zone2" type="button">
+            <div class="line"></div><div class="line"></div><div class="line"></div>
+          </button>
+          <!-- 여기에 클래스 추가 -->
+          <span class="item-value">${val}</span>
+          <span>
+            <button type="button"
+                    class="black_btn set_delete_btn"
+                    data-value="${val}">
+              삭제
+            </button>
+          </span>
+        </li>`;
+    });
+    listContainer.innerHTML = html;
+  }
+
+  // 4) 페이지 로드 시 <select> 초기화
+  loadOptionsFromStorage();
+
+  // 5) 관리 버튼 → 모달 열기 (최신 <select> 기반으로 리스트 렌더링)
+  manageBtn.addEventListener('click', e => {
+    e.preventDefault();
+    loadOptionsFromStorage();
+    populateList();
+    modalSet.style.display = 'block';
+  });
+
+  // 6) 모달 닫기 버튼 → 모달 숨기기
+  modalCloseBtn.addEventListener('click', e => {
+    e.preventDefault();
+    modalSet.style.display = 'none';
+  });
+
+  // 7) 추가 버튼 → 옵션 추가 & 저장 & 알럿
+  addBtn.addEventListener('click', e => {
+    e.preventDefault();
+    const val = ectInput.value.trim();
+    if (!val) {
+      alert('관계를 입력해주세요.');
+      return;
+    }
+    if (Array.from(selectEl.options).some(o => o.value === val)) {
+      alert('이미 추가된 관계입니다.');
+      return;
+    }
+    // “기타입력” 옵션 이전에 삽입
+    const newOpt = document.createElement('option');
+    newOpt.value = val;
+    newOpt.text  = val;
+    const ectOpt = selectEl.querySelector('option[value="기타입력"]');
+    selectEl.add(newOpt, ectOpt);
+    ectInput.value = '';
+    saveOptionsToStorage();
+    alert('키워드가 추가되었습니다.');
+  });
+
+  // 8) 삭제 버튼 → confirm → 옵션 & li 제거 & 저장
+  listContainer.addEventListener('click', e => {
+    if (!e.target.classList.contains('set_delete_btn')) return;
+    const val = e.target.dataset.value;
+    if (!confirm(`"${val}" 항목을 삭제하시겠습니까?`)) return;
+    // 셀렉트박스에서 제거
+    const escaped = CSS.escape(val);
+    const opt     = selectEl.querySelector(`option[value="${escaped}"]`);
+    if (opt) selectEl.removeChild(opt);
+    // li 제거
+    e.target.closest('li').remove();
+    saveOptionsToStorage();
+  });
+
+  // 9) Sortable 초기화 (드래그 순서 → <select> 순서 동기화 → 저장 → UI 갱신)
+  new Sortable(listContainer, {
+    handle: '.drag_btn_zone2',
+    animation: 150,
+    onEnd: () => {
+      // 1) 현재 UL 의 <li> 순서대로 두 번째 자식(span)의 텍스트(값)를 배열로
+      const newOrder = Array.from(listContainer.children)
+        .map(li => li.children[1].textContent.trim());
+  
+      // 2) 전체 옵션 재구성 (맨 앞 '미선택', 뒤 '기타입입력' 고정)
+      const allOptions = ['미선택', ...newOrder, '기타입력'];
+  
+      // 3) 선택값 보존
+      const prevValue = selectEl.value;
+  
+      // 4) <select> 재빌드
+      selectEl.innerHTML = '';
+      allOptions.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.text  = (val === '기타입입력')
+                    ? '기타입력(항목추가)'
+                    : val;
+        selectEl.add(opt);
+      });
+  
+      // 5) 이전 선택값 복원
+      selectEl.value = prevValue;
+  
+      // 6) 저장 & 모달 리스트 갱신
+      saveOptionsToStorage();
+      populateList();
     }
   });
   
