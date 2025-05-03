@@ -692,6 +692,10 @@
     cursor: pointer;
   }
 
+  .drag_btn_zone2 {
+    padding: 0 !important;
+  }
+
   .aside .list_ul > li .info_btn_zone .drag_btn_zone .line,
   .drag_btn_zone2 .line {
     width: 24px;

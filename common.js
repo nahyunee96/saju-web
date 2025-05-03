@@ -1296,7 +1296,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const selectedTime2 = document.querySelector('input[name="time2"]:checked').value || "";
 
-
+    let groupVal = document.getElementById('inputMeGroup').value;
     ensureGroupOption(groupVal);
     const customGroups = JSON.parse(localStorage.getItem('customGroups') || '[]');
     if (!customGroups.includes(groupVal)) {
@@ -1729,6 +1729,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     
         updateSaveBtn();
+        document.getElementById("woonVer1Change").click();
+        document.getElementById("woonChangeBtn").click();
     
         document.getElementById("aside").style.display      = "none";
         document.getElementById("inputWrap").style.display  = "none";
@@ -2252,11 +2254,12 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           console.warn("나의 데이터가 아직 저장되지 않았습니다. 먼저 #coupleModeBtn을 눌러 저장해주세요.");
         }
+
+        document.getElementById("woonVer1Change2").click();
+        document.getElementById("woonChangeBtn2").click();
         
       });
     });
-
-    
     
   }
 
@@ -2264,9 +2267,9 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("coupleBackBtn").addEventListener("click", function(){
     isCoupleMode = false;
     currentMode = "ver1";
-    //document.getElementById("aside").style.display = "none";
-    //document.querySelector(".couple_mode_wrap").style.display = "none";
-    window.location.reload();
+    document.getElementById("aside").style.display = "none";
+    document.querySelector(".couple_mode_wrap").style.display = "none";
+    //window.location.reload();
   });
   
   // aside 열기/닫기 이벤트 등록
@@ -5670,7 +5673,8 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });    
 
-    // 라디오 변경 이벤트 리스너 내부
+    document.getElementById("woonVer1Change").click();
+    document.getElementById("woonChangeBtn").click();
     
   });
 
