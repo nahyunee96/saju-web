@@ -5847,7 +5847,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cityLon =
       cityLongitudes[birthPlaceFull] || cityLongitudes[birthPlaceFull.split(' ')[0]] || null;
 
-    console.log('cityLon', cityLon);
+    //console.log('cityLon', cityLon);
 
     // monthType: "양력", "음력", "음력(윤달)" 등의 값이 있어야 함
     const monthType = document.getElementById("monthType").value;
@@ -5971,7 +5971,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const newData = makeNewData();
     latestMyeongsik = newData;
 
-    console.log('birthPlaceLongitude', newData.birthPlaceLongitude);
+    //console.log('birthPlaceLongitude', newData.birthPlaceLongitude);
 
     // 2) 즐겨찾기 체크 상태 읽어서 newData에 추가
     const favCheckbox = document.getElementById('topPs');
