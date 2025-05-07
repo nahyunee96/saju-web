@@ -5747,6 +5747,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 그리고 초기 한 번 계산해 두면 좋습니다
     recalcCorrectedDate();
+    
 
     startModify(index);
 
@@ -5951,7 +5952,7 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem('customGroups', JSON.stringify(customGroups));
     }
 
-    localStorage.setItem("fixedCorrectedDate", fixedCorrectedDate.toISOString());
+    localStorage.setItem("fixedCorrectedDate", fixedCorrectedDate);
 
     return {
       birthday: birthday,
@@ -5986,6 +5987,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 수정하기 버튼 눌렀을 때
   document.getElementById("calcBtn").addEventListener("click", function () {
+
+    recalcCorrectedDate();
 
     // 1) 새로 수집할 데이터 만들어오기
     const newData = makeNewData();
