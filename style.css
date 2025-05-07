@@ -280,6 +280,7 @@
 	  direction: rtl;
   }
 
+  .jijanggan.reverse,
   .reverse .jijanggan {
     direction: ltr;
   }
