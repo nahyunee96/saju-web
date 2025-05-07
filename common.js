@@ -37,6 +37,8 @@ let customRadioTarget = null;
 let hourSplitGlobal, daySplitGlobal;
 let manualOverride = false;
 
+let savedCityLon = null;
+
 // [0] 출생지 보정 및 써머타임 함수
 // const cityLongitudes = {
 //   "서울특별시": 126.9780, "부산광역시": 129.1, "대구광역시": 128.6,
@@ -5746,7 +5748,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const timeInput = document.getElementById("inputBirthtime");
     timeInput.addEventListener('change', () => {
       // 기존 보정시 고정 해제
-      fixedCorrectedDate = null;
+      //fixedCorrectedDate = null;
     });
     isTimeUnknown = selected.isTimeUnknown === true;
 
@@ -5765,7 +5767,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const placeInput = document.getElementById("inputBirthPlace");
     placeInput.addEventListener('change', () => {
       // 사용자가 직접 텍스트를 바꿨다면 보정시 초기화
-      fixedCorrectedDate = null;
+      //fixedCorrectedDate = null;
     });
     const isPlaceUnknown = selected.isPlaceUnknown === true;
 
@@ -5845,6 +5847,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const cityLon =
       cityLongitudes[birthPlaceFull] || cityLongitudes[birthPlaceFull.split(' ')[0]] || null;
 
+    console.log('cityLon', cityLon);
+
     // monthType: "양력", "음력", "음력(윤달)" 등의 값이 있어야 함
     const monthType = document.getElementById("monthType").value;
 
@@ -5918,6 +5922,7 @@ document.addEventListener("DOMContentLoaded", function () {
       customGroups.push(groupVal);
       localStorage.setItem('customGroups', JSON.stringify(customGroups));
     }
+    
 
     if (fixedCorrectedDate) {
       localStorage.setItem(
@@ -5965,6 +5970,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // 1) 새로 수집할 데이터 만들어오기
     const newData = makeNewData();
     latestMyeongsik = newData;
+
+    console.log('birthPlaceLongitude', newData.birthPlaceLongitude);
 
     // 2) 즐겨찾기 체크 상태 읽어서 newData에 추가
     const favCheckbox = document.getElementById('topPs');
