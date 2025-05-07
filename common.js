@@ -614,16 +614,15 @@ function computeCustomMonthPillar(correctedDate, gender) {
 }
 
 function getDaewoonData(gender, originalDate, correctedDate) {
-  const birthDate = globalState.correctedBirthDate;
   //const originalDate = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
   //const correctedDate = initializeCorrectedDate(originalDate, cityLon, isPlaceUnknown);
-  const inputYear = globalState.correctedBirthDate.getFullYear();
+  const inputYear = correctedDate.getFullYear();
   const ipChunForSet = findSolarTermDate(inputYear, 315);
   //const ipChunForSet = findSolarTermDate(birthDate.getFullYear(), 315);
   const effectiveYearForSet = (originalDate < ipChunForSet) ? inputYear - 1 : inputYear;
   const effectiveYearForDaewoon = inputYear;
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
-  const monthPillar = computeCustomMonthPillar(correctedDate, gender);
+  const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
   const dayStemRef = getDayGanZhi(correctedDate).charAt(0);
   const isYang = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
   const isForward = (gender === "남" && isYang) || (gender === "여" && !isYang);
@@ -644,23 +643,19 @@ function getDaewoonData(gender, originalDate, correctedDate) {
     targetTerm = isForward ? allTerms[0] : allTerms[allTerms.length - 1];
   }
   const avgData = get120YearAverages(targetTerm.date);
-  let dynamicWoljuCycle = avgData.averageDecade;
   const avgMonthLength = avgData.averageMonth;
-  const daysDiff = isForward
-    ? Math.floor((targetTerm.date - correctedDate) / oneDayMs)
-    : Math.floor((correctedDate - targetTerm.date) / oneDayMs);
 
   let diffDays;
   if (isForward) {
-    diffDays = (targetTerm.date.getTime() - birthDate.getTime()) / oneDayMs;
+    diffDays = (targetTerm.date.getTime() - correctedDate.getTime()) / oneDayMs;
   } else {
-    diffDays = (birthDate.getTime() - targetTerm.date.getTime()) / oneDayMs;
+    diffDays = (correctedDate.getTime() - targetTerm.date.getTime()) / oneDayMs;
   }
 
   //const baseNumber = (daysDiff / avgData.averageMonth) * 10;
   let ratio = diffDays / avgMonthLength;
   const offset = ratio * 10;
-  const baseNumber = Number(offset.toFixed(4));
+  const baseNumber = Math.floor(offset);
   
   let currentMonthIndex = MONTH_ZHI.indexOf(monthPillar.charAt(1));
   let monthStemIndex = Cheongan.indexOf(monthPillar.charAt(0));
@@ -1731,6 +1726,10 @@ document.addEventListener("DOMContentLoaded", function () {
         updateSaveBtn();
         document.getElementById("woonVer1Change").click();
         document.getElementById("woonChangeBtn").click();
+        const sewoonBox = document.querySelector(".lucky.sewoon");
+        if (sewoonBox) { sewoonBox.style.display = "block"; }
+        const iljuCalenderBox = document.getElementById('iljuCalender');
+        if (iljuCalenderBox) { iljuCalenderBox.style.display = "block"; }
     
         document.getElementById("aside").style.display      = "none";
         document.getElementById("inputWrap").style.display  = "none";
@@ -2565,19 +2564,21 @@ document.addEventListener("DOMContentLoaded", function () {
     updateOriginalSetMapping(daySplit, hourSplit);
     updateColorClasses();
 
-    globalState.daewoonData = getDaewoonData(gender, originalDate, correctedDate);
-    function updateCurrentDaewoon(today) {
-      const birthDateObj = new Date(year, month - 1, day);
-      let currentAge = today.getFullYear() - birthDateObj.getFullYear();
-      if (today.getMonth() < birthDateObj.getMonth() ||
-         (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate())) {
+    const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
+
+    function updateCurrentDaewoon(refDate) {
+      //console.log(daewoonData, refDate);
+      let currentAge = refDate.getFullYear() - correctedDate.getFullYear();
+      if (refDate.getMonth() < correctedDate.getMonth() ||
+         (refDate.getMonth() === correctedDate.getMonth() && refDate.getDate() < correctedDate.getDate())) {
         currentAge--;
       }
-      const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
+      
       let currentDaewoon = null;
       for (let i = 0; i < daewoonData.list.length; i++) {
         if (daewoonData.list[i].age <= currentAge) {
           currentDaewoon = daewoonData.list[i];
+          //console.log(currentDaewoon, currentAge);
         }
       }
       if (!currentDaewoon) {
@@ -2601,7 +2602,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     updateCurrentDaewoon(refDate);
     updateMonthlyWoonByToday(refDate);
-    globalState.daewoonData = getDaewoonData(gender, originalDate, correctedDate);
 
     function updateAllDaewoonItems(daewoonList) {
       for (let i = 0; i < daewoonList.length; i++) {
@@ -2627,20 +2627,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     // 호출 시
-    
-    updateAllDaewoonItems(globalState.daewoonData.list);
+    updateAllDaewoonItems(daewoonData.list);
 
-    const birthDateObj = new Date(year, month - 1, day);
     const todayObj = toKoreanTime(new Date());
-    let currentAge = todayObj.getFullYear() - birthDateObj.getFullYear();
-    if (todayObj.getMonth() < birthDateObj.getMonth() ||
-       (todayObj.getMonth() === birthDateObj.getMonth() && todayObj.getDate() < birthDateObj.getDate())) {
+    let currentAge = refDate.getFullYear() - correctedDate.getFullYear();
+    if (refDate.getMonth() < correctedDate.getMonth() ||
+       (refDate.getMonth() === correctedDate.getMonth() && refDate.getDate() < correctedDate.getDate())) {
       currentAge--;
     }
     let currentDaewoonIndex = 0;
-    if (globalState.daewoonData?.list) {
-      for (let i = 0; i < globalState.daewoonData.list.length; i++) {
-        if (globalState.daewoonData.list[i].age <= currentAge) {
+    if (daewoonData?.list) {
+      for (let i = 0; i < daewoonData.list.length; i++) {
+        if (daewoonData.list[i].age <= currentAge) {
           currentDaewoonIndex = i;
         }
       }
@@ -2717,8 +2715,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function updateDaewoonDetails(index) {
-      if (globalState.daewoonData && globalState.daewoonData.list[index - 1]) {
-        const data = globalState.daewoonData.list[index - 1];
+      if (daewoonData && daewoonData.list[index - 1]) {
+        const data = daewoonData.list[index - 1];
         setText("daewoonDetail", `${data.age}세 (${data.stem}${data.branch})`);
       }
     }
@@ -2734,10 +2732,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let activeDaewoonLi = document.querySelector("[id^='daewoon_'].active");
     let daewoonIndex = activeDaewoonLi ? parseInt(activeDaewoonLi.getAttribute("data-index"), 10) : 1;
-    if (!globalState.birthYear || !globalState.daewoonData) {
-      alert("먼저 계산 버튼을 눌러 출생 정보를 입력하세요.");
-      return;
-    }
 
     const originalYearPillarData = getYearGanZhi(correctedDate, birthDate.getFullYear());
     const isYangStem = ["갑", "병", "무", "경", "임"].includes(originalYearPillarData.charAt(0));
@@ -2745,7 +2739,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateSewoonItem() {
       const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
-      const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
+      const selectedDaewoon = daewoonData.list[daewoonIndex - 1];
       if (!selectedDaewoon) return;
       const daewoonNum = selectedDaewoon.age; 
       const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
@@ -2812,7 +2806,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (monthlyContainer) { monthlyContainer.style.display = "grid"; }
     updateColorClasses();
     updateOriginalSetMapping(daySplit, hourSplit);
-    updateListMapping(globalState.daewoonData.list, "DwW", "Ds", baseDayStem, baseYearBranch);
+    updateListMapping(daewoonData.list, "DwW", "Ds", baseDayStem, baseYearBranch);
     if (globalState.sewoonList && globalState.sewoonList.length > 0) {
       updateListMapping(globalState.sewoonList, "SwW", "Ss", baseDayStem, baseYearBranch);
     }
@@ -3193,14 +3187,10 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // 대운(daewoon) 관련 업데이트
         const daewoonIndex = parseInt(this.getAttribute("data-index"), 10);
-        if (!globalState.birthYear || !globalState.daewoonData) {
-          alert("먼저 계산 버튼을 눌러 출생 정보를 입력하세요.");
-          return;
-        }
         
         // 출생년도(decimal) 계산
         const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
-        const selectedDaewoon = globalState.daewoonData.list[daewoonIndex - 1];
+        const selectedDaewoon = daewoonData.list[daewoonIndex - 1];
         if (!selectedDaewoon) return;
         const daewoonNum = selectedDaewoon.age; 
         const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
@@ -3535,8 +3525,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ? new Date(correctedDate)
         : new Date(year, month - 1, day, hour, minute);
 
-      
-
+    
       // 3) basis 결정 (override 있으면 우선)
       const basis = basisOverride
         || document.querySelector('input[name="time2"]:checked')?.value;
@@ -3555,9 +3544,6 @@ document.addEventListener("DOMContentLoaded", function () {
       //   birthDate.getDate(),
       //   hour, minute, gender, correctedDate
       // );
-       const corrDate = typeof correctedDate === 'string'
-         ? new Date(correctedDate)
-         : correctedDate;
       
        // Date 객체(birthDate)를 첫 인자로 넘긴다
        const fullResult = getFourPillarsWithDaewoon(
@@ -3567,7 +3553,7 @@ document.addEventListener("DOMContentLoaded", function () {
          hour,
          minute,
          gender,
-         corrDate     // Date
+         correctedDate     // Date
        );
       // 예: "병자 경인 정묘 무오시, 대운수 ..." 형식의 문자열
       const parts = fullResult.split(", ");
@@ -3593,7 +3579,6 @@ document.addEventListener("DOMContentLoaded", function () {
         dayPillar,
         hourPillar
       }) {
-        const correctedDate = birthDate;
         const msMin    = 60 * 1000;
         const cycleMin = 120;                          // 2시간
         const cycleMs  = 10 * 24 * 60 * 60 * 1000;     // 10일
@@ -3762,7 +3747,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (hit) {
               // 1) 실제 dt 시점의 월간지로 바로 갱신
-              mPillars[i] = getMonthGanZhi(dt, dt.getFullYear());
+              mPillars[i] = getMonthGanZhi(dt, year);
 
               // 2) 다음 절기로 포인터 이동
               if (dirMode === '순행') {
@@ -3783,13 +3768,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // — 연주 판단 — 
             // 2) 지금 만난 절기 이름
-            const termName = terms[pointer].name;
+            const termName = principalTerms[pointer].name;
             const princIdx = principal.indexOf(termName);
-
+            const mb = MONTH_ZHI2[princIdx];
             if (princIdx !== -1) {
-              // 3) 月支 구하기
-              const mb = MONTH_ZHI2[princIdx];
-
               // 4) 순/역행 트리거 체크
               const isTrigger = (mb === yeonjuTarget);
 
@@ -3807,7 +3789,7 @@ document.addEventListener("DOMContentLoaded", function () {
               // 중기절기가 아니면 연주 유지
               yPillars[i] = yPillars[i - 1];
             }
-
+            lastMb = mb;
           } else {
             // 절기 전 구간: 월주·연주 모두 유지
             mPillars[i] = mPillars[i - 1];
@@ -3836,16 +3818,16 @@ document.addEventListener("DOMContentLoaded", function () {
       
         //── 콘솔 한 줄 출력 ──
         // console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
-        //   for (let i = 0; i < sDates.length; i++) {
-        //     console.log(
-        //       `${sPillars[i]}\t` +
-        //       `${iPillars[i]}\t` +
-        //       `${mPillars[i]}\t` +
-        //       `${yPillars[i]}\t` +
-        //       `${formatDate(sDates[i])}\t` +
-        //       `${formatDate(periods[i].start)} → ${formatDate(periods[i].end)}`
-        //     );
-        //   }
+        // for (let i = 0; i < sDates.length; i++) {
+        //   console.log(
+        //     `${sPillars[i]}\t` +
+        //     `${iPillars[i]}\t` +
+        //     `${mPillars[i]}\t` +
+        //     `${yPillars[i]}\t` +
+        //     `${formatDate(sDates[i])}\t` +
+        //     `${formatDate(periods[i].start)} → ${formatDate(periods[i].end)}`
+        //   );
+        // }
         
 
         // ── 헬퍼: 첫 변경 시점 찾기 ──
@@ -5035,7 +5017,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateCurrentDaewoon(refDate);
       // 예: 전체 대운 리스트 업데이트 (각 항목마다 baseDayStem 필요)
       
-      updateAllDaewoonItems(globalState.daewoonData.list);
+      updateAllDaewoonItems(daewoonData.list);
       
       // 세운/월운/일운/시운 업데이트 (대운의 기준이 baseDayStem)
       updateCurrentSewoon(refDate);
@@ -5203,7 +5185,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // 2-2) "올해 나이" 또는 "refDate" 기준으로 대운리스트 중 현재 대운(active) 찾기
       const todayObj = refDate; // 편의상
-      const birthDateObj = globalState.correctedBirthDate;  // 출생 보정일
+      const birthDateObj = correctedDate;  // 출생 보정일
       let currentAge = todayObj.getFullYear() - birthDateObj.getFullYear();
       if (
         todayObj.getMonth() < birthDateObj.getMonth() ||
@@ -5212,9 +5194,9 @@ document.addEventListener("DOMContentLoaded", function () {
         currentAge--;
       }
       let currentDaewoonIndex = 0;
-      if (globalState.daewoonData?.list) {
-        for (let i = 0; i < globalState.daewoonData.list.length; i++) {
-          if (globalState.daewoonData.list[i].age <= currentAge) {
+      if (daewoonData?.list) {
+        for (let i = 0; i < daewoonData.list.length; i++) {
+          if (daewoonData.list[i].age <= currentAge) {
             currentDaewoonIndex = i;
           }
         }
@@ -5631,7 +5613,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const value = (branch === '자' || branch === '축') ? 'jasi' : 'insi';
           const radio = document.querySelector(`input[name="timeChk02"][value="${value}"]`);
           if (radio) radio.checked = true;
-          console.log('🔄 일주 감지:', dayPillar, '→ 라디오:', value);
+          //console.log('🔄 일주 감지:', dayPillar, '→ 라디오:', value);
 
           const daySplit_ = splitPillar(dayPillar);
           setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit_.ji));
