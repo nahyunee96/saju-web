@@ -5702,6 +5702,26 @@ document.addEventListener("DOMContentLoaded", function () {
     
   }
 
+  function recalcCorrectedDate() {
+    const dateStr  = document.getElementById("inputBirthday").value;    // "YYYY-MM-DD"
+    const timeStr  = document.getElementById("inputBirthtime").value;   // "HH:mm" or ""
+    const place    = document.getElementById("inputBirthPlace").value;
+    const isPlaceUnknown = document.getElementById("bitthPlaceX").checked;
+  
+    const [y, m, d] = dateStr.split("-").map(Number);
+    const [hh, mi]  = timeStr.split(":").map(s => Number(s) || 0);
+    const origDate  = new Date(y, m - 1, d, hh, mi);
+  
+    const corrected = initializeCorrectedDate(
+      origDate,
+      cityLongitudes[place],
+      isPlaceUnknown
+    );
+  
+    fixedCorrectedDate = null;
+    globalState.correctedBirthDate = corrected;
+  }
+
   document.addEventListener("click", function (event) {
     const modifyBtn = event.target.closest(".modify_btn");
     if (!modifyBtn) return;
@@ -5716,10 +5736,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     restoreCurrentPlaceMapping(selected);
 
+    // ★ 여기서 recalc 이벤트 바인딩 ★
+    const birthdayInput = document.getElementById("inputBirthday");
+    const timeInput     = document.getElementById("inputBirthtime");
+    const placeInput    = document.getElementById("inputBirthPlace");
+
+    birthdayInput.addEventListener("change", recalcCorrectedDate);
+    timeInput.addEventListener("change", recalcCorrectedDate);
+    placeInput.addEventListener("change", recalcCorrectedDate);
+
+    // 그리고 초기 한 번 계산해 두면 좋습니다
+    recalcCorrectedDate();
+
     startModify(index);
 
     groupEctWrap.style.display = 'none';
     inputMeGroupEct.value = '';
+    
   
     // 화면 전환
     document.getElementById("inputWrap").style.display = "block";
@@ -5743,7 +5776,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
     // 출생시간 모름 체크박스 복원
     const timeCheckbox = document.getElementById("bitthTimeX");
-    const timeInput = document.getElementById("inputBirthtime");
+    //const timeInput = document.getElementById("inputBirthtime");
     timeInput.addEventListener('change', () => {
       // 기존 보정시 고정 해제
       fixedCorrectedDate = null;
@@ -5762,7 +5795,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 출생지 모름 체크박스 복원
     const placeCheckbox = document.getElementById("bitthPlaceX");
-    const placeInput = document.getElementById("inputBirthPlace");
+    //const placeInput = document.getElementById("inputBirthPlace");
     placeInput.addEventListener('change', () => {
       // 사용자가 직접 텍스트를 바꿨다면 보정시 초기화
       fixedCorrectedDate = null;
