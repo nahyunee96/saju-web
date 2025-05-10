@@ -416,19 +416,32 @@
   }
 
   .jijanggan {
-    display: flex; 
+    /* display: flex; 
+    flex-direction: column;
     justify-content: center; 
-	  align-items: center;
-    gap: 5px; 
+	  align-items: center; 
+    gap: 5px; */
     margin: 0 0 5px;
-    padding: 5px;
+    padding: 8px 12px;
     width: 100%;
     background-color: #fff;
     border-radius: 4px;
   }
 
   .jijanggan li {
-    font-size: 14px;
+    font-size: 16px;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+
+  .jijanggan li.jeonggi {
+    background-color: #d5d5d5;
+    border-radius: 2.4px;
+    font-weight: bold;
+  }
+
+  .jijanggan li:last-child {
+    margin-bottom: 0;
   }
 
   .grid_box_2 > li {
@@ -1267,7 +1280,7 @@
     }
 
     .grid_box.grid_box_8 {
-      padding: 1vw;
+      padding: 0;
     }
 
     .grid_box.grid_box_8 > li {
@@ -1337,15 +1350,18 @@
       margin: 0 0 1vw;
     }
 
+    .jijanggan li {
+      margin-bottom: 0.4vw;
+    }
+
     .jijanggan li,
     .w50 .jijanggan li {
-      font-size: 2vw;
+      font-size: 2.4vw;
     }
 
     .w50 .jijanggan li {
       font-size: 2vw;
     }
-
     
     .buga_title {
       margin: 2.4vw 0 1.2vw;

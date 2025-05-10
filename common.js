@@ -705,6 +705,9 @@ const timeRanges = [
 ];
 
 function getHourBranchUsingArray(dateObj) {
+  if (!(dateObj instanceof Date)) {
+    dateObj = new Date(dateObj);
+  }
   // 총 분 계산
   let totalMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
   // 각 시(지지)별 시간 범위 설정 (자시는 23:00 ~ 1:00, 나머지는 2시간씩)
@@ -726,8 +729,11 @@ function getHourBranchUsingArray(dateObj) {
 }
 
 function getEffectiveYearForSet(dateObj) {
+  if (!(dateObj instanceof Date)) {
+    dateObj = new Date(dateObj);
+  }
   // 해당 연도의 입춘(315°)을 구합니다.
-  const ipChun = findSolarTermDate(dateObj.getFullYear(), 315);
+  const ipChun = findSolarTermDate(dateObj, 315);
   const year = dateObj.getFullYear();
 
   if (dateObj < ipChun) {
@@ -775,7 +781,9 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   const boundaryDate = new Date(nominalBirthDate);
   boundaryDate.setDate(boundaryDate.getDate() + currentBoundary.dayOffset);
   boundaryDate.setHours(currentBoundary.hour, currentBoundary.minute, 0, 0);
-
+  if (!(correctedDate instanceof Date)) {
+    correctedDate = new Date(correctedDate);
+  }
   const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
   let hourDayPillar;
   if (hourBranchIndex === 0) {
@@ -1019,11 +1027,38 @@ function updateColorClasses() {
   });
 }
 
+function appendTenGod(id, value, isStem = true) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  // 1) tenGod 계산 (value가 '-' 또는 '(-)' 이면 '없음')
+  let tenGod;
+  if (value === '-' || value === '(-)') {
+    tenGod = '없음';
+  } else {
+    tenGod = isStem
+      ? getTenGodForStem(value, baseDayStem)
+      : getTenGodForBranch(value, baseDayStem);
+  }
+
+  // 2) 내용 전체를 value 문자열만 남기고 리셋
+  el.innerHTML = '';
+  el.append(document.createTextNode(value));
+
+  // 3) span 생성 후 append
+  const span = document.createElement('span');
+  span.className = 'ten-god';
+  span.textContent = `(${tenGod})`;
+  el.append(document.createTextNode(' '), span);
+}      
+
 function updateHiddenStems(SetBranch, prefix) {
   const mapping = hiddenStemMapping[SetBranch] || ["-", "-", "-"];
-  document.getElementById(prefix + "Jj1").innerText = mapping[0];
-  document.getElementById(prefix + "Jj2").innerText = mapping[1];
-  document.getElementById(prefix + "Jj3").innerText = mapping[2];
+  // mapping[0] → prefix+"Jj1", mapping[1] → prefix+"Jj2", mapping[2] → prefix+"Jj3"
+  mapping.forEach((value, i) => {
+    const id = prefix + "Jj" + (i + 1);
+    appendTenGod(id, value, true);
+  });
 }
 
 function setText(id, text) {
@@ -1097,6 +1132,19 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentMyeongsik = null;
 
   window.scrollTo(0, 0);
+
+  const exclude = ['db10sin', 'sb10sin', 'Mob10sin'];
+  document.querySelectorAll('[id*="b10sin"]').forEach(el => {
+    // exclude 중 하나라도 el.id에 포함되면 true
+    const isExcluded = exclude.some(sub => el.id.includes(sub));
+    if (!isExcluded) {
+      el.style.display = 'none';
+    }
+  });
+
+  document.querySelectorAll('[id*="Jj3"]').forEach(el => {
+    el.classList.add('jeonggi');
+  });
 
   const container = document.querySelector(".container");
   const header = container.querySelector(".header");
@@ -1736,6 +1784,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("aside").style.display      = "none";
         document.getElementById("inputWrap").style.display  = "none";
         document.getElementById("resultWrapper").style.display = "block";
+        
         window.scrollTo(0, 0);
         // ── 상세뷰 로직 끝 ──
       });
@@ -1847,22 +1896,14 @@ document.addEventListener("DOMContentLoaded", function () {
         sijuCurrentPillar:   mySijuCurrent,
         iljuCurrentPillar:   myIljuCurrent,
         woljuCurrentPillar:  myWoljuCurrent,
-        yeonjuCurrentPillar: myYeonjuCurrent,
-        sijuFirstChangeDate: mySijuFirstDate,
-        iljuFirstChangeDate: myIljuFirstDate,
-        woljuFirstChangeDate:myWoljuFirstDate,
-        yeonjuFirstChangeDate: myYeonjuFirstDate
+        yeonjuCurrentPillar: myYeonjuCurrent
       } = p_myo;
       
       const {
         sijuCurrentPillar:   partnerSijuCurrent,
         iljuCurrentPillar:   partnerIljuCurrent,
         woljuCurrentPillar:  partnerWoljuCurrent,
-        yeonjuCurrentPillar: partnerYeonjuCurrent,
-        sijuFirstChangeDate: partnerSijuFirstDate,
-        iljuFirstChangeDate: partnerIljuFirstDate,
-        woljuFirstChangeDate:partnerWoljuFirstDate,
-        yeonjuFirstChangeDate: partnerYeonjuFirstDate
+        yeonjuCurrentPillar: partnerYeonjuCurrent
       } = part_myo; 
 
       const p_myo_yearSplit = splitPillar(myYeonjuCurrent);
@@ -2220,7 +2261,8 @@ document.addEventListener("DOMContentLoaded", function () {
         partnerData = list[partnerIdx];
         if (partnerData) {
           sessionStorage.setItem("lastPartnerData", JSON.stringify(partnerData));
-          renderCoupleView();  // 선택할 때마다 뷰 갱신
+          //renderCoupleView();  // 선택할 때마다 뷰 갱신
+          fillCoupleModeView(myIndex, partnerIndex);
         }
         
         currentMode = "ver21";
@@ -2541,6 +2583,8 @@ document.addEventListener("DOMContentLoaded", function () {
     //   bjTimeText.innerHTML = `${prefix}<b id="resbjTime">${formattedTime}</b>`;
     // }
 
+    
+
     function updateOriginalSetMapping(daySplit, hourSplit) {
       if (manualOverride) {
         return;
@@ -2569,6 +2613,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
 
     function updateCurrentDaewoon(refDate) {
+
       //console.log(daewoonData, refDate);
       let currentAge = refDate.getFullYear() - correctedDate.getFullYear();
       if (refDate.getMonth() < correctedDate.getMonth() ||
@@ -2586,6 +2631,31 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!currentDaewoon) {
         currentDaewoon = daewoonData.list[0] || { stem: "-", branch: "-" };
       }
+
+      function appendTenGod(id, value, isStem = true) {
+        const el = document.getElementById(id);
+        if (!el) return;
+      
+        // 1) tenGod 계산
+        let tenGod;
+        if (value === '-' || value === '(-)') {
+          tenGod = '없음';
+        } else {
+          tenGod = isStem
+            ? getTenGodForStem(value, baseDayStem)
+            : getTenGodForBranch(value, baseDayStem);
+        }
+      
+        // 2) 내부를 완전 초기화: 오로지 원본 value 텍스트만 남김
+        el.innerHTML = '';
+        el.append(document.createTextNode(value));
+      
+        // 3) <span>(십신)</span> 붙이기
+        const span = document.createElement('span');
+        span.className = 'ten-god';
+        span.textContent = `(${tenGod})`;
+        el.append(document.createTextNode(' '), span);
+      }
     
       setText("DwtHanja", stemMapping[currentDaewoon.stem]?.hanja || "-");
       setText("DwtHanguel", stemMapping[currentDaewoon.stem]?.hanguel || "-");
@@ -2596,9 +2666,12 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("DwbEumyang", branchMapping[currentDaewoon.branch]?.eumYang || "-");
       setText("Dwb10sin", getTenGodForBranch(currentDaewoon.branch, baseDayStem));
       const hiddenArr = hiddenStemMapping[currentDaewoon.branch] || ["-", "-", "-"];
-      setText("DwJj1", hiddenArr[0]);
-      setText("DwJj2", hiddenArr[1]);
-      setText("DwJj3", hiddenArr[2]);
+      setText("DwJj1", hiddenArr[0]);  
+      appendTenGod("DwJj1", hiddenArr[0], true);
+      setText("DwJj2", hiddenArr[1]);  // currentTb 같은 값
+      appendTenGod("DwJj2", hiddenArr[1], true);
+      setText("DwJj3", hiddenArr[2]);  // currentTb 같은 값
+      appendTenGod("DwJj3", hiddenArr[2], true);
       setText("DWb12ws", getTwelveUnseong(baseDayStem, currentDaewoon.branch));
       setText("DWb12ss", getTwelveShinsal(baseYearBranch, currentDaewoon.branch));
     }
@@ -2669,8 +2742,16 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("Swb10sin", getTenGodForBranch(sewoonSplit.ji, baseDayStem));
       const sewoonHidden = hiddenStemMapping[sewoonSplit.ji] || ["-", "-", "-"];
       setText("SwJj1", sewoonHidden[0]);
+      appendTenGod("SwJj1", sewoonHidden[0], true);
+      
       setText("SwJj2", sewoonHidden[1]);
+      appendTenGod("SwJj2", sewoonHidden[1], true);
+      
       setText("SwJj3", sewoonHidden[2]);
+      appendTenGod("SwJj3", sewoonHidden[2], true);
+      // setText("SwJj1", sewoonHidden[0]);
+      // setText("SwJj2", sewoonHidden[1]);
+      // setText("SwJj3", sewoonHidden[2]);
       setText("SWb12ws", getTwelveUnseong(baseDayStem, sewoonSplit.ji));
       setText("SWb12ss", getTwelveShinsal(baseYearBranch, sewoonSplit.ji));
       
@@ -2683,8 +2764,16 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WSwbEumyang", branchMapping[sewoonSplit.ji]?.eumYang || "-");
       setText("WSwb10sin", getTenGodForBranch(sewoonSplit.ji, baseDayStem));
       setText("WSwJj1", sewoonHidden[0]);
+      appendTenGod("WSwJj1", sewoonHidden[0], true);
+      
       setText("WSwJj2", sewoonHidden[1]);
+      appendTenGod("WSwJj2", sewoonHidden[1], true);
+      
       setText("WSwJj3", sewoonHidden[2]);
+      appendTenGod("WSwJj3", sewoonHidden[2], true);
+      // setText("WSwJj1", sewoonHidden[0]);
+      // setText("WSwJj2", sewoonHidden[1]);
+      // setText("WSwJj3", sewoonHidden[2]);
       setText("WSWb12ws", getTwelveUnseong(baseDayStem, sewoonSplit.ji));
       setText("WSWb12ss", getTwelveShinsal(baseYearBranch, sewoonSplit.ji));
     }
@@ -2697,7 +2786,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.classList.add("active");
         const index = this.getAttribute("data-index");
         updateDaewoonDetails(index);
-
+        
       });
     });
 
@@ -2712,7 +2801,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (mowoonListElem) { mowoonListElem.style.display = "grid"; }
         document.querySelectorAll("#sewoonList li").forEach(e => e.classList.remove("active"));
         this.classList.add("active");
-
+        
       });
     });
 
@@ -2872,6 +2961,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WMbEumyang", branchMapping[monthBranch]?.eumYang || "-");
       setText("WMb10sin", tenGodBranch || "-");
       updateHiddenStems(monthBranch, "WMb");
+      appendTenGod(monthBranch, "WMb", true);
       setText("WMb12ws", unseong || "-");
       setText("WMb12ss", shinsal || "-");
       updateColorClasses();
@@ -3245,9 +3335,17 @@ document.addEventListener("DOMContentLoaded", function () {
           setText("DwbEumyang", branchMapping[selectedDaewoon.branch]?.eumYang || "-");
           setText("Dwb10sin", getTenGodForBranch(selectedDaewoon.branch, baseDayStem));
           const daewoonHidden = hiddenStemMapping[selectedDaewoon.branch] || ["-", "-", "-"];
+          // setText("DwJj1", daewoonHidden[0]);
+          // setText("DwJj2", daewoonHidden[1]);
+          // setText("DwJj3", daewoonHidden[2]);
           setText("DwJj1", daewoonHidden[0]);
+          appendTenGod("DwJj1", daewoonHidden[0], true);
+          
           setText("DwJj2", daewoonHidden[1]);
+          appendTenGod("DwJj2", daewoonHidden[1], true);
+          
           setText("DwJj3", daewoonHidden[2]);
+          appendTenGod("DwJj3", daewoonHidden[2], true);
         }
         updateDaewoonHTML(selectedDaewoon, baseDayStem);
         
@@ -3312,9 +3410,17 @@ document.addEventListener("DOMContentLoaded", function () {
           setText("SwbEumyang", branchMapping[selectedSewoon.ji]?.eumYang || "-");
           setText("Swb10sin", getTenGodForBranch(selectedSewoon.ji, baseDayStem));
           const sewoonHidden = hiddenStemMapping[selectedSewoon.ji] || ["-", "-", "-"];
+          // setText("SwJj1", sewoonHidden[0]);
+          // setText("SwJj2", sewoonHidden[1]);
+          // setText("SwJj3", sewoonHidden[2]);
           setText("SwJj1", sewoonHidden[0]);
+          appendTenGod("SwJj1", sewoonHidden[0], true);
+          
           setText("SwJj2", sewoonHidden[1]);
+          appendTenGod("SwJj2", sewoonHidden[1], true);
+          
           setText("SwJj3", sewoonHidden[2]);
+          appendTenGod("SwJj3", sewoonHidden[2], true);
           setText("SWb12ws", getTwelveUnseong(baseDayStem, selectedSewoon.ji));
           setText("SWb12ss", getTwelveShinsal(baseYearBranch, selectedSewoon.ji));
           setText("WSwtHanja", stemMapping[selectedSewoon.gan]?.hanja || "-");
@@ -3325,9 +3431,17 @@ document.addEventListener("DOMContentLoaded", function () {
           setText("WSwbHanguel", branchMapping[selectedSewoon.ji]?.hanguel || "-");
           setText("WSwbEumyang", branchMapping[selectedSewoon.ji]?.eumYang || "-");
           setText("WSwb10sin", getTenGodForBranch(selectedSewoon.ji, baseDayStem));
+          // setText("WSwJj1", sewoonHidden[0]);
+          // setText("WSwJj2", sewoonHidden[1]);
+          // setText("WSwJj3", sewoonHidden[2]);
           setText("WSwJj1", sewoonHidden[0]);
+          appendTenGod("WSwJj1", sewoonHidden[0], true);
+          
           setText("WSwJj2", sewoonHidden[1]);
+          appendTenGod("WSwJj2", sewoonHidden[1], true);
+          
           setText("WSwJj3", sewoonHidden[2]);
+          appendTenGod("WSwJj3", sewoonHidden[2], true);
           setText("WSWb12ws", getTwelveUnseong(baseDayStem, selectedSewoon.ji));
           setText("WSWb12ss", getTwelveShinsal(baseYearBranch, selectedSewoon.ji));
           updateColorClasses();
@@ -3365,6 +3479,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("#mowoonList li").forEach(function(li) {
       li.addEventListener("click", function(event) {
         event.stopPropagation();
+        
         /*document.querySelectorAll("#mowoonList li").forEach(function(item) {
           item.classList.remove("active");
         });
@@ -3382,6 +3497,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // active
         document.querySelectorAll("#mowoonList li").forEach(e => e.classList.remove("active"));
         this.classList.add("active");
+        
       });
     });
 
@@ -3473,6 +3589,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getHourBranchIndex2(date) {
+      if (!(date instanceof Date)) {
+        date = new Date(date);
+      }
       return Math.floor(((date.getHours() + 1) % 24) / 2);
     }
 
@@ -3619,8 +3738,8 @@ document.addEventListener("DOMContentLoaded", function () {
       
         // ── 날짜 배열 생성 ──
         const maxCycles = 4381; // 120년간 2시간 간격 → 4380+1
-        const sDates = [ correctedDate, getFirstSijuChange(correctedDate) ];
-        const iDates = [ correctedDate, getFirstIljuChange(correctedDate) ];
+        const sDates = [ birthDate, getFirstSijuChange(birthDate) ];
+        const iDates = [ birthDate, getFirstIljuChange(birthDate) ];
         for (let i = 2; i < maxCycles; i++) {
           const deltaMs = (dirMode==='순행'?1:-1) * cycleMin * msMin;
           sDates[i] = new Date(sDates[i-1].getTime() + deltaMs);
@@ -3656,13 +3775,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // ── 월주 간지 배열 (monthPillars부터 시작!) ──
-        let year       = correctedDate.getFullYear();
+        
+        let year       = birthDate.getFullYear();
         let terms      = getSolarTermBoundaries(year);
         let pointer;
 
         // 순행일 때: correctedDate 이후의 첫 절기 인덱스
         if (dirMode === '순행') {
-          pointer = terms.findIndex(t => t.date > correctedDate);
+          pointer = terms.findIndex(t => t.date > birthDate);
           if (pointer < 0) {
             year++;
             terms = getSolarTermBoundaries(year);
@@ -3671,7 +3791,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // 역행일 때: correctedDate 이전의 마지막 절기 인덱스
         } else {
-          const prev = terms.filter(t => t.date < correctedDate);
+          const prev = terms.filter(t => t.date < birthDate);
           pointer = prev.length - 1;
           if (pointer < 0) {
             year--;
@@ -4023,6 +4143,8 @@ document.addEventListener("DOMContentLoaded", function () {
           elem.classList.add(colorMapping[key].textColor);
         }
       }
+
+      
     
       // === 연주 ===
       const yp = myowoonResult.yeonjuCurrentPillar;
@@ -4038,8 +4160,13 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoYb10sin", getTenGodForBranch(yp[1], baseDayStem));
       const ybJj = hiddenStemMapping[yp[1]] || ["-", "-", "-"];
       setText("MyoYbJj1", ybJj[0]);
+      appendTenGod("MyoYbJj1", ybJj[0], true);
+      
       setText("MyoYbJj2", ybJj[1]);
+      appendTenGod("MyoYbJj2", ybJj[1], true);
+      
       setText("MyoYbJj3", ybJj[2]);
+      appendTenGod("MyoYbJj3", ybJj[2], true);
       setText("MyoYb12ws", getTwelveUnseong(baseDayStem, yp[1]));
       setText("MyoYb12ss", getTwelveShinsal(baseYearBranch, yp[1]));
     
@@ -4057,8 +4184,13 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoMb10sin", getTenGodForBranch(mp[1], baseDayStem));
       const mbJj = hiddenStemMapping[mp[1]] || ["-", "-", "-"];
       setText("MyoMbJj1", mbJj[0]);
+      appendTenGod("MyoMbJj1", mbJj[0], true);
+      
       setText("MyoMbJj2", mbJj[1]);
+      appendTenGod("MyoMbJj2", mbJj[1], true);
+      
       setText("MyoMbJj3", mbJj[2]);
+      appendTenGod("MyoMbJj3", mbJj[2], true);
       setText("MyoMb12ws", getTwelveUnseong(baseDayStem, mp[1]));
       setText("MyoMb12ss", getTwelveShinsal(baseYearBranch, mp[1]));
     
@@ -4067,7 +4199,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ["MyoDtHanja", "MyoDtHanguel", "MyoDtEumyang", "MyoDt10sin",
          "MyoDbHanja", "MyoDbHanguel", "MyoDbEumyang", "MyoDb10sin",
          "MyoDbJj1", "MyoDbJj2", "MyoDbJj3", "MyoDb12ws", "MyoDb12ss"].forEach(id => setText(id, "-"));
-      } else {
+      } else {MyoYbJj1
         const dp = myowoonResult.iljuCurrentPillar;
         setText("MyoDtHanja", stemMapping[dp[0]]?.hanja || dp[0]);
         applyColor("MyoDtHanja", dp[0]);
@@ -4081,8 +4213,13 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("MyoDb10sin", getTenGodForBranch(dp[1], baseDayStem));
         const dbJj = hiddenStemMapping[dp[1]] || ["-", "-", "-"];
         setText("MyoDbJj1", dbJj[0]);
+        appendTenGod("MyoDbJj1", dbJj[0], true);
+        
         setText("MyoDbJj2", dbJj[1]);
+        appendTenGod("MyoDbJj2", dbJj[1], true);
+        
         setText("MyoDbJj3", dbJj[2]);
+        appendTenGod("MyoDbJj3", dbJj[2], true);
         setText("MyoDb12ws", getTwelveUnseong(baseDayStem, dp[1]));
         setText("MyoDb12ss", getTwelveShinsal(baseYearBranch, dp[1]));
       }
@@ -4106,8 +4243,13 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("MyoHb10sin", getTenGodForBranch(hp[1], baseDayStem));
         const hbJj = hiddenStemMapping[hp[1]] || ["-", "-", "-"];
         setText("MyoHbJj1", hbJj[0]);
+        appendTenGod("MyoHbJj1", hbJj[0], true);
+        
         setText("MyoHbJj2", hbJj[1]);
+        appendTenGod("MyoHbJj2", hbJj[1], true);
+        
         setText("MyoHbJj3", hbJj[2]);
+        appendTenGod("MyoHbJj3", hbJj[2], true);
         setText("MyoHb12ws", getTwelveUnseong(baseDayStem, hp[1]));
         setText("MyoHb12ss", getTwelveShinsal(baseYearBranch, hp[1]));
       }
@@ -4377,6 +4519,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("WDb10sin", getTenGodForBranch(ji, baseDayStem) || "-");
       
         updateHiddenStems(ji, "WDb");
+        appendTenGod(ji, "WDb", true);
         setText("WDb12ws", getTwelveUnseong(baseDayStem, ji) || "-");
         setText("WDb12ss", getTwelveShinsal(baseYearBranch, ji) || "-");
         updateColorClasses();
@@ -4440,6 +4583,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("WTbHanguel", branchMapping[hourBranch]?.hanguel || "-");
         setText("WTbEumyang", branchMapping[hourBranch]?.eumYang || "-");
         updateHiddenStems(hourBranch, "WTb");
+        appendTenGod(hourBranch, "WTb", true);
         setText("WTb10sin", getTenGodForBranch(hourBranch, baseDayStem) || "-");
         setText("WTb12ws", getTwelveUnseong(baseDayStem, hourBranch) || "-");
         setText("WTb12ss", getTwelveShinsal(baseYearBranch, hourBranch) || "-");
@@ -5213,8 +5357,6 @@ document.addEventListener("DOMContentLoaded", function () {
       // 3) 세운 리스트도 다시 그림
       updateSewoonItem(refDate);  // (이미 구현돼 있다고 가정)
       // 3-1) 세운 중 올해(or refDate) 항목에 .active 주기
-      const computedYear = globalState.sewoonStartYear;
-      // -> 혹은, 올해(=refDate.getFullYear())와 비교해도 됨
 
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
       const displayYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
@@ -5273,6 +5415,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
       });
+      
 
     });
 
@@ -5659,10 +5802,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("woonVer1Change").click();
     document.getElementById("woonChangeBtn").click();
+
     
   });
-
-  const favCheckbox = document.getElementById('topPs');
 
   function startModify(index) {
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
