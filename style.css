@@ -422,14 +422,14 @@
 	  align-items: center; 
     gap: 5px; */
     margin: 0 0 5px;
-    padding: 8px 12px;
+    padding: 8px;
     width: 100%;
     background-color: #fff;
     border-radius: 4px;
   }
 
   .jijanggan li {
-    font-size: 16px;
+    font-size: 14px;
     margin-bottom: 5px;
     text-align: center;
   }
