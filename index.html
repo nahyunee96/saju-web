@@ -99,7 +99,7 @@
       }
   
       /* 인포모달 */
-      #infoModal {
+      #infoModal2 {
         position: fixed;
         left: 50%;
         top: 50%;
@@ -110,7 +110,7 @@
         border: 2px solid #252525;
       }
   
-      #infoModal .title {
+      #infoModal2 .title {
         width: 100%;
         background-color: #252525;
         color: #fff;
@@ -118,32 +118,32 @@
         padding: 10px;
       }
   
-      #infoModal .title b {
+      #infoModal2 .title b {
         font-size: 14px;
         color: #ccc;
       }
   
-      #infoModal .content {
+      #infoModal2 .content {
         width: 100%;
         padding: 20px;
         background-color: #fff;
         color: #252525;
       }
 
-      #infoModal .content li {
+      #infoModal2 .content li {
         margin-bottom: 8px;
       }
 
-      #infoModal .content li:last-child{
+      #infoModal2 .content li:last-child{
         margin-bottom: 0;
       }
 
-      #infoModal .btn_box {
+      #infoModal2 .btn_box {
         background-color: #252525;
         padding: 10px;
       }
 
-      #infoModal .btn_box button {
+      #infoModal2 .btn_box button {
         padding: 4px 12px;
         font-size: 14px;
       }
@@ -167,25 +167,25 @@
           height: 8vw;
         }
 
-        #infoModal .title {
+        #infoModal2 .title {
           font-size:5.2vw;
           padding: 2.4vw;
         }
     
-        #infoModal .title b {
+        #infoModal2 .title b {
           font-size: 4.4vw;
         }
     
-        #infoModal .content {
+        #infoModal2 .content {
           padding: 2vw;
           font-size: 3.6vw;
         }
 
-        #infoModal .content li {
+        #infoModal2 .content li {
           margin-bottom: 1.2vw;
         }
 
-        #infoModal .btn_box button {
+        #infoModal2 .btn_box button {
           padding: 1.2vw 2vw;
           font-size: 3.2vw;
         }
@@ -205,18 +205,15 @@
         <div id="map"></div>
       </div>
     </div>
-    <div id="infoModal">
+    <div id="infoModal2">
       <div class="inner">
         <div class="title">
-          <span>!! 안내드립니다 !! <b>만세력 UPDATE 2 ver.</b></span>
+          <span>!! 안내드립니다 !! <b>만세력 UPDATE 3 ver.</b></span>
         </div>
         <div class="content">
           <ul class="infoContent">
-            <li>묘운 계산법이 변경 되었습니다. (묘운설명참고)</li>
-            <li>새로운 명식 추가 시, 보정시 덮어씌워지던 문제를 해결하였습니다.</li>
-            <li>UI 변경이 이루어졌습니다.</li>
-            <li>위의 수정에 따라, 사이드바에 있는 "명식 모두삭제" 버튼을 한번 눌러주신후에, 
-              명식을 새로 저장하여 사용하여 주시기 바랍니다. (이용에 불편드려 죄송합니다.)</li>
+            <li>지장간 UI 변경이 이루어졌습니다.</li>
+            <li>제가 업데이트를 피드백이 올 때 마다 하기 때문에 브라우저에서 새로고침을 자주 해주시면 좋습니다 ! (무언가 이상하다 싶으시면, 새로고침을 한 번씩 해주세요!)</li>
             <li>명식 모두 삭제를 하실 경우, 브라우저 데이터가 삭제되어 팝업이 또 뜨게 됩니다 ! <br> 브라우저에서 보지 않기를 눌러주세요!
               다른 브라우저 사용 & 캐시만 비워지지 않으면 이 팝업은 또 뜨지 않습니다 !
             </li>
@@ -240,12 +237,12 @@
       }
 
       document.addEventListener('DOMContentLoaded', () => {
-        const modal       = document.getElementById('infoModal');
+        const modal       = document.getElementById('infoModal2');
         const hideForever = document.getElementById('lognTimeX');  // ← 수정
         const closeBtn    = document.getElementById('closeX');
 
         // 1) 페이지 로드 시, 숨김 플래그 확인
-        const hidden = localStorage.getItem('infoModalHidden');
+        const hidden = localStorage.getItem('infoModalHidden2');
         if (hidden === 'true') {
           modal.style.display = 'none';
         } else {
@@ -254,7 +251,7 @@
 
         // 2) “이 이후 브라우저에서 보지 않기” 클릭
         hideForever.addEventListener('click', () => {
-          localStorage.setItem('infoModalHidden', 'true');
+          localStorage.setItem('infoModalHidden2', 'true');
           modal.style.display = 'none';
         });
 
