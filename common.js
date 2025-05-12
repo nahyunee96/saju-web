@@ -2444,33 +2444,51 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     updateTypeSpan(groupVal);
 
-    originalDate = new Date(year, month - 1, day, hour, minute);
-    if (!fixedCorrectedDate) {
-      fixedCorrectedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
-    }
-    correctedDate = fixedCorrectedDate;
-    
-
-    document.getElementById('resultWrapper').style.display = 'block';
-    window.scrollTo(0, 0);
-    document.getElementById('inputWrap').style.display = 'none';
-    document.getElementById("saveBtn").style.display = "inline-block";
-
     // 음력/양력 변환
+    // const monthType = document.getElementById("monthType").value;
+    // const calendar = new KoreanLunarCalendar();
+    // let lunarDate = null;
+    // if (monthType === "음력" || monthType === "음력(윤달)") {
+    //   const isLeap = (monthType === "음력(윤달)");
+    //   if (!calendar.setLunarDate(year, month, day, isLeap)) {
+    //     console.error(`${monthType} 날짜 설정에 실패했습니다.`);
+    //   } else {
+    //     lunarDate = { year, month, day, isLeap };
+    //     const solar = calendar.getSolarCalendar();
+    //     year = solar.year; 
+    //     month = solar.month; 
+    //     day = solar.day;
+    //   }
+    // } else {
+    //   if (!calendar.setSolarDate(year, month, day)) {
+    //     console.error("양력 날짜 설정에 실패했습니다.");
+    //   } else {
+    //     lunarDate = calendar.getLunarCalendar();
+    //   }
+    // }
+
     const monthType = document.getElementById("monthType").value;
+    const isLunar   = monthType === "음력" || monthType === "음력(윤달)";
+    const isLeap    = monthType === "음력(윤달)";
+
     const calendar = new KoreanLunarCalendar();
+
+    // 2) lunar → solar 변환
+    let workYear   = year;
+    let workMonth  = month;
+    let workDay    = day;
     let lunarDate = null;
-    if (monthType === "음력" || monthType === "음력(윤달)") {
-      const isLeap = (monthType === "음력(윤달)");
-      if (!calendar.setLunarDate(year, month, day, isLeap)) {
-        console.error(`${monthType} 날짜 설정에 실패했습니다.`);
-      } else {
-        lunarDate = { year, month, day, isLeap };
-        const solar = calendar.getSolarCalendar();
-        year = solar.year; 
-        month = solar.month; 
-        day = solar.day;
+    if (isLunar) {
+      const ok = calendar.setLunarDate(year, month, day, isLeap);
+      if (!ok) {
+        console.error(`음력 ${rawYear}.${rawMonth}.${rawDay} 변환 실패`);
+        return;
       }
+      const solar = calendar.getSolarCalendar();
+        workYear  = solar.year;    // 1967
+        workMonth = solar.month;   // 9
+        workDay   = solar.day;     // 27
+        //console.log(`변환된 양력: ${workYear}.${workMonth}.${workDay}`);
     } else {
       if (!calendar.setSolarDate(year, month, day)) {
         console.error("양력 날짜 설정에 실패했습니다.");
@@ -2479,24 +2497,41 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-  
-    globalState.correctedBirthDate = correctedDate;
+    originalDate = new Date(workYear, workMonth - 1, workDay, hour, minute);
+    if (!fixedCorrectedDate) {
+      fixedCorrectedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
+    }
+    correctedDate = fixedCorrectedDate;
 
-    const formattedBirth = `${year}-${pad(month)}-${pad(day)}`;
+
+    const formattedBirth = `${workYear}-${pad(workMonth)}-${pad(workDay)}`;
     setText("resBirth", formattedBirth);
 
-    if (lunarDate) {
-      const formattedLunar = `${lunarDate.year}-${pad(lunarDate.month)}-${pad(lunarDate.day)}${lunarDate.isLeap ? " (윤달)" : ""}`;
+    // — 해당 양력을 다시 음력으로 변환해서 표시
+    //    (입력 방식 상관없이 항상 이 양력 기준 음력을 보여줌)
+    if (!calendar.setSolarDate(workYear, workMonth, workDay)) {
+      console.error(`양력 ${workYear}.${workMonth}.${workDay} → 음력 변환 실패`);
+      setText("resBirth2", "");
+    } else {
+      const lunar = calendar.getLunarCalendar();
+      const formattedLunar =
+        `${lunar.year}-${pad(lunar.month)}-${pad(lunar.day)}` +
+        (lunar.isLeapMonth ? " (윤달)" : "");
       setText("resBirth2", formattedLunar);
-    } 
+    }
 
-    const solarDate = globalState.correctedBirthDate;
     const fullResult = getFourPillarsWithDaewoon(
-      solarDate.getFullYear(),
-      solarDate.getMonth() + 1,
-      solarDate.getDate(),
+      correctedDate.getFullYear(),
+      correctedDate.getMonth() + 1,
+      correctedDate.getDate(),
       hour, minute, gender, correctedDate
     );
+
+    document.getElementById('resultWrapper').style.display = 'block';
+    window.scrollTo(0, 0);
+    document.getElementById('inputWrap').style.display = 'none';
+    document.getElementById("saveBtn").style.display = "inline-block";
+
     // 예: "병자 경인 정묘 무오시, 대운수 ..." 형식의 문자열
     const parts = fullResult.split(", ");
     const pillarsPart = parts[0] || "-";
@@ -2829,7 +2864,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
 
     function updateSewoonItem() {
-      const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
+      const decimalBirthYear = getDecimalBirthYear(correctedDate);
       const selectedDaewoon = daewoonData.list[daewoonIndex - 1];
       if (!selectedDaewoon) return;
       const daewoonNum = selectedDaewoon.age; 
@@ -3281,7 +3316,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const daewoonIndex = parseInt(this.getAttribute("data-index"), 10);
         
         // 출생년도(decimal) 계산
-        const decimalBirthYear = getDecimalBirthYear(globalState.correctedBirthDate);
+        const decimalBirthYear = getDecimalBirthYear(correctedDate);
         const selectedDaewoon = daewoonData.list[daewoonIndex - 1];
         if (!selectedDaewoon) return;
         const daewoonNum = selectedDaewoon.age; 
@@ -4868,6 +4903,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const pickerValue = isCoupleMode ? getCurrentPicker2().value : getCurrentPicker().value;
 
       function formatDateTime(date) {
+        if (!(date instanceof Date)) {
+          date = new Date(date);
+        }
         const y = date.getFullYear();
         const m = (date.getMonth() + 1).toString().padStart(2, "0");
         const d = date.getDate().toString().padStart(2, "0");
