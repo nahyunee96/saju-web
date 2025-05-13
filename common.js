@@ -1596,20 +1596,6 @@ document.addEventListener("DOMContentLoaded", function () {
       listUl.appendChild(li);
     });
 
-    if (savedList.length > 0) {
-      const infoLi = document.createElement('li');
-      infoLi.innerHTML = `
-        <p class="pharases" id="dragNotice" style="display: none;">
-          왼쪽 바 버튼을 클릭하여 드래그로 순서를 바꿀 수 있습니다.
-        </p>
-        <p class="pharases" id="saveNotice">
-          명식 저장은 브라우저 안에서만 해당되며,<br>
-          다른 브라우저를 사용할 경우 명식을 다시 저장해야합니다.
-        </p>
-      `;
-      listUl.appendChild(infoLi);
-    }
-
     const alignTypeSel = document.getElementById('alignType');
     alignTypeSel.addEventListener('change', handleSortChange);
 
@@ -1646,12 +1632,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 드래그 버튼 안내 및 표시 조건
     if (savedList.length >= 2) {
-      //dragNotice.style.display = "block";
+      dragNotice.style.display = "block";
       document.querySelectorAll(".drag_btn_zone").forEach(btn => {
         btn.style.display = "block";
       });
     } else {
-      //dragNotice.style.display = "none";
+      dragNotice.style.display = "none";
       document.querySelectorAll(".drag_btn_zone").forEach(btn => {
         btn.style.display = "none";
       });

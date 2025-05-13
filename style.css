@@ -574,7 +574,6 @@
 
   .aside {
     display: none;
-    flex-direction: column;
     position: fixed;
     top: 0;
     left: 0;
@@ -652,17 +651,9 @@
   }
 
   .aside .list_ul_wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
     height: calc(100vh - 136px);
     padding-bottom: 10px;
-    overflow: hidden;
-  }
-
-  .aside .list_ul_wrap .inner {
-    flex: 1; 
-    overflow-y: auto;
+    overflow: auto;
   }
 
   .aside .list_ul {
@@ -775,7 +766,7 @@
     background-color: #EED36C;
     border: none;
     cursor: pointer;
-	  color: #353535;
+	color: #353535;
   }
 
   .calander_table {
