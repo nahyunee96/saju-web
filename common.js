@@ -1434,7 +1434,7 @@ document.addEventListener("DOMContentLoaded", function () {
     savedMyeongsikList = savedList;
 
     const listUl = document.querySelector("aside .list_ul");
-    
+    const dragNotice = document.querySelector("#dragNotice");
 
     if (!listUl) return;
     listUl.innerHTML = "";
@@ -1595,22 +1595,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       listUl.appendChild(li);
     });
-
-    if (savedList.length > 0) {
-      const infoLi = document.createElement('li');
-      infoLi.innerHTML = `
-        <p class="pharases" id="dragNotice" style="display: none;">
-          왼쪽 바 버튼을 클릭하여 드래그로 순서를 바꿀 수 있습니다.
-        </p>
-        <p class="pharases" id="saveNotice">
-          명식 저장은 브라우저 안에서만 해당되며,<br>
-          다른 브라우저를 사용할 경우 명식을 다시 저장해야합니다.
-        </p>
-      `;
-      listUl.appendChild(infoLi);
-    }
-
-    const dragNotice = document.querySelector("#dragNotice");
 
     const alignTypeSel = document.getElementById('alignType');
     alignTypeSel.addEventListener('change', handleSortChange);
