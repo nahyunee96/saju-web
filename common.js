@@ -2255,11 +2255,11 @@ document.addEventListener("DOMContentLoaded", function () {
        if (isCoupleMode) {
          // 궁합모드이면 aside를 열고, 현재 detail(본인) 인덱스는 그대로 유지
          // aside에 표시되는 목록은 본인 항목을 건너뛰게 됨 (loadSavedMyeongsikList에서 처리)
-         document.getElementById("aside").style.display = "flex";
+         document.getElementById("aside").style.display = "block";
          loadSavedMyeongsikList();
        } else {
          // 일반 모드로 돌아가면 aside 전체 목록을 다시 렌더링함
-         document.getElementById("aside").style.display = "flex";
+         document.getElementById("aside").style.display = "block";
          loadSavedMyeongsikList();
       }
       
@@ -2332,7 +2332,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // aside 열기/닫기 이벤트 등록
   document.getElementById("listViewBtn").addEventListener("click", function () {
     loadSavedMyeongsikList();
-    document.getElementById("aside").style.display = "flex";
+    document.getElementById("aside").style.display = "block";
   });
   document.getElementById("closeBtn").addEventListener("click", function () {
     document.getElementById("aside").style.display = "none";
