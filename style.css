@@ -738,6 +738,11 @@
     margin-bottom: 5px;
   }
 
+  .pharases_dl {
+    padding: 20px;
+    text-align: center;
+  }
+
   .info_wrapper .pharases {
     padding: 10px 0 0;
   }
@@ -1213,7 +1218,7 @@
     }
 
     .btn_box.mb40 {
-      margin-bottom: 12vw;
+      margin-bottom: 4vw;
     }
 
     
@@ -1505,6 +1510,10 @@
       padding: 0 4vw;
       font-size: 3.2vw;
       margin-bottom: 1.2vw;
+    }
+
+    .pharases_dl {
+      padding: 4vw;
     }
 
     .info_wrapper .pharases {

@@ -616,71 +616,73 @@ function computeCustomMonthPillar(correctedDate, gender) {
 }
 
 function getDaewoonData(gender, originalDate, correctedDate) {
-  //const originalDate = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
-  //const correctedDate = initializeCorrectedDate(originalDate, cityLon, isPlaceUnknown);
   const inputYear = correctedDate.getFullYear();
   const ipChunForSet = findSolarTermDate(inputYear, 315);
-  //const ipChunForSet = findSolarTermDate(birthDate.getFullYear(), 315);
   const effectiveYearForSet = (originalDate < ipChunForSet) ? inputYear - 1 : inputYear;
-  const effectiveYearForDaewoon = inputYear;
+
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
   const dayStemRef = getDayGanZhi(correctedDate).charAt(0);
-  const isYang = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
-  const isForward = (gender === "남" && isYang) || (gender === "여" && !isYang);
-  const currentSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon);
-  const previousSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon - 1);
-  const nextSolarTerms = getSolarTermBoundaries(effectiveYearForDaewoon + 1);
-  const allTerms = [...previousSolarTerms, ...currentSolarTerms, ...nextSolarTerms]
-                    .sort((a, b) => a.date - b.date);
-  
+
+  const isYang = ['갑','병','무','경','임'].includes(yearPillar.charAt(0));
+  const isForward = (gender === '남' && isYang) || (gender === '여' && !isYang);
+
+  // Gather previous/current/next year solar terms and sort by date
+  const collectTerms = year => getSolarTermBoundaries(year).map(t => ({ name: t.name, date: t.date }));
+  const allTerms = [
+    ...collectTerms(inputYear - 1),
+    ...collectTerms(inputYear),
+    ...collectTerms(inputYear + 1)
+  ].sort((a, b) => a.date - b.date);
+
   let targetTerm;
   if (isForward) {
-    targetTerm = allTerms.find(term => term.date > correctedDate);
+    // include equality so that correctedDate exactly on a term picks that term
+    targetTerm = allTerms.find(term => term.date >= correctedDate);
+    if (!targetTerm) targetTerm = allTerms[0];
   } else {
-    const pastTerms = allTerms.filter(term => term.date <= correctedDate);
-    targetTerm = pastTerms[pastTerms.length - 1];
+    // reverse: include equality so if correctedDate equals, pick that term
+    const past = allTerms.filter(term => term.date <= correctedDate);
+    targetTerm = past[past.length - 1] || allTerms[allTerms.length - 1];
   }
-  if (!targetTerm) {
-    targetTerm = isForward ? allTerms[0] : allTerms[allTerms.length - 1];
-  }
+
   const avgData = get120YearAverages(targetTerm.date);
   const avgMonthLength = avgData.averageMonth;
 
-  let diffDays;
-  if (isForward) {
-    diffDays = (targetTerm.date.getTime() - correctedDate.getTime()) / oneDayMs;
-  } else {
-    diffDays = (correctedDate.getTime() - targetTerm.date.getTime()) / oneDayMs;
-  }
+  const diffMs = isForward
+    ? targetTerm.date - correctedDate
+    : correctedDate - targetTerm.date;
+  const diffDays = diffMs / oneDayMs;
 
-  //const baseNumber = (daysDiff / avgData.averageMonth) * 10;
-  let ratio = diffDays / avgMonthLength;
-  const offset = ratio * 10;
+  const offset = (diffDays / avgMonthLength) * 10;
   const baseNumber = Math.floor(offset);
-  
-  let currentMonthIndex = MONTH_ZHI.indexOf(monthPillar.charAt(1));
-  let monthStemIndex = Cheongan.indexOf(monthPillar.charAt(0));
+
+  // build 10-year list
   const list = [];
+  const stemChars = Cheongan;
+  const branchChars = MONTH_ZHI;
+  const currentMonthIndex = branchChars.indexOf(monthPillar.charAt(1));
+  const monthStemIndex = stemChars.indexOf(monthPillar.charAt(0));
+
   for (let i = 0; i < 10; i++) {
     const age = baseNumber + i * 10;
+    const step = i + 1;
     const nextMonthIndex = isForward
-      ? (currentMonthIndex + i + 1) % 12
-      : (currentMonthIndex - (i + 1) + 12) % 12;
-
+      ? (currentMonthIndex + step) % 12
+      : (currentMonthIndex - step + 12) % 12;
     const nextStemIndex = isForward
-      ? (monthStemIndex + i + 1) % 10
-      : (monthStemIndex - (i + 1) + 10) % 10;
+      ? (monthStemIndex + step) % 10
+      : (monthStemIndex - step + 10) % 10;
+
     list.push({
-      age: age,
-      stem: Cheongan[nextStemIndex],
-      branch: MONTH_ZHI[nextMonthIndex]
+      age,
+      stem: stemChars[nextStemIndex],
+      branch: branchChars[nextMonthIndex]
     });
   }
-  
-  return { base: baseNumber, list: list, dayStemRef: dayStemRef };
-}
 
+  return { base: baseNumber, list, dayStemRef };
+}
 
 
 function getDaewoonDataStr(gender, originalDate, correctedDate) {
@@ -2654,11 +2656,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateCurrentDaewoon(refDate) {
 
       //console.log(daewoonData, refDate);
-      let currentAge = refDate.getFullYear() - correctedDate.getFullYear();
-      if (refDate.getMonth() < correctedDate.getMonth() ||
-         (refDate.getMonth() === correctedDate.getMonth() && refDate.getDate() < correctedDate.getDate())) {
-        currentAge--;
-      }
+      const currentAge = refDate.getFullYear() - correctedDate.getFullYear();
       
       let currentDaewoon = null;
       for (let i = 0; i < daewoonData.list.length; i++) {
@@ -2744,11 +2742,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateAllDaewoonItems(daewoonData.list);
 
     const todayObj = toKoreanTime(new Date());
-    let currentAge = refDate.getFullYear() - correctedDate.getFullYear();
-    if (refDate.getMonth() < correctedDate.getMonth() ||
-       (refDate.getMonth() === correctedDate.getMonth() && refDate.getDate() < correctedDate.getDate())) {
-      currentAge--;
-    }
+    const currentAge = refDate.getFullYear() - correctedDate.getFullYear();
     let currentDaewoonIndex = 0;
     if (daewoonData?.list) {
       for (let i = 0; i < daewoonData.list.length; i++) {
@@ -2766,7 +2760,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateCurrentSewoon(refDate) {
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
       //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
-      const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
+      const effectiveYear = (refDate > ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
       const sewoonIndex = ((effectiveYear - 4) % 60 + 60) % 60;
       const sewoonGanZhi = sexagenaryCycle[sewoonIndex];
       const sewoonSplit = splitPillar(sewoonGanZhi);
@@ -3325,7 +3319,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!selectedDaewoon) return;
         const daewoonNum = selectedDaewoon.age; 
         const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-        globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal);
+        globalState.sewoonStartYear = Math.ceil(sewoonStartYearDecimal);
         
         // baseDayStem을 전달받은 인자로 사용 (혹은 "DtHanguel"에서 가져올 수도 있음)
         // const displayedDayPillar = document.getElementById("DtHanguel").innerText;
@@ -3815,44 +3809,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // ── 월주 간지 배열 (monthPillars부터 시작!) ──
         
-        let year       = birthDate.getFullYear();
-        let terms      = getSolarTermBoundaries(year);
+        let year = correctedDate.getFullYear();
+        const allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
         let pointer;
 
-        // 순행일 때: correctedDate 이후의 첫 절기 인덱스
         if (dirMode === '순행') {
-          pointer = terms.findIndex(t => t.date > birthDate);
+          pointer = allTerms.findIndex(t => t.date >= correctedDate);
           if (pointer < 0) {
             year++;
-            terms = getSolarTermBoundaries(year);
+            allTerms.length = 0;
+            allTerms.push(...getSolarTermBoundaries(year).sort((a,b) => a.date - b.date));
             pointer = 0;
           }
-
-        // 역행일 때: correctedDate 이전의 마지막 절기 인덱스
         } else {
-          const prev = terms.filter(t => t.date < birthDate);
-          pointer = prev.length - 1;
+          const past = allTerms.filter(t => t.date <= correctedDate);
+          pointer = past.length - 1;
           if (pointer < 0) {
             year--;
-            terms = getSolarTermBoundaries(year);
-            pointer = terms.length - 1;
+            allTerms.length = 0;
+            allTerms.push(...getSolarTermBoundaries(year).sort((a,b) => a.date - b.date));
+            pointer = allTerms.length - 1;
           }
         }
 
-        // --- 2) mPillars 초기화 ---
-        // ——— 초기화 ———
         const mPillars = [ monthPillar ];
         const yPillars = [ yearPillar ];
-
-        const yeonjuTargetMap = {
-          insi:   { 순행: "寅",  역행: "丑" },
-          jasi:   { 순행: "寅",  역행: "丑" },
-          yajasi: { 순행: "寅",  역행: "丑" }
-        };
-
-        const yeonjuTarget = yeonjuTargetMap[basis][dirMode];
-
-        const principal = [
+        const principals = [
           "입춘","경칩","청명","입하",
           "망종","소서","입추","백로",
           "한로","입동","대설","소한"
@@ -3862,103 +3844,61 @@ document.addEventListener("DOMContentLoaded", function () {
           "午","未","申","酉",
           "戌","亥","子","丑"
         ];
+        const yeonjuTargetMap = {
+          insi:   { 순행:"寅", 역행:"丑" },
+          jasi:   { 순행:"寅", 역행:"丑" },
+          yajasi: { 순행:"寅", 역행:"丑" }
+        };
+        const yeonjuTarget = yeonjuTargetMap[basis][dirMode];
+        let lastMb = MONTH_ZHI2[allTerms.findIndex((t, i) => principals[i] === allTerms[pointer].name)];
 
-        // function getPrincipalTerms(year) {
-        //   const all = getSolarTermBoundaries(year)
-        //     .slice()
-        //     .sort((a, b) => a.date - b.date);
-        //   return all.filter((_, idx) => idx % 2 === 0);
-        // }
-
-        function getMonthBranchReturn(dateObj) {
-          const thisYear = getSolarTermBoundaries(dateObj.getFullYear());
-          const nextYear = getSolarTermBoundaries(dateObj.getFullYear() + 1);
-
-          // nextYear이 비었을 땐 첫 절기 +1년으로 채워두면 안전
-          if (!nextYear.length) {
-            const fake = thisYear[0].date;
-            nextYear.push({ date: new Date(fake.getFullYear()+1, fake.getMonth(), fake.getDate()) });
-          }
-
-          for (let i = 0; i < thisYear.length; i++) {
-            const start = thisYear[i].date;
-            const end   = (i + 1 < thisYear.length)
-              ? thisYear[i + 1].date
-              : nextYear[0].date;
-            if (dateObj >= start && dateObj < end) {
-              // ★ 이 한 줄로 매핑 끝 ★
-              return MONTH_ZHI2[i];
-            }
-          }
-          return MONTH_ZHI2[0];
-        }
-
-        let lastMb = getMonthBranchReturn(sDates[0]);
-        let principalTerms = getSolarTermBoundaries(year);
-
-        // ——— 월주·연주 동시 계산 루프 ———
         for (let i = 1; i < sDates.length; i++) {
           const dt = sDates[i];
-          const thresholdDate = principalTerms[pointer].date;
+          const term = allTerms[pointer];
+          const hit = (dirMode === '순행') ? (dt >= term.date) : (dt <= term.date);
 
-          // 절기(hit) 판단: 순행은 dt >=, 역행은 dt <=
-          const hit = dirMode === '순행'
-            ? dt >= thresholdDate
-            : dt <= thresholdDate;
-
-            if (hit) {
-              // 1) 실제 dt 시점의 월간지로 바로 갱신
-              mPillars[i] = getMonthGanZhi(dt, year);
-
-              // 2) 다음 절기로 포인터 이동
-              if (dirMode === '순행') {
-                pointer++;
-                if (pointer >= getSolarTermBoundaries.length) {
-                  year++;
-                  principalTerms = getSolarTermBoundaries(year);
-                  pointer = 0;
-                }
-              } else {
-                pointer--;
-                if (pointer < 0) {
-                  year--;
-                  principalTerms = getSolarTermBoundaries(year);
-                  pointer = principalTerms.length - 1;
-                }
+          if (hit) {
+            mPillars[i] = getMonthGanZhi(dt, year);
+            // move pointer
+            if (dirMode === '순행') {
+              pointer++;
+              if (pointer >= allTerms.length) {
+                year++;
+                allTerms.length = 0;
+                allTerms.push(...getSolarTermBoundaries(year).sort((a,b) => a.date - b.date));
+                pointer = 0;
               }
-
-            // — 연주 판단 — 
-            // 2) 지금 만난 절기 이름
-            const termName = principalTerms[pointer].name;
-            const princIdx = principal.indexOf(termName);
-            const mb = MONTH_ZHI2[princIdx];
-            if (princIdx !== -1) {
-              // 4) 순/역행 트리거 체크
-              const isTrigger = (mb === yeonjuTarget);
-
-              if (isTrigger && mb !== lastMb) {
-                const prevYIdx = getGanZhiIndex(yPillars[i - 1]);
-                const nextYIdx = dirMode === '순행'
-                  ? (prevYIdx + 1) % 60
-                  : (prevYIdx + 59) % 60;
-                yPillars[i] = getGanZhiByIndex(nextYIdx);
-              } else {
-                yPillars[i] = yPillars[i - 1];
-              }
-
             } else {
-              // 중기절기가 아니면 연주 유지
-              yPillars[i] = yPillars[i - 1];
+              pointer--;
+              if (pointer < 0) {
+                year--;
+                allTerms.length = 0;
+                allTerms.push(...getSolarTermBoundaries(year).sort((a,b) => a.date - b.date));
+                pointer = allTerms.length - 1;
+              }
             }
+
+            // 연주 결정
+            const termName = allTerms[pointer].name;
+            const princIdx = principals.indexOf(termName);
+            const mb = princIdx !== -1 ? MONTH_ZHI2[princIdx] : lastMb;
+            const prevY = yPillars[i-1];
+            let newY = prevY;
+
+            if (princIdx !== -1 && mb === yeonjuTarget && mb !== lastMb) {
+              const idx = getGanZhiIndex(prevY);
+              newY = dirMode === '순행'
+                ? getGanZhiByIndex((idx + 1) % 60)
+                : getGanZhiByIndex((idx + 59) % 60);
+            }
+            yPillars[i] = newY;
             lastMb = mb;
           } else {
-            // 절기 전 구간: 월주·연주 모두 유지
-            mPillars[i] = mPillars[i - 1];
-            yPillars[i] = yPillars[i - 1];
+            mPillars[i] = mPillars[i-1];
+            yPillars[i] = yPillars[i-1];
           }
         }
         
- 
         // ── 적용기간 계산 (시주 기준) ──
         const periods = [];
         // 첫 적용기간: 실제분→10일 매핑 -1분
@@ -5371,16 +5311,8 @@ document.addEventListener("DOMContentLoaded", function () {
       updateFunc(refDate);
       updateExplanDetail(myowoonResult, refDate, hourPillar);
 
-      // 2-2) "올해 나이" 또는 "refDate" 기준으로 대운리스트 중 현재 대운(active) 찾기
-      const todayObj = refDate; // 편의상
-      const birthDateObj = correctedDate;  // 출생 보정일
-      let currentAge = todayObj.getFullYear() - birthDateObj.getFullYear();
-      if (
-        todayObj.getMonth() < birthDateObj.getMonth() ||
-        (todayObj.getMonth() === birthDateObj.getMonth() && todayObj.getDate() < birthDateObj.getDate())
-      ) {
-        currentAge--;
-      }
+      // 2-2) "올해 나이" 또는 "refDate" 기준으로 대운리스트 중 현재 대운(active) 찾음
+      const currentAge = refDate.getFullYear() - correctedDate.getFullYear();
       let currentDaewoonIndex = 0;
       if (daewoonData?.list) {
         for (let i = 0; i < daewoonData.list.length; i++) {
