@@ -331,16 +331,15 @@
         // 초기 실행 + 리사이즈 대응
         setDynamicHeight();
         window.addEventListener('resize', setDynamicHeight);
-        window.addEventListener('scroll', setDynamicHeight);
 
         const container = document.getElementById('scrollBox');
         const content = document.getElementById('content');
       
         const observer = new ResizeObserver(() => {
           if (content.scrollHeight > container.clientHeight) {
-            container.style.overflowY = 'auto'; // 넘칠 때만 스크롤 표시
+            container.style.overflowY = 'scroll'; // 넘칠 때만 스크롤 표시
           } else {
-            container.style.overflowY = 'hidden';
+            container.style.overflowY = 'auto';
           }
         });
       
