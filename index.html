@@ -322,6 +322,16 @@
       </aside>
 
       <script>
+        function setDynamicHeight() {
+          const vh = window.innerHeight * 0.01;
+          document.documentElement.style.setProperty('--vh', `${vh}px`);
+          document.getElementById('scrollBox').style.height = `${vh * 100}px`;
+        }
+
+        // 초기 실행 + 리사이즈 대응
+        setDynamicHeight();
+        window.addEventListener('resize', setDynamicHeight);
+
         const container = document.getElementById('scrollBox');
         const content = document.getElementById('content');
       
