@@ -5,6 +5,11 @@
     box-sizing: border-box; 
     font-family: "Noto Sans KR", sans-serif; 
   }
+
+  :root {
+    --vh: 1vh;
+  }
+
   body, html {
     min-width: 320px;
   }
@@ -656,6 +661,7 @@
     height: calc(var(--vh, 1vh) * 100 - 136px);
     padding-bottom: 10px;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .aside .list_ul {
