@@ -657,8 +657,10 @@
   .aside .list_ul_wrap {
     height: calc(100vh - 136px);
     padding-bottom: 30px;
+  }
+
+  .aside .list_ul_wrap .inner {
     overflow: auto;
-    
   }
 
   .aside .list_ul {
@@ -1475,6 +1477,9 @@
     .aside .list_ul_wrap {
       height: calc(100vh - 29.2vw);
       padding-bottom: 4vw;
+    }
+
+    .aside .list_ul_wrap .inner {
       -webkit-overflow-scrolling: touch;
     }
   
