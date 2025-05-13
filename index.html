@@ -314,12 +314,23 @@
             </select>
           </div>
           <div class="list_ul_wrap">
-            <ul class="list_ul"></ul>
-            <p class="pharases" id="dragNotice" style="display: none;">왼쪽 바 버튼을 클릭하여 드래그로 순서를 바꿀 수 있습니다.</p>
-            <p class="pharases" id="saveNotice">명식 저장은 브라우저 안에서만 해당되며,<br>다른 브라우저를 사용할 경우 명식을 다시 저장해야합니다.</p>
+            <div class="inner">
+              <ul class="list_ul"></ul>
+              <p class="pharases" id="dragNotice" style="display: none;">왼쪽 바 버튼을 클릭하여 드래그로 순서를 바꿀 수 있습니다.</p>
+              <p class="pharases" id="saveNotice">명식 저장은 브라우저 안에서만 해당되며,<br>다른 브라우저를 사용할 경우 명식을 다시 저장해야합니다.</p>
+            </div>
           </div>
         </div>
       </aside>
+      <script>
+        function setVh() {
+          document.documentElement.style.setProperty(
+            '--vh', `${window.innerHeight * 0.01}px`
+          );
+        }
+        window.addEventListener('resize', setVh);
+        setVh();
+      </script>
 
       <!-- 입력창 -->
       <div class="info_wrapper">
