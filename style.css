@@ -670,6 +670,10 @@
     border-bottom: 1px solid #EED36C;
   }
 
+  .aside .list_ul > li:last-child {
+    display: block;
+  }
+
   .type_sv_wrap {
     position: absolute;
     display: flex;
