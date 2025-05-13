@@ -1146,36 +1146,40 @@ document.addEventListener("DOMContentLoaded", function () {
     el.classList.add('jeonggi');
   });
 
-  const container = document.querySelector(".container");
-  const header = container.querySelector(".header");
-  const checkOption = container.querySelector(".check_option");
-
+  //const container = document.querySelector(".container");
   let lastScrollTop = 0;
+  const header = document.querySelector('header');        // 실제 셀렉터로 바꿔주세요
+  const checkOption = document.querySelector('#checkOption');
 
   window.addEventListener("scroll", function () {
     const scrollTop = window.scrollY;
     const headerHeight = header.offsetHeight;
     const checkOptionHeight = checkOption.offsetHeight;
 
-    // 1. 스크롤 방향에 따른 top 위치 조정
-    if (scrollTop > lastScrollTop) {
-      // 스크롤 내림
-      header.style.top = `${-(headerHeight + checkOptionHeight)}px`;
-      checkOption.style.top = `-${headerHeight}px`;
-    } else {
-      // 스크롤 올림
-      header.style.top = `0px`;
+    if (scrollTop <= headerHeight) {
+      // ── 헤더 전부 보이는 구간: 항상 노출 상태
+      header.style.top = '0';
       checkOption.style.top = `${headerHeight}px`;
-    }
-
-    // 2. 스크롤 위치에 따른 fixed 클래스 추가/제거
-    if (scrollTop >= headerHeight) {
-      checkOption.classList.add("fixed");
-    } else {
       checkOption.classList.remove("fixed");
+
+    } else {
+      // ── headerHeight 이상 스크롤 됐을 때부터만 hide/show 적용
+      if (scrollTop > lastScrollTop) {
+        // 스크롤 내림 → 숨기기
+        header.style.top = `${-(headerHeight + checkOptionHeight)}px`;
+        checkOption.style.top = `-${headerHeight}px`;
+      } else {
+        // 스크롤 올림 → 보이기
+        header.style.top = '0';
+        checkOption.style.top = `${headerHeight}px`;
+      }
+      // 고정(fixed) 클래스 토글
+      if (scrollTop >= headerHeight) {
+        checkOption.classList.add("fixed");
+      }
     }
 
-    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // 음수 방지
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
   });
 
 
