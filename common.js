@@ -1329,8 +1329,25 @@ document.addEventListener("DOMContentLoaded", function () {
     // 보정시각 계산
     //const originalDate = new Date(year, month - 1, day, hour, minute);
     //let correctedDate;
+
+    function clearHourUI() {
+      // ① 입력창 비우기
+      document.getElementById("inputBirthtime").value = "";
+      // ② 시주 영역 “–” 로 채우기
+      updateStemInfo("Ht", { gan: "-", ji: "-" }, baseDayStem);
+      updateBranchInfo("Hb", "-", baseDayStem);
+      // ③ 12운성, 12신살도 “–”
+      ["Hb12ws","Hb12ss"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = "-";
+      });
+    }
+
     if (isTimeUnknown) {
-      correctedDate = null;
+      const resbjTimeEl = document.getElementById('resbjTime');
+      resbjTimeEl.innerText = '보정시모름';
+      correctedDate = new Date(year, month - 1, day, 3, 30, 0, 0);
+      clearHourUI();
     } 
 
     function formatTime(date) {
@@ -5460,6 +5477,8 @@ document.addEventListener("DOMContentLoaded", function () {
     
         // 실제 로직
         updateFortuneWithManualHour(manualSiju);
+
+        updateFunc(refDate);
     
         // 1-3) 다음 프레임에 페이드 인
         requestAnimationFrame(() =>
@@ -5594,10 +5613,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const hourSplit2 = splitPillar(siju);
             updateOriginalSetMapping(daySplitGlobal, hourSplit2);
             registerMyowoonMoreHandler(hourSplit2)
-
-            // 2-6) 부드러운 업데이트 (Day Pillar 포함)
             
+            // 2-6) 부드러운 업데이트 (Day Pillar 포함)
             smoothUpdate(siju);
+            
           });
 
           hourListEl.appendChild(btn);
@@ -5605,7 +5624,7 @@ document.addEventListener("DOMContentLoaded", function () {
         initialized = true;
       }
     }
-
+    // updateFunc(refDate);
     // 렌더링 한 번 실행
     //renderSijuButtons();
 
@@ -5692,6 +5711,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       updateDayPillar(manualSiju);
       updateColorClasses();
+
+      updateFunc(correctedDate);
     }
 
     globalState.originalTimeUnknown = isTimeUnknown;
@@ -6018,10 +6039,24 @@ document.addEventListener("DOMContentLoaded", function () {
     const pillarsPart = computedResult.split(", ")[0];
     const pillars = pillarsPart.split(" ");
 
-    //const originalDate = new Date(year, month - 1, day, hour, minute);
-    //let correctedDate;
+    function clearHourUI() {
+      // ① 입력창 비우기
+      document.getElementById("inputBirthtime").value = "";
+      // ② 시주 영역 “–” 로 채우기
+      updateStemInfo("Ht", { gan: "-", ji: "-" }, baseDayStem);
+      updateBranchInfo("Hb", "-", baseDayStem);
+      // ③ 12운성, 12신살도 “–”
+      ["Hb12ws","Hb12ss"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = "-";
+      });
+    }
+
     if (isTimeUnknown) {
-      correctedDate = null;
+      const resbjTimeEl = document.getElementById('resbjTime');
+      resbjTimeEl.innerText = '보정시모름';
+      correctedDate = new Date(year, month - 1, day, 3, 30, 0, 0);
+      clearHourUI();
     } 
 
     const age = correctedDate ? calculateAge(correctedDate) : "-";
