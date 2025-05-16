@@ -984,31 +984,14 @@ function getYearGanZhiForSewoon(year) {
 }
 
 function updateColorClasses() {
-  // 0) 색상 클래스 목록
-  const bgColorClasses   = ['b_green', 'b_red', 'b_yellow', 'b_white', 'b_black'];
-  const textColorClasses = ['green',   'red',   'yellow',   'white',   'black'];
-  
-
-  // 1) 이전에 남아 있던 모든 b_* 와 text 컬러 클래스 전부 제거
-  document.querySelectorAll(
-    ".ganji_w, " +
-    ".grid_box_1 li b, .ganji b, " +
-    ".ilwoon_ganji_cheongan span, .ilwoon_ganji_jiji span"
-  ).forEach(el => {
-    bgColorClasses.forEach(c => el.classList.remove(c));
-    textColorClasses.forEach(c => el.classList.remove(c));
-  });
-
-  // 2) ganji_w 요소에 배경색 적용
+  const bgColorClasses = ['b_green', 'b_red', 'b_yellow', 'b_white', 'b_black'],
+        textColorClasses = ['green', 'red', 'yellow', 'white', 'black'];
   document.querySelectorAll(".ganji_w").forEach(elem => {
-    const key = elem.textContent.trim();
-    const mapping = colorMapping[key];
-    if (mapping?.bgColor) {
-      elem.classList.add(mapping.bgColor);
-    }
+    const val = elem.innerHTML.trim();
+    bgColorClasses.forEach(cls => elem.classList.remove(cls));
+    if (colorMapping[val]) elem.classList.add(colorMapping[val].bgColor);
   });
-
-  // 3) b 태그(원국 시·지 등)과 ilwoon span 처리
+  // 처리 대상 셀렉터 확장
   const selector = [
     ".grid_box_1 li b",
     ".ganji b",
@@ -1017,39 +1000,35 @@ function updateColorClasses() {
   ].join(", ");
 
   document.querySelectorAll(selector).forEach(elem => {
-    const key = elem.textContent.trim();
+    const val = elem.textContent.trim();
+    const clsToAdd = colorMapping[val]?.bgColor;
+    const clsToAdd2 = colorMapping2[val]?.bgColor;
+    if (!clsToAdd) return;
 
-    // 3a) grid_box_1 li b, .ganji b : hanja_con + 다음 p 처리
+    // 1) .hanja_con 내부의 <b>일 때는 부모와 다음 <p>를 처리
     if (elem.matches(".grid_box_1 li b, .ganji b")) {
-      const mapping = colorMapping[key];
-      const clsToAdd = mapping?.bgColor;
-      if (!clsToAdd) return;
-
       const container = elem.closest(".hanja_con");
       if (!container) return;
-
-      // hanja_con 에 배경색
+      // .hanja_con에서 기존 색상 제거
+      bgColorClasses.forEach(c => container.classList.remove(c));
+      // 새 클래스 추가
       container.classList.add(clsToAdd);
-
-      // 다음 형제 p 태그에도 동일 배경색
-      const nextP = container.nextElementSibling;
-      if (nextP?.tagName.toLowerCase() === "p") {
-        nextP.classList.add(clsToAdd);
+      // 다음 형제 <p>에도 동일 적용
+      const next = container.nextElementSibling;
+      if (next?.tagName.toLowerCase() === "p") {
+        bgColorClasses.forEach(c => next.classList.remove(c));
+        next.classList.add(clsToAdd);
       }
     }
-
-    // 3b) ilwoon_ganji_cheongan / jiji span : textColorMapping 적용
+    // 2) ilwoon_ganji_cheongan / jiji span은 자기 자신에만 적용
     else if (elem.matches(".ilwoon_ganji_cheongan span, .ilwoon_ganji_jiji span")) {
-      const mapping2 = colorMapping2[key];
-      const clsToAdd2 = mapping2?.bgColor;
-      if (!clsToAdd2) return;
-
+      // 기존 색상 클래스 제거
+      bgColorClasses.forEach(c => elem.classList.remove(c));
+      // 새 클래스 추가
       elem.classList.add(clsToAdd2);
     }
   });
 }
-
-
 
 function appendTenGod(id, value, isStem = true) {
   const el = document.getElementById(id);
@@ -1171,48 +1150,26 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function updatePickerVisibility2(mode) {
-    document.getElementById("woonTimeSetPicker2").style.display = 'none';
-    document.getElementById("woonTimeSetPickerVer22").style.display = 'none';
-    document.getElementById("woonTimeSetPickerVer23").style.display = 'none';
-  
-    currentMode = mode;
-  
-    if (mode === 'ver22') {
-      document.getElementById("woonTimeSetPickerVer22").style.display = '';
-      isPickerVer22 = true;
-      isPickerVer23 = false;
-    } else if (mode === 'ver23') {
-      document.getElementById("woonTimeSetPickerVer23").style.display = '';
-      isPickerVer22 = false;
-      isPickerVer23 = true;
-    } else if (mode === 'ver21') {
-      document.getElementById("woonTimeSetPicker2").style.display = '';
-      isPickerVer22 = false;
-      isPickerVer23 = false;
-    }
-
+      document.getElementById("woonTimeSetPicker2").style.display = 'none';
+      document.getElementById("woonTimeSetPickerVer22").style.display = 'none';
+      document.getElementById("woonTimeSetPickerVer23").style.display = 'none';
     
-  }
-
-  function clearColorClassesInArea(areaSelector) {
-    const classesToRemove = [
-      "b_green","b_red","b_white","b_black","b_yellow","active"
-    ];
-    const container = document.querySelector(areaSelector);
-    if (!container) return;
-  
-    // 원국(li.siju_con3) + 묘운(div.myowoon li.siju_con3) 영역 모두 타겟
-    const sel = [
-      'li.siju_con3 .hanja_con',
-      'li.siju_con3 > p',
-      'div.myowoon li.siju_con3 .hanja_con',
-      'div.myowoon li.siju_con3 > p'
-    ].join(', ');
-  
-    container.querySelectorAll(sel).forEach(el => {
-      el.classList.remove(...classesToRemove);
-    });
-  }
+      currentMode = mode;
+    
+      if (mode === 'ver22') {
+        document.getElementById("woonTimeSetPickerVer22").style.display = '';
+        isPickerVer22 = true;
+        isPickerVer23 = false;
+      } else if (mode === 'ver23') {
+        document.getElementById("woonTimeSetPickerVer23").style.display = '';
+        isPickerVer22 = false;
+        isPickerVer23 = true;
+      } else if (mode === 'ver21') {
+        document.getElementById("woonTimeSetPicker2").style.display = '';
+        isPickerVer22 = false;
+        isPickerVer23 = false;
+      }
+    }
 
   //const container = document.querySelector(".container");
   let lastScrollTop = 0;
@@ -2051,7 +2008,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateStemInfo("CMyoHt", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit, baseDayStem_copy);
       updateBranchInfo("CMyoYb", baseYearBranch_copy, baseDayStem_copy);
       updateBranchInfo("CMyoMb", p_myo_monthSplit.ji, baseDayStem_copy);
-      updateBranchInfo("CMyoDb", isMyTimeUnknown || isPickerVer23 ? "-" : p_myo_daySplit.ji, baseDayStem_copy);
+      updateBranchInfo("CMyoDb", isMyTimeUnknown || isPickerVer3 ? "-" : p_myo_daySplit.ji, baseDayStem_copy);
       updateBranchInfo("CMyoHb", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit.ji, baseDayStem_copy);
 
 
@@ -2400,12 +2357,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById("woonVer1Change2").click();
         //document.getElementById("woonChangeBtn2").click();
-        if (latestMyeongsik.isTimeUnknown) {
-          clearColorClassesInArea('#people1');
-        }
-        if (partnerData.isTimeUnknown) {
-          clearColorClassesInArea('#people2');
-        }
+        
       });
     });
     
@@ -2456,16 +2408,31 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("inputWrap").style.display    = "none";
     document.getElementById("resultWrapper").style.display = "block";
     updatePickerVisibility2('ver21');
-
-
-    /*['#people1','#people2'].forEach(sel => {
-      if (document.querySelector(sel)) {
-        clearColorClassesInArea(sel);
-      }
-    });*/
-    clearColorClassesInArea('#people1');
-    clearColorClassesInArea('#people2');
-    
+  
+    // 3) strip 함수
+    function stripColorClasses(rootSelector) {
+      const root = document.querySelector(rootSelector);
+      if (!root) return;
+      const classesToRemove = [
+        "b_green","b_red","b_white","b_black","b_yellow","active"
+      ];
+      // li.siju_con3 하위의 hanja_con 과 p 태그만 골라서
+      root.querySelectorAll(
+        'li.siju_con3 .hanja_con, li.siju_con3 > p, li.siju_con3 p.woon_seong, li.siju_con3 p.sin_sal'
+      ).forEach(el => el.classList.remove(...classesToRemove));
+    }
+  
+    // 4) 마지막 detail 버튼 강제 클릭 → 클릭 핸들러가 UI를 다시 그리고
+    const btn = document.querySelector(`.detailViewBtn[data-index="${currentDetailIndex}"]`);
+    if (btn) {
+      btn.click();
+  
+      // 5) 클릭 핸들러 끝난 뒤(다음 이벤트 루프)에 색만 클린업
+      setTimeout(() => {
+        stripColorClasses('#people1');
+        stripColorClasses('#people2');  // 여기서 people2 가 맞는지 id 확인!
+      }, 0);
+    }
   });
   
   // aside 열기/닫기 이벤트 등록
@@ -5400,41 +5367,6 @@ document.addEventListener("DOMContentLoaded", function () {
       refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());
 
       updateOriginalAndMyowoonVr(refDate);
-
-      function clearHyphenElements(rootEl) {
-        const root = typeof rootEl === 'string'
-          ? document.querySelector(rootEl)
-          : rootEl;
-        if (!root) return;
-      
-        const classesToRemove = [
-          "b_green","b_red","b_white","b_black","b_yellow","active"
-        ];
-      
-        // 1) hanja_con 내부 <p> (음양) 검사
-        root.querySelectorAll('li.siju_con3 .hanja_con > p')
-          .forEach(p => {
-            if (p.textContent.trim() === "-") {
-              // 부모 .hanja_con 에서 클래스 제거
-              const hanja = p.parentElement;
-              hanja.classList.remove(...classesToRemove);
-              // p 자신도 제거
-              p.classList.remove(...classesToRemove);
-            }
-          });
-      
-        // 2) 그 외 direct <p> (한글, 십신, 운성) 검사
-        root.querySelectorAll('li.siju_con3 > p')
-          .forEach(p => {
-            if (p.textContent.trim() === "-") {
-              p.classList.remove(...classesToRemove);
-            }
-          });
-      }
-      
-      // 사용 예시: body 전체 하이픈 요소 초기화
-      clearHyphenElements(document.body);
-
     });
 
     // 버튼 클릭 이벤트: picker 날짜(refDate)를 사용하여 동적 운세(묘운)를 업데이트
@@ -5531,40 +5463,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
       });
-
-      function clearHyphenElements(rootEl) {
-        const root = typeof rootEl === 'string'
-          ? document.querySelector(rootEl)
-          : rootEl;
-        if (!root) return;
-      
-        const classesToRemove = [
-          "b_green","b_red","b_white","b_black","b_yellow","active"
-        ];
-      
-        // 1) hanja_con 내부 <p> (음양) 검사
-        root.querySelectorAll('li.siju_con4 .hanja_con > p')
-          .forEach(p => {
-            if (p.textContent.trim() === "-") {
-              // 부모 .hanja_con 에서 클래스 제거
-              const hanja = p.parentElement;
-              hanja.classList.remove(...classesToRemove);
-              // p 자신도 제거
-              p.classList.remove(...classesToRemove);
-            }
-          });
-      
-        // 2) 그 외 direct <p> (한글, 십신, 운성) 검사
-        root.querySelectorAll('li.siju_con4 > p')
-          .forEach(p => {
-            if (p.textContent.trim() === "-") {
-              p.classList.remove(...classesToRemove);
-            }
-          });
-      }
-      
-      // 사용 예시: body 전체 하이픈 요소 초기화
-      clearHyphenElements(document.body);
       
 
     });
