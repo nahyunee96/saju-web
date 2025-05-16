@@ -5367,6 +5367,42 @@ document.addEventListener("DOMContentLoaded", function () {
       refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());
 
       updateOriginalAndMyowoonVr(refDate);
+
+      function clearHyphenElements(rootEl) {
+        const root = typeof rootEl === 'string'
+          ? document.querySelector(rootEl)
+          : rootEl;
+        if (!root) return;
+      
+        const classesToRemove = [
+          "b_green","b_red","b_white","b_black","b_yellow","active"
+        ];
+      
+        // 1) hanja_con 내부 <p> (음양) 검사
+        root.querySelectorAll('li.siju_con3 .hanja_con > p')
+          .forEach(p => {
+            if (p.textContent.trim() === "-") {
+              // 부모 .hanja_con 에서 클래스 제거
+              const hanja = p.parentElement;
+              hanja.classList.remove(...classesToRemove);
+              // p 자신도 제거
+              p.classList.remove(...classesToRemove);
+            }
+          });
+      
+        // 2) 그 외 direct <p> (한글, 십신, 운성) 검사
+        root.querySelectorAll('li.siju_con3 > p')
+          .forEach(p => {
+            if (p.textContent.trim() === "-") {
+              p.classList.remove(...classesToRemove);
+            }
+          });
+      }
+      
+      // 사용 예시: body 전체 하이픈 요소 초기화
+      document.querySelectorAll('.siju_con3').forEach(root => {
+        clearHyphenElements(root);
+      });
     });
 
     // 버튼 클릭 이벤트: picker 날짜(refDate)를 사용하여 동적 운세(묘운)를 업데이트
@@ -5464,7 +5500,41 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
       
-
+      function clearHyphenElements(rootEl) {
+        const root = typeof rootEl === 'string'
+          ? document.querySelector(rootEl)
+          : rootEl;
+        if (!root) return;
+      
+        const classesToRemove = [
+          "b_green","b_red","b_white","b_black","b_yellow","active"
+        ];
+      
+        // 1) hanja_con 내부 <p> (음양) 검사
+        root.querySelectorAll('li.siju_con4 .hanja_con > p')
+          .forEach(p => {
+            if (p.textContent.trim() === "-") {
+              // 부모 .hanja_con 에서 클래스 제거
+              const hanja = p.parentElement;
+              hanja.classList.remove(...classesToRemove);
+              // p 자신도 제거
+              p.classList.remove(...classesToRemove);
+            }
+          });
+      
+        // 2) 그 외 direct <p> (한글, 십신, 운성) 검사
+        root.querySelectorAll('li.siju_con4 > p')
+          .forEach(p => {
+            if (p.textContent.trim() === "-") {
+              p.classList.remove(...classesToRemove);
+            }
+          });
+      }
+      
+      // 사용 예시: body 전체 하이픈 요소 초기화
+      document.querySelectorAll('.siju_con4').forEach(root => {
+        clearHyphenElements(root);
+      });
     });
 
     const pickerIds = [
