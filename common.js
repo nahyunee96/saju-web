@@ -5,6 +5,7 @@ let modifyIndex;           // 현재 수정 중인 명식 인덱스
 let originalDataSnapshot;  // 기존 명식 데이터 백업\
 let baseDayStem;
 let isTimeUnknown, isPlaceUnknown;
+let renderSijuButtonsVr;
 // 전역 변수
 let savedMyeongsikList = [];
 // 궁합모드 여부(true이면 aside에 본인 제외, couple_btn 표시)
@@ -38,7 +39,7 @@ let hourSplitGlobal, daySplitGlobal;
 let manualOverride = false;
 
 let savedCityLon = null;
-
+let initialized;
 // [0] 출생지 보정 및 써머타임 함수
 // const cityLongitudes = {
 //   "서울특별시": 126.9780, "부산광역시": 129.1, "대구광역시": 128.6,
@@ -1666,6 +1667,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+
     function handleViewClick() {
       // 만약 수정 모드(isModifyMode)가 true이면,
       // "저장하지 않은 내용이 있습니다. 정말 이동하시겠습니까?"라는 경고창을 띄웁니다.
@@ -1679,6 +1681,7 @@ document.addEventListener("DOMContentLoaded", function () {
       originalDataSnapshot = "";
       currentModifyIndex = null;
       updateSaveBtn();
+      
     }
 
     function resetHourButtons() {
@@ -1713,6 +1716,8 @@ document.addEventListener("DOMContentLoaded", function () {
       //isTimeUnknown = true;
     }
     
+    
+
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
@@ -1745,11 +1750,24 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("inputBirthday").value = item.birthday;
     
         if (item.isTimeUnknown) {
-          document.getElementById("bitthTimeX").checked     = true;
-          document.getElementById("inputBirthtime").value = null;
+          function clearAllColorClasses() {
+            const classesToRemove = [
+              "b_green","b_red","b_white","b_black","b_yellow","active"
+            ];
+            document.querySelectorAll('.siju_con .hanja_con, .siju_con p').forEach(el => {
+              el.classList.remove(...classesToRemove);
+            });
+          }
+          //if (isTimeUnknown) {
+          setTimeout(()=>{
+            clearAllColorClasses();
+          }, 100)
+          //}
+          document.getElementById("bitthTimeX").checked   = true;
+          document.getElementById("inputBirthtime").value = "";
         } else {
-          document.getElementById("bitthTimeX").checked     = false;
-          document.getElementById("inputBirthtime").value = item.birthtime.replace(/\s/g, "").trim();
+          document.getElementById("bitthTimeX").checked   = false;
+          document.getElementById("inputBirthtime").value = item.birthtime.replace(/\s/g, "");
         }
     
         if (item.isPlaceUnknown) {
@@ -2644,6 +2662,9 @@ document.addEventListener("DOMContentLoaded", function () {
     
 
     function updateOriginalSetMapping(daySplit, hourSplit) {
+      if (!hourSplit || typeof hourSplit.ji !== 'string') {
+        return;
+      }
       if (manualOverride) {
         return;
       }
@@ -3649,25 +3670,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function getHourBranchReturn(date) {
       const branches = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
       return branches[getHourBranchIndex2(date)];
-    }
-
-    function getHourGanZhiReturn(dateObj) {
-      // 1) 시지(branch) 가져오기 (예: '子','丑',…)
-      const branch = getHourBranchReturn(dateObj);
-    
-      // 2) 일간(day stem) 가져오기 (예: '갑','을',…)
-      const dayPillar = getDayGanZhi(dateObj);  // 예: "병자"
-      const dayStem   = dayPillar.charAt(0);
-    
-      // 4) 시지 인덱스(0~11) 계산
-      const idx = getHourBranchIndex2(dateObj);
-    
-      // 5) 해당 인덱스의 천간 추출
-      const arr = fixedDayMapping[dayStem] || [];
-      const stem = arr[idx] || '';
-    
-      // 6) 합쳐서 반환
-      return stem + branch;
     }
 
     const GANZHI_60 = Array.from({ length: 60 }, (_, i) =>
@@ -5491,7 +5493,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // 2) renderSijuButtons()에 색상 클래스 다시 추가
     // 1) 최초 버튼 렌더링 한 번만
-    let initialized = false;
+    
 
     // 2) 시간 문자열 파싱 유틸
     function parseTimeStr(tstr) {
@@ -5500,7 +5502,6 @@ document.addEventListener("DOMContentLoaded", function () {
         minute: parseInt(tstr.slice(2),   10),
       };
     }
-
 
     // 4) 버튼 렌더링 & 토글 적용
     function renderSijuButtons() {
@@ -5534,6 +5535,23 @@ document.addEventListener("DOMContentLoaded", function () {
               btn.className = "black_btn";
               btn.textContent = `${lbl}시 (${siju})`;
               btn.classList.remove("b_green","b_red","b_white","b_black","b_yellow","active");
+
+              // 2) 각 컨테이너와 그 안의 <p>에 남아있는 b_* 와 active 클래스를 한꺼번에 제거
+              const classesToRemove = [
+                "b_green","b_red","b_white","b_black","b_yellow","active"
+              ];
+              
+              // .siju_con 와 div.hanja_con 모두 처리
+              document.querySelectorAll('.siju_con, div.hanja_con').forEach(container => {
+                // 컨테이너 자체에서 클래스 제거
+                container.classList.remove(...classesToRemove);
+              
+                // 내부 <p> 요소들의 클래스 제거
+                container.querySelectorAll('p').forEach(p => {
+                  p.classList.remove(...classesToRemove);
+                });
+              });
+              
           
               // 2) 시간 미확인 모드 복귀
               isTimeUnknown = true;
@@ -5717,7 +5735,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     globalState.originalTimeUnknown = isTimeUnknown;
     if (globalState.originalTimeUnknown) {  
-      renderSijuButtons();
+      renderSijuButtonsVr = renderSijuButtons();
     }
 
     document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
