@@ -1382,7 +1382,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isFavorite : false,
       birthPlaceFull,
       birthPlaceLongitude: cityLon,
-      correctedDate: correctedDate.toISOString(),
+      correctedDate: correctedDate,
     };
 
     latestMyeongsik = newData;
