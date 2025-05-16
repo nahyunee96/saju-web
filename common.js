@@ -37,9 +37,10 @@ let customRadioTarget = null;
 
 let hourSplitGlobal, daySplitGlobal;
 let manualOverride = false;
-
+let manualOverride2 = false;
 let savedCityLon = null;
 let initialized;
+
 // [0] 출생지 보정 및 써머타임 함수
 // const cityLongitudes = {
 //   "서울특별시": 126.9780, "부산광역시": 129.1, "대구광역시": 128.6,
@@ -5776,27 +5777,38 @@ document.addEventListener("DOMContentLoaded", function () {
     const birthMonth = month;
     const birthDay   = day;
 
-    //1) Day Pillar 계산 함수 시그니처에 파라미터 추가
+    // 1) 전날 계산 헬퍼
     function updateDayPillarByPrev(baseDate = correctedDate) {
-      const newDayDate = new Date(baseDate);
-      newDayDate.setDate(newDayDate.getDate() - 1);
-      const dayPillar = getDayGanZhi(newDayDate);
-      const daySplit  = splitPillar(dayPillar);
-      updateStemInfo("Dt", daySplit, baseDayStem);
-      updateBranchInfo("Db", daySplit.ji, baseDayStem);
-      setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
-      setText("Db12ss", getTwelveShinsal(baseYearBranch, daySplit.ji));
+      // ① baseDate에서 “년·월·일”만 자정(0시)으로 추출
+      const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+      // ② 전날로 이동
+      d.setDate(d.getDate() - 1);
+
+      // ③ 간지 계산
+      const dayPillar = getDayGanZhi(d);
+      const split     = splitPillar(dayPillar);
+
+      // ④ 화면 업데이트 (split.gan 을 기준으로)
+      updateStemInfo("Dt", split, split.gan);
+      updateBranchInfo("Db", split.ji, split.gan);
+      setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
+      setText("Db12ss", getTwelveShinsal(baseYearBranch, split.ji));
     }
 
+    // 2) 같은 날 계산 헬퍼
     function updateDayPillarByCurr(baseDate = correctedDate) {
-      const newDayDate = new Date(baseDate);
-      // setDate 그대로 ← 같은 날
-      const dayPillar = getDayGanZhi(newDayDate);
-      const daySplit  = splitPillar(dayPillar);
-      updateStemInfo("Dt", daySplit, baseDayStem);
-      updateBranchInfo("Db", daySplit.ji, baseDayStem);
-      setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
-      setText("Db12ss", getTwelveShinsal(baseYearBranch, daySplit.ji));
+      // ① baseDate에서 “년·월·일”만 자정(0시)으로 추출
+      const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+
+      // ② 간지 계산
+      const dayPillar = getDayGanZhi(d);
+      const split     = splitPillar(dayPillar);
+
+      // ③ 화면 업데이트
+      updateStemInfo("Dt", split, split.gan);
+      updateBranchInfo("Db", split.ji, split.gan);
+      setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
+      setText("Db12ss", getTwelveShinsal(baseYearBranch, split.ji));
     }
     
     // Day Pillar 계산 (시간 제거, 날짜만)
@@ -5825,37 +5837,54 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // 2) updateFortuneWithManualHour 내부에서 orig을 넘기도록 변경
     function updateFortuneWithManualHour(manualSiju) {
-      // …시간 파싱 & orig 생성…
-      const bt = document.getElementById('inputBirthtime').value;
-      const hr = parseInt(bt.slice(0,2),10);
-      const mi = parseInt(bt.slice(2),10);
+      manualOverride2 = true;
+      // 1) 시간 파싱 & orig 생성
+      const bt   = document.getElementById('inputBirthtime').value;
+      const hr   = parseInt(bt.slice(0,2),10);
+      const mi   = parseInt(bt.slice(2),10);
       const orig = new Date(birthYear, birthMonth - 1, birthDay, hr, mi);
-
-      // 시차 보정은 Hour Pillar 용으로만 쓰고
+    
+      // 2) 시차 보정 (Hour Pillar 용)
       const corr = adjustBirthDateWithLon(orig, birthPlaceInput, isPlaceUnknown);
-      correctedDate = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
-
-      // — Hour Pillar 업데이트 (unchanged) —
+      const newCorrected = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
+    
+      // 3) Hour Pillar 업데이트 (기존 로직)
       const split = splitPillar(manualSiju);
       updateStemInfo("Ht", split, baseDayStem);
       updateBranchInfo("Hb", split.ji, baseDayStem);
       setText("Hb12ws", getTwelveUnseong(baseDayStem, split.ji));
       setText("Hb12ss", getTwelveShinsal(baseYearBranch, split.ji));
-
-      // — 기타 로직 생략 —
-
-      // — Day Pillar 계산: 항상 orig 기준으로 —
+    
+      // —————————————— 여기서부터 수정된 부분 ——————————————
+    
+      // 4) Day Pillar 계산에 쓰이는 correctedDate를 잠시 orig으로 덮어쓰기
+      const prevCorrectedDate = correctedDate;
+      correctedDate = newCorrected;
+    
+      // 5) 자·축(子,丑) 시는 전날 로직과, 기준 통일된 updateDayPillar 호출
       const useInsiMode = document.getElementById('insi').checked;
       const branchName  = manualSiju.charAt(1);
       if ((branchName === "자" || branchName === "축") && useInsiMode) {
-        updateDayPillarByPrev(orig);    // ← orig 넘김
+        updateDayPillarByPrev(correctedDate);
       } else {
-        updateDayPillarByCurr(orig);    // ← orig 넘김
+        updateDayPillarByCurr(correctedDate);
       }
-      updateDayPillar(manualSiju);
+      
+      // 6) 마지막에 한번만, 기준이 통일된 updateDayPillar 호출
+      if (!manualOverride2) {
+        updateDayPillar(manualSiju);
+      }
+    
+      // 7) 원래 correctedDate 복원
+      correctedDate = prevCorrectedDate;
+    
+      // —————————————— 수정 끝 ——————————————
+    
+      // 8) UI 업데이트
       updateColorClasses();
+      updateFunc(newCorrected);
 
-      updateFunc(correctedDate);
+      manualOverride2 = false;
     }
 
     globalState.originalTimeUnknown = isTimeUnknown;
