@@ -984,14 +984,31 @@ function getYearGanZhiForSewoon(year) {
 }
 
 function updateColorClasses() {
-  const bgColorClasses = ['b_green', 'b_red', 'b_yellow', 'b_white', 'b_black'],
-        textColorClasses = ['green', 'red', 'yellow', 'white', 'black'];
-  document.querySelectorAll(".ganji_w").forEach(elem => {
-    const val = elem.innerHTML.trim();
-    bgColorClasses.forEach(cls => elem.classList.remove(cls));
-    if (colorMapping[val]) elem.classList.add(colorMapping[val].bgColor);
+  // 0) 색상 클래스 목록
+  const bgColorClasses   = ['b_green', 'b_red', 'b_yellow', 'b_white', 'b_black'];
+  const textColorClasses = ['green',   'red',   'yellow',   'white',   'black'];
+  
+
+  // 1) 이전에 남아 있던 모든 b_* 와 text 컬러 클래스 전부 제거
+  document.querySelectorAll(
+    ".ganji_w, " +
+    ".grid_box_1 li b, .ganji b, " +
+    ".ilwoon_ganji_cheongan span, .ilwoon_ganji_jiji span"
+  ).forEach(el => {
+    bgColorClasses.forEach(c => el.classList.remove(c));
+    textColorClasses.forEach(c => el.classList.remove(c));
   });
-  // 처리 대상 셀렉터 확장
+
+  // 2) ganji_w 요소에 배경색 적용
+  document.querySelectorAll(".ganji_w").forEach(elem => {
+    const key = elem.textContent.trim();
+    const mapping = colorMapping[key];
+    if (mapping?.bgColor) {
+      elem.classList.add(mapping.bgColor);
+    }
+  });
+
+  // 3) b 태그(원국 시·지 등)과 ilwoon span 처리
   const selector = [
     ".grid_box_1 li b",
     ".ganji b",
@@ -1000,35 +1017,39 @@ function updateColorClasses() {
   ].join(", ");
 
   document.querySelectorAll(selector).forEach(elem => {
-    const val = elem.textContent.trim();
-    const clsToAdd = colorMapping[val]?.bgColor;
-    const clsToAdd2 = colorMapping2[val]?.bgColor;
-    if (!clsToAdd) return;
+    const key = elem.textContent.trim();
 
-    // 1) .hanja_con 내부의 <b>일 때는 부모와 다음 <p>를 처리
+    // 3a) grid_box_1 li b, .ganji b : hanja_con + 다음 p 처리
     if (elem.matches(".grid_box_1 li b, .ganji b")) {
+      const mapping = colorMapping[key];
+      const clsToAdd = mapping?.bgColor;
+      if (!clsToAdd) return;
+
       const container = elem.closest(".hanja_con");
       if (!container) return;
-      // .hanja_con에서 기존 색상 제거
-      bgColorClasses.forEach(c => container.classList.remove(c));
-      // 새 클래스 추가
+
+      // hanja_con 에 배경색
       container.classList.add(clsToAdd);
-      // 다음 형제 <p>에도 동일 적용
-      const next = container.nextElementSibling;
-      if (next?.tagName.toLowerCase() === "p") {
-        bgColorClasses.forEach(c => next.classList.remove(c));
-        next.classList.add(clsToAdd);
+
+      // 다음 형제 p 태그에도 동일 배경색
+      const nextP = container.nextElementSibling;
+      if (nextP?.tagName.toLowerCase() === "p") {
+        nextP.classList.add(clsToAdd);
       }
     }
-    // 2) ilwoon_ganji_cheongan / jiji span은 자기 자신에만 적용
+
+    // 3b) ilwoon_ganji_cheongan / jiji span : textColorMapping 적용
     else if (elem.matches(".ilwoon_ganji_cheongan span, .ilwoon_ganji_jiji span")) {
-      // 기존 색상 클래스 제거
-      bgColorClasses.forEach(c => elem.classList.remove(c));
-      // 새 클래스 추가
+      const mapping2 = colorMapping2[key];
+      const clsToAdd2 = mapping2?.bgColor;
+      if (!clsToAdd2) return;
+
       elem.classList.add(clsToAdd2);
     }
   });
 }
+
+
 
 function appendTenGod(id, value, isStem = true) {
   const el = document.getElementById(id);
@@ -1148,6 +1169,50 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll('[id*="Jj3"]').forEach(el => {
     el.classList.add('jeonggi');
   });
+
+  function updatePickerVisibility2(mode) {
+    document.getElementById("woonTimeSetPicker2").style.display = 'none';
+    document.getElementById("woonTimeSetPickerVer22").style.display = 'none';
+    document.getElementById("woonTimeSetPickerVer23").style.display = 'none';
+  
+    currentMode = mode;
+  
+    if (mode === 'ver22') {
+      document.getElementById("woonTimeSetPickerVer22").style.display = '';
+      isPickerVer22 = true;
+      isPickerVer23 = false;
+    } else if (mode === 'ver23') {
+      document.getElementById("woonTimeSetPickerVer23").style.display = '';
+      isPickerVer22 = false;
+      isPickerVer23 = true;
+    } else if (mode === 'ver21') {
+      document.getElementById("woonTimeSetPicker2").style.display = '';
+      isPickerVer22 = false;
+      isPickerVer23 = false;
+    }
+
+    
+  }
+
+  function clearColorClassesInArea(areaSelector) {
+    const classesToRemove = [
+      "b_green","b_red","b_white","b_black","b_yellow","active"
+    ];
+    const container = document.querySelector(areaSelector);
+    if (!container) return;
+  
+    // 원국(li.siju_con3) + 묘운(div.myowoon li.siju_con3) 영역 모두 타겟
+    const sel = [
+      'li.siju_con3 .hanja_con',
+      'li.siju_con3 > p',
+      'div.myowoon li.siju_con3 .hanja_con',
+      'div.myowoon li.siju_con3 > p'
+    ].join(', ');
+  
+    container.querySelectorAll(sel).forEach(el => {
+      el.classList.remove(...classesToRemove);
+    });
+  }
 
   //const container = document.querySelector(".container");
   let lastScrollTop = 0;
@@ -1865,6 +1930,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateOriginalAndMyowoon(refDate) {
 
       const myData = latestMyeongsik;
+
+      // ── 여기에 추가 ──
+      const isMyTimeUnknown      = !!myData.isTimeUnknown;
+      const isPartnerTimeUnknown = !!partnerData.isTimeUnknown;
       
       const p_yearPillar = myData.yearPillar;
       const p_monthPillar = myData.monthPillar;
@@ -1884,7 +1953,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const part_yearSplit = splitPillar(part_yearPillar);
       const part_monthSplit = splitPillar(part_monthPillar);
       const part_daySplit = splitPillar(part_dayPillar);
-      const part_hourSplit = myData.isTimeUnknown ? "-" : splitPillar(part_hourPillar);
+      const part_hourSplit = partnerData.isTimeUnknown ? "-" : splitPillar(part_hourPillar);
 
       const baseDayStem_copy = p_daySplit.gan;
       const baseDayStem_copy2 = part_daySplit.gan;
@@ -1893,9 +1962,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const baseYearBranch_copy2 = part_yearSplit.ji;
 
       
+      
       // 원국
-      setText("CHb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy, p_hourSplit.ji));
-      setText("CHb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy, p_hourSplit.ji));
+      setText("CHb12ws", isMyTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy, p_hourSplit.ji));
+      setText("CHb12ss", isMyTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy, p_hourSplit.ji));
       setText("CDb12ws", getTwelveUnseong(baseDayStem_copy, p_daySplit.ji));
       setText("CDb12ss", getTwelveShinsal(baseYearBranch_copy, p_daySplit.ji));
       setText("CMb12ws", getTwelveUnseong(baseDayStem_copy, p_monthSplit.ji));
@@ -1903,8 +1973,8 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("CYb12ws", getTwelveUnseong(baseDayStem_copy, baseYearBranch_copy));
       setText("CYb12ss", getTwelveShinsal(baseYearBranch_copy, baseYearBranch_copy));
 
-      setText("CPHb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy2, part_hourSplit.ji));
-      setText("CPHb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_hourSplit.ji));
+      setText("CPHb12ws", isPartnerTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy2, part_hourSplit.ji));
+      setText("CPHb12ss", isPartnerTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_hourSplit.ji));
       setText("CPDb12ws", getTwelveUnseong(baseDayStem_copy2, part_daySplit.ji));
       setText("CPDb12ss", getTwelveShinsal(baseYearBranch_copy2, part_daySplit.ji));
       setText("CPMb12ws", getTwelveUnseong(baseDayStem_copy2, part_monthSplit.ji));
@@ -1915,20 +1985,20 @@ document.addEventListener("DOMContentLoaded", function () {
       updateStemInfo("CYt", p_yearSplit, baseDayStem_copy);
       updateStemInfo("CMt", p_monthSplit, baseDayStem_copy);
       updateStemInfo("CDt", p_daySplit, baseDayStem_copy);
-      updateStemInfo("CHt", isTimeUnknown ? "-" : p_hourSplit, baseDayStem_copy);
+      updateStemInfo("CHt", isMyTimeUnknown ? "-" : p_hourSplit, baseDayStem_copy);
       updateBranchInfo("CYb", baseYearBranch_copy, baseDayStem_copy);
       updateBranchInfo("CMb", p_monthSplit.ji, baseDayStem_copy);
       updateBranchInfo("CDb", p_daySplit.ji, baseDayStem_copy);
-      updateBranchInfo("CHb", isTimeUnknown ? "-" : p_hourSplit.ji, baseDayStem_copy);
+      updateBranchInfo("CHb", isMyTimeUnknown ? "-" : p_hourSplit.ji, baseDayStem_copy);
 
       updateStemInfo("CPYt", part_yearSplit, baseDayStem_copy2);
       updateStemInfo("CPMt", part_monthSplit, baseDayStem_copy2);
       updateStemInfo("CPDt", part_daySplit, baseDayStem_copy2);
-      updateStemInfo("CPHt", isTimeUnknown ? "-" : part_hourSplit, baseDayStem_copy2);
+      updateStemInfo("CPHt", isPartnerTimeUnknown ? "-" : part_hourSplit, baseDayStem_copy2);
       updateBranchInfo("CPYb", baseYearBranch_copy2, baseDayStem_copy2);
       updateBranchInfo("CPMb", part_monthSplit.ji, baseDayStem_copy2);
       updateBranchInfo("CPDb", part_daySplit.ji, baseDayStem_copy2);
-      updateBranchInfo("CPHb", isTimeUnknown ? "-" : part_hourSplit.ji, baseDayStem_copy2);
+      updateBranchInfo("CPHb", isPartnerTimeUnknown ? "-" : part_hourSplit.ji, baseDayStem_copy2);
 
       const p_myo    = getMyounPillarsVr(myData, refDate, myData.selectedTime2);
       const part_myo = getMyounPillarsVr(partnerData, refDate, partnerData.selectedTime2);
@@ -1955,21 +2025,21 @@ document.addEventListener("DOMContentLoaded", function () {
       const part_myo_yearSplit = splitPillar(partnerYeonjuCurrent);
       const part_myo_monthSplit = splitPillar(partnerWoljuCurrent);
       const part_myo_daySplit = splitPillar(partnerIljuCurrent);
-      const part_myo_hourSplit = partnerData.isTimeUnknown ? "-" : splitPillar(partnerSijuCurrent);
+      const part_myo_hourSplit = isPartnerTimeUnknown ? "-" : splitPillar(partnerSijuCurrent);
 
-      setText("CMyoHb12ws", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_hourSplit.ji));
-      setText("CMyoHb12ss", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_hourSplit.ji));
-      setText("CMyoDb12ws", isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_daySplit.ji));
-      setText("CMyoDb12ss", isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_daySplit.ji));
+      setText("CMyoHb12ws", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_hourSplit.ji));
+      setText("CMyoHb12ss", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_hourSplit.ji));
+      setText("CMyoDb12ws", isMyTimeUnknown || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_daySplit.ji));
+      setText("CMyoDb12ss", isMyTimeUnknown || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_daySplit.ji));
       setText("CMyoMb12ws", getTwelveUnseong(baseDayStem_copy, p_myo_monthSplit.ji));
       setText("CMyoMb12ss", getTwelveShinsal(baseYearBranch_copy, p_myo_monthSplit.ji));
       setText("CMyoYb12ws", getTwelveUnseong(baseDayStem_copy, p_myo_yearSplit.ji));
       setText("CMyoYb12ss", getTwelveShinsal(baseYearBranch_copy, p_myo_yearSplit.ji));
 
-      setText("CPMyoHb12ws", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_hourSplit.ji));
-      setText("CPMyoHb12ss", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_hourSplit.ji));
-      setText("CPMyoDb12ws", isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_daySplit.ji));
-      setText("CPMyoDb12ss", isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_daySplit.ji));
+      setText("CPMyoHb12ws", isPartnerTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_hourSplit.ji));
+      setText("CPMyoHb12ss", isPartnerTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_hourSplit.ji));
+      setText("CPMyoDb12ws", isPartnerTimeUnknown || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_daySplit.ji));
+      setText("CPMyoDb12ss", isPartnerTimeUnknown || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_daySplit.ji));
       setText("CPMyoMb12ws", getTwelveUnseong(baseDayStem_copy2, part_myo_monthSplit.ji));
       setText("CPMyoMb12ss", getTwelveShinsal(baseYearBranch_copy2, part_myo_monthSplit.ji));
       setText("CPMyoYb12ws", getTwelveUnseong(baseDayStem_copy2, part_myo_yearSplit.ji));
@@ -1977,26 +2047,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
       updateStemInfo("CMyoYt", p_myo_yearSplit, baseDayStem_copy);
       updateStemInfo("CMyoMt", p_myo_monthSplit, baseDayStem_copy);
-      updateStemInfo("CMyoDt", isPickerVer23 ? "-" : p_myo_daySplit, baseDayStem_copy);
-      updateStemInfo("CMyoHt", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit, baseDayStem_copy);
+      updateStemInfo("CMyoDt", isMyTimeUnknown || isPickerVer23 ? "-" : p_myo_daySplit, baseDayStem_copy);
+      updateStemInfo("CMyoHt", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit, baseDayStem_copy);
       updateBranchInfo("CMyoYb", baseYearBranch_copy, baseDayStem_copy);
       updateBranchInfo("CMyoMb", p_myo_monthSplit.ji, baseDayStem_copy);
-      updateBranchInfo("CMyoDb", isPickerVer3 ? "-" : p_myo_daySplit.ji, baseDayStem_copy);
-      updateBranchInfo("CMyoHb", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit.ji, baseDayStem_copy);
+      updateBranchInfo("CMyoDb", isMyTimeUnknown || isPickerVer23 ? "-" : p_myo_daySplit.ji, baseDayStem_copy);
+      updateBranchInfo("CMyoHb", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit.ji, baseDayStem_copy);
 
 
       updateStemInfo("CPMyoYt", part_myo_yearSplit, baseDayStem_copy2);
       updateStemInfo("CPMyoMt", part_myo_monthSplit, baseDayStem_copy2);
-      updateStemInfo("CPMyoDt", isPickerVer23 ? "-" : part_myo_daySplit, baseDayStem_copy2);
-      updateStemInfo("CPMyoHt", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : part_myo_hourSplit, baseDayStem_copy2);
+      updateStemInfo("CPMyoDt", isPartnerTimeUnknown || isPickerVer23 ? "-" : part_myo_daySplit, baseDayStem_copy2);
+      updateStemInfo("CPMyoHt", isPartnerTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : part_myo_hourSplit, baseDayStem_copy2);
       updateBranchInfo("CPMyoYb", part_myo_yearSplit.ji, baseDayStem_copy2);
       updateBranchInfo("CPMyoMb", part_myo_monthSplit.ji, baseDayStem_copy2);
-      updateBranchInfo("CPMyoDb", isPickerVer23 ? "-" : part_myo_daySplit.ji, baseDayStem_copy2);
-      updateBranchInfo("CPMyoHb", isTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : part_myo_hourSplit.ji, baseDayStem_copy2);
+      updateBranchInfo("CPMyoDb", isPartnerTimeUnknown || isPickerVer23 ? "-" : part_myo_daySplit.ji, baseDayStem_copy2);
+      updateBranchInfo("CPMyoHb", isPartnerTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : part_myo_hourSplit.ji, baseDayStem_copy2);
       
       
       updateColorClasses();
       //console.log("커플 모드 - 원국 및 묘운 HTML 업데이트 완료");
+      // 1) 범용 색상 제거 함수 (컨테이너 셀렉터를 인자로 받음)
     }
 
     function toGz(idx) {          
@@ -2158,27 +2229,7 @@ document.addEventListener("DOMContentLoaded", function () {
     *  handleChange : 각 모드별로 독립 if 로 처리
     * ----------------------------------------------------------- */
 
-    function updatePickerVisibility2(mode) {
-      document.getElementById("woonTimeSetPicker2").style.display = 'none';
-      document.getElementById("woonTimeSetPickerVer22").style.display = 'none';
-      document.getElementById("woonTimeSetPickerVer23").style.display = 'none';
     
-      currentMode = mode;
-    
-      if (mode === 'ver22') {
-        document.getElementById("woonTimeSetPickerVer22").style.display = '';
-        isPickerVer22 = true;
-        isPickerVer23 = false;
-      } else if (mode === 'ver23') {
-        document.getElementById("woonTimeSetPickerVer23").style.display = '';
-        isPickerVer22 = false;
-        isPickerVer23 = true;
-      } else if (mode === 'ver21') {
-        document.getElementById("woonTimeSetPicker2").style.display = '';
-        isPickerVer22 = false;
-        isPickerVer23 = false;
-      }
-    }
 
     document.getElementById('woonVer1Change2').addEventListener('click', () => {
       updatePickerVisibility2('ver21');
@@ -2226,16 +2277,6 @@ document.addEventListener("DOMContentLoaded", function () {
              bdayStr.substring(6, 8) + "일";
     }
 
-    function renderCoupleView() {
-      const myData      = JSON.parse(sessionStorage.getItem("lastMyData")    || "null");
-      const partnerData = JSON.parse(sessionStorage.getItem("lastPartnerData")|| "null");
-    
-      if (!myData)      return alert("내 명식을 찾을 수 없습니다.");
-      if (!partnerData) return alert("상대 명식을 찾을 수 없습니다.");
-    
-      fillCoupleModeView(myData, partnerData);
-    }
-
     function fillCoupleModeView(myIndex, partnerIndex) {
       const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
       const me = savedList[myIndex];
@@ -2268,9 +2309,10 @@ document.addEventListener("DOMContentLoaded", function () {
       // Pillars 계산 및 전역 변수 저장
       // 원국 및 묘운 업데이트 실행
       const refDate = toKoreanTime(new Date());
+      updateOriginalAndMyowoon(refDate);
       updateOriginalAndMyowoonVr = updateOriginalAndMyowoon;
 
-      updateOriginalAndMyowoonVr(refDate);
+      
     }
 
     //updateCoupleModeBtnVisibility();
@@ -2300,11 +2342,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const partnerIdx = parseInt(this.value, 10);
         const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
         partnerData = list[partnerIdx];
-        if (partnerData) {
-          sessionStorage.setItem("lastPartnerData", JSON.stringify(partnerData));
-          //renderCoupleView();  // 선택할 때마다 뷰 갱신
-          fillCoupleModeView(myIndex, partnerIndex);
-        }
+        // if (partnerData) {
+        //   sessionStorage.setItem("lastPartnerData", JSON.stringify(partnerData));
+        //   //renderCoupleView();  // 선택할 때마다 뷰 갱신
+        //   fillCoupleModeView(myIndex, partnerIndex);
+        // }
         
         currentMode = "ver21";
         const partnerIndexStr = button.getAttribute("data-index").replace("couple_", "");
@@ -2320,11 +2362,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const myData = latestMyeongsik;
 
-        const myIndex = list.findIndex(item => 
-          item.name     === latestMyeongsik.name     &&
-          item.birthday === latestMyeongsik.birthday &&
-          item.birthtime=== latestMyeongsik.birthtime
-        );
+        let myIndex;
+        if (latestMyeongsik.isTimeUnknown) {
+          // 시간 모름 명식은 이름+생년월일만 매칭
+          myIndex = list.findIndex(item =>
+            item.name     === latestMyeongsik.name &&
+            item.birthday === latestMyeongsik.birthday &&
+            item.isTimeUnknown === true
+          );
+        } else {
+          // 시간 있는 명식은 birthtime 까지 비교
+          myIndex = list.findIndex(item =>
+            item.name      === latestMyeongsik.name     &&
+            item.birthday  === latestMyeongsik.birthday &&
+            item.birthtime === latestMyeongsik.birthtime
+          );
+        }
 
         currentDetailIndex = myIndex;
         
@@ -2339,21 +2392,80 @@ document.addEventListener("DOMContentLoaded", function () {
           console.warn("나의 데이터가 아직 저장되지 않았습니다. 먼저 #coupleModeBtn을 눌러 저장해주세요.");
         }
 
+        if (myIndex >= 0 && partnerIndex >= 0) {
+          fillCoupleModeView(myIndex, partnerIndex);
+        } else {
+          console.warn("인덱스가 유효하지 않습니다.", myIndex, partnerIndex);
+        }
+
         document.getElementById("woonVer1Change2").click();
-        document.getElementById("woonChangeBtn2").click();
-        
+        //document.getElementById("woonChangeBtn2").click();
+        if (latestMyeongsik.isTimeUnknown) {
+          clearColorClassesInArea('#people1');
+        }
+        if (partnerData.isTimeUnknown) {
+          clearColorClassesInArea('#people2');
+        }
       });
     });
     
   }
 
+  function exitCoupleMode() {
+    // 1) 플래그 & 데이터 정리
+    isCoupleMode            = false;
+    partnerData             = null;
+    sessionStorage.removeItem("lastPartnerData");
+  
+    // 2) 커플 전용 UI 감추기
+    const coupleWrap = document.querySelector(".couple_mode_wrap");
+    if (coupleWrap) coupleWrap.style.display = "none";
+  
+    // 3) picker 모드도 기본(ver21)으로 돌리고 숨김
+    updatePickerVisibility2('ver21');
+  
+    // 4) 싱글 모드 디테일 뷰 UI 복구
+    document.getElementById("aside").style.display        = "none";
+    document.getElementById("inputWrap").style.display    = "none";
+    document.getElementById("resultWrapper").style.display = "block";
+  
+    // 5) “나”의 명식 데이터로 다시 렌더링
+    //    detailViewBtn 클릭 핸들러를 재활용
+    const btn = document.querySelector(`.detailViewBtn[data-index="${currentDetailIndex}"]`);
+    if (btn) {
+      btn.click();
+    } else {
+      // 혹시 버튼이 없다면 직접 함수 호출
+      //fillDetailView(currentDetailIndex);
+    }
+  }
+  
+  // 뒤로 가기 버튼에 바인딩
+  document.getElementById("coupleBackBtn").addEventListener("click", exitCoupleMode);
 
-  document.getElementById("coupleBackBtn").addEventListener("click", function(){
+
+  document.getElementById("coupleBackBtn").addEventListener("click", function() {
+    // 1) 커플 모드 해제
     isCoupleMode = false;
-    currentMode = "ver1";
-    document.getElementById("aside").style.display = "none";
+    partnerData = null;
+    sessionStorage.removeItem("lastPartnerData");
+  
+    // 2) UI 초기화
     document.querySelector(".couple_mode_wrap").style.display = "none";
-    //window.location.reload();
+    document.getElementById("aside").style.display        = "none";
+    document.getElementById("inputWrap").style.display    = "none";
+    document.getElementById("resultWrapper").style.display = "block";
+    updatePickerVisibility2('ver21');
+
+
+    /*['#people1','#people2'].forEach(sel => {
+      if (document.querySelector(sel)) {
+        clearColorClassesInArea(sel);
+      }
+    });*/
+    clearColorClassesInArea('#people1');
+    clearColorClassesInArea('#people2');
+    
   });
   
   // aside 열기/닫기 이벤트 등록
@@ -2484,29 +2596,6 @@ document.addEventListener("DOMContentLoaded", function () {
       groupVal = document.getElementById('inputMeGroupEct').value.trim() || '기타';
     }
     updateTypeSpan(groupVal);
-
-    // 음력/양력 변환
-    // const monthType = document.getElementById("monthType").value;
-    // const calendar = new KoreanLunarCalendar();
-    // let lunarDate = null;
-    // if (monthType === "음력" || monthType === "음력(윤달)") {
-    //   const isLeap = (monthType === "음력(윤달)");
-    //   if (!calendar.setLunarDate(year, month, day, isLeap)) {
-    //     console.error(`${monthType} 날짜 설정에 실패했습니다.`);
-    //   } else {
-    //     lunarDate = { year, month, day, isLeap };
-    //     const solar = calendar.getSolarCalendar();
-    //     year = solar.year; 
-    //     month = solar.month; 
-    //     day = solar.day;
-    //   }
-    // } else {
-    //   if (!calendar.setSolarDate(year, month, day)) {
-    //     console.error("양력 날짜 설정에 실패했습니다.");
-    //   } else {
-    //     lunarDate = calendar.getLunarCalendar();
-    //   }
-    // }
 
     const monthType = document.getElementById("monthType").value;
     const isLunar   = monthType === "음력" || monthType === "음력(윤달)";
@@ -3694,9 +3783,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function getMyounPillars(person, refDate, basisOverride = "insi") {
      
       const { year, month, day, hour, minute, gender, correctedDate } = person;
-      birthDate = correctedDate
-        ? new Date(correctedDate)
-        : new Date(year, month - 1, day, hour, minute);
 
     
       // 3) basis 결정 (override 있으면 우선)
@@ -3827,8 +3913,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // ── 월주 간지 배열 (monthPillars부터 시작!) ──
-        
-        let year = correctedDate.getFullYear();
+        //if (!(correctedDate instanceof Date)) {
+          //correctedDate = new Date(correctedDate);
+        //}
+        let year = birthDate.getFullYear();
         const allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
         let pointer;
 
@@ -5312,6 +5400,41 @@ document.addEventListener("DOMContentLoaded", function () {
       refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());
 
       updateOriginalAndMyowoonVr(refDate);
+
+      function clearHyphenElements(rootEl) {
+        const root = typeof rootEl === 'string'
+          ? document.querySelector(rootEl)
+          : rootEl;
+        if (!root) return;
+      
+        const classesToRemove = [
+          "b_green","b_red","b_white","b_black","b_yellow","active"
+        ];
+      
+        // 1) hanja_con 내부 <p> (음양) 검사
+        root.querySelectorAll('li.siju_con3 .hanja_con > p')
+          .forEach(p => {
+            if (p.textContent.trim() === "-") {
+              // 부모 .hanja_con 에서 클래스 제거
+              const hanja = p.parentElement;
+              hanja.classList.remove(...classesToRemove);
+              // p 자신도 제거
+              p.classList.remove(...classesToRemove);
+            }
+          });
+      
+        // 2) 그 외 direct <p> (한글, 십신, 운성) 검사
+        root.querySelectorAll('li.siju_con3 > p')
+          .forEach(p => {
+            if (p.textContent.trim() === "-") {
+              p.classList.remove(...classesToRemove);
+            }
+          });
+      }
+      
+      // 사용 예시: body 전체 하이픈 요소 초기화
+      clearHyphenElements(document.body);
+
     });
 
     // 버튼 클릭 이벤트: picker 날짜(refDate)를 사용하여 동적 운세(묘운)를 업데이트
@@ -5408,6 +5531,40 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
       });
+
+      function clearHyphenElements(rootEl) {
+        const root = typeof rootEl === 'string'
+          ? document.querySelector(rootEl)
+          : rootEl;
+        if (!root) return;
+      
+        const classesToRemove = [
+          "b_green","b_red","b_white","b_black","b_yellow","active"
+        ];
+      
+        // 1) hanja_con 내부 <p> (음양) 검사
+        root.querySelectorAll('li.siju_con4 .hanja_con > p')
+          .forEach(p => {
+            if (p.textContent.trim() === "-") {
+              // 부모 .hanja_con 에서 클래스 제거
+              const hanja = p.parentElement;
+              hanja.classList.remove(...classesToRemove);
+              // p 자신도 제거
+              p.classList.remove(...classesToRemove);
+            }
+          });
+      
+        // 2) 그 외 direct <p> (한글, 십신, 운성) 검사
+        root.querySelectorAll('li.siju_con4 > p')
+          .forEach(p => {
+            if (p.textContent.trim() === "-") {
+              p.classList.remove(...classesToRemove);
+            }
+          });
+      }
+      
+      // 사용 예시: body 전체 하이픈 요소 초기화
+      clearHyphenElements(document.body);
       
 
     });
