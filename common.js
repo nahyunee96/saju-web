@@ -4718,8 +4718,8 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function updateFortune() {
       const { year, month, hour, minute, gender, cityLon } = inputData;
-      const originalDate = new Date(year, month - 1, day, hour, minute);
-      correctedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
+      //const originalDate = new Date(year, month - 1, day, hour, minute);
+      //correctedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
       
       // 원국(사주) 계산 실행
       const fullResult = getFourPillarsWithDaewoon(
