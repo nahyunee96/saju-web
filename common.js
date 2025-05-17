@@ -2637,7 +2637,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const yearPillar  = pillars[0] || "-";
     const monthPillar = pillars[1] || "-";
     const dayPillar   = pillars[2] || "-";
-    const hourPillar  = isTimeUnknown ? null : pillars[3] || "-";
+    let hourPillar  = isTimeUnknown ? null : pillars[3] || "-";
 
     
 
@@ -2671,7 +2671,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         document.getElementById('hourListWrap').style.display = 'none';
       } else {
-        checkOption.style.display = 'flex';
+        checkOption.style.display = 'none';
         document.getElementById('hourListWrap').style.display = 'block';
       }
     });
@@ -4776,7 +4776,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelector(".check_option").style.display = ""; // or "block" 등
     }
 
-    function updateExplanDetail(myowoonResult, refDate, hourPillar) {
+    function updateExplanDetail(myowoonResult, hourPillar) {
   
       function direction() {
         if (myowoonResult.dirMode === "순행") {
@@ -4785,23 +4785,6 @@ document.addEventListener("DOMContentLoaded", function () {
           return '전';
         }
       }
-  
-      // 실제 후보 시각과 보정 시각 사이의 차이를 구해봅니다.
-
-      function formatOffset(days, noDays = false) {
-        const totalMins = days * 24 * 60;
-        const d = Math.floor(totalMins / (24 * 60));
-        const h = Math.floor((totalMins - d*24*60) / 60);
-        const m = Math.round(totalMins - d*24*60 - h*60);
-      
-        if (noDays) {
-          return `${d*24 + h}시간 ${m}분`;
-        } else {
-          return `${d}일 ${h}시간 ${m}분`;
-        }
-      }
- 
-      
 
       let timeLabel = "";
         if (document.getElementById("jasi")?.checked) {
@@ -5160,7 +5143,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
       ul.innerHTML = html;
     }
-    updateExplanDetail(myowoonResult, refDate, hourPillar);
+    updateExplanDetail(myowoonResult, hourPillar);
 
     function getDaySplit(dateObj) {
       // (1) 예: getDayGanZhi(dateObj)가 "경자" 같은 문자열을 리턴한다고 가정
@@ -5420,7 +5403,7 @@ document.addEventListener("DOMContentLoaded", function () {
         radioFunc(refDate);
       }
       updateFunc(refDate);
-      updateExplanDetail(myowoonResult, refDate, hourPillar);
+      updateExplanDetail(myowoonResult, hourPillar);
 
       // 2-2) "올해 나이" 또는 "refDate" 기준으로 대운리스트 중 현재 대운(active) 찾음
       const currentAge = refDate.getFullYear() - correctedDate.getFullYear();
@@ -5658,6 +5641,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // ── 토글 로직 시작 ──
             if (btn.classList.contains("active")) {
               // 1) active 해제
+              checkOption.style.display = 'none';
               btn.className = "black_btn";
               btn.textContent = `${lbl}시 (${siju})`;
               btn.classList.remove("b_green","b_red","b_white","b_black","b_yellow","active");
@@ -5706,13 +5690,13 @@ document.addEventListener("DOMContentLoaded", function () {
               };
               const resetResult = getMyounPillarsVr(resetData, refDate);
               updateMyowoonSection(resetResult);
-              updateExplanDetail(resetResult, refDate, hourPillar);
+              updateExplanDetail(resetResult, hourPillar);
               registerMyowoonMoreHandler(hourSplit = null);
           
               return;  // 활성화 로직 생략
             }
             // ── 토글 로직 끝 ──
-
+            checkOption.style.display = 'flex';
             // 2-1) 기타 버튼 모두 리셋
             sijuList.forEach((_, i) => {
               const b = document.getElementById(`siju-btn-${i}`);
@@ -5752,7 +5736,7 @@ document.addEventListener("DOMContentLoaded", function () {
             };
             const myResult = getMyounPillarsVr(myData2, refDate);
             updateMyowoonSection(myResult);
-            updateExplanDetail(myResult, refDate, siju);
+            updateExplanDetail(myResult, siju);
             manualOverride = true;
             const hourSplit2 = splitPillar(siju);
             updateOriginalSetMapping(daySplitGlobal, hourSplit2);
@@ -5760,9 +5744,12 @@ document.addEventListener("DOMContentLoaded", function () {
             
             // 2-6) 부드러운 업데이트 (Day Pillar 포함)
             smoothUpdate(siju);
+            hourPillar = siju;
+            console.log(hourPillar);
+
             
           });
-
+          
           hourListEl.appendChild(btn);
         });
         initialized = true;
@@ -5896,7 +5883,6 @@ document.addEventListener("DOMContentLoaded", function () {
       radio.addEventListener("change", function() {
         // 결과창과 계산용 라디오 동기화
         const selectedValue = this.value;
-        console.clear();
         const calcRadio = document.querySelector('input[name="time2"][value="' + selectedValue + '"]');
         if (calcRadio) {
           calcRadio.checked = true;
@@ -5914,48 +5900,46 @@ document.addEventListener("DOMContentLoaded", function () {
         if (branchName === "자" || branchName === "축") {
           radioFunc(radioDate);
         }
-
+        //radioFunc(radioDate);
         updateFunc(rawRefDate);
 
-        // 1) 감지할 요소와 라디오 동기화 함수 정의
-        function syncRadioByDayPillar(dayPillar) {
-          // ex) dayPillar='기해','을인' 등
-          const branch = dayPillar.charAt(1); // 지지 한 글자
-          // 자/축 → 'jasi', 그 외 → 'insi' 로 예시
-          const value = (branch === '자' || branch === '축') ? 'jasi' : 'insi';
-          const radio = document.querySelector(`input[name="timeChk02"][value="${value}"]`);
-          if (radio) radio.checked = true;
-          //console.log('🔄 일주 감지:', dayPillar, '→ 라디오:', value);
-
-          const daySplit_ = splitPillar(dayPillar);
-          setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit_.ji));
-          setText("Db12ss", getTwelveShinsal(baseYearBranch, daySplit_.ji));
+        function clearHyphenElements(rootEl) {
+          const root = typeof rootEl === 'string'
+            ? document.querySelector(rootEl)
+            : rootEl;
+          if (!root) return;
+        
+          const classesToRemove = [
+            "b_green","b_red","b_white","b_black","b_yellow","active"
+          ];
+        
+          // 1) hanja_con 내부 <p> (음양) 검사
+          root.querySelectorAll('li.siju_con .hanja_con > p')
+            .forEach(p => {
+              if (p.textContent.trim() === "-") {
+                // 부모 .hanja_con 에서 클래스 제거
+                const hanja = p.parentElement;
+                hanja.classList.remove(...classesToRemove);
+                // p 자신도 제거
+                p.classList.remove(...classesToRemove);
+              }
+            });
+        
+          // 2) 그 외 direct <p> (한글, 십신, 운성) 검사
+          root.querySelectorAll('li.siju_con > p')
+            .forEach(p => {
+              if (p.textContent.trim() === "-") {
+                p.classList.remove(...classesToRemove);
+              }
+            });
         }
 
-        // 2) MutationObserver 콜백
-        function observeDayPillar() {
-          const elDt = document.getElementById('DtHanguel');
-          const elDb = document.getElementById('DbHanguel');
-          if (!elDt || !elDb) return;
-
-          const handler = () => {
-            const a = elDt.textContent.trim().charAt(0);
-            const b = elDb.textContent.trim().charAt(0);
-            const dayPillar = a + b;
-            syncRadioByDayPillar(dayPillar);
-          };
-
-          const obs = new MutationObserver(handler);
-          obs.observe(elDt, { childList: true });
-          obs.observe(elDb, { childList: true });
-        }
-
-        observeDayPillar();
+        clearHyphenElements(root);
 
         setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
           const newResult = getMyounPillars(myData, rawRefDate, selectedValue);
-          updateExplanDetail(newResult, refDate, hourPillar);
+          updateExplanDetail(newResult, hourPillar);
           updateMyowoonSection(newResult);
 
         });
