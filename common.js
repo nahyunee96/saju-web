@@ -1958,8 +1958,41 @@ document.addEventListener("DOMContentLoaded", function () {
       updateBranchInfo("CPDb", part_daySplit.ji, baseDayStem_copy2);
       updateBranchInfo("CPHb", isPartnerTimeUnknown ? "-" : part_hourSplit.ji, baseDayStem_copy2);
 
-      const p_myo    = getMyounPillarsVr(myData, refDate, myData.selectedTime2);
-      const part_myo = getMyounPillarsVr(partnerData, refDate, partnerData.selectedTime2);
+      // 1) 원본 correctedDate 재계산
+      const origMyDate = new Date(
+        myData.year, myData.month - 1, myData.day,
+        myData.hour, myData.minute
+      );
+      const recMyDate = adjustBirthDateWithLon(
+        origMyDate,
+        myData.birthPlaceLongitude,
+        myData.isPlaceUnknown
+      );
+
+      // 2) 파트너 correctedDate 재계산
+      const origPartDate = new Date(
+        partnerData.year, partnerData.month - 1, partnerData.day,
+        partnerData.hour, partnerData.minute
+      );
+      const recPartDate = adjustBirthDateWithLon(
+        origPartDate,
+        partnerData.birthPlaceLongitude,
+        partnerData.isPlaceUnknown
+      );
+
+      // 3) Vr 함수 호출 시, correctedDate를 덮어쓴 새로운 person 객체 사용
+      const p_myo = getMyounPillarsVr(
+        { ...myData, correctedDate: recMyDate },
+        refDate,
+        myData.selectedTime2
+      );
+      const part_myo = getMyounPillarsVr(
+        { ...partnerData, correctedDate: recPartDate },
+        refDate,
+        partnerData.selectedTime2
+      );
+
+      console.log(partnerData.correctedDate);
 
       const {
         sijuCurrentPillar:   mySijuCurrent,
@@ -1975,10 +2008,11 @@ document.addEventListener("DOMContentLoaded", function () {
         yeonjuCurrentPillar: partnerYeonjuCurrent
       } = part_myo; 
 
+
       const p_myo_yearSplit = splitPillar(myYeonjuCurrent);
       const p_myo_monthSplit = splitPillar(myWoljuCurrent);
       const p_myo_daySplit = splitPillar(myIljuCurrent);
-      const p_myo_hourSplit = myData.isTimeUnknown ? "-" : splitPillar(mySijuCurrent);
+      const p_myo_hourSplit = isMyTimeUnknown ? "-" : splitPillar(mySijuCurrent);
       
       const part_myo_yearSplit = splitPillar(partnerYeonjuCurrent);
       const part_myo_monthSplit = splitPillar(partnerWoljuCurrent);
@@ -3746,31 +3780,22 @@ document.addEventListener("DOMContentLoaded", function () {
       return { date: nextDate, index: nextIdx };
     }
 
-    
+    // originalDate = new Date(year, month - 1, day, hour, minute);
+    // correctedDate = adjustBirthDateWithLon(originalDate, usedBirthPlace, isPlaceUnknown);
 
     function getMyounPillars(person, refDate, basisOverride = "insi") {
-     
+      
       const { year, month, day, hour, minute, gender, correctedDate } = person;
 
-    
+      birthDate = correctedDate
+        ? new Date(correctedDate)
+        : new Date(year, month - 1, day, hour, minute);
       // 3) basis 결정 (override 있으면 우선)
       const basis = basisOverride
         || document.querySelector('input[name="time2"]:checked')?.value;
       const basisMap = { jasi: 23, yajasi: 0, insi: 3 };
       const baseTime = new Date(birthDate);
       if (basisMap[basis] != null) baseTime.setHours(basisMap[basis], 0);
-
-      // ──────────── 여기서 **base pillars** 를 반드시 재계산 ────────────
-      // const yearPillar  = getYearGanZhi(birthDate);        
-      // const dayPillar   = getDayGanZhi(birthDate);              
-      // const hourPillar  = getHourGanZhiReturn(birthDate);        
-      // const monthPillar = getMonthGanZhi(birthDate, birthDate.getFullYear());  
-      // const fullResult = getFourPillarsWithDaewoon(
-      //   birthDate.getFullYear(),
-      //   birthDate.getMonth() + 1,
-      //   birthDate.getDate(),
-      //   hour, minute, gender, correctedDate
-      // );
       
        // Date 객체(birthDate)를 첫 인자로 넘긴다
        const fullResult = getFourPillarsWithDaewoon(
@@ -4105,16 +4130,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     
       
-      // [보조] 날짜 포맷 함수
-      function formatDate(d) {
-        const Y  = d.getFullYear();
-        const M  = String(d.getMonth()+1).padStart(2,'0');
-        const D  = String(d.getDate()).padStart(2,'0');
-        const h  = String(d.getHours()).padStart(2,'0');
-        const m  = String(d.getMinutes()).padStart(2,'0');
-        return `${Y}-${M}-${D} ${h}:${m}`;
-      }
-      
       let {
         sijuCurrentPillar, iljuCurrentPillar,
         woljuCurrentPillar, yeonjuCurrentPillar,
@@ -4433,8 +4448,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
-
-
     function getCurrentPicker() {
       if (currentMode === 'ver2') {
         return document.getElementById("woonTimeSetPickerVer2");
@@ -4442,6 +4455,16 @@ document.addEventListener("DOMContentLoaded", function () {
         return document.getElementById("woonTimeSetPickerVer3");
       } else if (currentMode === 'ver1') {
         return document.getElementById("woonTimeSetPicker");
+      }
+    }
+
+    function getCurrentPickerValue() {
+      if (currentMode === 'ver2') {
+        return document.getElementById("woonTimeSetPickerVer2").value;
+      } else if (currentMode === 'ver3') {
+        return document.getElementById("woonTimeSetPickerVer3").value;
+      } else if (currentMode === 'ver1') {
+        return document.getElementById("woonTimeSetPicker").value;
       }
     }
 
@@ -4455,6 +4478,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    function getCurrentPicker2Value() {
+      if (currentMode === 'ver22') {
+        return document.getElementById("woonTimeSetPickerVer22").value;
+      } else if (currentMode === 'ver23') {
+        return document.getElementById("woonTimeSetPickerVer23").value;
+      } else if (currentMode === 'ver21') {
+        return document.getElementById("woonTimeSetPicker2").value;
+      }
+    }
     
     
     function registerMyowoonMoreHandler(hourSplit) {
@@ -4684,9 +4716,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     function updateFortune() {
-      const { year, month, hour, minute, gender, birthPlace } = inputData;
+      const { year, month, hour, minute, gender, cityLon } = inputData;
       const originalDate = new Date(year, month - 1, day, hour, minute);
-      //const correctedDate = initializeCorrectedDate(originalDate, cityLon, isPlaceUnknown);
+      correctedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
       
       // 원국(사주) 계산 실행
       const fullResult = getFourPillarsWithDaewoon(
@@ -4902,7 +4934,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
     
       const ul = document.getElementById("explanDetail");
-      const pickerValue = isCoupleMode ? getCurrentPicker2().value : getCurrentPicker().value;
+      const pickerValue = isCoupleMode ? getCurrentPicker2Value() : getCurrentPickerValue();
 
       function formatDateTime(date) {
         if (!(date instanceof Date)) {
