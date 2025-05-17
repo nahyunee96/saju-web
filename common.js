@@ -1557,7 +1557,10 @@ document.addEventListener("DOMContentLoaded", function () {
       // 음력 생일: 값이 있으면 그대로, 없으면 "-"
       //const lunarBirthDisplay = item.lunarBirthday ? item.lunarBirthday : "-";
       // 보정시: item.adjustedTime 값이 있으면, 없으면 "-"
-      const adjustedTimeDisplay = item.birthdayTime ? item.birthdayTime : "-";
+      const { isTimeUnknown, birthdayTime } = item;
+      const adjustedTimeDisplay = isTimeUnknown
+        ? "보정시 모름"
+        : (birthdayTime || "-");
 
       /////////////////////////
       /// <span id="lunarBirthSV_${index + 1}">
