@@ -5934,7 +5934,9 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-        clearHyphenElements(root);
+        document.querySelectorAll('.siju_con').forEach(root => {
+          clearHyphenElements(root);
+        });
 
         setTimeout(function(){
           // 먼저 묘운 결과를 최신 refDate 기준으로 재계산
