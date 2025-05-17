@@ -1992,8 +1992,6 @@ document.addEventListener("DOMContentLoaded", function () {
         partnerData.selectedTime2
       );
 
-      console.log(partnerData.correctedDate);
-
       const {
         sijuCurrentPillar:   mySijuCurrent,
         iljuCurrentPillar:   myIljuCurrent,
