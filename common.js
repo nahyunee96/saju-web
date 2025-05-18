@@ -619,71 +619,78 @@ function computeCustomMonthPillar(correctedDate, gender) {
 
 function getDaewoonData(gender, originalDate, correctedDate) {
   const inputYear = correctedDate.getFullYear();
+
+  // — (1) 절기 기준년 결정 (originalDate 사용) —
   const ipChunForSet = findSolarTermDate(inputYear, 315);
-  const effectiveYearForSet = (originalDate < ipChunForSet) ? inputYear - 1 : inputYear;
+  const effectiveYearForSet = (originalDate < ipChunForSet)
+    ? inputYear - 1
+    : inputYear;
 
-  const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
+  // — (2) 연·월 간지 구하기 (effectiveYearForSet 사용) —
+  const yearPillar  = getYearGanZhi(correctedDate, effectiveYearForSet);
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
-  const dayStemRef = getDayGanZhi(correctedDate).charAt(0);
 
-  const isYang = ['갑','병','무','경','임'].includes(yearPillar.charAt(0));
+  // 음양 · 순/역행 판정
+  const isYang    = ['갑','병','무','경','임'].includes(yearPillar.charAt(0));
   const isForward = (gender === '남' && isYang) || (gender === '여' && !isYang);
 
-  // Gather previous/current/next year solar terms and sort by date
-  const collectTerms = year => getSolarTermBoundaries(year).map(t => ({ name: t.name, date: t.date }));
-  const allTerms = [
+  // — (3) 전후 1년씩 절기 모아서 정렬 —
+  const collectTerms = y => getSolarTermBoundaries(y).map(t => t.date);
+  const allDates = [
     ...collectTerms(inputYear - 1),
     ...collectTerms(inputYear),
     ...collectTerms(inputYear + 1)
-  ].sort((a, b) => a.date - b.date);
+  ].sort((a, b) => a - b);
 
-  let targetTerm;
+  // — (4) 기준 절기 선택 —
+  let boundaryDate;
   if (isForward) {
-    // include equality so that correctedDate exactly on a term picks that term
-    targetTerm = allTerms.find(term => term.date >= correctedDate);
-    if (!targetTerm) targetTerm = allTerms[0];
+    boundaryDate = allDates.find(d => d > correctedDate) || allDates[0];
   } else {
-    // reverse: include equality so if correctedDate equals, pick that term
-    const past = allTerms.filter(term => term.date <= correctedDate);
-    targetTerm = past[past.length - 1] || allTerms[allTerms.length - 1];
+    const past = allDates.filter(d => d < correctedDate);
+    boundaryDate = past[past.length - 1] || allDates[allDates.length - 1];
   }
 
-  const avgData = get120YearAverages(targetTerm.date);
-  const avgMonthLength = avgData.averageMonth;
+  // — (5) 대운년수(소수점) 계산: 절기 차이 일수 ÷ 3 —
+  const diffMs      = Math.abs(boundaryDate - correctedDate);
+  const diffDays    = diffMs / oneDayMs;
+  const baseDecimal = diffDays / 3;
 
-  const diffMs = isForward
-    ? targetTerm.date - correctedDate
-    : correctedDate - targetTerm.date;
-  const diffDays = diffMs / oneDayMs;
+  // — (6) 연+개월 파싱 (계산용) —
+  const baseYears  = Math.floor(baseDecimal);
+  const baseMonths = Math.floor((baseDecimal - baseYears) * 12);
 
-  const offset = (diffDays / avgMonthLength) * 10;
-  const baseNumber = Math.ceil(offset);
-
-  // build 10-year list
+  // — (7) 10대운 리스트 생성 (정수년 기준) —
+  const stemChars        = Cheongan;
+  const branchChars      = MONTH_ZHI;
+  const monthStemIndex   = stemChars.indexOf(monthPillar.charAt(0));
+  const monthBranchIndex = branchChars.indexOf(monthPillar.charAt(1));
   const list = [];
-  const stemChars = Cheongan;
-  const branchChars = MONTH_ZHI;
-  const currentMonthIndex = branchChars.indexOf(monthPillar.charAt(1));
-  const monthStemIndex = stemChars.indexOf(monthPillar.charAt(0));
 
   for (let i = 0; i < 10; i++) {
-    const age = baseNumber + i * 10;
-    const step = i + 1;
-    const nextMonthIndex = isForward
-      ? (currentMonthIndex + step) % 12
-      : (currentMonthIndex - step + 12) % 12;
-    const nextStemIndex = isForward
-      ? (monthStemIndex + step) % 10
-      : (monthStemIndex - step + 10) % 10;
+    const ageOffset = baseYears + i * 10;
+    const step      = i + 1;
+    const nextStem  = isForward
+      ? (monthStemIndex   + step) % 10
+      : (monthStemIndex   - step + 10) % 10;
+    const nextBr    = isForward
+      ? (monthBranchIndex + step) % 12
+      : (monthBranchIndex - step + 12) % 12;
 
     list.push({
-      age,
-      stem: stemChars[nextStemIndex],
-      branch: branchChars[nextMonthIndex]
+      age:    ageOffset,
+      stem:   stemChars[nextStem],
+      branch: branchChars[nextBr]
     });
   }
 
-  return { base: baseNumber, list, dayStemRef };
+  return {
+    baseYears,      // 정수 대운 시작년
+    baseMonths,     // 계산용 개월 오프셋(0~11)
+    baseDecimal,    // 소수점 포함 전체 대운년수
+    list,           // 10대운 리스트
+    dayStemRef:     getDayGanZhi(correctedDate).charAt(0)
+  };
 }
 
 
@@ -2736,23 +2743,6 @@ document.addEventListener("DOMContentLoaded", function () {
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     }
 
-    // const bjTimeText = document.getElementById("bjTimeText");
-
-    // if (isTimeUnknown) {
-    //   // 시각 모름이면 보정시간 표시 없앰
-    //   bjTimeText.innerHTML = "보정시 알수없음";
-    // } else {
-    //   const formattedTime = correctedTime.toLocaleTimeString([], {
-    //     hour: '2-digit',
-    //     minute: '2-digit',
-    //     hour12: false
-    //   });
-    //   const prefix = isPlaceUnknown ? "기본보정 : " : "보정시 : ";
-    //   bjTimeText.innerHTML = `${prefix}<b id="resbjTime">${formattedTime}</b>`;
-    // }
-
-    
-
     function updateOriginalSetMapping(daySplit, hourSplit) {
       if (!hourSplit || typeof hourSplit.ji !== 'string') {
         return;
@@ -2781,22 +2771,21 @@ document.addEventListener("DOMContentLoaded", function () {
     updateOriginalSetMapping(daySplit, hourSplit);
     updateColorClasses();
 
+    
     const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
+
+    
 
     function updateCurrentDaewoon(refDate) {
 
       //console.log(daewoonData, refDate);
-      const currentAge = refDate.getFullYear() - correctedDate.getFullYear();
+      const currentDecimalAge = (refDate - correctedDate) / oneDayMs / 365;
       
       let currentDaewoon = null;
       for (let i = 0; i < daewoonData.list.length; i++) {
-        if (daewoonData.list[i].age <= currentAge) {
+        if (daewoonData.list[i].age <= Math.round(currentDecimalAge)) {
           currentDaewoon = daewoonData.list[i];
-          //console.log(currentDaewoon, currentAge);
         }
-      }
-      if (!currentDaewoon) {
-        currentDaewoon = daewoonData.list[0] || { stem: "-", branch: "-" };
       }
 
       function appendTenGod(id, value, isStem = true) {
@@ -2863,7 +2852,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("DwW" + idx, getTwelveUnseong(baseDayStem, finalBranch) || "-");
         setText("Ds" + idx, getTwelveShinsal(baseYearBranch, finalBranch) || "-");
         
-        const displayedDaewoonNum = Math.floor(item.age) - 1;
+        const displayedDaewoonNum = Math.floor(item.age);
         setText("Da" + idx, displayedDaewoonNum);
       }
     }
@@ -2872,21 +2861,25 @@ document.addEventListener("DOMContentLoaded", function () {
     updateAllDaewoonItems(daewoonData.list);
 
     const todayObj = toKoreanTime(new Date());
-    const currentAge = refDate.getFullYear() - correctedDate.getFullYear();
+    const currentDecimalAge = (refDate - correctedDate) / oneDayMs / 365;
+
+    // (2) 적절한 인덱스 찾기
     let currentDaewoonIndex = 0;
     if (daewoonData?.list) {
       for (let i = 0; i < daewoonData.list.length; i++) {
-        if (daewoonData.list[i].age <= currentAge) {
+        // daewoonData.baseDecimal: 첫 대운 시작 소수년
+        const startAge = Math.floor(daewoonData.baseDecimal) + i * 10;
+        if (startAge <= Math.round(currentDecimalAge)) {
           currentDaewoonIndex = i;
         }
       }
     }
+
+    // (3) active 클래스 토글
     const daewoonLis = document.querySelectorAll("#daewoonList li");
-    daewoonLis.forEach(li => li.classList.remove("active"));
-    if (daewoonLis[currentDaewoonIndex]) {
-      daewoonLis[currentDaewoonIndex].classList.add("active");
-    }
-    
+    daewoonLis.forEach((li, i) => {
+      li.classList.toggle("active", i === currentDaewoonIndex);
+    });
 
     function updateCurrentSewoon(refDate) {
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
@@ -2989,37 +2982,52 @@ document.addEventListener("DOMContentLoaded", function () {
     let daewoonIndex = activeDaewoonLi ? parseInt(activeDaewoonLi.getAttribute("data-index"), 10) : 1;
 
     function updateSewoonItem() {
+      // 1) 소수점 연도로 변환
       const decimalBirthYear = getDecimalBirthYear(correctedDate);
-      const selectedDaewoon = daewoonData.list[daewoonIndex - 1];
-      if (!selectedDaewoon) return;
-      const daewoonNum = selectedDaewoon.age; 
-      const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-      globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal);
+    
+      // 2) 선택된 대운(정수 나이)과, 계산용 개월 오프셋
+      const idx          = daewoonIndex - 1;
+      const daewoonItem  = daewoonData.list[idx];
+      const yearsOffset  = daewoonItem.age;           // ex) 7
+      const monthsOffset = daewoonData.baseMonths;    // ex) 5 (0~11)
+    
+      // 3) 시작 시점을 “연 + 개월/12” 형태의 소수 연도로 계산
+      const sewoonStartDecimal = decimalBirthYear
+                                + yearsOffset
+                                + monthsOffset / 12;
+    
+      // 4) UI용 시작 연도는 소수점 내림
+      const startYear = Math.floor(sewoonStartDecimal);
+      globalState.sewoonStartYear = startYear;
+    
+      // 5) 10년치 세운 리스트 생성 (연도만 사용)
       const sewoonList = [];
       for (let j = 0; j < 10; j++) {
-        let sewoonYear = globalState.sewoonStartYear + j;
-        let yearGanZhi = getYearGanZhiForSewoon(sewoonYear);
-        const splitYear = splitPillar(yearGanZhi);
-        const tenGod = getTenGodForStem(splitYear.gan, baseDayStem);
-        const tenGodJiji = getTenGodForBranch(splitYear.ji, baseDayStem);
+        const year    = startYear + j;
+        const ganZhi  = getYearGanZhiForSewoon(year);
+        const split   = splitPillar(ganZhi);
         sewoonList.push({
-          year: sewoonYear,
-          gan: splitYear.gan,
-          ji: splitYear.ji,
-          tenGod: tenGod,
-          tenGodJiji: tenGodJiji
+          year,
+          gan:  split.gan,
+          ji:   split.ji,
+          tenGodGan:    getTenGodForStem(split.gan, baseDayStem),
+          tenGodBranch: getTenGodForBranch(split.ji, baseDayStem)
         });
       }
-      sewoonList.forEach(function (item, index) {
-        const idx = index + 1;
-        setText("SC_" + idx, stemMapping[item.gan]?.hanja || "-");
-        setText("SJ_" + idx, branchMapping[item.ji]?.hanja || "-");
-        setText("st10sin" + idx, item.tenGod);
-        setText("sb10sin" + idx, item.tenGodJiji);
-        setText("SwW" + idx, getTwelveUnseong(baseDayStem, item.ji) || "-");
-        setText("Ss" + idx, getTwelveShinsal(baseYearBranch, item.ji) || "-");
-        setText("Dy" + idx, item.year);
+      globalState.sewoonList = sewoonList;
+    
+      // 6) 화면에 뿌리기: 연도만 setText
+      sewoonList.forEach((item, i) => {
+        const ix = i + 1;
+        setText("Dy" + ix, item.year);
+        setText("SC_" + ix, stemMapping[item.gan]?.hanja || "-");
+        setText("SJ_" + ix, branchMapping[item.ji]?.hanja || "-");
+        setText("st10sin" + ix, item.tenGodGan);
+        setText("sb10sin" + ix, item.tenGodBranch);
+        setText("SwW" + ix, getTwelveUnseong(baseDayStem, item.ji));
+        setText("Ss" + ix, getTwelveShinsal(baseYearBranch, item.ji));
       });
+    
       updateColorClasses();
     }
 
@@ -3446,7 +3454,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!selectedDaewoon) return;
         const daewoonNum = selectedDaewoon.age; 
         const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-        globalState.sewoonStartYear = Math.ceil(sewoonStartYearDecimal);
+        globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal);
         
         // baseDayStem을 전달받은 인자로 사용 (혹은 "DtHanguel"에서 가져올 수도 있음)
         // const displayedDayPillar = document.getElementById("DtHanguel").innerText;
@@ -5434,64 +5442,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       updateFunc(refDate);
       updateExplanDetail(myowoonResult, hourPillar);
-
-      const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
-      const displayYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
-
-      const sewoonLis = document.querySelectorAll("#sewoonList li");
-      sewoonLis.forEach(li => {
-        li.classList.remove("active");
-        // li 안에 있는 ".dyear" 스팬(연도 표기)를 비교해 활성화
-        const yearEl = li.querySelector(".dyear");
-        if (!yearEl) return;
-        const yearNum = Number(yearEl.innerText);
-        if (yearNum === displayYear) {
-          li.classList.add("active");
-        }
-      });
-
-      // 4) 월운(절기) 리스트도 다시 그림
-      //    (가령 #mowoonList를 12개 절기로 만들어 뒀다면 refDate 기준으로 해당 절기 .active)
-      //    아래는 일례일 뿐
-      const boundariesArr = getSolarTermBoundaries(displayYear);
-      // refDate가 어느 절기에 속하는지 찾는다
-      let currentTermIndex = 0;
-      for (let i = 0; i < boundariesArr.length - 1; i++) {
-        if (refDate >= boundariesArr[i].date && refDate < boundariesArr[i+1].date) {
-          currentTermIndex = i;
-          break;
-        }
-      }
-      if (refDate >= boundariesArr[boundariesArr.length - 1].date) {
-        currentTermIndex = boundariesArr.length - 1;
-      }
-      // 4-1) li에 .active 다시 셋팅
-      const mowoonLis = document.querySelectorAll("#mowoonList li");
-      requestAnimationFrame(function(){
-      mowoonLis.forEach(li => li.classList.remove("active"));
-        if (mowoonLis[currentTermIndex]) {
-          mowoonLis[currentTermIndex].classList.add("active");
-        }
-      });
-
-      // 5) 일운 달력도 다시 만든 뒤, 그 안에서 refDate 날짜를 찾아 .active 하기
-      //    (예: generateDailyFortuneCalendar -> #iljuCalender에 html 삽입)
-      updateMonthlyFortuneCalendar(boundariesArr[currentTermIndex].name, displayYear);
-
-      // 그리고 방금 생성된 <td>들 중에서 refDate.getDate()가 일치하는 곳에 .active
-      const dayCells = document.querySelectorAll("#iljuCalender table td");
-      dayCells.forEach(td => {
-        td.classList.remove("active");
-        // td 안에 있는 날짜(예: <span>15일</span>) 파싱
-        const dayEl = td.querySelector(".ilwoonday span");
-        if (dayEl) {
-          const dayText = dayEl.innerText.replace("일", ""); // "15"라는 숫자만 추출
-          const dayNum = parseInt(dayText, 10);
-          if (dayNum === refDate.getDate()) {
-            td.classList.add("active");
-          }
-        }
-      });
       
       function clearHyphenElements(rootEl) {
         const root = typeof rootEl === 'string'
