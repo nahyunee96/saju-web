@@ -5139,9 +5139,7 @@ document.addEventListener("DOMContentLoaded", function () {
           
           최종 업데이트 이벤트 간지: <b>${myowoonResult.woljuCurrentPillar}</b><br>
           방향: <b>${myowoonResult.dirMode}</b><br><br>
-          묘운 월주의 경우, 대운수를 구하는 방법과 동일하고,<br> 대운수 구하는 방법으로 구하셔도 됩니다.
-          하지만, 대운수의 경우도 만세력마다 차이가 있기 때문에, 분단위로 구해보겠습니다. <br>
-          순행은 생일 기준으로, 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.
+          묘운 월주의 경우, 순행은 생일 기준으로, 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.
           이 명식은 <b>${myowoonResult.dirMode}</b>이므로, ${direction()} 절기의 까지의 기간을 산출합니다.
           보정시에서 ${direction()} 절기의 기간까지 산출했을 때, <br>
           <b>${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)}</b> 나오게 되며, <br>
