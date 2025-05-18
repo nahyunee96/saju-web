@@ -5139,8 +5139,8 @@ document.addEventListener("DOMContentLoaded", function () {
           
           최종 업데이트 이벤트 간지: <b>${myowoonResult.woljuCurrentPillar}</b><br>
           방향: <b>${myowoonResult.dirMode}</b><br><br>
-          묘운 월주의 경우, 순행은 생일 기준으로, 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.
-          이 명식은 <b>${myowoonResult.dirMode}</b>이므로, ${direction()} 절기의 까지의 기간을 산출합니다.
+          묘운 월주의 경우, 순행은 생일 기준으로, 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.<br>
+          이 명식은 <b>${myowoonResult.dirMode}</b>이므로, ${direction()} 절기의 까지의 기간을 산출합니다.<br>
           보정시에서 ${direction()} 절기의 기간까지 산출했을 때, <br>
           <b>${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)}</b> 나오게 되며, <br>
           ${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)} / 한달을 → <b>${monthStr}</b> / 10년으로 치환하여 구하게 됩니다.<br>
