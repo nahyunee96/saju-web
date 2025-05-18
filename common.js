@@ -5059,9 +5059,9 @@ document.addEventListener("DOMContentLoaded", function () {
               
               최종 업데이트 이벤트 간지: <b>${myowoonResult.iljuCurrentPillar}</b><br>
               방향: <b>${myowoonResult.dirMode}</b><br><br>
-              묘운 일주의 경우, 시주가 일주의 12개의 팔이기 때문에, 자시일수론과 인시일수론에 따라 다르게 나옵니다.
-              자시 일수론의 경우, 시주(시지)기준으로, 순행은 자시 역행은 해시(역으로 흐르기 때문에)에 따라 일주가 바뀌며,
-              인시 일수론의 경우, 시주(시지)기준으로, 순행은 인시 역행은 축시(역으로 흐르기 때문에)에 따라 일주가 바뀝니다.
+              묘운 일주의 경우, 시주가 일주의 12개의 팔이기 때문에,<br> 자시일수론과 인시일수론에 따라 다르게 나옵니다.<br>
+              자시 일수론의 경우, 시주(시지)기준으로,<br> <ins>순행은 자시 역행은 해시(역으로 흐르기 때문에)에 따라 일주가 바뀌며</ins>,<br>
+              인시 일수론의 경우, 시주(시지)기준으로,<br> <ins>순행은 인시 역행은 축시(역으로 흐르기 때문에)에 따라 일주가 바뀝니다</ins>.<br>
               현재 [${timeLabel}]일수론 사용중입니다.
             </li>
           `;
@@ -5092,20 +5092,20 @@ document.addEventListener("DOMContentLoaded", function () {
           // ----- 일주 설명 -----
           // 동적 업데이트 바뀐 횟수: <b>${getDynamicStep(myowoonResult.iljuFirstChangeDate, iljuCycle, refDate)}</b><br>
           html += `
-            <li>
-              <div class="pillar_title"><strong>일주</strong></div>
-              원국 시주 간지: <b>${dayPillar}</b><br>
-              보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.iljuFirstChangeDate)}</b><br>
-              보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(myowoonResult.iljuLastChangeDate)}</b><br>
-              다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(myowoonResult.iljuLastChangeDateStart)}</b><br>
-              
-              최종 업데이트 이벤트 간지: <b>${myowoonResult.iljuCurrentPillar}</b><br>
-              방향: <b>${myowoonResult.dirMode}</b><br><br>
-              묘운 일주의 경우, 시주가 일주의 12개의 팔이기 때문에, 자시일수론과 인시일수론에 따라 다르게 나옵니다.
-              자시 일수론의 경우, 묘운 시주(시지)기준으로, 순행은 자시 역행은 해시(역으로 흐르기 때문에)에 따라 일주가 바뀌며,
-              인시 일수론의 경우, 묘운 시주(시지)기준으로, 순행은 인시 역행은 축시(역으로 흐르기 때문에)에 따라 일주가 바뀝니다.
-              현재 <b>[${timeLabel}]</b>일수론 사용중입니다.
-            </li>
+          <li>
+            <div class="pillar_title"><strong>일주</strong></div>
+            원국 일주 간지: <b>${dayPillar}</b><br>
+            보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.iljuFirstChangeDate)}</b><br>
+            보정 후 오늘까지 마지막으로 바뀐 시간: <b>${formatByTimeKnown(myowoonResult.iljuLastChangeDate)}</b><br>
+            다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(myowoonResult.iljuLastChangeDateStart)}</b><br>
+            
+            최종 업데이트 이벤트 간지: <b>${myowoonResult.iljuCurrentPillar}</b><br>
+            방향: <b>${myowoonResult.dirMode}</b><br><br>
+            묘운 일주의 경우, 시주가 일주의 12개의 팔이기 때문에,<br> 자시일수론과 인시일수론에 따라 다르게 나옵니다.<br>
+            자시 일수론의 경우, 시주(시지)기준으로,<br> <ins>순행은 자시 역행은 해시(역으로 흐르기 때문에)에 따라 일주가 바뀌며</ins>,<br>
+            인시 일수론의 경우, 시주(시지)기준으로,<br> <ins>순행은 인시 역행은 축시(역으로 흐르기 때문에)에 따라 일주가 바뀝니다</ins>.<br>
+            현재 [${timeLabel}]일수론 사용중입니다.
+          </li>
           `;
          }
      } else {
@@ -5139,14 +5139,14 @@ document.addEventListener("DOMContentLoaded", function () {
           
           최종 업데이트 이벤트 간지: <b>${myowoonResult.woljuCurrentPillar}</b><br>
           방향: <b>${myowoonResult.dirMode}</b><br><br>
-          묘운 월주의 경우, 순행은 생일 기준으로, 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.<br>
+          묘운 월주의 경우, 순행은 생일 기준으로,<br> 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.<br>
           이 명식은 <b>${myowoonResult.dirMode}</b>이므로, ${direction()} 절기의 까지의 기간을 산출합니다.<br>
           보정시에서 ${direction()} 절기의 기간까지 산출했을 때, <br>
           <b>${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)}</b> 나오게 되며, <br>
           ${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)} / 한달을 → <b>${monthStr}</b> / 10년으로 치환하여 구하게 됩니다.<br>
           위에서 구한 년도가 몇년이냐에 따라 대운수가 정해지게 됩니다. <br>
-          그 뒤에는 그 뒤의 다음(순행) 혹은 이전(역행) 절기의 날짜와 시간을 보고 시간을 구하게 되는데,<br>
-          순행은 절기가 지난 바로 다음시간, 역행은 절기가 지나기 바로 전시간을 보게 됩니다.<br>
+          그 뒤에는 그 뒤의 다음(순행) 혹은 이전(역행) 절기의<br> 날짜와 시간을 보고 시간을 구하게 되는데,<br>
+          순행은 절기가 지난 바로 다음절기, 역행은 절기가 지나기 바로 전절기를 보게 됩니다.<br>
           그것을 120년으로 확장하면, 약 10년이라는 시간뒤에 다음 월주가 변하는 것입니다.
         </li>
       `;
@@ -5172,7 +5172,7 @@ document.addEventListener("DOMContentLoaded", function () {
         html +=`<br>
         방향: <b>${myowoonResult.dirMode}</b><br><br>
         묘운 연주의 경우, 시주가 일주의 12개의 팔이기 때문에, 묘운 인월에 변경됩니다.<br>
-        월주(월지)기준으로, 순행은 인월 역행은 축월(역으로 흐르기 때문에)에 따라 연주가 바뀝니다.
+        월주(월지)기준으로, 순행은 인월 역행은 축월(역으로 흐르기 때문에)에<br> 방향에 따라, 연주가 바뀝니다.
       </li>
     `;
     
