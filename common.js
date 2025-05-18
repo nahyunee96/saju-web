@@ -657,7 +657,7 @@ function getDaewoonData(gender, originalDate, correctedDate) {
   const diffDays = diffMs / oneDayMs;
 
   const offset = (diffDays / avgMonthLength) * 10;
-  const baseNumber = Math.floor(offset);
+  const baseNumber = Math.ceil(offset);
 
   // build 10-year list
   const list = [];
@@ -2863,7 +2863,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("DwW" + idx, getTwelveUnseong(baseDayStem, finalBranch) || "-");
         setText("Ds" + idx, getTwelveShinsal(baseYearBranch, finalBranch) || "-");
         
-        const displayedDaewoonNum = Math.floor(item.age);
+        const displayedDaewoonNum = Math.floor(item.age) - 1;
         setText("Da" + idx, displayedDaewoonNum);
       }
     }
@@ -2994,7 +2994,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!selectedDaewoon) return;
       const daewoonNum = selectedDaewoon.age; 
       const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-      globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal + 1);
+      globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal);
       const sewoonList = [];
       for (let j = 0; j < 10; j++) {
         let sewoonYear = globalState.sewoonStartYear + j;
