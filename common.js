@@ -2886,6 +2886,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (daewoonLis[currentDaewoonIndex]) {
       daewoonLis[currentDaewoonIndex].classList.add("active");
     }
+    
 
     function updateCurrentSewoon(refDate) {
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
@@ -2987,17 +2988,13 @@ document.addEventListener("DOMContentLoaded", function () {
     let activeDaewoonLi = document.querySelector("[id^='daewoon_'].active");
     let daewoonIndex = activeDaewoonLi ? parseInt(activeDaewoonLi.getAttribute("data-index"), 10) : 1;
 
-    const originalYearPillarData = getYearGanZhi(correctedDate, birthDate.getFullYear());
-    const isYangStem = ["갑", "병", "무", "경", "임"].includes(originalYearPillarData.charAt(0));
-    let direction = ((gender === "남" && isYangStem) || (gender === "여" && !isYangStem)) ? 1 : -1;
-
     function updateSewoonItem() {
       const decimalBirthYear = getDecimalBirthYear(correctedDate);
       const selectedDaewoon = daewoonData.list[daewoonIndex - 1];
       if (!selectedDaewoon) return;
       const daewoonNum = selectedDaewoon.age; 
       const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-      globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal);
+      globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal + 1);
       const sewoonList = [];
       for (let j = 0; j < 10; j++) {
         let sewoonYear = globalState.sewoonStartYear + j;
@@ -5438,27 +5435,6 @@ document.addEventListener("DOMContentLoaded", function () {
       updateFunc(refDate);
       updateExplanDetail(myowoonResult, hourPillar);
 
-      // 2-2) "올해 나이" 또는 "refDate" 기준으로 대운리스트 중 현재 대운(active) 찾음
-      const currentAge = refDate.getFullYear() - correctedDate.getFullYear();
-      let currentDaewoonIndex = 0;
-      if (daewoonData?.list) {
-        for (let i = 0; i < daewoonData.list.length; i++) {
-          if (daewoonData.list[i].age <= currentAge) {
-            currentDaewoonIndex = i;
-          }
-        }
-      }
-      // 2-3) li에 .active 다시 셋팅
-      const daewoonLis = document.querySelectorAll("#daewoonList li");
-      daewoonLis.forEach(li => li.classList.remove("active"));
-      if (daewoonLis[currentDaewoonIndex]) {
-        daewoonLis[currentDaewoonIndex].classList.add("active");
-      }
-
-      // 3) 세운 리스트도 다시 그림
-      updateSewoonItem(refDate);  // (이미 구현돼 있다고 가정)
-      // 3-1) 세운 중 올해(or refDate) 항목에 .active 주기
-
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
       const displayYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
 
@@ -5778,9 +5754,6 @@ document.addEventListener("DOMContentLoaded", function () {
             // 2-6) 부드러운 업데이트 (Day Pillar 포함)
             smoothUpdate(siju);
             hourPillar = siju;
-            console.log(hourPillar);
-
-            
           });
           
           hourListEl.appendChild(btn);
