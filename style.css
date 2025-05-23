@@ -359,7 +359,7 @@
   .grid_box_1 li .hanja_con b,
   .ganji .hanja_con b {
      display: block;
-	 line-height: 120%; 
+	  line-height: 120%; 
   }
 
   .w50 .grid_box_1 li .hanja_con,
@@ -370,16 +370,6 @@
   .hanja_con {
     display: flex;
     flex-direction: column;
-  }
-
-  .hanja_con p {
-    order: 2;
-    
-  }
-
-  .hanja_con b {
-    order: 1;
-    margin-bottom: 5px;
   }
 
   .grid_box_1 li p,
