@@ -533,7 +533,8 @@
   .fortune_section .w.dyear,
   .fortune_section .w.dmonth,
   .fortune_section .dage {
-    margin-bottom: 0;
+    background-color: transparent;
+    color: #EED36C;
   }
 
   .container {
@@ -1379,9 +1380,9 @@
 
     .ganji_w {
       width: 100%;
-      padding: 2.242vw;
+      padding: 2.242vw 0;
       text-align: center;
-      font-size: 3.248vw;
+      font-size: 4vw;
       font-weight: 700;
       background-color: #fff;
       border-radius: 2px;
@@ -1393,7 +1394,6 @@
     
     .fortune_section .w.dage {
       font-size: 2.424vw;
-      margin-bottom: 0;
     }
 
     .container {
@@ -1530,12 +1530,12 @@
     }
 
     .grid_box_12.fortune_section .w {
-      font-size: 2vw;
+      font-size: 2.62vw;
     }
 
     .grid_box_12 .ganji_w {
-      font-size: 2.8vw;
-      padding: 2vw 1.2vw;
+      font-size: 3.2vw;
+      padding: 2vw 0vw;
     }
 
     .ilju_calender {
