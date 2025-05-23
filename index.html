@@ -223,7 +223,7 @@
         <div class="content">
           <ul class="infoContent">
             <li>운 리스트 UI 변경이 이루어졌습니다.</li>
-            <li>3시간 이상 꺼져있을 시, 자동으로 새로고침 되게 해놓았습니다 !</li>
+            <li>3시간 이상 꺼져있을 시, 자동으로 새로고침 되게 해놓았습니다 ! (그래도 자주 해주시면 좋습니다 ^^)</li>
             <li>명식 모두 삭제를 하실 경우, 브라우저 데이터가 삭제되어 팝업이 또 뜨게 됩니다 ! <br> 브라우저에서 보지 않기를 눌러주세요!
               다른 브라우저 사용 & 캐시만 비워지지 않으면 이 팝업은 또 뜨지 않습니다 !
             </li>
@@ -252,7 +252,7 @@
         const closeBtn    = document.getElementById('closeX');
 
         // 1) 페이지 로드 시, 숨김 플래그 확인
-        const hidden = localStorage.getItem('infoModalHidden2');
+        const hidden = localStorage.getItem('infoModalHidden3');
         if (hidden === 'true') {
           modal.style.display = 'none';
         } else {
@@ -261,7 +261,7 @@
 
         // 2) “이 이후 브라우저에서 보지 않기” 클릭
         hideForever.addEventListener('click', () => {
-          localStorage.setItem('infoModalHidden2', 'true');
+          localStorage.setItem('infoModalHidden3', 'true');
           modal.style.display = 'none';
         });
 
@@ -1155,7 +1155,6 @@
             </div>
           </div>
           
-          
           <div class="woon_area" id="woonArea">
             <p class="buga_title"><span>대운 (대운의 월주)</span></p>
             <div class="scroll_x">
@@ -1502,6 +1501,7 @@
             <!-- 일주달력 -->
             <div id="iljuCalender" class="ilju_calender"></div>
           </div>
+            
         </div>
 
         <!-- 푸터 -->

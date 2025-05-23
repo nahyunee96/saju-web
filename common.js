@@ -2507,9 +2507,47 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  function updateLiChildMargins(ulId) {
+    const ul = document.getElementById(ulId);
+    if (!ul) return;
 
+    ul.querySelectorAll('li').forEach(li => {
+      const divs = Array.from(li.children).filter(el => el.tagName === 'DIV');
+      // 1) 초기화
+      divs.forEach(d => d.style.marginBottom = '');
+      // 2) 실제 렌더된 것만 필터
+      const visible = divs.filter(d => {
+        const rect = d.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      });
+      // 3) 마지막에 margin-bottom:0
+      if (visible.length) {
+        visible[visible.length - 1].style.marginBottom = '0px';
+      }
+    });
+  }
 
-  document.getElementById("calcBtn").addEventListener("click", function () {
+  function updateAllMargins() {
+    updateLiChildMargins('daewoonList');
+    updateLiChildMargins('sewoonList');
+    updateLiChildMargins('mowoonList');
+  }
+
+  // 페이지 로드시 한 번
+  updateAllMargins();
+
+  const btn = document.getElementById('calcBtn');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      // 렌더링 끝난 뒤 실행
+      setTimeout(updateAllMargins, 50);
+    });
+  }
+
+  // DOM 로드 후 한번 실행
+  //document.addEventListener('DOMContentLoaded', updateAll);
+
+  document.getElementById("calcBtn").addEventListener("click", function () {    
 
     let refDate = toKoreanTime(new Date());
 
@@ -6594,6 +6632,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // — 토글할 때마다 apply
   checkbox.addEventListener('change', () => {
     applyState(checkbox.checked);
+    updateAllMargins();
   });
 
   Object.defineProperty(window, 'correctedDate', {
