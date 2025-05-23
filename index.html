@@ -109,7 +109,7 @@
       }
   
       /* 인포모달 */
-      #infoModal2 {
+      #infoModal3 {
         position: fixed;
         left: 50%;
         top: 50%;
@@ -120,7 +120,7 @@
         border: 2px solid #252525;
       }
   
-      #infoModal2 .title {
+      #infoModal3 .title {
         width: 100%;
         background-color: #252525;
         color: #fff;
@@ -128,32 +128,32 @@
         padding: 10px;
       }
   
-      #infoModal2 .title b {
+      #infoModal3 .title b {
         font-size: 14px;
         color: #ccc;
       }
   
-      #infoModal2 .content {
+      #infoModal3 .content {
         width: 100%;
         padding: 20px;
         background-color: #fff;
         color: #252525;
       }
 
-      #infoModal2 .content li {
+      #infoModal3 .content li {
         margin-bottom: 8px;
       }
 
-      #infoModal2 .content li:last-child{
+      #infoModal3 .content li:last-child{
         margin-bottom: 0;
       }
 
-      #infoModal2 .btn_box {
+      #infoModal3 .btn_box {
         background-color: #252525;
         padding: 10px;
       }
 
-      #infoModal2 .btn_box button {
+      #infoModal3 .btn_box button {
         padding: 4px 12px;
         font-size: 14px;
       }
@@ -177,25 +177,25 @@
           height: 8vw;
         }
 
-        #infoModal2 .title {
+        #infoModal3 .title {
           font-size:5.2vw;
           padding: 2.4vw;
         }
     
-        #infoModal2 .title b {
+        #infoModal3 .title b {
           font-size: 4.4vw;
         }
     
-        #infoModal2 .content {
+        #infoModal3 .content {
           padding: 2vw;
           font-size: 3.6vw;
         }
 
-        #infoModal2 .content li {
+        #infoModal3 .content li {
           margin-bottom: 1.2vw;
         }
 
-        #infoModal2 .btn_box button {
+        #infoModal3 .btn_box button {
           padding: 1.2vw 2vw;
           font-size: 3.2vw;
         }
@@ -215,15 +215,15 @@
         <div id="map"></div>
       </div>
     </div>
-    <div id="infoModal2">
+    <div id="infoModal3">
       <div class="inner">
         <div class="title">
           <span>!! 안내드립니다 !! <b>만세력 UPDATE 3 ver.</b></span>
         </div>
         <div class="content">
           <ul class="infoContent">
-            <li>지장간 UI 변경이 이루어졌습니다.</li>
-            <li>제가 업데이트를 피드백이 올 때 마다 하기 때문에 브라우저에서 새로고침을 자주 해주시면 좋습니다 ! (무언가 이상하다 싶으시면, 새로고침을 한 번씩 해주세요!)</li>
+            <li>운 리스트 UI 변경이 이루어졌습니다.</li>
+            <li>3시간 이상 꺼져있을 시, 자동으로 새로고침 되게 해놓았습니다 !</li>
             <li>명식 모두 삭제를 하실 경우, 브라우저 데이터가 삭제되어 팝업이 또 뜨게 됩니다 ! <br> 브라우저에서 보지 않기를 눌러주세요!
               다른 브라우저 사용 & 캐시만 비워지지 않으면 이 팝업은 또 뜨지 않습니다 !
             </li>
@@ -247,7 +247,7 @@
       }
 
       document.addEventListener('DOMContentLoaded', () => {
-        const modal       = document.getElementById('infoModal2');
+        const modal       = document.getElementById('infoModal3');
         const hideForever = document.getElementById('lognTimeX');  // ← 수정
         const closeBtn    = document.getElementById('closeX');
 
@@ -2014,6 +2014,36 @@
       <script type="module" src="./common.js"></script>
       <!-- <script src="./calc.js"></script> -->
     </div>
+    <script>
+      const TIMEOUT_MS = 3 * 60 * 60 * 1000; // 1시간
     
+      // 1. 페이지가 열릴 때 localStorage 기반 시간 체크
+      const now = Date.now();
+      const lastVisit = localStorage.getItem("lastVisitTime");
+    
+      if (lastVisit) {
+        const diff = now - Number(lastVisit);
+        if (diff > TIMEOUT_MS) {
+          location.reload();
+        }
+      }
+      localStorage.setItem("lastVisitTime", now);
+    
+      // 2. 페이지 열려있는 상태에서 일정 시간 후 새로고침
+      setTimeout(() => location.reload(), TIMEOUT_MS);
+    
+      // 3. 모바일 백그라운드 → 다시 보일 때 시간 차 체크
+      let hiddenTime = Date.now();
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+          hiddenTime = Date.now();
+        } else if (document.visibilityState === "visible") {
+          const now = Date.now();
+          if (now - hiddenTime > TIMEOUT_MS) {
+            location.reload();
+          }
+        }
+      });
+    </script>
   </body>
 </html>
