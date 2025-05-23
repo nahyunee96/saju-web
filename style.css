@@ -860,17 +860,6 @@
     padding: 0 10px;
   }
 
-  .red { color: #E40101 !important; }
-  .green { color: #008E00 !important; }
-  .yellow { color: #E6BF28 !important; }
-  .white { color: #a5a5a5 !important; }
-  .black { color: #252525 !important; }
-
-  .b_red { background-color: #E40101 !important; color: #fff; }
-  .b_green { background-color: #008E00 !important; color: #fff;}
-  .b_yellow { background-color: #E6BF28 !important; color: #fff;}
-  .b_white { background-color: #a5a5a5 !important; color: #fff;}
-  .b_black { background-color: #252525 !important; color: #fff;}
 
   .radio_wrap {
     display: flex;
@@ -888,10 +877,47 @@
     height: 60px;
   }
 
+  .s12_ctrl_box {
+    padding: 15px 0 8px;
+  }
+
+  .s12_ctrl_box .black_btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    height: 50px;
+    font-size: 18px;
+  }
+
+  .s12_ctrl_box .black_btn.active .arrow {
+    transform: rotate(180deg);
+  }
+
   .s12_ctrl_zone {
+    width: 100%;
     flex-direction: column;
     height: auto;
     text-align: center;
+  }
+
+  .s12_ctrl_con {
+    display: none;
+  }
+
+  .s12_ctrl_zone_type {
+    padding: 8px;
+    flex-direction: row;
+  }
+
+  .s12_ctrl_zone_type.side {
+    gap: 20px;
+  }
+
+  .s12_ctrl_zone_type.side .flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .s12_ctrl_zone a {
@@ -908,10 +934,6 @@
     top: 90px;
     left: 0; 
     z-index: 98;
-  }
-
-  .s12_ctrl_zone  {
-    width: 100%;
   }
 
   .check_option li {
@@ -1118,6 +1140,18 @@
     margin-bottom: 0 !important;
   }
 
+  .red { color: #E40101 !important; }
+  .green { color: #008E00 !important; }
+  .yellow { color: #E6BF28 !important; }
+  .white { color: #a5a5a5 !important; }
+  .black { color: #252525 !important; }
+
+  .b_red { background-color: #E40101 !important; color: #fff; }
+  .b_green { background-color: #008E00 !important; color: #fff;}
+  .b_yellow { background-color: #E6BF28 !important; color: #fff;}
+  .b_white { background-color: #a5a5a5 !important; color: #fff;}
+  .b_black { background-color: #252525 !important; color: #fff;}
+
   /* 모바일 대응 */
   @media screen and (max-width:991px){
 
@@ -1247,6 +1281,19 @@
 
     .info_box .birthday_info {
       font-size:2.844vw;
+    }
+
+    .s12_ctrl_box .black_btn {
+      font-size: 3.2vw;
+      height: 8vw;
+    }
+
+    .s12_ctrl_box {
+      padding: 3.2vw 0 0.8vw;
+    }
+
+    .s12_ctrl_zone_type {
+      padding: 1.2vw;
     }
     
     .woonkuk {

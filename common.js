@@ -4,6 +4,10 @@ let updateMyowoonSectionVr;
 let modifyIndex;           // 현재 수정 중인 명식 인덱스
 let originalDataSnapshot;  // 기존 명식 데이터 백업\
 let baseDayStem;
+let baseDayBranch;
+let baseYearBranch;
+let daypillar, yearPillar;
+let baseDayBranch_copy, baseDayBranch_copy2, baseYearBranch_copy, baseYearBranch_copy2;
 let isTimeUnknown, isPlaceUnknown;
 let renderSijuButtonsVr;
 // 전역 변수
@@ -41,57 +45,6 @@ let manualOverride2 = false;
 let savedCityLon = null;
 let initialized;
 
-// [0] 출생지 보정 및 써머타임 함수
-// const cityLongitudes = {
-//   "서울특별시": 126.9780, "부산광역시": 129.1, "대구광역시": 128.6,
-//   "인천광역시": 126.7052, "광주광역시": 126.8530, "대전광역시": 127.3845,
-//   "울산광역시": 129.3114, "세종특별자치시": 127.2890,
-//   "수원시": 127.0014, "고양시": 126.83, "용인시": 127.1731,
-//   "성남시": 127.137, "부천시": 126.766, "안산시": 126.851,
-//   "안양시": 126.9566, "남양주시": 127.2623, "화성시": 126.831,
-//   "평택시": 127.1116, "시흥시": 126.79, "김포시": 126.715,
-//   "파주시": 126.783, "의정부시": 127.0469, "광명시": 126.8826,
-//   "광주시": 126.666, "군포시": 126.935, "이천시": 127.443,
-//   "양주시": 127.03, "오산시": 127.079, "구리시": 127.13,
-//   "안성시": 127.279, "포천시": 127.2, "의왕시": 126.931,
-//   "하남시": 127.214, "여주시": 127.652, "동두천시": 127.05,
-//   "과천시": 126.984, "가평군": 127.51, "양평군": 127.5, "연천군": 127.1,
-//   "춘천시": 127.729, "원주시": 127.93, "강릉시": 128.896, "동해시": 129.113,
-//   "태백시": 128.986, "속초시": 128.591, "삼척시": 129.168, "홍천군": 127.88,
-//   "횡성군": 128.425, "영월군": 128.613, "평창군": 128.424, "정선군": 128.7,
-//   "철원군": 127.415, "화천군": 127.753, "양구군": 128.47, "인제군": 128.116,
-//   "고성군": 128.467, "양양군": 128.692,
-//   "청주시": 127.4914, "충주시": 127.9323, "제천시": 128.1926, "보은군": 127.728,
-//   "옥천군": 127.609, "영동군": 128.382, "진천군": 127.439, "괴산군": 127.731,
-//   "음성군": 127.674, "단양군": 128.377, "증평군": 127.48,
-//   "천안시": 127.146, "공주시": 127.098, "보령시": 126.611, "아산시": 127.001,
-//   "서산시": 126.449, "논산시": 127.074, "계룡시": 127.264, "당진시": 126.621,
-//   "금산군": 127.386, "부여군": 126.802, "서천군": 126.781, "청양군": 126.856,
-//   "홍성군": 126.726, "예산군": 126.678, "태안군": 126.325,
-//   "전주시": 127.108, "군산시": 126.711, "익산시": 126.957, "정읍시": 126.846,
-//   "남원시": 127.392, "김제시": 126.871, "완주군": 127.062, "진안군": 127.229,
-//   "무주군": 127.69, "장수군": 127.891, "임실군": 127.409, "순창군": 127.13,
-//   "고창군": 126.785, "부안군": 126.73,
-//   "목포시": 126.411, "여수시": 127.643, "순천시": 127.496, "나주시": 126.717,
-//   "광양시": 127.695, "담양군": 126.984, "곡성군": 127.262, "구례군": 127.392,
-//   "고흥군": 127.384, "보성군": 127.122, "화순군": 127.04, "장흥군": 126.725,
-//   "강진군": 126.645, "해남군": 126.531, "영암군": 126.682, "무안군": 126.731,
-//   "함평군": 126.625, "영광군": 126.509, "장성군": 126.751, "완도군": 126.653,
-//   "진도군": 126.359, "신안군": 126.361,
-//   "포항시": 129.366, "경주시": 129.224, "김천시": 128.198, "안동시": 128.723,
-//   "구미시": 128.344, "영주시": 128.637, "영천시": 128.733, "상주시": 128.159,
-//   "문경시": 128.185, "경산시": 128.734, "군위군": 128.454, "의성군": 128.181,
-//   "청송군": 128.218, "영양군": 128.276, "영덕군": 128.703, "청도군": 128.626,
-//   "고령군": 128.347, "성주군": 128.177, "칠곡군": 128.54, "예천군": 128.245,
-//   "봉화군": 128.363, "울진군": 129.341, "울릉군": 130.904,
-//   "창원시": 128.681, "김해시": 128.881, "진주시": 128.092, "양산시": 129.045,
-//   "거제시": 128.678, "사천시": 128.189, "밀양시": 128.747, "통영시": 128.425,
-//   "거창군": 128.184, "고성군": 128.373, "남해군": 127.902, "산청군": 127.779,
-//   "창녕군": 128.415, "하동군": 127.997, "함안군": 128.389, "함양군": 127.81,
-//   "합천군": 128.175,
-//   "의령군": 128.29,
-//   "제주시": 126.5312, "서귀포시": 126.715
-// };
 
 // 1) 전역에 빈 객체 선언 (고정 매핑 없음)
 let cityLongitudes = {};
@@ -956,6 +909,7 @@ function getTwelveUnseong(baseDayStem, branch) {
   return mapping[baseDayStem] ? mapping[baseDayStem][branch] || "" : "";
 }
 
+
 function getTwelveShinsal(yearBranch, branch) {
   const mapping = {
     "자": { "자": "장성", "축": "반안", "인": "역마", "묘": "육해", "진": "화개", "사": "겁살", "오": "재살", "미": "천살", "신": "지살", "유": "년살", "술": "월살", "해": "망신" },
@@ -972,6 +926,84 @@ function getTwelveShinsal(yearBranch, branch) {
     "해": { "자": "반안", "축": "역마", "인": "육해", "묘": "화개", "진": "겁살", "사": "재살", "오": "천살", "미": "지살", "신": "년살", "유": "월살", "술": "망신", "해": "장성" }
   };
   return mapping[yearBranch] ? mapping[yearBranch][branch] || "" : "";
+}
+
+function getTwelveShinsal2(yearBranch, branch) {
+  // 각 삼합 그룹을 하나의 기준 지지에 매핑
+  const groupMapping = {
+    "해": "묘", "묘": "묘", "미": "묘",
+    "인": "오", "오": "오", "술": "오",
+    "사": "유", "유": "유", "축": "유",
+    "신": "자", "자": "자", "진": "자",
+  };
+
+  const mapping = {
+    "묘": { "자": "년살", "축": "월살", "인": "망신", "묘": "장성", "진": "반안", "사": "역마", "오": "육해", "미": "화개", "신": "겁살", "유": "재살", "술": "천살", "해": "지살" },
+    "오": { "자": "재살", "축": "천살", "인": "지살", "묘": "년살", "진": "월살", "사": "망신", "오": "장성", "미": "반안", "신": "역마", "유": "육해", "술": "화개", "해": "겁살" },
+    "유": { "자": "육해", "축": "화개", "인": "겁살", "묘": "재살", "진": "천살", "사": "지살", "오": "년살", "미": "월살", "신": "망신", "유": "장성", "술": "반안", "해": "역마" },
+    "자": { "자": "장성", "축": "반안", "인": "역마", "묘": "육해", "진": "화개", "사": "겁살", "오": "재살", "미": "천살", "신": "지살", "유": "년살", "술": "월살", "해": "망신" },
+  };
+
+  const key = groupMapping[yearBranch];
+  return key && mapping[key] ? mapping[key][branch] || "" : "";
+}
+
+function getTwelveShinsal8(yearBranch, branch) {
+  const mapping = {
+    "자": { "자": "장성", "축": "반안", "인": "역마", "묘": "육액", "진": "화개", "사": "겁살", "오": "재살", "미": "천살", "신": "지살", "유": "도화", "술": "월살", "해": "망신" },
+    "축": { "자": "망신", "축": "장성", "인": "반안", "묘": "역마", "진": "육액", "사": "화개", "오": "겁살", "미": "재살", "신": "천살", "유": "지살", "술": "도화", "해": "월살" },
+    "인": { "자": "월살", "축": "망신", "인": "장성", "묘": "반안", "진": "역마", "사": "육액", "오": "화개", "미": "겁살", "신": "재살", "유": "천살", "술": "지살", "해": "도화" },
+    "묘": { "자": "도화", "축": "월살", "인": "망신", "묘": "장성", "진": "반안", "사": "역마", "오": "육액", "미": "화개", "신": "겁살", "유": "재살", "술": "천살", "해": "지살" },
+    "진": { "자": "지살", "축": "도화", "인": "월살", "묘": "망신", "진": "장성", "사": "반안", "오": "역마", "미": "육액", "신": "화개", "유": "겁살", "술": "재살", "해": "천살" },
+    "사": { "자": "천살", "축": "지살", "인": "도화", "묘": "월살", "진": "망신", "사": "장성", "오": "반안", "미": "역마", "신": "육액", "유": "화개", "술": "겁살", "해": "재살" },
+    "오": { "자": "재살", "축": "천살", "인": "지살", "묘": "도화", "진": "월살", "사": "망신", "오": "장성", "미": "반안", "신": "역마", "유": "육액", "술": "화개", "해": "겁살" },
+    "미": { "자": "겁살", "축": "재살", "인": "천살", "묘": "지살", "진": "도화", "사": "월살", "오": "망신", "미": "장성", "신": "반안", "유": "역마", "술": "육액", "해": "화개" },
+    "신": { "자": "화개", "축": "겁살", "인": "재살", "묘": "천살", "진": "지살", "사": "도화", "오": "월살", "미": "망신", "신": "장성", "유": "반안", "술": "역마", "해": "육액" },
+    "유": { "자": "육액", "축": "화개", "인": "겁살", "묘": "재살", "진": "천살", "사": "지살", "오": "도화", "미": "월살", "신": "망신", "유": "장성", "술": "반안", "해": "역마" },
+    "술": { "자": "역마", "축": "육액", "인": "화개", "묘": "겁살", "진": "재살", "사": "천살", "오": "지살", "미": "도화", "신": "월살", "유": "망신", "술": "장성", "해": "반안" },
+    "해": { "자": "반안", "축": "역마", "인": "육액", "묘": "화개", "진": "겁살", "사": "재살", "오": "천살", "미": "지살", "신": "도화", "유": "월살", "술": "망신", "해": "장성" }
+  };
+  return mapping[yearBranch] ? mapping[yearBranch][branch] || "" : "";
+}
+
+function getTwelveShinsal82(yearBranch, branch) {
+  // 각 삼합 그룹을 하나의 기준 지지에 매핑
+  const groupMapping = {
+    "해": "묘", "묘": "묘", "미": "묘",
+    "인": "오", "오": "오", "술": "오",
+    "사": "유", "유": "유", "축": "유",
+    "신": "자", "자": "자", "진": "자",
+  };
+
+  const mapping = {
+    "묘": { "자": "도화", "축": "월살", "인": "망신", "묘": "장성", "진": "반안", "사": "역마", "오": "육액", "미": "화개", "신": "겁살", "유": "재살", "술": "천살", "해": "지살" },
+    "오": { "자": "재살", "축": "천살", "인": "지살", "묘": "도화", "진": "월살", "사": "망신", "오": "장성", "미": "반안", "신": "역마", "유": "육액", "술": "화개", "해": "겁살" },
+    "유": { "자": "육액", "축": "화개", "인": "겁살", "묘": "재살", "진": "천살", "사": "지살", "오": "도화", "미": "월살", "신": "망신", "유": "장성", "술": "반안", "해": "역마" },
+    "자": { "자": "장성", "축": "반안", "인": "역마", "묘": "육액", "진": "화개", "사": "겁살", "오": "재살", "미": "천살", "신": "지살", "유": "도화", "술": "월살", "해": "망신" },
+  };
+
+  const key = groupMapping[yearBranch];
+  return key && mapping[key] ? mapping[key][branch] || "" : "";
+}
+
+function getTwelveShinsalDynamic(dayPillar, yearPillar, targetBranch) {
+  const isDayBasis  = document.getElementById("s12CtrlType04").checked;
+  const referenceBranch = isDayBasis
+    ? dayPillar.charAt(1)
+    : yearPillar.charAt(1);
+
+  const isModern = document.getElementById("s12CtrlType01").checked;
+  const isGaehwa = document.getElementById("s12CtrlType03").checked;
+
+  if (isModern) {
+    return isGaehwa
+      ? getTwelveShinsal8(referenceBranch, targetBranch)
+      : getTwelveShinsal82(referenceBranch, targetBranch);
+  } else {
+    return isGaehwa
+      ? getTwelveShinsal(referenceBranch, targetBranch)
+      : getTwelveShinsal2(referenceBranch, targetBranch);
+  }
 }
 
 function pad(num) { return num.toString().padStart(2, '0'); }
@@ -992,14 +1024,15 @@ function getYearGanZhiForSewoon(year) {
 }
 
 function updateColorClasses() {
-  const bgColorClasses = ['b_green', 'b_red', 'b_yellow', 'b_white', 'b_black'],
-        textColorClasses = ['green', 'red', 'yellow', 'white', 'black'];
+  const bgColorClasses = ['b_green','b_red','b_yellow','b_white','b_black'];
+
   document.querySelectorAll(".ganji_w").forEach(elem => {
     const val = elem.innerHTML.trim();
     bgColorClasses.forEach(cls => elem.classList.remove(cls));
     if (colorMapping[val]) elem.classList.add(colorMapping[val].bgColor);
   });
-  // 처리 대상 셀렉터 확장
+
+  // 공통 셀렉터
   const selector = [
     ".grid_box_1 li b",
     ".ganji b",
@@ -1009,34 +1042,37 @@ function updateColorClasses() {
 
   document.querySelectorAll(selector).forEach(elem => {
     const val = elem.textContent.trim();
-    const clsToAdd = colorMapping[val]?.bgColor;
-    const clsToAdd2 = colorMapping2[val]?.bgColor;
-    if (!clsToAdd) return;
 
-    // 1) .hanja_con 내부의 <b>일 때는 부모와 다음 <p>를 처리
-    if (elem.matches(".grid_box_1 li b, .ganji b")) {
-      const container = elem.closest(".hanja_con");
-      if (!container) return;
-      // .hanja_con에서 기존 색상 제거
-      bgColorClasses.forEach(c => container.classList.remove(c));
-      // 새 클래스 추가
-      container.classList.add(clsToAdd);
-      // 다음 형제 <p>에도 동일 적용
-      const next = container.nextElementSibling;
-      if (next?.tagName.toLowerCase() === "p") {
-        bgColorClasses.forEach(c => next.classList.remove(c));
-        next.classList.add(clsToAdd);
-      }
-    }
-    // 2) ilwoon_ganji_cheongan / jiji span은 자기 자신에만 적용
-    else if (elem.matches(".ilwoon_ganji_cheongan span, .ilwoon_ganji_jiji span")) {
-      // 기존 색상 클래스 제거
+    // 1) span(일운) 요소인지 판별
+    const isSpan = elem.matches(".ilwoon_ganji_cheongan span, .ilwoon_ganji_jiji span");
+    if (isSpan) {
+      const cls = colorMapping2[val]?.bgColor;
+      if (!cls) return;
       bgColorClasses.forEach(c => elem.classList.remove(c));
-      // 새 클래스 추가
-      elem.classList.add(clsToAdd2);
+      elem.classList.add(cls);
+    }
+    // 2) 그 외 <b> 요소(.grid_box_1, .ganji) 처리
+    else {
+      const cls = colorMapping[val]?.bgColor;
+      if (!cls) return;
+
+      // 부모 .hanja_con 과 다음 <p> 처리
+      const container = elem.closest('.hanja_con');
+      if (!container) return;
+      bgColorClasses.forEach(c => container.classList.remove(c));
+      container.classList.add(cls);
+      const next = container.nextElementSibling;
+      if (next?.tagName.toLowerCase() === 'p') {
+        bgColorClasses.forEach(c => next.classList.remove(c));
+        next.classList.add(cls);
+      }
     }
   });
 }
+
+
+
+
 
 function appendTenGod(id, value, isStem = true) {
   const el = document.getElementById(id);
@@ -1738,6 +1774,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
       // 모든 버튼에서 active와 색상 클래스를 제거하고, 기본 텍스트로 복원
       allButtons.forEach((btn, i) => {
+        
         btn.classList.remove("active", ...colorZip);
         btn.innerHTML = `${timeLabels[i]}시 (${sijuList[i]})`;
       });
@@ -1897,6 +1934,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateOriginalAndMyowoon(refDate) {
 
+      
+
       const myData = latestMyeongsik;
 
       // ── 여기에 추가 ──
@@ -1926,29 +1965,31 @@ document.addEventListener("DOMContentLoaded", function () {
       const baseDayStem_copy = p_daySplit.gan;
       const baseDayStem_copy2 = part_daySplit.gan;
 
-      const baseYearBranch_copy = p_yearSplit.ji;
-      const baseYearBranch_copy2 = part_yearSplit.ji;
+      baseDayBranch_copy = p_daySplit.ji;
+      baseDayBranch_copy2 = part_daySplit.ji;
 
+      baseYearBranch_copy = p_yearSplit.ji;
+      baseYearBranch_copy2 = part_yearSplit.ji;
       
-      
+
       // 원국
       setText("CHb12ws", isMyTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy, p_hourSplit.ji));
-      setText("CHb12ss", isMyTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy, p_hourSplit.ji));
+      setText("CHb12ss", isMyTimeUnknown ? "-" : getTwelveShinsalDynamic(p_dayPillar, p_yearPillar, p_hourSplit.ji));
       setText("CDb12ws", getTwelveUnseong(baseDayStem_copy, p_daySplit.ji));
-      setText("CDb12ss", getTwelveShinsal(baseYearBranch_copy, p_daySplit.ji));
+      setText("CDb12ss", getTwelveShinsalDynamic(p_dayPillar, p_yearPillar, p_daySplit.ji));
       setText("CMb12ws", getTwelveUnseong(baseDayStem_copy, p_monthSplit.ji));
-      setText("CMb12ss", getTwelveShinsal(baseYearBranch_copy, p_monthSplit.ji));
+      setText("CMb12ss", getTwelveShinsalDynamic(p_dayPillar, p_yearPillar, p_monthSplit.ji));
       setText("CYb12ws", getTwelveUnseong(baseDayStem_copy, baseYearBranch_copy));
-      setText("CYb12ss", getTwelveShinsal(baseYearBranch_copy, baseYearBranch_copy));
+      setText("CYb12ss", getTwelveShinsalDynamic(p_dayPillar, p_yearPillar, baseYearBranch_copy));
 
       setText("CPHb12ws", isPartnerTimeUnknown ? "-" : getTwelveUnseong(baseDayStem_copy2, part_hourSplit.ji));
-      setText("CPHb12ss", isPartnerTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_hourSplit.ji));
+      setText("CPHb12ss", isPartnerTimeUnknown ? "-" : getTwelveShinsalDynamic(part_dayPillar, part_yearPillar, part_hourSplit.ji));
       setText("CPDb12ws", getTwelveUnseong(baseDayStem_copy2, part_daySplit.ji));
-      setText("CPDb12ss", getTwelveShinsal(baseYearBranch_copy2, part_daySplit.ji));
+      setText("CPDb12ss", getTwelveShinsalDynamic(part_dayPillar, part_yearPillar, part_daySplit.ji));
       setText("CPMb12ws", getTwelveUnseong(baseDayStem_copy2, part_monthSplit.ji));
-      setText("CPMb12ss", getTwelveShinsal(baseYearBranch_copy2, part_monthSplit.ji));
+      setText("CPMb12ss", getTwelveShinsalDynamic(part_dayPillar, part_yearPillar, part_monthSplit.ji));
       setText("CPYb12ws", getTwelveUnseong(baseDayStem_copy2, baseYearBranch_copy2));
-      setText("CPYb12ss", getTwelveShinsal(baseYearBranch_copy2, baseYearBranch_copy2));
+      setText("CPYb12ss", getTwelveShinsalDynamic(part_dayPillar, part_yearPillar, baseYearBranch_copy2));
 
       updateStemInfo("CYt", p_yearSplit, baseDayStem_copy);
       updateStemInfo("CMt", p_monthSplit, baseDayStem_copy);
@@ -2028,22 +2069,22 @@ document.addEventListener("DOMContentLoaded", function () {
       const part_myo_hourSplit = isPartnerTimeUnknown ? "-" : splitPillar(partnerSijuCurrent);
 
       setText("CMyoHb12ws", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_hourSplit.ji));
-      setText("CMyoHb12ss", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_hourSplit.ji));
+      setText("CMyoHb12ss", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsalDynamic(p_dayPillar, p_yearPillar, p_myo_hourSplit.ji));
       setText("CMyoDb12ws", isMyTimeUnknown || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy, p_myo_daySplit.ji));
-      setText("CMyoDb12ss", isMyTimeUnknown || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy, p_myo_daySplit.ji));
+      setText("CMyoDb12ss", isMyTimeUnknown || isPickerVer23 ? "-" : getTwelveShinsalDynamic(p_dayPillar, p_yearPillar, p_myo_daySplit.ji));
       setText("CMyoMb12ws", getTwelveUnseong(baseDayStem_copy, p_myo_monthSplit.ji));
-      setText("CMyoMb12ss", getTwelveShinsal(baseYearBranch_copy, p_myo_monthSplit.ji));
+      setText("CMyoMb12ss", getTwelveShinsalDynamic(p_dayPillar, p_yearPillar, p_myo_monthSplit.ji));
       setText("CMyoYb12ws", getTwelveUnseong(baseDayStem_copy, p_myo_yearSplit.ji));
-      setText("CMyoYb12ss", getTwelveShinsal(baseYearBranch_copy, p_myo_yearSplit.ji));
+      setText("CMyoYb12ss", getTwelveShinsalDynamic(p_dayPillar, p_yearPillar, p_myo_yearSplit.ji));
 
       setText("CPMyoHb12ws", isPartnerTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_hourSplit.ji));
-      setText("CPMyoHb12ss", isPartnerTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_hourSplit.ji));
+      setText("CPMyoHb12ss", isPartnerTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : getTwelveShinsalDynamic(part_dayPillar, part_yearPillar, part_myo_hourSplit.ji));
       setText("CPMyoDb12ws", isPartnerTimeUnknown || isPickerVer23 ? "-" : getTwelveUnseong(baseDayStem_copy2, part_myo_daySplit.ji));
-      setText("CPMyoDb12ss", isPartnerTimeUnknown || isPickerVer23 ? "-" : getTwelveShinsal(baseYearBranch_copy2, part_myo_daySplit.ji));
+      setText("CPMyoDb12ss", isPartnerTimeUnknown || isPickerVer23 ? "-" : getTwelveShinsalDynamic(part_dayPillar, part_yearPillar, part_myo_daySplit.ji));
       setText("CPMyoMb12ws", getTwelveUnseong(baseDayStem_copy2, part_myo_monthSplit.ji));
-      setText("CPMyoMb12ss", getTwelveShinsal(baseYearBranch_copy2, part_myo_monthSplit.ji));
+      setText("CPMyoMb12ss", getTwelveShinsalDynamic(part_dayPillar, part_yearPillar, part_myo_monthSplit.ji));
       setText("CPMyoYb12ws", getTwelveUnseong(baseDayStem_copy2, part_myo_yearSplit.ji));
-      setText("CPMyoYb12ss", getTwelveShinsal(baseYearBranch_copy2, part_myo_yearSplit.ji));
+      setText("CPMyoYb12ss", getTwelveShinsalDynamic(part_dayPillar, part_yearPillar, part_myo_yearSplit.ji));
 
       updateStemInfo("CMyoYt", p_myo_yearSplit, baseDayStem_copy);
       updateStemInfo("CMyoMt", p_myo_monthSplit, baseDayStem_copy);
@@ -2547,7 +2588,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // DOM 로드 후 한번 실행
   //document.addEventListener('DOMContentLoaded', updateAll);
 
-  document.getElementById("calcBtn").addEventListener("click", function () {    
+  document.getElementById("calcBtn").addEventListener("click", function () {
 
     let refDate = toKoreanTime(new Date());
 
@@ -2729,11 +2770,9 @@ document.addEventListener("DOMContentLoaded", function () {
     let hourSplit  = isTimeUnknown ? null : splitPillar(hourPillar);
     hourSplitGlobal = hourSplit;
 
-    const birthYearPillar = yearPillar;
-
     baseDayStem = daySplit.gan; // 원국 일간
-    
-    const baseYearBranch = birthYearPillar.charAt(1); // 원국 연지 (예: "병자"에서 "자")
+    baseDayBranch = dayPillar.charAt(1);
+    baseYearBranch = yearPillar.charAt(1); // 원국 연지 (예: "병자"에서 "자")
 
     const branchIndex = getHourBranchIndex(correctedDate);
     const branchName = Jiji[branchIndex];
@@ -2781,6 +2820,7 @@ document.addEventListener("DOMContentLoaded", function () {
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     }
 
+
     function updateOriginalSetMapping(daySplit, hourSplit) {
       if (!hourSplit || typeof hourSplit.ji !== 'string') {
         return;
@@ -2789,13 +2829,13 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, hourSplit.ji));
-      setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsal(baseYearBranch, hourSplit.ji));
+      setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsalDynamic(dayPillar, yearPillar, hourSplit.ji));
       setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
-      setText("Db12ss", getTwelveShinsal(baseYearBranch, daySplit.ji));
+      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, daySplit.ji));
       setText("Mb12ws", getTwelveUnseong(baseDayStem, monthSplit.ji));
-      setText("Mb12ss", getTwelveShinsal(baseYearBranch, monthSplit.ji));
+      setText("Mb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, monthSplit.ji));
       setText("Yb12ws", getTwelveUnseong(baseDayStem, baseYearBranch));
-      setText("Yb12ss", getTwelveShinsal(baseYearBranch, baseYearBranch));
+      setText("Yb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, baseYearBranch));
     }
 
     updateStemInfo("Yt", yearSplit, baseDayStem);
@@ -2867,7 +2907,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("DwJj3", hiddenArr[2]);  // currentTb 같은 값
       appendTenGod("DwJj3", hiddenArr[2], true);
       setText("DWb12ws", getTwelveUnseong(baseDayStem, currentDaewoon.branch));
-      setText("DWb12ss", getTwelveShinsal(baseYearBranch, currentDaewoon.branch));
+      setText("DWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, currentDaewoon.branch));
     }
     updateCurrentDaewoon(refDate);
     updateMonthlyWoonByToday(refDate);
@@ -2880,15 +2920,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const finalBranch = forwardGanji.charAt(1);
         const idx = i + 1;
         
-        // 원국 십신 업데이트
         setText("DC_" + idx, stemMapping[finalStem]?.hanja || "-");
         setText("DJ_" + idx, branchMapping[finalBranch]?.hanja || "-");
         setText("dt10sin" + idx, getTenGodForStem(finalStem, baseDayStem) || "-");
         setText("db10sin" + idx, getTenGodForBranch(finalBranch, baseDayStem) || "-");
         
-        // 원국 십이운성 업데이트 (신살)
         setText("DwW" + idx, getTwelveUnseong(baseDayStem, finalBranch) || "-");
-        setText("Ds" + idx, getTwelveShinsal(baseYearBranch, finalBranch) || "-");
+        setText("Ds" + idx, getTwelveShinsalDynamic(dayPillar, yearPillar, finalBranch) || "-");
         
         const displayedDaewoonNum = Math.floor(item.age);
         setText("Da" + idx, displayedDaewoonNum);
@@ -2948,7 +2986,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // setText("SwJj2", sewoonHidden[1]);
       // setText("SwJj3", sewoonHidden[2]);
       setText("SWb12ws", getTwelveUnseong(baseDayStem, sewoonSplit.ji));
-      setText("SWb12ss", getTwelveShinsal(baseYearBranch, sewoonSplit.ji));
+      setText("SWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, sewoonSplit.ji));
       
       setText("WSwtHanja", stemMapping[sewoonSplit.gan]?.hanja || "-");
       setText("WSwtHanguel", stemMapping[sewoonSplit.gan]?.hanguel || "-");
@@ -2970,7 +3008,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // setText("WSwJj2", sewoonHidden[1]);
       // setText("WSwJj3", sewoonHidden[2]);
       setText("WSWb12ws", getTwelveUnseong(baseDayStem, sewoonSplit.ji));
-      setText("WSWb12ss", getTwelveShinsal(baseYearBranch, sewoonSplit.ji));
+      setText("WSWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, sewoonSplit.ji));
     }
     updateCurrentSewoon(refDate);
 
@@ -3063,7 +3101,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("st10sin" + ix, item.tenGodGan);
         setText("sb10sin" + ix, item.tenGodBranch);
         setText("SwW" + ix, getTwelveUnseong(baseDayStem, item.ji));
-        setText("Ss" + ix, getTwelveShinsal(baseYearBranch, item.ji));
+        setText("Ss" + ix, getTwelveShinsalDynamic(dayPillar, yearPillar, item.ji));
       });
     
       updateColorClasses();
@@ -3082,7 +3120,7 @@ document.addEventListener("DOMContentLoaded", function () {
       li.classList.toggle("active", currentYear === displayYear);
     });
 
-    function updateListMapping(list, prefixUnseong, prefixShinsal, baseDayStem, baseYearBranch) {
+    function updateListMapping(list, prefixUnseong, prefixShinsal, baseDayStem) {
       if (!list || !list.length) {
         console.warn("업데이트할 리스트가 없습니다.");
         return;
@@ -3090,7 +3128,7 @@ document.addEventListener("DOMContentLoaded", function () {
       for (let i = 0; i < list.length; i++) {
         const item = list[i];
         document.getElementById(prefixUnseong + (i + 1)).innerText = getTwelveUnseong(baseDayStem, item.branch);
-        document.getElementById(prefixShinsal + (i + 1)).innerText = getTwelveShinsal(baseYearBranch, item.branch);
+        document.getElementById(prefixShinsal + (i + 1)).innerText = getTwelveShinsalDynamic(dayPillar, yearPillar, item.branch);
       }
     }
 
@@ -3128,7 +3166,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const tenGodBranch = getTenGodForBranch(monthBranch, baseDayStem);
         const displayMonth = (monthNumber < 12) ? (monthNumber + 1) + "월" : "1월";
         const unseong = getTwelveUnseong(baseDayStem, monthBranch);
-        const shinsal = getTwelveShinsal(baseYearBranch, monthBranch);
+        const shinsal = getTwelveShinsalDynamic(dayPillar, yearPillar, monthBranch);
         setText("MC_" + (i + 1), stemMapping[monthStem]?.hanja || "-");
         setText("MJ_" + (i + 1), branchMapping[monthBranch]?.hanja || "-");
         setText("Mot10sin" + (i + 1), tenGodStem || "-");
@@ -3157,7 +3195,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
       const tenGodBranch = getTenGodForBranch(monthBranch, baseDayStem);
       const unseong = getTwelveUnseong(baseDayStem, monthBranch);
-      const shinsal = getTwelveShinsal(baseYearBranch, monthBranch);
+      const shinsal = getTwelveShinsalDynamic(dayPillar, yearPillar, monthBranch);
       setText("WMtHanja", stemMapping[monthStem]?.hanja || "-");
       setText("WMtHanguel", stemMapping[monthStem]?.hanguel || "-");
       setText("WMtEumyang", stemMapping[monthStem]?.eumYang || "-");
@@ -3322,7 +3360,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const tenGodCheongan = getTenGodForStem(stem, baseDayStem);
         const tenGodJiji = getTenGodForBranch(branch, baseDayStem);
         const twelveUnseong = getTwelveUnseong(baseDayStem, branch);
-        const twelveShinsal = getTwelveShinsal(baseYearBranch, branch);
+        const twelveShinsal = getTwelveShinsalDynamic(dayPillar, yearPillar, branch);
         const STORAGE_KEY = 'b12Visibility';
         const hide12 = localStorage.getItem(STORAGE_KEY) === 'hidden';
         let dailyHtml = `<ul class="ilwoon">
@@ -3340,7 +3378,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </li>
           ` : ''}
         </ul>`;
-        updateColorClasses();
+        requestAnimationFrame(updateColorClasses);
 
         // ② 현재 사이클의 “오늘 날짜” 계산 함수
         function getCycleDateToday() {
@@ -3516,7 +3554,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         
         // 세운 데이터 업데이트 함수
-        function updateSewoonData(baseDayStem, baseYearBranch) {
+        function updateSewoonData(baseDayStem) {
           sewoonList.forEach(function (item, index) {
             const idx = index + 1;
             setText("SC_" + idx, stemMapping[item.gan]?.hanja || "-");
@@ -3524,11 +3562,11 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("st10sin" + idx, item.tenGod);
             setText("sb10sin" + idx, item.tenGodJiji);
             setText("SwW" + idx, getTwelveUnseong(baseDayStem, item.ji) || "-");
-            setText("Ss" + idx, getTwelveShinsal(baseYearBranch, item.ji) || "-");
+            setText("Ss" + idx, getTwelveShinsalDynamic(dayPillar, yearPillar, item.ji) || "-");
             setText("Dy" + idx, item.year);
           });
         }
-        updateSewoonData(baseDayStem, baseYearBranch);
+        updateSewoonData(baseDayStem);
         
         // 원국 대운 HTML 업데이트 함수
         function updateDaewoonHTML(selectedDaewoon, baseDayStem) {
@@ -3628,7 +3666,7 @@ document.addEventListener("DOMContentLoaded", function () {
           setText("SwJj3", sewoonHidden[2]);
           appendTenGod("SwJj3", sewoonHidden[2], true);
           setText("SWb12ws", getTwelveUnseong(baseDayStem, selectedSewoon.ji));
-          setText("SWb12ss", getTwelveShinsal(baseYearBranch, selectedSewoon.ji));
+          setText("SWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, selectedSewoon.ji));
           setText("WSwtHanja", stemMapping[selectedSewoon.gan]?.hanja || "-");
           setText("WSwtHanguel", stemMapping[selectedSewoon.gan]?.hanguel || "-");
           setText("WSwtEumyang", stemMapping[selectedSewoon.gan]?.eumYang || "-");
@@ -3649,7 +3687,7 @@ document.addEventListener("DOMContentLoaded", function () {
           setText("WSwJj3", sewoonHidden[2]);
           appendTenGod("WSwJj3", sewoonHidden[2], true);
           setText("WSWb12ws", getTwelveUnseong(baseDayStem, selectedSewoon.ji));
-          setText("WSWb12ss", getTwelveShinsal(baseYearBranch, selectedSewoon.ji));
+          setText("WSWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, selectedSewoon.ji));
           updateColorClasses();
         }
         updateSewoonHTML(selectedSewoon, baseDayStem);
@@ -3753,15 +3791,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const now = refDate || toKoreanTime(new Date());
       const diff = now - candidateTime; // 밀리초 차이
       return diff < 0 ? 0 : Math.floor(diff / (cycleDays * oneDayMs)) + 1;
-    }
-
-    // refDate를 인자로 받아 동적 업데이트 이벤트를 생성하도록 수정
-    function applyFirstUpdateDynamicWithStep(date, originalIndex, cycleSteps, mode, refDate) {
-      const steps = getDynamicStep(date, cycleSteps, refDate);
-      const updatedIndex = mode === "순행"
-        ? ((originalIndex + steps) % 60 + 60) % 60
-        : ((originalIndex - steps) % 60 + 60) % 60;
-      return { date: date, index: updatedIndex, ganji: getGanZhiFromIndex(updatedIndex) };
     }
 
 
@@ -4281,7 +4310,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoYbJj3", ybJj[2]);
       appendTenGod("MyoYbJj3", ybJj[2], true);
       setText("MyoYb12ws", getTwelveUnseong(baseDayStem, yp[1]));
-      setText("MyoYb12ss", getTwelveShinsal(baseYearBranch, yp[1]));
+      setText("MyoYb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, yp[1]));
     
       // === 월주 ===
       const mp = myowoonResult.woljuCurrentPillar;
@@ -4305,7 +4334,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoMbJj3", mbJj[2]);
       appendTenGod("MyoMbJj3", mbJj[2], true);
       setText("MyoMb12ws", getTwelveUnseong(baseDayStem, mp[1]));
-      setText("MyoMb12ss", getTwelveShinsal(baseYearBranch, mp[1]));
+      setText("MyoMb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, mp[1]));
     
       // === 일주 ===
       if (isTimeUnknown || !myowoonResult.iljuCurrentPillar) {
@@ -4334,7 +4363,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("MyoDbJj3", dbJj[2]);
         appendTenGod("MyoDbJj3", dbJj[2], true);
         setText("MyoDb12ws", getTwelveUnseong(baseDayStem, dp[1]));
-        setText("MyoDb12ss", getTwelveShinsal(baseYearBranch, dp[1]));
+        setText("MyoDb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, dp[1]));
       }
     
       // === 시주 ===
@@ -4364,7 +4393,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("MyoHbJj3", hbJj[2]);
         appendTenGod("MyoHbJj3", hbJj[2], true);
         setText("MyoHb12ws", getTwelveUnseong(baseDayStem, hp[1]));
-        setText("MyoHb12ss", getTwelveShinsal(baseYearBranch, hp[1]));
+        setText("MyoHb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, hp[1]));
       }
     
       updateColorClasses();
@@ -4651,7 +4680,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateHiddenStems(ji, "WDb");
         appendTenGod(ji, "WDb", true);
         setText("WDb12ws", getTwelveUnseong(baseDayStem, ji) || "-");
-        setText("WDb12ss", getTwelveShinsal(baseYearBranch, ji) || "-");
+        setText("WDb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, ji) || "-");
         updateColorClasses();
       }
 
@@ -4716,7 +4745,7 @@ document.addEventListener("DOMContentLoaded", function () {
         appendTenGod(hourBranch, "WTb", true);
         setText("WTb10sin", getTenGodForBranch(hourBranch, baseDayStem) || "-");
         setText("WTb12ws", getTwelveUnseong(baseDayStem, hourBranch) || "-");
-        setText("WTb12ss", getTwelveShinsal(baseYearBranch, hourBranch) || "-");
+        setText("WTb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, hourBranch) || "-");
         updateColorClasses();
       }
     }
@@ -5771,7 +5800,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateStemInfo("Dt", split, split.gan);
       updateBranchInfo("Db", split.ji, split.gan);
       setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
-      setText("Db12ss", getTwelveShinsal(baseYearBranch, split.ji));
+      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
     }
 
     // 2) 같은 날 계산 헬퍼
@@ -5787,7 +5816,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateStemInfo("Dt", split, split.gan);
       updateBranchInfo("Db", split.ji, split.gan);
       setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
-      setText("Db12ss", getTwelveShinsal(baseYearBranch, split.ji));
+      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
     }
     
     // Day Pillar 계산 (시간 제거, 날짜만)
@@ -5811,7 +5840,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateStemInfo("Dt", split, baseDayStem);
       updateBranchInfo("Db", split.ji, baseDayStem);
       setText("Db12ws", getTwelveUnseong(baseDayStem, split.ji));
-      setText("Db12ss", getTwelveShinsal(baseYearBranch, split.ji));
+      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
     }
     
     // 2) updateFortuneWithManualHour 내부에서 orig을 넘기도록 변경
@@ -5832,7 +5861,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateStemInfo("Ht", split, baseDayStem);
       updateBranchInfo("Hb", split.ji, baseDayStem);
       setText("Hb12ws", getTwelveUnseong(baseDayStem, split.ji));
-      setText("Hb12ss", getTwelveShinsal(baseYearBranch, split.ji));
+      setText("Hb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
     
       // —————————————— 여기서부터 수정된 부분 ——————————————
     
@@ -5948,7 +5977,93 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("woonVer1Change").click();
     document.getElementById("woonChangeBtn").click();
 
+    function updateAllTwelveShinsal(dayPillar, yearPillar) {
+      setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsalDynamic(dayPillar, yearPillar, hourSplit.ji));
+      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, daySplit.ji));
+      setText("Mb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, monthSplit.ji));
+      setText("Yb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, baseYearBranch));
+      updateCurrentDaewoon(refDate);
+      updateAllDaewoonItems(daewoonData.list);
+      updateCurrentSewoon(refDate)
+      updateSewoonItem();
+      updateMonthlyData(computedSewoonYear, refDate);
+      const today = toKoreanTime(new Date());
+      const currentMonthIndex = today.getMonth();
+      updateMonthlyWoon(computedSewoonYear, currentMonthIndex, baseDayStem);
+      const {
+        solarTermName,
+        startDate,
+        endDate,
+        currentIndex,
+        boundaries,
+        solarYear,
+      } = getMonthlyWoonParameters();
+
+      // 일간 운세(묘운) 달력 생성 시에도 baseDayStem을 사용
+      const calendarHTML = generateDailyFortuneCalendar(
+        solarTermName, startDate, endDate, currentIndex, boundaries, solarYear, refDate
+      );
+      // 캘린더 컨테이너에 반영 (예시)
+      document.getElementById("iljuCalender").innerHTML = calendarHTML;
+
+      const yp = myowoonResult.yeonjuCurrentPillar;
+      const mp = myowoonResult.woljuCurrentPillar;
+      const dp = myowoonResult.iljuCurrentPillar;
+      const hp = myowoonResult.sijuCurrentPillar;
+
+      setText("MyoYb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, yp[1]));
+      setText("MyoMb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, mp[1]));
+      setText("MyoDb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, dp[1]));
+      setText("MyoHb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, hp[1]));
+      const kstDate = toKoreanTime(refDate);
+      const adjustedDate = new Date(kstDate.getTime());
+      const dayGanZhi = getDayGanZhi(adjustedDate);
+      const { gan, ji } = splitPillar(dayGanZhi);
+      setText("WDb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, ji) || "-");
+      const date = new Date(refDate);
+      const hourBranch = getHourBranchUsingArray2(date);
+      setText("WTb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, hourBranch) || "-");
+      requestAnimationFrame(() => {
+        updateColorClasses();
+      });
+    }
+
+    document.querySelectorAll('#s12CtrlType01, #s12CtrlType02, #s12CtrlType03, #s12CtrlType04, #s12CtrlType05').forEach(el => {
+      el.addEventListener('change', function() {
+        updateAllTwelveShinsal(dayPillar, yearPillar);
+        console.log();
+      });
+    });
+
+    updateAllTwelveShinsal(dayPillar, yearPillar);
     
+     const controlIds = [
+      's12CtrlType01', // 현대론
+      's12CtrlType02', // 고전론
+      's12CtrlType03', // 개화론
+      's12CtrlType04', // 일지 기준
+      's12CtrlType05'  // 연지 기준
+    ];
+
+    controlIds.forEach(id => {
+      const ctrl = document.getElementById(id);
+      if (!ctrl) return;
+
+      // 1) 로컬스토리지에서 저장된 체크 상태 복원
+      const saved = localStorage.getItem(id);
+      if (saved !== null) {
+        ctrl.checked = (saved === 'true');
+      }
+
+      // 2) 변경될 때마다 로컬스토리지에 저장하고, 화면 갱신
+      ctrl.addEventListener('change', () => {
+        localStorage.setItem(id, ctrl.checked);
+        updateAllTwelveShinsal(dayPillar, yearPillar);
+      });
+    });
+
+    // 3) 초기 렌더 (복원된 체크 상태 반영)
+    updateAllTwelveShinsal(dayPillar, yearPillar);
   });
 
   function startModify(index) {

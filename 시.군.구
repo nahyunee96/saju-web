@@ -1,0 +1,235 @@
+<!-- <select id="inputBirthPlace">
+    <option value="" style="display: none;">출생지 선택</option>
+    <option value="서울특별시">서울특별시</option>
+    <option value="부산광역시">부산광역시</option>
+    <option value="대구광역시">대구광역시</option>
+    <option value="인천광역시">인천광역시</option>
+    <option value="광주광역시">광주광역시</option>
+    <option value="대전광역시">대전광역시</option>
+    <option value="울산광역시">울산광역시</option>
+    <option value="세종특별자치시">세종특별자치시</option>
+    <optgroup label="경기도">
+    <option value="수원시">수원시</option>
+    <option value="고양시">고양시</option>
+    <option value="용인시">용인시</option>
+    <option value="성남시">성남시</option>
+    <option value="부천시">부천시</option>
+    <option value="안산시">안산시</option>
+    <option value="안양시">안양시</option>
+    <option value="남양주시">남양주시</option>
+    <option value="화성시">화성시</option>
+    <option value="평택시">평택시</option>
+    <option value="시흥시">시흥시</option>
+    <option value="김포시">김포시</option>
+    <option value="파주시">파주시</option>
+    <option value="의정부시">의정부시</option>
+    <option value="광명시">광명시</option>
+    <option value="광주시">광주시</option>
+    <option value="군포시">군포시</option>
+    <option value="이천시">이천시</option>
+    <option value="양주시">양주시</option>
+    <option value="오산시">오산시</option>
+    <option value="구리시">구리시</option>
+    <option value="안성시">안성시</option>
+    <option value="포천시">포천시</option>
+    <option value="의왕시">의왕시</option>
+    <option value="하남시">하남시</option>
+    <option value="여주시">여주시</option>
+    <option value="동두천시">동두천시</option>
+    <option value="과천시">과천시</option>
+    <option value="가평군">가평군</option>
+    <option value="양평군">양평군</option>
+    <option value="연천군">연천군</option>
+    </optgroup>
+    <optgroup label="강원도">
+    <option value="춘천시">춘천시</option>
+    <option value="원주시">원주시</option>
+    <option value="강릉시">강릉시</option>
+    <option value="동해시">동해시</option>
+    <option value="태백시">태백시</option>
+    <option value="속초시">속초시</option>
+    <option value="삼척시">삼척시</option>
+    <option value="홍천군">홍천군</option>
+    <option value="횡성군">횡성군</option>
+    <option value="영월군">영월군</option>
+    <option value="평창군">평창군</option>
+    <option value="정선군">정선군</option>
+    <option value="철원군">철원군</option>
+    <option value="화천군">화천군</option>
+    <option value="양구군">양구군</option>
+    <option value="인제군">인제군</option>
+    <option value="고성군">고성군</option>
+    <option value="양양군">양양군</option>
+    </optgroup>
+    <optgroup label="충청북도">
+    <option value="청주시">청주시</option>
+    <option value="충주시">충주시</option>
+    <option value="제천시">제천시</option>
+    <option value="보은군">보은군</option>
+    <option value="옥천군">옥천군</option>
+    <option value="영동군">영동군</option>
+    <option value="진천군">진천군</option>
+    <option value="괴산군">괴산군</option>
+    <option value="음성군">음성군</option>
+    <option value="단양군">단양군</option>
+    <option value="증평군">증평군</option>
+    </optgroup>
+    <optgroup label="충청남도">
+    <option value="천안시">천안시</option>
+    <option value="공주시">공주시</option>
+    <option value="보령시">보령시</option>
+    <option value="아산시">아산시</option>
+    <option value="서산시">서산시</option>
+    <option value="논산시">논산시</option>
+    <option value="계룡시">계룡시</option>
+    <option value="당진시">당진시</option>
+    <option value="금산군">금산군</option>
+    <option value="부여군">부여군</option>
+    <option value="서천군">서천군</option>
+    <option value="청양군">청양군</option>
+    <option value="홍성군">홍성군</option>
+    <option value="예산군">예산군</option>
+    <option value="태안군">태안군</option>
+    </optgroup>
+    <optgroup label="전라북도">
+    <option value="전주시">전주시</option>
+    <option value="군산시">군산시</option>
+    <option value="익산시">익산시</option>
+    <option value="정읍시">정읍시</option>
+    <option value="남원시">남원시</option>
+    <option value="김제시">김제시</option>
+    <option value="완주군">완주군</option>
+    <option value="진안군">진안군</option>
+    <option value="무주군">무주군</option>
+    <option value="장수군">장수군</option>
+    <option value="임실군">임실군</option>
+    <option value="순창군">순창군</option>
+    <option value="고창군">고창군</option>
+    <option value="부안군">부안군</option>
+    </optgroup>
+    <optgroup label="전라남도">
+    <option value="목포시">목포시</option>
+    <option value="여수시">여수시</option>
+    <option value="순천시">순천시</option>
+    <option value="나주시">나주시</option>
+    <option value="광양시">광양시</option>
+    <option value="담양군">담양군</option>
+    <option value="곡성군">곡성군</option>
+    <option value="구례군">구례군</option>
+    <option value="고흥군">고흥군</option>
+    <option value="보성군">보성군</option>
+    <option value="화순군">화순군</option>
+    <option value="장흥군">장흥군</option>
+    <option value="강진군">강진군</option>
+    <option value="해남군">해남군</option>
+    <option value="영암군">영암군</option>
+    <option value="무안군">무안군</option>
+    <option value="함평군">함평군</option>
+    <option value="영광군">영광군</option>
+    <option value="장성군">장성군</option>
+    <option value="완도군">완도군</option>
+    <option value="진도군">진도군</option>
+    <option value="신안군">신안군</option>
+    </optgroup>
+    <optgroup label="경상북도">
+    <option value="포항시">포항시</option>
+    <option value="경주시">경주시</option>
+    <option value="김천시">김천시</option>
+    <option value="안동시">안동시</option>
+    <option value="구미시">구미시</option>
+    <option value="영주시">영주시</option>
+    <option value="영천시">영천시</option>
+    <option value="상주시">상주시</option>
+    <option value="문경시">문경시</option>
+    <option value="경산시">경산시</option>
+    <option value="군위군">군위군</option>
+    <option value="의성군">의성군</option>
+    <option value="청송군">청송군</option>
+    <option value="영양군">영양군</option>
+    <option value="영덕군">영덕군</option>
+    <option value="청도군">청도군</option>
+    <option value="고령군">고령군</option>
+    <option value="성주군">성주군</option>
+    <option value="칠곡군">칠곡군</option>
+    <option value="예천군">예천군</option>
+    <option value="봉화군">봉화군</option>
+    <option value="울진군">울진군</option>
+    <option value="울릉군">울릉군</option>
+    </optgroup>
+    <optgroup label="경상남도">
+    <option value="창원시">창원시</option>
+    <option value="김해시">김해시</option>
+    <option value="진주시">진주시</option>
+    <option value="양산시">양산시</option>
+    <option value="거제시">거제시</option>
+    <option value="사천시">사천시</option>
+    <option value="밀양시">밀양시</option>
+    <option value="통영시">통영시</option>
+    <option value="거창군">거창군</option>
+    <option value="고성군">고성군</option>
+    <option value="남해군">남해군</option>
+    <option value="산청군">산청군</option>
+    <option value="창녕군">창녕군</option>
+    <option value="하동군">하동군</option>
+    <option value="함안군">함안군</option>
+    <option value="함양군">함양군</option>
+    <option value="합천군">합천군</option>
+    <option value="의령군">의령군</option>
+    </optgroup>
+    <optgroup label="제주특별자치도">
+    <option value="제주시">제주시</option>
+    <option value="서귀포시">서귀포시</option>
+    </optgroup>
+</select> -->
+
+// [0] 출생지 보정 및 써머타임 함수
+// const cityLongitudes = {
+//   "서울특별시": 126.9780, "부산광역시": 129.1, "대구광역시": 128.6,
+//   "인천광역시": 126.7052, "광주광역시": 126.8530, "대전광역시": 127.3845,
+//   "울산광역시": 129.3114, "세종특별자치시": 127.2890,
+//   "수원시": 127.0014, "고양시": 126.83, "용인시": 127.1731,
+//   "성남시": 127.137, "부천시": 126.766, "안산시": 126.851,
+//   "안양시": 126.9566, "남양주시": 127.2623, "화성시": 126.831,
+//   "평택시": 127.1116, "시흥시": 126.79, "김포시": 126.715,
+//   "파주시": 126.783, "의정부시": 127.0469, "광명시": 126.8826,
+//   "광주시": 126.666, "군포시": 126.935, "이천시": 127.443,
+//   "양주시": 127.03, "오산시": 127.079, "구리시": 127.13,
+//   "안성시": 127.279, "포천시": 127.2, "의왕시": 126.931,
+//   "하남시": 127.214, "여주시": 127.652, "동두천시": 127.05,
+//   "과천시": 126.984, "가평군": 127.51, "양평군": 127.5, "연천군": 127.1,
+//   "춘천시": 127.729, "원주시": 127.93, "강릉시": 128.896, "동해시": 129.113,
+//   "태백시": 128.986, "속초시": 128.591, "삼척시": 129.168, "홍천군": 127.88,
+//   "횡성군": 128.425, "영월군": 128.613, "평창군": 128.424, "정선군": 128.7,
+//   "철원군": 127.415, "화천군": 127.753, "양구군": 128.47, "인제군": 128.116,
+//   "고성군": 128.467, "양양군": 128.692,
+//   "청주시": 127.4914, "충주시": 127.9323, "제천시": 128.1926, "보은군": 127.728,
+//   "옥천군": 127.609, "영동군": 128.382, "진천군": 127.439, "괴산군": 127.731,
+//   "음성군": 127.674, "단양군": 128.377, "증평군": 127.48,
+//   "천안시": 127.146, "공주시": 127.098, "보령시": 126.611, "아산시": 127.001,
+//   "서산시": 126.449, "논산시": 127.074, "계룡시": 127.264, "당진시": 126.621,
+//   "금산군": 127.386, "부여군": 126.802, "서천군": 126.781, "청양군": 126.856,
+//   "홍성군": 126.726, "예산군": 126.678, "태안군": 126.325,
+//   "전주시": 127.108, "군산시": 126.711, "익산시": 126.957, "정읍시": 126.846,
+//   "남원시": 127.392, "김제시": 126.871, "완주군": 127.062, "진안군": 127.229,
+//   "무주군": 127.69, "장수군": 127.891, "임실군": 127.409, "순창군": 127.13,
+//   "고창군": 126.785, "부안군": 126.73,
+//   "목포시": 126.411, "여수시": 127.643, "순천시": 127.496, "나주시": 126.717,
+//   "광양시": 127.695, "담양군": 126.984, "곡성군": 127.262, "구례군": 127.392,
+//   "고흥군": 127.384, "보성군": 127.122, "화순군": 127.04, "장흥군": 126.725,
+//   "강진군": 126.645, "해남군": 126.531, "영암군": 126.682, "무안군": 126.731,
+//   "함평군": 126.625, "영광군": 126.509, "장성군": 126.751, "완도군": 126.653,
+//   "진도군": 126.359, "신안군": 126.361,
+//   "포항시": 129.366, "경주시": 129.224, "김천시": 128.198, "안동시": 128.723,
+//   "구미시": 128.344, "영주시": 128.637, "영천시": 128.733, "상주시": 128.159,
+//   "문경시": 128.185, "경산시": 128.734, "군위군": 128.454, "의성군": 128.181,
+//   "청송군": 128.218, "영양군": 128.276, "영덕군": 128.703, "청도군": 128.626,
+//   "고령군": 128.347, "성주군": 128.177, "칠곡군": 128.54, "예천군": 128.245,
+//   "봉화군": 128.363, "울진군": 129.341, "울릉군": 130.904,
+//   "창원시": 128.681, "김해시": 128.881, "진주시": 128.092, "양산시": 129.045,
+//   "거제시": 128.678, "사천시": 128.189, "밀양시": 128.747, "통영시": 128.425,
+//   "거창군": 128.184, "고성군": 128.373, "남해군": 127.902, "산청군": 127.779,
+//   "창녕군": 128.415, "하동군": 127.997, "함안군": 128.389, "함양군": 127.81,
+//   "합천군": 128.175,
+//   "의령군": 128.29,
+//   "제주시": 126.5312, "서귀포시": 126.715
+// };
