@@ -1070,10 +1070,6 @@ function updateColorClasses() {
   });
 }
 
-
-
-
-
 function appendTenGod(id, value, isStem = true) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -1149,7 +1145,6 @@ function updateBranchInfo(prefix, branch, baseDayStem, suffix = "") {
 // Helper 함수들
 // -------------------------
 
-
 function toKoreanTime(date = new Date()) {
   const utcMs     = date.getTime() + date.getTimezoneOffset() * 60_000;
   const kstOffset = 9 * 60 * 60_000;
@@ -1173,8 +1168,36 @@ function formatDate(dateObj) {
   return `${yyyy}.${mm}.${dd}`;
 }
 
+function migrateTenGods() {
+  const KEY = "myProfiles";
+  const data = JSON.parse(localStorage.getItem(KEY) || "[]");
+  let touched = false;
+
+  data.forEach(p => {
+    ["yearPillar","monthPillar","dayPillar","hourPillar"].forEach(k => {
+      const ganji = p[k];
+      if (!ganji) return;
+      const stem   = ganji.charAt(0);
+      const branch = ganji.charAt(1);
+
+      // 새로 계산
+      const newTG = getTenGodForBranch(branch, stem);
+
+      // 예: p.tenGods[k] 같은 구조를 쓰고 있었다면…
+      if (!p.tenGods) p.tenGods = {};
+      if (p.tenGods[k] !== newTG) {
+        p.tenGods[k] = newTG;
+        touched = true;
+      }
+    });
+  });
+
+  if (touched) localStorage.setItem(KEY, JSON.stringify(data));
+}
 
 document.addEventListener("DOMContentLoaded", function () {
+
+  migrateTenGods();
 
   let currentMyeongsik = null;
 
