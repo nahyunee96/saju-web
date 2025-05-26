@@ -49,7 +49,7 @@ let initialized;
 // 1) 전역에 빈 객체 선언 (고정 매핑 없음)
 let cityLongitudes = {};
 
-const placeBtn       = document.getElementById('inputBirthPlace');
+const placeBtn  = document.getElementById('inputBirthPlace');
 const modal     = document.getElementById('mapModal');
 const closeMap  = document.getElementById('closeMap');
 const searchBox = document.getElementById('searchBox');
@@ -186,17 +186,35 @@ function restoreCurrentPlaceMapping(item) {
   }
 }
 
+function parseBirthAsUTC(Y, M, D, h, m) {
+  return new Date(Date.UTC(Y, M - 1, D, h, m));
+}
+
 function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
-  if (isPlaceUnknown) return new Date(dateObj.getTime() - 30 * 60 * 1000);
-  if (cityLon == null) return dateObj;
+  // 출생시 모름 처리
+  if (isPlaceUnknown) {
+    return new Date(dateObj.getTime() - 30 * 60_000);
+  }
+  if (cityLon == null) {
+    return dateObj;
+  }
 
-  const longitudeCorrection = (cityLon - 135.1) * 4;
-  const eqTime = getEquationOfTime(dateObj);
-  let corrected = new Date(dateObj.getTime() + (longitudeCorrection + eqTime) * 60 * 1000);
+  // 1) 표준 자오선(15° 단위) 구해서 경도 오차(분 단위)
+  const stdLon = Math.round(cityLon / 15) * 15;
+  const lonCorrMin = (cityLon - stdLon) * 4;
 
+  // 2) 균시차(분 단위)
+  const eqTimeMin = getEquationOfTime(dateObj);
+
+  // 3) 경도 + 균시차 보정
+  let corrected = new Date(
+    dateObj.getTime() + (lonCorrMin + eqTimeMin) * 60_000
+  );
+
+  // 4) DST 보정: getSummerTimeInterval로 반환된 구간 안이면 1시간 차감
   const iv = getSummerTimeInterval(corrected.getFullYear());
   if (iv && corrected >= iv.start && corrected < iv.end) {
-    corrected = new Date(corrected.getTime() - 60 * 60 * 1000);
+    corrected = new Date(corrected.getTime() - 60 * 60_000);
   }
 
   return corrected;
@@ -1174,25 +1192,47 @@ function migrateTenGods() {
   let touched = false;
 
   data.forEach(p => {
+    // ─────────────────────────────────────────────
+    // 1) 십신 매핑 갱신 (기존 로직)
     ["yearPillar","monthPillar","dayPillar","hourPillar"].forEach(k => {
-      const ganji = p[k];
-      if (!ganji) return;
+      const ganji = p[k]; if (!ganji) return;
       const stem   = ganji.charAt(0);
       const branch = ganji.charAt(1);
-
-      // 새로 계산
       const newTG = getTenGodForBranch(branch, stem);
-
-      // 예: p.tenGods[k] 같은 구조를 쓰고 있었다면…
       if (!p.tenGods) p.tenGods = {};
       if (p.tenGods[k] !== newTG) {
         p.tenGods[k] = newTG;
         touched = true;
       }
     });
+    // ─────────────────────────────────────────────
+    // 2) 명식 보정 다시 계산
+    //    (예: p.birthday="19950318", p.birthdayTime="08:45" 형태라고 가정)
+    if (p.birthday && p.birthdayTime && p.birthPlaceLongitude != null) {
+      const Y = Number(p.birthday.slice(0,4));
+      const M = Number(p.birthday.slice(4,6));
+      const D = Number(p.birthday.slice(6,8));
+      const [h, m] = p.birthdayTime.split(':').map(Number);
+
+      // “입력 시각 그대로 UTC”로 만든 뒤 보정
+      const birthUtc = new Date(Date.UTC(Y, M-1, D, h, m));
+      const newCorrected = adjustBirthDateWithLon(
+        birthUtc,
+        p.birthPlaceLongitude,
+        p.isPlaceUnknown
+      );
+
+      // ISO 문자열로 저장해두면 복원 시 편합니다
+      p.correctedDate = newCorrected.toISOString();
+      touched = true;
+    }
+    // ─────────────────────────────────────────────
   });
 
-  if (touched) localStorage.setItem(KEY, JSON.stringify(data));
+  if (touched) {
+    localStorage.setItem(KEY, JSON.stringify(data));
+    console.log("Profiles migrated: correctedDate and tenGods updated.");
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -3797,25 +3837,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const { yeonjuCycle, woljuCycle, iljuCycle, sijuCycle } = getDynamicCycles(birthDate);
-
-    // 모드 결정 (순행/역행)
-    // getYearGanZhi, correctedDate, gender는 이미 정의되어 있다고 가정
-    
-
-    // 보정 및 동적 단계 계산 함수
-    function adjustInitial(candidate, cycleDays, baseDate) {
-      while (candidate < baseDate) {
-        candidate = new Date(candidate.getTime() + cycleDays * oneDayMs);
-      }
-      return candidate;
-    }
-
-    function getDynamicStep(candidateTime, cycleDays, refDate) {
-      const now = refDate || toKoreanTime(new Date());
-      const diff = now - candidateTime; // 밀리초 차이
-      return diff < 0 ? 0 : Math.floor(diff / (cycleDays * oneDayMs)) + 1;
-    }
-
 
     // 지지별 시간 범위 (분 단위)
     const timeRanges2 = [
