@@ -1435,10 +1435,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const day = parseInt(birthday.substring(6, 8), 10);
     const hour = isTimeUnknown ? 4 : parseInt(birthtimeRaw.substring(0, 2), 10);
     const minute = isTimeUnknown ? 30 : parseInt(birthtimeRaw.substring(2, 4), 10);
-  
-    // 실제로 사용할 출생지: 모르면 서울특별시
-    const usedBirthPlace = (isPlaceUnknown)
-                            ? "서울특별시" : birthPlaceInput;
 
     // 저장용은 원래 입력 그대로 유지
     const savedBirthPlace = isPlaceUnknown ? "기본출생지 : 서울" : birthPlaceInput;
@@ -2912,21 +2908,37 @@ document.addEventListener("DOMContentLoaded", function () {
     updateOriginalSetMapping(daySplit, hourSplit);
     updateColorClasses();
 
-    
     const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
-
-    
 
     function updateCurrentDaewoon(refDate) {
 
-      //console.log(daewoonData, refDate);
+      function getNextIpchun(currentDate, getSolarTermBoundaries) {
+        const nextYear = currentDate.getFullYear() + 1;
+        const boundaries = getSolarTermBoundaries(nextYear, 315)[0].date;
+        return boundaries;
+      }
+      
       const currentDecimalAge = (refDate - correctedDate) / oneDayMs / 365;
+      const nextIpchun = getNextIpchun(refDate, getSolarTermBoundaries);
       
       let currentDaewoon = null;
       for (let i = 0; i < daewoonData.list.length; i++) {
-        if (daewoonData.list[i].age <= Math.round(currentDecimalAge)) {
-          currentDaewoon = daewoonData.list[i];
-        }
+        const yearElem = document.getElementById("Dy10");
+        const year = yearElem
+          ? Number(yearElem.textContent)
+          : Number(li.textContent);
+        const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
+        const displayYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
+        // 조건 추가: 이번 해 대운이지만 입춘 전이라면 skip
+        if (daewoonData.list[i].age <= Math.ceil(currentDecimalAge)) {
+          if (year === displayYear) {
+            return;
+          } else {
+            console.log('흠냐냥2');
+            currentDaewoon = daewoonData.list[i];
+          }          
+        }      
+          
       }
 
       function appendTenGod(id, value, isStem = true) {
@@ -3004,15 +3016,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // (2) 적절한 인덱스 찾기
     let currentDaewoonIndex = 0;
+
     if (daewoonData?.list) {
       for (let i = 0; i < daewoonData.list.length; i++) {
-        // daewoonData.baseDecimal: 첫 대운 시작 소수년
         const startAge = Math.floor(daewoonData.baseDecimal) + i * 10;
-        if (startAge <= Math.round(currentDecimalAge)) {
+        const startYear = correctedDate.getFullYear() + startAge;
+        const lichunStart = findSolarTermDate(startYear, 315);
+        const lichunEnd   = findSolarTermDate(startYear + 10, 315);
+
+        // refDate가 해당 대운 입춘~다음 대운 입춘 전까지면 active
+        if (refDate >= lichunStart && refDate < lichunEnd) {
           currentDaewoonIndex = i;
+          break;
         }
       }
     }
+    
 
     // (3) active 클래스 토글
     const daewoonLis = document.querySelectorAll("#daewoonList li");
@@ -3082,7 +3101,6 @@ document.addEventListener("DOMContentLoaded", function () {
         this.classList.add("active");
         const index = this.getAttribute("data-index");
         updateDaewoonDetails(index);
-        
       });
     });
 
@@ -3593,7 +3611,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!selectedDaewoon) return;
         const daewoonNum = selectedDaewoon.age; 
         const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-        globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal);
+        globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal + 1);
         
         // baseDayStem을 전달받은 인자로 사용 (혹은 "DtHanguel"에서 가져올 수도 있음)
         // const displayedDayPillar = document.getElementById("DtHanguel").innerText;
