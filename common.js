@@ -1231,7 +1231,6 @@ function migrateTenGods() {
 
   if (touched) {
     localStorage.setItem(KEY, JSON.stringify(data));
-    console.log("Profiles migrated: correctedDate and tenGods updated.");
   }
 }
 
@@ -2910,37 +2909,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
 
-    function updateCurrentDaewoon(refDate) {
+    function updateCurrentDaewoon(refDate, offset = 0) {
 
-      function getNextIpchun(currentDate, getSolarTermBoundaries) {
-        const nextYear = currentDate.getFullYear() + 1;
-        const boundaries = getSolarTermBoundaries(nextYear, 315)[0].date;
-        return boundaries;
-      }
-      
-      const currentDecimalAge = (refDate - correctedDate) / oneDayMs / 365;
-      const nextIpchun = getNextIpchun(refDate, getSolarTermBoundaries);
-      
-      let currentDaewoon = null;
+      // 1) effectiveYear 계산
+      const ipChunThisYear = findSolarTermDate(refDate.getFullYear(), 315);
+      const effectiveYear  = (refDate > ipChunThisYear)
+                            ? refDate.getFullYear()
+                            : refDate.getFullYear() - 1;
+
+      // 2) birthYear/baseAge
+      const birthYear = correctedDate.getFullYear();
+      const baseAge   = Math.floor(daewoonData.baseDecimal);
+
+      // 3) 루프로 “현재 대운” 인덱스 찾기 (i)
+      let idx = 0;
       for (let i = 0; i < daewoonData.list.length; i++) {
-        const yearElem = document.getElementById("Dy10");
-        const year = yearElem
-          ? Number(yearElem.textContent)
-          : Number(li.textContent);
-        const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
-        const displayYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
-        // 조건 추가: 이번 해 대운이지만 입춘 전이라면 skip
-        if (daewoonData.list[i].age <= Math.ceil(currentDecimalAge)) {
-          if (year === displayYear) {
-            return;
-          } else {
-            console.log('흠냐냥2');
-            currentDaewoon = daewoonData.list[i];
-          }          
-        }      
-          
+        const startYear = birthYear + baseAge + i*10;
+        if (startYear <= effectiveYear) {
+          idx = i;
+        }
       }
 
+      // 4) offset 적용 (한 번만)
+      idx = Math.max(0, Math.min(daewoonData.list.length-1, idx + offset));
+
+      // 5) currentDaewoon 결정
+      const currentDaewoon = daewoonData.list[idx];
+      
       function appendTenGod(id, value, isStem = true) {
         const el = document.getElementById(id);
         if (!el) return;
@@ -2983,6 +2978,8 @@ document.addEventListener("DOMContentLoaded", function () {
       appendTenGod("DwJj3", hiddenArr[2], true);
       setText("DWb12ws", getTwelveUnseong(baseDayStem, currentDaewoon.branch));
       setText("DWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, currentDaewoon.branch));
+
+      
     }
     updateCurrentDaewoon(refDate);
     updateMonthlyWoonByToday(refDate);
@@ -3016,22 +3013,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // (2) 적절한 인덱스 찾기
     let currentDaewoonIndex = 0;
-
+    const ipChunThisYear = findSolarTermDate(refDate.getFullYear(), 315);
+    const effectiveYear  = (refDate > ipChunThisYear)
+                            ? refDate.getFullYear()
+                            : refDate.getFullYear() - 1;
     if (daewoonData?.list) {
       for (let i = 0; i < daewoonData.list.length; i++) {
-        const startAge = Math.floor(daewoonData.baseDecimal) + i * 10;
+        const startAge  = Math.floor(daewoonData.baseDecimal) + i * 10;
         const startYear = correctedDate.getFullYear() + startAge;
-        const lichunStart = findSolarTermDate(startYear, 315);
-        const lichunEnd   = findSolarTermDate(startYear + 10, 315);
-
-        // refDate가 해당 대운 입춘~다음 대운 입춘 전까지면 active
-        if (refDate >= lichunStart && refDate < lichunEnd) {
+        if (startYear <= effectiveYear) {
           currentDaewoonIndex = i;
-          break;
         }
       }
     }
-    
 
     // (3) active 클래스 토글
     const daewoonLis = document.querySelectorAll("#daewoonList li");
@@ -3064,9 +3058,6 @@ document.addEventListener("DOMContentLoaded", function () {
       
       setText("SwJj3", sewoonHidden[2]);
       appendTenGod("SwJj3", sewoonHidden[2], true);
-      // setText("SwJj1", sewoonHidden[0]);
-      // setText("SwJj2", sewoonHidden[1]);
-      // setText("SwJj3", sewoonHidden[2]);
       setText("SWb12ws", getTwelveUnseong(baseDayStem, sewoonSplit.ji));
       setText("SWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, sewoonSplit.ji));
       
@@ -3086,11 +3077,37 @@ document.addEventListener("DOMContentLoaded", function () {
       
       setText("WSwJj3", sewoonHidden[2]);
       appendTenGod("WSwJj3", sewoonHidden[2], true);
-      // setText("WSwJj1", sewoonHidden[0]);
-      // setText("WSwJj2", sewoonHidden[1]);
-      // setText("WSwJj3", sewoonHidden[2]);
       setText("WSWb12ws", getTwelveUnseong(baseDayStem, sewoonSplit.ji));
       setText("WSWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, sewoonSplit.ji));
+    }
+    function updateCurrentSewoonCalendar(refDate) {
+      const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
+      //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
+      const effectiveYear = (refDate > ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
+      const sewoonIndex = ((effectiveYear - 4) % 60 + 60) % 60;
+      const sewoonGanZhi = sexagenaryCycle[sewoonIndex];
+      const sewoonSplit = splitPillar(sewoonGanZhi);
+      
+      setText("WSwtHanja", stemMapping[sewoonSplit.gan]?.hanja || "-");
+      setText("WSwtHanguel", stemMapping[sewoonSplit.gan]?.hanguel || "-");
+      setText("WSwtEumyang", stemMapping[sewoonSplit.gan]?.eumYang || "-");
+      setText("WSwt10sin", getTenGodForStem(sewoonSplit.gan, baseDayStem));
+      setText("WSwbHanja", branchMapping[sewoonSplit.ji]?.hanja || "-");
+      setText("WSwbHanguel", branchMapping[sewoonSplit.ji]?.hanguel || "-");
+      setText("WSwbEumyang", branchMapping[sewoonSplit.ji]?.eumYang || "-");
+      setText("WSwb10sin", getTenGodForBranch(sewoonSplit.ji, baseDayStem));
+      const sewoonHidden = hiddenStemMapping[sewoonSplit.ji] || ["-", "-", "-"];
+      setText("WSwJj1", sewoonHidden[0]);
+      appendTenGod("WSwJj1", sewoonHidden[0], true);
+      
+      setText("WSwJj2", sewoonHidden[1]);
+      appendTenGod("WSwJj2", sewoonHidden[1], true);
+      
+      setText("WSwJj3", sewoonHidden[2]);
+      appendTenGod("WSwJj3", sewoonHidden[2], true);
+      setText("WSWb12ws", getTwelveUnseong(baseDayStem, sewoonSplit.ji));
+      setText("WSWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, sewoonSplit.ji));
+      updateColorClasses();
     }
     updateCurrentSewoon(refDate);
 
@@ -3101,6 +3118,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.classList.add("active");
         const index = this.getAttribute("data-index");
         updateDaewoonDetails(index);
+        
       });
     });
 
@@ -3138,57 +3156,101 @@ document.addEventListener("DOMContentLoaded", function () {
     let activeDaewoonLi = document.querySelector("[id^='daewoon_'].active");
     let daewoonIndex = activeDaewoonLi ? parseInt(activeDaewoonLi.getAttribute("data-index"), 10) : 1;
 
-    function updateSewoonItem() {
-      // 1) 소수점 연도로 변환
-      const decimalBirthYear = getDecimalBirthYear(correctedDate);
+    function updateSewoonItem(refDate) {
+      // 기준 날짜를 한국시로 가져옵니다.
+      // 입춘 기준 연도 계산 (315° 절기: 입춘)
+      const ipChun      = findSolarTermDate(refDate.getFullYear(), 315);
+      const displayYear = refDate > ipChun
+                        ? refDate.getFullYear()
+                        : refDate.getFullYear() - 1;
     
-      // 2) 선택된 대운(정수 나이)과, 계산용 개월 오프셋
-      const idx          = daewoonIndex - 1;
-      const daewoonItem  = daewoonData.list[idx];
-      const yearsOffset  = daewoonItem.age;           // ex) 7
-      const monthsOffset = daewoonData.baseMonths;    // ex) 5 (0~11)
+      // 만약 세운 리스트에 displayYear 가 없으면 “이전 대운”으로 한 칸 이동해서 다시 검사
+      let loopCount = 0;
+      while (loopCount < daewoonData.list.length) {
+        // 1) 소수점 연도로 변환
+        const decimalBirthYear = getDecimalBirthYear(correctedDate);
+        // 2) 선택된 대운(정수 나이)과 개월 오프셋
+        const idx          = daewoonIndex - 1;
+        const daewoonItem  = daewoonData.list[idx];
+        const yearsOffset  = daewoonItem.age;        // ex) 7
+        const monthsOffset = daewoonData.baseMonths; // ex) 5 (0~11)
+        // 3) 시작 시점을 “연 + 개월/12” 형태의 소수 연도로 계산
+        const sewoonStartDecimal = decimalBirthYear
+                                  + yearsOffset
+                                  + monthsOffset / 12;
+        // 4) UI용 시작 연도는 소수점 내림
+        const startYear = Math.floor(sewoonStartDecimal);
+        
+        globalState.sewoonStartYear = startYear;
     
-      // 3) 시작 시점을 “연 + 개월/12” 형태의 소수 연도로 계산
-      const sewoonStartDecimal = decimalBirthYear
-                                + yearsOffset
-                                + monthsOffset / 12;
+        // 5) 이 블록(10년)에 displayYear 가 포함되는지 확인
+        const years = Array.from({ length: 10 }, (_, j) => startYear + j);
+        const lastYear = years[years.length - 1];
+        if (years.includes(displayYear)) {
+          if (displayYear === lastYear) {
+            updateCurrentDaewoon(refDate, -1);
+          }
+          break;  // 포함되면 루프 종료
+        }
+ 
+        // 6) 포함되지 않으면, 이전 대운으로 한 칸 이동
+        if (daewoonIndex > 1) {
+          
+          daewoonIndex--;
+          // daewoonList 상의 active 표시도 옮겨줍니다.
+          document
+            .querySelectorAll("#daewoonList li")
+            .forEach(li => li.classList.remove("active"));
+          const selLi = document.querySelector(
+            `#daewoonList li[data-index="${daewoonIndex}"]`
+          );
+          selLi && selLi.classList.add("active");
+
+          updateCurrentDaewoon(refDate, -1);
     
-      // 4) UI용 시작 연도는 소수점 내림
-      const startYear = Math.floor(sewoonStartDecimal);
-      globalState.sewoonStartYear = startYear;
+          loopCount++;
+          continue;  // 다시 새 블록 검사
+        }
+        // 더 내려갈 수 없으면 종료
+        break;
+      }
     
-      // 5) 10년치 세운 리스트 생성 (연도만 사용)
+      // 7) 이제 displayYear 가 포함된 globalState.sewoonStartYear 기준으로 목록 생성
       const sewoonList = [];
       for (let j = 0; j < 10; j++) {
-        const year    = startYear + j;
-        const ganZhi  = getYearGanZhiForSewoon(year);
-        const split   = splitPillar(ganZhi);
+        const year   = globalState.sewoonStartYear + j;
+        const ganZhi = getYearGanZhiForSewoon(year);
+        const split  = splitPillar(ganZhi);
         sewoonList.push({
           year,
-          gan:  split.gan,
-          ji:   split.ji,
-          tenGodGan:    getTenGodForStem(split.gan, baseDayStem),
-          tenGodBranch: getTenGodForBranch(split.ji, baseDayStem)
+          gan:           split.gan,
+          ji:            split.ji,
+          tenGodGan:     getTenGodForStem(split.gan, baseDayStem),
+          tenGodBranch:  getTenGodForBranch(split.ji, baseDayStem)
         });
       }
       globalState.sewoonList = sewoonList;
     
-      // 6) 화면에 뿌리기: 연도만 setText
+      // 8) 화면에 뿌리기 (연도 + 간지 + 십신 + 운성 등)
       sewoonList.forEach((item, i) => {
         const ix = i + 1;
-        setText("Dy" + ix, item.year);
-        setText("SC_" + ix, stemMapping[item.gan]?.hanja || "-");
-        setText("SJ_" + ix, branchMapping[item.ji]?.hanja || "-");
-        setText("st10sin" + ix, item.tenGodGan);
-        setText("sb10sin" + ix, item.tenGodBranch);
-        setText("SwW" + ix, getTwelveUnseong(baseDayStem, item.ji));
-        setText("Ss" + ix, getTwelveShinsalDynamic(dayPillar, yearPillar, item.ji));
+        setText("Dy"       + ix, item.year);
+        setText("SC_"      + ix, stemMapping[item.gan]?.hanja     || "-");
+        setText("SJ_"      + ix, branchMapping[item.ji]?.hanja    || "-");
+        setText("st10sin"  + ix, item.tenGodGan);
+        setText("sb10sin"  + ix, item.tenGodBranch);
+        setText("SwW"      + ix, getTwelveUnseong(baseDayStem, item.ji));
+        setText("Ss"       + ix, getTwelveShinsalDynamic(dayPillar, yearPillar, item.ji));
       });
-    
-      updateColorClasses();
-    }
 
-    updateSewoonItem();
+      updateColorClasses();
+    
+      // 9) 색상·클래스 업데이트
+      
+    }
+    
+
+    updateSewoonItem(refDate);
 
     const todayYear = todayObj.getFullYear();
     const ipChun = findSolarTermDate(todayObj.getFullYear(), 315);
@@ -3200,6 +3262,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const currentYear = Number(dyearElem.innerText);
       li.classList.toggle("active", currentYear === displayYear);
     });
+
 
     function updateListMapping(list, prefixUnseong, prefixShinsal, baseDayStem) {
       if (!list || !list.length) {
@@ -5357,6 +5420,17 @@ document.addEventListener("DOMContentLoaded", function () {
       return new Date(year, month, day, hour, minute, 0);
     }
 
+    function updateCalenderFunc(refDate) {
+      updateCurrentSewoonCalendar(refDate);
+      updateMonthlyWoonByToday(refDate);
+      updateHourWoon(refDate);
+      updateDayWoon(refDate);
+      
+      // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
+      myowoonResult = getMyounPillars(myData, refDate);
+      updateMyowoonSection(myowoonResult);
+    }
+
     function updateFunc() {
       // 원국, 묘운, 운 등의 업데이트 함수 호출
       updateFortune();
@@ -5567,7 +5641,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (branchName === "자" || branchName === "축") {
         radioFunc(refDate);
       }
-      updateFunc(refDate);
+      updateCalenderFunc(refDate);
       updateExplanDetail(myowoonResult, hourPillar);
       
       function clearHyphenElements(rootEl) {
@@ -6047,7 +6121,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateCurrentDaewoon(refDate);
       updateAllDaewoonItems(daewoonData.list);
       updateCurrentSewoon(refDate)
-      updateSewoonItem();
+      updateSewoonItem(refDate);
       updateMonthlyData(computedSewoonYear, refDate);
       const today = toKoreanTime(new Date());
       const currentMonthIndex = today.getMonth();
@@ -6093,7 +6167,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('#s12CtrlType01, #s12CtrlType02, #s12CtrlType03, #s12CtrlType04, #s12CtrlType05').forEach(el => {
       el.addEventListener('change', function() {
         updateAllTwelveShinsal(dayPillar, yearPillar);
-        console.log();
       });
     });
 
