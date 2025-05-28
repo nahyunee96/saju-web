@@ -315,10 +315,6 @@
     z-index: 7;
   }
 
-  .woonkuk .grid_box {
-    padding: 5px;
-  }
-
   .lucky_box .lucky .ganji {
     display: flex; 
     width: 100%;
@@ -1446,12 +1442,18 @@
     .grid_box_1 li p.ten_sin, 
     .ganji p.ten_sin,
     .fortune_section .w {
+      font-size: 3.2vw;
+    }
+
+    .grid_box_1 li p.hanguel,
+    .ganji p.hanguel  {
       font-size: 2.4vw;
     }
 
     .grid_box_1 li p,
     .ganji p {
       padding: 1vw 0.8vw;
+      margin-bottom: 1.2vw;
     }
 
     .grid_box_1 li p.eum_yang, 
@@ -1485,8 +1487,8 @@
     .ganji .woon_seong,
     .grid_box_1 li .sin_sal,
     .ganji .sin_sal {
-        font-size: 2.4vw;
-        margin-bottom: 0.4vw;
+        font-size: 3.2vw;
+        margin-bottom: 0.8vw;
     }
 
 
@@ -1500,7 +1502,11 @@
     }
 
     .w50 .grid_box_8 li p {
-      font-size: 2.8vw;
+      font-size: 2.4vw;
+    }
+
+    .w50 .grid_box_8 li p.label {
+      font-size: 3.2vw;
     }
 
     .jijanggan {
