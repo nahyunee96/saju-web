@@ -377,8 +377,9 @@
 
   .grid_box_1 li .hanja_con b,
   .ganji .hanja_con b {
-     display: block;
+    display: block;
 	  line-height: 120%; 
+    margin-top: 5px;
   }
 
   .w50 .grid_box_1 li .hanja_con,
