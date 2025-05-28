@@ -4411,8 +4411,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      
-    
       // === 연주 ===
       const yp = myowoonResult.yeonjuCurrentPillar;
       setText("MyoYtHanja", stemMapping[yp[0]]?.hanja || yp[0]);
@@ -5752,7 +5750,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateFunc(refDate);
     
         // 1-3) 다음 프레임에 페이드 인
-        requestAnimationFrame(() =>
+        setTimeout(() =>
           containers.forEach(c => c.style.opacity = '1')
         );
       };
@@ -5821,14 +5819,12 @@ document.addEventListener("DOMContentLoaded", function () {
                   p.classList.remove(...classesToRemove);
                 });
               });
-              
-          
+
               // 2) 시간 미확인 모드 복귀
               isTimeUnknown = true;
               document.getElementById("inputBirthtime").value = "";
 
-              
-          
+
               // 3) 시·지 영역은 업데이트 함수로 클리어
               updateStemInfo("Ht", { gan: "-", ji: "-" }, baseDayStem);
               updateBranchInfo("Hb", "-", baseDayStem);
@@ -5838,6 +5834,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const el = document.getElementById(id);
                 if (el) el.textContent = "-";
               });
+
           
               // 5) 명운/설명 영역도 기본값 리셋
               const resetData = {
@@ -5852,59 +5849,99 @@ document.addEventListener("DOMContentLoaded", function () {
               updateMyowoonSection(resetResult);
               updateExplanDetail(resetResult, hourPillar);
               registerMyowoonMoreHandler(hourSplit = null);
+
+              function clearHyphenElements(rootEl) {
+                const root = typeof rootEl === 'string'
+                  ? document.querySelector(rootEl)
+                  : rootEl;
+                if (!root) return;
+              
+                const classesToRemove = [
+                  "b_green","b_red","b_white","b_black","b_yellow","active"
+                ];
+              
+                // 1) hanja_con 내부 <p> (음양) 검사
+                root.querySelectorAll('li.siju_con5 .hanja_con > p')
+                  .forEach(p => {
+                    if (p.textContent.trim() === "-") {
+                      // 부모 .hanja_con 에서 클래스 제거
+                      const hanja = p.parentElement;
+                      hanja.classList.remove(...classesToRemove);
+                      // p 자신도 제거
+                      p.classList.remove(...classesToRemove);
+                    }
+                  });
+              
+                // 2) 그 외 direct <p> (한글, 십신, 운성) 검사
+                root.querySelectorAll('li.siju_con5 > p')
+                  .forEach(p => {
+                    if (p.textContent.trim() === "-") {
+                      p.classList.remove(...classesToRemove);
+                    }
+                  });
+              }
+              
+              // 사용 예시: body 전체 하이픈 요소 초기화
+              document.querySelectorAll('.siju_con5').forEach(root => {
+                clearHyphenElements(root);
+              });
           
               return;  // 활성화 로직 생략
+            } else {
+              // ── 토글 로직 끝 ──
+              checkOption.style.display = 'flex';
+              // 2-1) 기타 버튼 모두 리셋
+              sijuList.forEach((_, i) => {
+                const b = document.getElementById(`siju-btn-${i}`);
+                if (!b) return;
+                b.className = "black_btn";
+                b.textContent = `${labels[i]}시 (${sijuList[i]})`;
+                b.classList.remove("b_green","b_red","b_white","b_black","b_yellow","active");
+              });
+
+              // 2-2) 이 버튼만 활성화 + 색상
+              btn.classList.add("active");
+              btn.textContent = `${lbl}시 적용중`;
+              if (["인","묘"].includes(lbl))      btn.classList.add("b_green");
+              else if (["사","오"].includes(lbl)) btn.classList.add("b_red");
+              else if (["신","유"].includes(lbl)) btn.classList.add("b_white");
+              else if (["자","해"].includes(lbl)) btn.classList.add("b_black");
+              else                                 btn.classList.add("b_yellow");
+
+              // 2-3) 시간 파싱 & correctedDate 세팅
+              const { hour, minute } = parseTimeStr(timeMap[lbl]);
+              const orig = new Date(birthYear, birthMonth - 1, birthDay, hour, minute);
+              const corr = adjustBirthDateWithLon(orig, birthPlaceInput, isPlaceUnknown);
+              correctedDate = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
+              document.getElementById("inputBirthtime").value = timeMap[lbl];
+
+              // 2-4) 시간 확인 모드로 전환
+              isTimeUnknown = false;
+              manualOverride = true;
+              const hourSplit2 = splitPillar(siju);
+              updateOriginalSetMapping(daySplitGlobal, hourSplit2);
+              smoothUpdate(siju);
+              // 2-5) 명운 예측 & UI 업데이트
+              const myData2 = {
+                correctedDate,
+                year, month, day,
+                hour, minute,
+                yearPillar, monthPillar, dayPillar,
+                hourPillar: siju,
+                gender
+              };
+              const myResult = getMyounPillarsVr(myData2, refDate);
+              setTimeout(()=>{
+                updateMyowoonSection(myResult);
+                updateExplanDetail(myResult, siju);
+                registerMyowoonMoreHandler(hourSplit2)
+              }, 180);
+              
+              // 2-6) 부드러운 업데이트 (Day Pillar 포함)
+              
+              hourPillar = siju;
             }
-            // ── 토글 로직 끝 ──
-            checkOption.style.display = 'flex';
-            // 2-1) 기타 버튼 모두 리셋
-            sijuList.forEach((_, i) => {
-              const b = document.getElementById(`siju-btn-${i}`);
-              if (!b) return;
-              b.className = "black_btn";
-              b.textContent = `${labels[i]}시 (${sijuList[i]})`;
-              b.classList.remove("b_green","b_red","b_white","b_black","b_yellow","active");
-            });
-
-            // 2-2) 이 버튼만 활성화 + 색상
-            btn.classList.add("active");
-            btn.textContent = `${lbl}시 적용중`;
-            if (["인","묘"].includes(lbl))      btn.classList.add("b_green");
-            else if (["사","오"].includes(lbl)) btn.classList.add("b_red");
-            else if (["신","유"].includes(lbl)) btn.classList.add("b_white");
-            else if (["자","해"].includes(lbl)) btn.classList.add("b_black");
-            else                                 btn.classList.add("b_yellow");
-
-            // 2-3) 시간 파싱 & correctedDate 세팅
-            const { hour, minute } = parseTimeStr(timeMap[lbl]);
-            const orig = new Date(birthYear, birthMonth - 1, birthDay, hour, minute);
-            const corr = adjustBirthDateWithLon(orig, birthPlaceInput, isPlaceUnknown);
-            correctedDate = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
-            document.getElementById("inputBirthtime").value = timeMap[lbl];
-
-            // 2-4) 시간 확인 모드로 전환
-            isTimeUnknown = false;
-
-            // 2-5) 명운 예측 & UI 업데이트
-            const myData2 = {
-              correctedDate,
-              year, month, day,
-              hour, minute,
-              yearPillar, monthPillar, dayPillar,
-              hourPillar: siju,
-              gender
-            };
-            const myResult = getMyounPillarsVr(myData2, refDate);
-            updateMyowoonSection(myResult);
-            updateExplanDetail(myResult, siju);
-            manualOverride = true;
-            const hourSplit2 = splitPillar(siju);
-            updateOriginalSetMapping(daySplitGlobal, hourSplit2);
-            registerMyowoonMoreHandler(hourSplit2)
             
-            // 2-6) 부드러운 업데이트 (Day Pillar 포함)
-            smoothUpdate(siju);
-            hourPillar = siju;
           });
           
           hourListEl.appendChild(btn);
@@ -6100,7 +6137,6 @@ document.addEventListener("DOMContentLoaded", function () {
           const newResult = getMyounPillars(myData, rawRefDate, selectedValue);
           updateExplanDetail(newResult, hourPillar);
           updateMyowoonSection(newResult);
-
         });
         if (globalState.originalTimeUnknown) {  
           requestAnimationFrame(function(){
