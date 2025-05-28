@@ -313,6 +313,15 @@
             </div>
           </li> -->
           <li class="content">
+            <label for="음양">음양 표시 여부</label>
+            <div class="s12_ctrl_con radio_wrap center">
+              <span>
+                <input type="checkbox" name="eumyangDisplay" id="eumyangDisplay" checked/>
+                <label for="eumyangDisplay">음양표시여부</label>
+              </span>
+            </div>
+          </li>
+          <li class="content">
             <label for="십이신살">십이신살 설정</label>
             <div class="s12_ctrl_con radio_wrap" id="s12CtrlCon">
               <div class="s12_ctrl_zone s12_ctrl_zone_type side">
@@ -369,6 +378,34 @@
         // 2) 모달 내 .close_btn 클릭 → 모달 닫기
         setcloseBtn.addEventListener('click', () => {
           setModal.style.display = 'none';
+        });
+      </script>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const chk = document.getElementById('eumyangDisplay');
+          const elems = document.querySelectorAll('.eum_yang');
+        
+          // 1) 로컬스토리지에서 이전 상태 읽기
+          const saved = localStorage.getItem('eumyangDisplay');
+          if (saved !== null) {
+            chk.checked = (saved === 'true');
+          }
+        
+          // 2) 표시 토글 함수
+          function toggleEumYang() {
+            elems.forEach(el => {
+              el.style.display = chk.checked ? 'none' : '';
+            });
+          }
+        
+          // 3) 초기 적용
+          toggleEumYang();
+        
+          // 4) 체크박스 변경 시
+          chk.addEventListener('change', () => {
+            localStorage.setItem('eumyangDisplay', chk.checked);
+            toggleEumYang();
+          });
         });
       </script>
       <!-- 사이드바 -->

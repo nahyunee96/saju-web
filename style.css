@@ -994,6 +994,18 @@
     display: flex;
     align-items: center;
   }
+
+  .radio_wrap.center {
+    text-align: center;
+  }
+
+  .radio_wrap.center span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    padding: 5px;
+  }
   
   .radio_wrap span{
     display: flex;
@@ -1576,8 +1588,8 @@
     }
 
     .aside .top_search_list > select {
-      height: 8vw;
-      padding: 0 2vw 1vw;
+      height: 6.2vw;
+      padding: 0 2vw;
       font-size: 3.2vw;
     }
 
@@ -1588,14 +1600,14 @@
   
     .aside .search_form select {
       width: calc(20% - 2vw);
-      height: 8vw;
+      height: 6.2vw;
       padding: 0 2vw;
       font-size: 3.2vw;
     }
   
     .aside .search_form input {
       width: calc(60% - 2vw);
-      height: 8vw;
+      height: 6.2vw;
       font-size: 3.2vw;
       padding: 0 2.4vw;
     }
