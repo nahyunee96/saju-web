@@ -8,7 +8,7 @@ let baseDayBranch;
 let baseYearBranch;
 let daypillar, yearPillar;
 let baseDayBranch_copy, baseDayBranch_copy2, baseYearBranch_copy, baseYearBranch_copy2;
-let isTimeUnknown, isPlaceUnknown;
+let isTimeUnknown = false, isPlaceUnknown = false;
 let renderSijuButtonsVr;
 // 전역 변수
 let savedMyeongsikList = [];
@@ -463,31 +463,31 @@ const sexagenaryCycle = [
 ];
 
 const stemMapping = {
-  "갑": { hanja: "甲", hanguel: "갑목", eumYang: "양" },
-  "을": { hanja: "乙", hanguel: "을목", eumYang: "음" },
-  "병": { hanja: "丙", hanguel: "병화", eumYang: "양" },
-  "정": { hanja: "丁", hanguel: "정화", eumYang: "음" },
-  "무": { hanja: "戊", hanguel: "무토", eumYang: "양" },
-  "기": { hanja: "己", hanguel: "기토", eumYang: "음" },
-  "경": { hanja: "庚", hanguel: "경금", eumYang: "양" },
-  "신": { hanja: "辛", hanguel: "신금", eumYang: "음" },
-  "임": { hanja: "壬", hanguel: "임수", eumYang: "양" },
-  "계": { hanja: "癸", hanguel: "계수", eumYang: "음" }
+  "갑": { hanja: "甲", hanguel: "갑목", hanguelShort: "갑", eumYang: "양" },
+  "을": { hanja: "乙", hanguel: "을목", hanguelShort: "을", eumYang: "음" },
+  "병": { hanja: "丙", hanguel: "병화", hanguelShort: "병", eumYang: "양" },
+  "정": { hanja: "丁", hanguel: "정화", hanguelShort: "정", eumYang: "음" },
+  "무": { hanja: "戊", hanguel: "무토", hanguelShort: "무", eumYang: "양" },
+  "기": { hanja: "己", hanguel: "기토", hanguelShort: "기", eumYang: "음" },
+  "경": { hanja: "庚", hanguel: "경금", hanguelShort: "경", eumYang: "양" },
+  "신": { hanja: "辛", hanguel: "신금", hanguelShort: "신", eumYang: "음" },
+  "임": { hanja: "壬", hanguel: "임수", hanguelShort: "임", eumYang: "양" },
+  "계": { hanja: "癸", hanguel: "계수", hanguelShort: "계", eumYang: "음" }
 };
 
 const branchMapping = {
-  "자": { hanja: "子", hanguel: "자수", eumYang: "양(음)" },
-  "축": { hanja: "丑", hanguel: "축토", eumYang: "음" },
-  "인": { hanja: "寅", hanguel: "인목", eumYang: "양" },
-  "묘": { hanja: "卯", hanguel: "묘목", eumYang: "음" },
-  "진": { hanja: "辰", hanguel: "진토", eumYang: "양" },
-  "사": { hanja: "巳", hanguel: "사화", eumYang: "음(양)" },
-  "오": { hanja: "午", hanguel: "오화", eumYang: "양(음)" },
-  "미": { hanja: "未", hanguel: "미토", eumYang: "음" },
-  "신": { hanja: "申", hanguel: "신금", eumYang: "양" },
-  "유": { hanja: "酉", hanguel: "유금", eumYang: "음" },
-  "술": { hanja: "戌", hanguel: "술토", eumYang: "양" },
-  "해": { hanja: "亥", hanguel: "해수", eumYang: "음(양)" }
+  "자": { hanja: "子", hanguel: "자수", hanguelShort: "자", eumYang: "음" },
+  "축": { hanja: "丑", hanguel: "축토", hanguelShort: "축", eumYang: "음" },
+  "인": { hanja: "寅", hanguel: "인목", hanguelShort: "인",  eumYang: "양" },
+  "묘": { hanja: "卯", hanguel: "묘목", hanguelShort: "묘",  eumYang: "음" },
+  "진": { hanja: "辰", hanguel: "진토", hanguelShort: "진",  eumYang: "양" },
+  "사": { hanja: "巳", hanguel: "사화", hanguelShort: "사",  eumYang: "양" },
+  "오": { hanja: "午", hanguel: "오화", hanguelShort: "오",  eumYang: "음" },
+  "미": { hanja: "未", hanguel: "미토", hanguelShort: "미",  eumYang: "음" },
+  "신": { hanja: "申", hanguel: "신금", hanguelShort: "신",  eumYang: "양" },
+  "유": { hanja: "酉", hanguel: "유금", hanguelShort: "유",  eumYang: "음" },
+  "술": { hanja: "戌", hanguel: "술토", hanguelShort: "술",  eumYang: "양" },
+  "해": { hanja: "亥", hanguel: "해수", hanguelShort: "해",  eumYang: "양" }
 };
 
 // 120년 평균값을 구하는 함수 (이미 있으신 get120YearAverages)
@@ -1242,6 +1242,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   window.scrollTo(0, 0);
 
+  const calculateBtn = document.getElementById('calcBtn');
+
   const exclude = ['db10sin', 'sb10sin', 'Mob10sin'];
   document.querySelectorAll('[id*="b10sin"]').forEach(el => {
     // exclude 중 하나라도 el.id에 포함되면 true
@@ -1515,10 +1517,10 @@ document.addEventListener("DOMContentLoaded", function () {
       dayPillar: dayPillar,
       hourPillar: hourPillar,
       age: age,
-      birthdayTime: birthdayTime,
-      isTimeUnknown: isTimeUnknown,
-      isPlaceUnknown: isPlaceUnknown,
-      selectedTime2: selectedTime2,
+      birthdayTime,
+      isTimeUnknown,
+      isPlaceUnknown,
+      selectedTime2,
       group: groupVal,
       createdAt: Date.now(),
       isFavorite : false,
@@ -1844,12 +1846,13 @@ document.addEventListener("DOMContentLoaded", function () {
       //isTimeUnknown = true;
     }
     
+    const backBtn = document.getElementById("backBtn");
     
-
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
-    
+        
+        backBtn.style.display = '';
         // ── ① 시·지·묘운·세운 전부 하이픈+클래스 제거 ──
         
         handleViewClick();
@@ -1923,7 +1926,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     
         // 자동 계산
-        document.getElementById("calcBtn").click();
+        calculateBtn.click();
     
         const myowoonBtn = document.getElementById("myowoonMore");
         myowoonBtn.classList.remove("active");
@@ -1991,9 +1994,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     function updateOriginalAndMyowoon(refDate) {
-
-      
-
       const myData = latestMyeongsik;
 
       // ── 여기에 추가 ──
@@ -2635,16 +2635,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // 페이지 로드시 한 번
   updateAllMargins();
 
-  const btn = document.getElementById('calcBtn');
-  if (btn) {
-    btn.addEventListener('click', () => {
+  
+  if (calculateBtn) {
+    calculateBtn.addEventListener('click', () => {
       // 렌더링 끝난 뒤 실행
       setTimeout(updateAllMargins, 50);
     });
   }
 
-  // DOM 로드 후 한번 실행
-  //document.addEventListener('DOMContentLoaded', updateAll);
+  const setBtnCtrl = document.getElementById('setBtn'); 
 
   document.getElementById("calcBtn").addEventListener("click", function () {
 
@@ -2804,11 +2803,6 @@ document.addEventListener("DOMContentLoaded", function () {
       hour, minute, gender, correctedDate
     );
 
-    document.getElementById('resultWrapper').style.display = 'block';
-    window.scrollTo(0, 0);
-    document.getElementById('inputWrap').style.display = 'none';
-    document.getElementById("saveBtn").style.display = "inline-block";
-
     // 예: "병자 경인 정묘 무오시, 대운수 ..." 형식의 문자열
     const parts = fullResult.split(", ");
     const pillarsPart = parts[0] || "-";
@@ -2878,14 +2872,17 @@ document.addEventListener("DOMContentLoaded", function () {
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     }
 
-
+    
     function updateOriginalSetMapping(daySplit, hourSplit) {
-      if (!hourSplit || typeof hourSplit.ji !== 'string') {
-        return;
-      }
+      // if (!hourSplit || typeof hourSplit.ji !== 'string') {
+      //   return;
+      // }
       if (manualOverride) {
         return;
       }
+
+      //console.log(baseDayStem);
+      
       setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, hourSplit.ji));
       setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsalDynamic(dayPillar, yearPillar, hourSplit.ji));
       setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
@@ -2894,6 +2891,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("Mb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, monthSplit.ji));
       setText("Yb12ws", getTwelveUnseong(baseDayStem, baseYearBranch));
       setText("Yb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, baseYearBranch));
+      
     }
 
     updateStemInfo("Yt", yearSplit, baseDayStem);
@@ -3069,14 +3067,14 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WSwbHanguel", branchMapping[sewoonSplit.ji]?.hanguel || "-");
       setText("WSwbEumyang", branchMapping[sewoonSplit.ji]?.eumYang || "-");
       setText("WSwb10sin", getTenGodForBranch(sewoonSplit.ji, baseDayStem));
-      setText("WSwJj1", sewoonHidden[0]);
-      appendTenGod("WSwJj1", sewoonHidden[0], true);
+      setText("WSbJj1", sewoonHidden[0]);
+      appendTenGod("WSbJj1", sewoonHidden[0], true);
       
-      setText("WSwJj2", sewoonHidden[1]);
-      appendTenGod("WSwJj2", sewoonHidden[1], true);
+      setText("WSbJj2", sewoonHidden[1]);
+      appendTenGod("WSbJj2", sewoonHidden[1], true);
       
-      setText("WSwJj3", sewoonHidden[2]);
-      appendTenGod("WSwJj3", sewoonHidden[2], true);
+      setText("WSbJj3", sewoonHidden[2]);
+      appendTenGod("WSbJj3", sewoonHidden[2], true);
       setText("WSWb12ws", getTwelveUnseong(baseDayStem, sewoonSplit.ji));
       setText("WSWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, sewoonSplit.ji));
     }
@@ -4717,7 +4715,7 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById('calArea').style.display = 'block';
           if (!isTimeUnknown) {
             if (hourSplit.ji !== "자" && hourSplit.ji !== "축") {
-              checkOption.style.display = 'flex';
+              //checkOption.style.display = 'flex';
             }
           }
           updateMyowoonSection(myowoonResult);
@@ -5889,7 +5887,7 @@ document.addEventListener("DOMContentLoaded", function () {
               return;  // 활성화 로직 생략
             } else {
               // ── 토글 로직 끝 ──
-              checkOption.style.display = 'flex';
+              //checkOption.style.display = 'flex';
               // 2-1) 기타 버튼 모두 리셋
               sijuList.forEach((_, i) => {
                 const b = document.getElementById(`siju-btn-${i}`);
@@ -6235,6 +6233,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 3) 초기 렌더 (복원된 체크 상태 반영)
     updateAllTwelveShinsal(dayPillar, yearPillar);
+
+    window.scrollTo(0, 0);
+    document.getElementById('inputWrap').style.display = 'none';
+    document.getElementById('resultWrapper').style.display = 'block';
+    document.getElementById("saveBtn").style.display = "inline-block";
+    setBtnCtrl.style.display = "block";
   });
 
   function startModify(index) {
@@ -6277,10 +6281,14 @@ document.addEventListener("DOMContentLoaded", function () {
     
   }
 
+  const ModifyBtn = document.getElementById("ModifyBtn");
+
   document.addEventListener("click", function (event) {
     const modifyBtn = event.target.closest(".modify_btn");
     if (!modifyBtn) return;
     backBtn.style.display = 'none';
+    //calculateBtn.style.display = 'none';
+    //ModifyBtn.style.display = 'block';
 
     loadCityLongitudes();
 
@@ -6300,6 +6308,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("inputWrap").style.display = "block";
     document.getElementById("resultWrapper").style.display = "none";
     document.getElementById("aside").style.display = "none";
+    setBtnCtrl.style.display = "none";
   
     // 입력값 채우기
     document.getElementById("inputName").value = selected.name;
@@ -6377,9 +6386,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // 수정 모드 플래그 설정
     currentModifyIndex = index;
 
-    // 버튼 텍스트 변경
-    const calcBtn = document.getElementById("calcBtn");
-    calcBtn.textContent = "수정하기";
   
     // 이름 커서 이동
     const nameInput = document.getElementById("inputName");
@@ -6431,11 +6437,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const hour = isTimeUnknown ? 4 : parseInt(birthtimeRaw.substring(0, 2), 10);
     const minute = isTimeUnknown ? 30 : parseInt(birthtimeRaw.substring(2, 4), 10);
 
-    const usedBirthPlace = isPlaceUnknown ? "서울특별시" : birthPlaceInput;
     const savedBirthPlace = isPlaceUnknown ? "" : birthPlaceInput;
 
-    const displayHour = isTimeUnknown ? "-" : birthtimeRaw.substring(0, 2);
-    const displayMinute = isTimeUnknown ? "-" : birthtimeRaw.substring(2, 4);
     //const displayBirthtime = `${displayHour}:${displayMinute}`;
 
     // 음력 생일 및 양력/음력 변환
@@ -6551,6 +6554,14 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
+  let isModified = false;
+
+  document.querySelectorAll(`.input_group input[type='text'], .input_group input[type='tel'], 
+  .input_group input[type='time'], .input_group select, .input_group .map, .radio_box span input[type='radio']`)
+    .forEach(el => el.addEventListener('input', () => {
+      isModified = true;
+  }));
+
   // 수정하기 버튼 눌렀을 때
   document.getElementById("calcBtn").addEventListener("click", function () {
 
@@ -6570,11 +6581,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // 4) 수정 모드인지 확인
     if (typeof currentModifyIndex === "number") {
       // 변경 사항이 없으면 확인창
-      const currentDataStr = JSON.stringify(newData);
-      if (currentDataStr === originalDataSnapshot) {
+      //const currentDataStr = JSON.stringify(newData);
+      if (isModified === false) {
         const confirmSave = confirm("수정된 부분이 없습니다. 이대로 저장하시겠습니까?");
         if (!confirmSave) return;
       }
+
+      //console.log(isModified);
 
       // 5) 리스트에 덮어쓰기
       list[currentModifyIndex] = newData;
@@ -6587,6 +6600,7 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("명식이 수정되었습니다.");
 
       // 8) 모드 초기화
+      isModified = false;
       isModifyMode = false;
       originalDataSnapshot = "";
       currentModifyIndex = null;

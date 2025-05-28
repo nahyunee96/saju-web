@@ -79,7 +79,7 @@
   }
 
   .mt100 {
-    margin-top: 60px;
+    margin-top: 40px;
   }
 
   .container {
@@ -93,7 +93,7 @@
     width: 100%; 
     margin: auto; 
     background-color: #011627; 
-    padding: 30px; 
+    padding: 16px; 
     border-radius: 20px;
   }
 
@@ -224,17 +224,19 @@
   }
 
   .btn_box.mt100 button {
-    padding:20px 120px; 
+    padding:20px 100px; 
   }
 
   .btn_box button {
-    padding: 20px 60px; 
+    position: relative;
+    padding: 5px 60px; 
     background-color: #EED36C; 
     border: none; 
     outline: none; 
-    font-size: 25px; 
+    font-size: 18px; 
     cursor: pointer;
 	  color: #353535;
+    z-index: 7;
   }
 
   .btn_box.flex_3 button {
@@ -306,8 +308,11 @@
   }
 
   .lucky_wrap .lucky_box {
+    position: relative;
     gap: 10px;
     padding: 5px;
+    background-color: #02345E;
+    z-index: 7;
   }
 
   .woonkuk .grid_box {
@@ -340,6 +345,10 @@
     z-index: 5;
   }
 
+  .woonkuk .grid_box {
+    padding: 5px;
+  }
+
   .grid_box_1 > li,
   .lucky_box .lucky .ganji {
     padding: 0 !important;
@@ -347,13 +356,23 @@
 
   .grid_box_1 li .hanja_con,
   .ganji .hanja_con {
+    position: relative;
     width: 100%;
-    padding: 10px;
     margin-bottom: 5px;
     background-color: #fff;
     text-align: center;
-    font-size: 60px; 
+    font-size: 52px; 
     border-radius: 4px;
+  }
+
+  .grid_box_1 li .hanja_con {
+    width: 100px;
+    height: 90px;
+  }
+
+  .ganji .hanja_con {
+    width: 96px;
+    height: 90px;
   }
 
   .grid_box_1 li .hanja_con b,
@@ -379,7 +398,7 @@
     padding: 5px 10px;
     margin-bottom: 5px;
     text-align: center;
-    font-size: 20px;
+    font-size: 16px;
     border-radius: 4px;
   }
 
@@ -390,22 +409,54 @@
 
   .grid_box_1 li p.eum_yang,
   .ganji p.eum_yang {
-  	display: block;
-    width: 45px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  	display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
 	  margin: auto;
-    padding: 2px 0;
+    padding: 0;
     font-size: 12px;
     background-color: #fff;
-    color: #252525;
-    border-radius: 5px;
+    border-radius: 50%;
+    z-index: 10;
+    color: #353535;
+    transform: translate(-30%, -30%);
   }
 
-  .grid_box_1 li p.ten_sin,
-  .ganji p.ten_sin {
-    font-size: 20px;
+  .grid_box_1 li .ten_sin,
+  .ganji .ten_sin,
+  .grid_box_1 li .woon_seong,
+  .ganji .woon_seong,
+  .grid_box_1 li .sin_sal,
+  .ganji .sin_sal {
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 5px;
   }
 
-  
+  .grid_box_1 li .sin_sal,
+  .ganji .sin_sal {
+    margin-bottom: 0;
+  }
+
+  .grid_box_1 li p.hanguel,
+  .ganji p.hanguel {
+    background-color: transparent;
+    color: #fff;
+    padding: 0;
+    margin: 0;
+  }
+
+  .grid_box_1 li p.label,
+  .ganji p.label {
+    background-color: transparent;
+    color: #EED36C;
+    padding: 0;
+  }
 
   .jijanggan {
     /* display: flex; 
@@ -443,7 +494,7 @@
 
   .buga_title {
     position: relative; 
-    margin: 20px 0 5px; 
+    margin: 8px 0 5px; 
     text-align: center; 
     font-size: 20px; 
     font-weight: 700; 
@@ -462,7 +513,8 @@
     position: relative; 
     z-index: 5; 
     background: #011627; 
-    padding: 10px;
+    padding: 4px 10px;
+    line-height: 90%;
   }
 
   .scroll_x {
@@ -530,7 +582,7 @@
   }
 
   .container {
-    padding: 90px 0;
+    padding: 70px 0;
   }
 
   .container .header {
@@ -538,7 +590,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 90px;
+    height: 70px;
     position:fixed;
     top: 0;
     left: 0;
@@ -556,7 +608,7 @@
   }
 
   .header .flex_btn_2 button  {
-    padding: 10px 20px;
+    padding: 5px 20px;
     color: #353535;
   }
 
@@ -610,7 +662,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    padding: 10px;
+    padding: 10px 10px 0;
   }
 
   .aside .top_search_list > select {
@@ -899,11 +951,12 @@
     flex-direction: column;
     height: auto;
     text-align: center;
+    background-color: transparent;
   }
 
-  .s12_ctrl_con {
+  /* .s12_ctrl_con {
     display: none;
-  }
+  } */
 
   .s12_ctrl_zone_type {
     padding: 8px;
@@ -1168,7 +1221,7 @@
     }
 
     .mt100 {
-      margin-top: 8vw;
+      margin-top: 4vw;
     }
 
     .info_wrapper {
@@ -1177,11 +1230,11 @@
       border-radius: 0;
     }
     .input_group {
-      margin-bottom:3.644vw;
+      margin-bottom:2.4vw;
     }
     .input_group>label {
-      font-size:3.644vw; 
-      margin-bottom:1.988vw;
+      font-size:3.244vw; 
+      margin-bottom:1.2vw;
     }
     .input_group>label span {
       font-size:2.844vw; 
@@ -1191,8 +1244,8 @@
     .input_group input[type='time'],
     .input_group select,
     .input_group .map {
-      height: 10.8vw;
-      line-height: 10.8vw;
+      height: 8.4vw;
+      line-height: 8.4vw;
       font-size:3.244vw; 
       padding:0 3.242vw;
     }
@@ -1205,7 +1258,7 @@
       width: 17%;
       padding: 0 2.44vw;
       font-size: 3.244vw;
-      height: 10.8vw;
+      height: 8.4vw;
     }
 
     .label_line input[type='checkbox'] {
@@ -1221,10 +1274,9 @@
     .label_line label {
       font-size: 3.2vw;
     }
-  
 
     .btn_box.mt20 {
-      margin-top: 4vw;
+      margin-top: 2vw;
     }
 
     .btn_box.mt {
@@ -1232,30 +1284,31 @@
     }
     .btn_box button {
       padding:0vw 8.448vw; 
-      font-size:3.628vw;
+      font-size:3.228vw;
       gap: 2vw;
     }
 
     .btn_box.mt100 button {
-      padding:0vw 20.448vw; 
+      padding:0vw 16.448vw; 
+      font-size: 3.2vw;
     }
 
     .btn_box.flex_3 button {
       padding:0vw 4.048vw; 
     }
 
-    .btn_box button#calcBtn {
-      height: 12vw;
+    .btn_box button#calcBtn,
+    .btn_box button#ModifyBtn  {
+      height: 10vw;
     }
 
     .btn_box.mb40 {
       margin-bottom: 4vw;
     }
-
     
     .black_btn {
       padding: 0 10vw;
-      height: 8vw;
+      height: 6.2vw;
       font-size: 3.228vw;
     }
 
@@ -1308,8 +1361,9 @@
       gap: 2vw;
     }
 
-    .lucky_box .lucky .ganji {
-      margin-bottom: 2vw;
+    .lucky_box .lucky .ganji,
+    .grid_box_1 li .hanja_con, .ganji .hanja_con {
+      margin-bottom: 0.8vw;
     }
 
     .woon_container {
@@ -1317,6 +1371,10 @@
     }
 
     .grid_box {
+      gap: 0.8vw;
+    }
+
+    .w100 .grid_box {
       gap: 2vw;
     }
 
@@ -1343,12 +1401,31 @@
 
     .grid_box_1 li .hanja_con,
 	  .ganji .hanja_con {
-      font-size:8.848vw;
-      padding: 2vw 0.8vw;
+      font-size: 5.6vw;
+    }
+
+    .grid_box_1 li .hanja_con {
+      width: 12.8vw;
+      height: 10.8vw;
+    }
+  
+    .ganji .hanja_con {
+      width: 14.4vw;
+      height: 10.8vw;
+    }
+
+    .w100 .grid_box_1 li .hanja_con {
+      width: 21.2vw;
+    }
+
+    .w50 .grid_box_1 li .hanja_con {
+      width: 10.4vw;
+      height: 9.6vw;
     }
 
     .grid_box_1.grid_box_8 li .hanja_con {
-      font-size:6.848vw;
+      width: 10.8vw;
+      font-size:5.848vw;
     }
 
     .grid_box_1 li p, 
@@ -1356,7 +1433,7 @@
     .grid_box_1 li p.ten_sin, 
     .ganji p.ten_sin,
     .fortune_section .w {
-      font-size: 2.824vw;
+      font-size: 2.4vw;
     }
 
     .grid_box_1 li p,
@@ -1367,17 +1444,32 @@
     .grid_box_1 li p.eum_yang, 
     .ganji p.eum_yang,
     .wongook_lucky .grid_box_1 li p.eum_yang {
-      width: 9.242vw;
-      padding: 0.4vw 0;
+      padding: 0;
       margin-bottom: 0;
-      font-size: 2.42vw;
+      font-size: 2.4vw;
+    }
+
+    .grid_box_1 li p.eum_yang, 
+    .ganji p.eum_yang {
+      width: 4vw;
+      height: 4vw;
     }
 
 
     .w50 .grid_box_1 li .hanja_con,
     .w50 .ganji .hanja_con {
-      font-size:5.848vw;
-	    padding: 0.8vw;
+      font-size:4.4vw;
+	    padding: 0;
+    }
+
+    .grid_box_1 li .ten_sin,
+    .ganji .ten_sin,
+    .grid_box_1 li .woon_seong,
+    .ganji .woon_seong,
+    .grid_box_1 li .sin_sal,
+    .ganji .sin_sal {
+        font-size: 2.4vw;
+        margin-bottom: 0.4vw;
     }
 
 
@@ -1387,6 +1479,7 @@
 
     .w50 .grid_box_1 li p, .w50 .ganji p {
       font-size: 2.2vw;
+      margin-bottom: 0.4vw;
     }
 
     .w50 .grid_box_8 li p {
@@ -1413,17 +1506,17 @@
     }
     
     .buga_title {
-      margin: 2.4vw 0 1.2vw;
+      margin: 0;
     }
 
     .buga_title span {
       font-size: 3.2vw;
-      padding: 2vw;
+      padding: 1vw 2vw;
     }
 
     .ganji_w {
       width: 100%;
-      padding: 2.242vw 0;
+      padding: 1.52vw 0;
       text-align: center;
       font-size: 4vw;
       font-weight: 700;
@@ -1432,7 +1525,7 @@
     }
 
     .fortune_section .w {
-      padding: 1vw 0;
+      padding: 0.4vw 0;
     }
     
     .fortune_section .w.dage {
@@ -1440,11 +1533,11 @@
     }
 
     .container {
-      padding: 16vw 0;
+      padding: 12vw 0;
     }
 
     .container .header {
-      height: 16vw;
+      height: 12vw;
     }
 
     .header .flex_btn_2 button {
@@ -1452,7 +1545,7 @@
     }
 
     .aside .head {
-      height: 16vw;
+      height: 12vw;
       padding: 4vw;
     }
   
@@ -1578,7 +1671,7 @@
 
     .grid_box_12 .ganji_w {
       font-size: 3.2vw;
-      padding: 2vw 0vw;
+      padding: 1.52vw 0vw;
     }
 
     .ilju_calender {
@@ -1647,7 +1740,7 @@
     }
 
     .check_option {
-      height: 10.2vw;
+      height: 7.2vw;
     }
 
     .check_option.fixed {
@@ -1667,8 +1760,8 @@
   
     .radio_wrap input[type='radio']::before,
     .radio_wrap input[type='checkbox']::before {
-      width: 2vw;
-      height: 2vw;
+      width: 1.6vw;
+      height: 1.6vw;
     }
 
     .radio_wrap label {
@@ -1731,6 +1824,6 @@
     .couple_mode_wrap .grid_box_1 li p.eum_yang, 
     .couple_mode_wrap .ganji p.eum_yang, 
     .couple_mode_wrap .wongook_lucky .grid_box_1 li p.eum_yang {
-      width: 8.2vw;
+      
     }
   }
