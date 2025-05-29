@@ -366,10 +366,28 @@
     height: 90px;
   }
 
+  .w100 .grid_box_1 li .hanja_con {
+    width: 156px;
+  }
+
+  .w50 .grid_box_1 li .hanja_con {
+    width: 76px;
+  }
+
+  .couple_mode_wrap .w50 .grid_box_1 li .hanja_con {
+    width: 84px;
+  }
+
+  .grid_box_8 li .hanja_con {
+    width: 84px;
+  }
+
   .ganji .hanja_con {
     width: 96px;
     height: 90px;
   }
+
+  
 
   .grid_box_1 li .hanja_con b,
   .ganji .hanja_con b {
@@ -1414,7 +1432,7 @@
     }
 
     .grid_box_1 li .hanja_con {
-      width: 12.8vw;
+      width: 14.1vw;
       height: 10.8vw;
     }
   

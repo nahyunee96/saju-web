@@ -229,6 +229,7 @@ function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
   return corrected;
 }
 
+
 function getSummerTimeInterval(year) {
   let interval = null;
   switch (year) {
@@ -1726,19 +1727,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const starState = item.isFavorite ? '★ ON' : '☆ OFF';
 
-      const yearPillar  = item.isLunar
-        ? item.lunarYearPillar
-        : item.yearPillar;
-      const monthPillar = item.isLunar
-        ? item.lunarMonthPillar
-        : item.monthPillar;
-      const dayPillar   = item.isLunar
-        ? item.lunarDayPillar
-        : item.dayPillar;
-      const hourPillar  = item.isLunar
-        ? item.lunarHourPillar
-        : item.hourPillar;
-
       li.innerHTML += `
         <div class="info_btn_zone">
           <button class="drag_btn_zone" id="dragBtn_${index + 1}">
@@ -1760,10 +1748,10 @@ document.addEventListener("DOMContentLoaded", function () {
               <span>(만 <b id="ageSV_${index + 1}">${item.age}</b>세, <b id="genderSV_${index + 1}">${item.gender}</b>)</span>
             </li>
             <li class="ganzi" id="ganZi">
-              <span><b id="yearGZ_${index + 1}">${yearPillar}</b>년</span>
-              <span><b id="monthGZ_${index + 1}">${monthPillar}</b>월</span>
-              <span><b id="dayGZ_${index + 1}">${dayPillar}</b>일</span>
-              <span><b id="timeGZ_${index + 1}">${hourPillar}</b>시</span>
+              <span><b id="yearGZ_${index + 1}">${item.yearPillar}</b>년</span>
+              <span><b id="monthGZ_${index + 1}">${item.monthPillar}</b>월</span>
+              <span><b id="dayGZ_${index + 1}">${item.dayPillar}</b>일</span>
+              <span><b id="timeGZ_${index + 1}">${item.hourPillar}</b>시</span>
             </li>
             <li class="birth_day_time" id="birthDayTime">
               <span id="birthdaySV_${index + 1}">
@@ -6308,12 +6296,26 @@ document.addEventListener("DOMContentLoaded", function () {
     setBtnCtrl.style.display = "block";
   });
 
+  let originalCorrectedDate;
+
   function startModify(index) {
     const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
     const selected = savedList[index];
     if (!selected) return;
     currentModifyIndex = index;
     isModifyMode = true;
+    // 1) 원래 저장된 보정시 고정
+    originalCorrectedDate = new Date(selected.correctedDate);
+    fixedCorrectedDate    = originalCorrectedDate;
+
+    // 2) 월력 타입 셀렉트 복원
+    const monthTypeSel = document.getElementById("monthType");
+    monthTypeSel.value = selected.isLunar
+      ? (selected.isLeapMonth ? "음력(윤달)" : "음력")
+      : "양력";
+
+    // 3) 입력된 생일 원본(음·양력 구분 없이) 복원
+    document.getElementById("inputBirthday").value = selected.birthday;
     const snapshot = {
       birthday: selected.birthday,
       birthtime: selected.birthtime,
