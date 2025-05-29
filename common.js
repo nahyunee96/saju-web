@@ -191,30 +191,39 @@ function parseBirthAsUTC(Y, M, D, h, m) {
 }
 
 function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
-  // 출생시 모름 처리
+  // 1) 출생시 모름 처리
   if (isPlaceUnknown) {
-    return new Date(dateObj.getTime() - 30 * 60_000);
+    return new Date(dateObj.getTime() - 30 * 60 * 1000);
   }
   if (cityLon == null) {
     return dateObj;
   }
 
-  // 1) 표준 자오선(15° 단위) 구해서 경도 오차(분 단위)
-  const stdLon = Math.round(cityLon / 15) * 15;
-  const lonCorrMin = (cityLon - stdLon) * 4;
+  // 2) “정치적” 시간대 오프셋 근사
+  //    - 동쪽(양수) : 올림 → ex) 126.98/15≈8.46 → ceil→9
+  //    - 서쪽(음수) : 내림 → ex) -3.3/15≈-0.22 → floor→-1
+  const rawOffset  = cityLon / 15;
+  const offsetHours = rawOffset >= 0
+    ? Math.ceil(rawOffset)
+    : Math.floor(rawOffset);
+  const baseLon    = offsetHours * 15;
 
-  // 2) 균시차(분 단위)
-  const eqTimeMin = getEquationOfTime(dateObj);
+  // 3) 경도 오차(분)
+  const lonCorrMin = (cityLon - baseLon) * 4;
 
-  // 3) 경도 + 균시차 보정
+  // 4) 균시차(분)
+  const eqTimeMin  = getEquationOfTime(dateObj);
+
+  // 5) 합산
   let corrected = new Date(
-    dateObj.getTime() + (lonCorrMin + eqTimeMin) * 60_000
+    dateObj.getTime() 
+    + (lonCorrMin + eqTimeMin) * 60 * 1000
   );
 
-  // 4) DST 보정: getSummerTimeInterval로 반환된 구간 안이면 1시간 차감
+  // 6) DST 보정
   const iv = getSummerTimeInterval(corrected.getFullYear());
   if (iv && corrected >= iv.start && corrected < iv.end) {
-    corrected = new Date(corrected.getTime() - 60 * 60_000);
+    corrected = new Date(corrected.getTime() - 60 * 60 * 1000);
   }
 
   return corrected;
@@ -1190,6 +1199,7 @@ function migrateTenGods() {
   const KEY = "myProfiles";
   const data = JSON.parse(localStorage.getItem(KEY) || "[]");
   let touched = false;
+  const calendar = new KoreanLunarCalendar();
 
   data.forEach(p => {
     // ─────────────────────────────────────────────
@@ -1205,16 +1215,16 @@ function migrateTenGods() {
         touched = true;
       }
     });
+
     // ─────────────────────────────────────────────
-    // 2) 명식 보정 다시 계산
-    //    (예: p.birthday="19950318", p.birthdayTime="08:45" 형태라고 가정)
+    // 2) 보정시( correctedDate ) 다시 계산
     if (p.birthday && p.birthdayTime && p.birthPlaceLongitude != null) {
       const Y = Number(p.birthday.slice(0,4));
       const M = Number(p.birthday.slice(4,6));
       const D = Number(p.birthday.slice(6,8));
       const [h, m] = p.birthdayTime.split(':').map(Number);
 
-      // “입력 시각 그대로 UTC”로 만든 뒤 보정
+      // UTC 기준으로 만든 뒤 adjustBirthDateWithLon 적용
       const birthUtc = new Date(Date.UTC(Y, M-1, D, h, m));
       const newCorrected = adjustBirthDateWithLon(
         birthUtc,
@@ -1222,8 +1232,53 @@ function migrateTenGods() {
         p.isPlaceUnknown
       );
 
-      // ISO 문자열로 저장해두면 복원 시 편합니다
       p.correctedDate = newCorrected.toISOString();
+      touched = true;
+    }
+
+    // ─────────────────────────────────────────────
+    // 3) 음/양력 기둥 재계산
+    if (p.birthday && p.birthdayTime) {
+      const Y = Number(p.birthday.slice(0,4));
+      const M = Number(p.birthday.slice(4,6));
+      const D = Number(p.birthday.slice(6,8));
+      const [h, m] = p.birthdayTime.split(':').map(Number);
+
+      // 3-a) 원국 계산용 Date 객체: 음력 → 양력 변환 or 그대로
+      let originalDate;
+      if (p.isLunar) {
+        // 윤달 여부가 저장돼 있다면 p.isLeapMonth 사용
+        calendar.setLunarDate(Y, M, D, !!p.isLeapMonth);
+        const solar = calendar.getSolarCalendar();
+        originalDate = new Date(
+          solar.year,
+          solar.month - 1,
+          solar.day,
+          h, m
+        );
+      } else {
+        originalDate = new Date(Y, M - 1, D, h, m);
+      }
+
+      // 3-b) 보정된 시각 기준으로 기둥(간지) 계산
+      const corrDate = p.correctedDate
+        ? new Date(p.correctedDate)
+        : originalDate;
+
+      // (아래 함수들은 프로젝트에서 쓰고 있는 "원국 계산" 함수로 대체하세요)
+      p.yearPillar  = getYearGanZhi(corrDate);
+      p.monthPillar = getMonthGanZhi(corrDate);
+      p.dayPillar   = getDayGanZhi(corrDate);
+      p.hourPillar  = getHourGanZhi(corrDate);
+
+      // 3-c) 음력 입력자만, "원래 음력 기준" 기둥도 별도 저장
+      if (p.isLunar) {
+        p.lunarYearPillar  = getYearGanZhi(originalDate);
+        p.lunarMonthPillar = getMonthGanZhi(originalDate);
+        p.lunarDayPillar   = getDayGanZhi(originalDate);
+        p.lunarHourPillar  = getHourGanZhi(originalDate);
+      }
+
       touched = true;
     }
     // ─────────────────────────────────────────────
@@ -1634,7 +1689,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cleaned.length !== 4 || isNaN(cleaned)) return "-";
         return cleaned.substring(0, 2) + "시" + cleaned.substring(2, 4) + "분";
       }
-      const fullPlace = item.birthPlace.trim();
       const birthtimeDisplay = item.isTimeUnknown ? "시간모름" : formatBirthtime(item.birthtime?.replace(/\s/g, "").trim());
       const birthPlaceDisplay = (item.isPlaceUnknown === true) 
                                 ? "출생지無" 
@@ -1672,6 +1726,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const starState = item.isFavorite ? '★ ON' : '☆ OFF';
 
+      const yearPillar  = item.isLunar
+        ? item.lunarYearPillar
+        : item.yearPillar;
+      const monthPillar = item.isLunar
+        ? item.lunarMonthPillar
+        : item.monthPillar;
+      const dayPillar   = item.isLunar
+        ? item.lunarDayPillar
+        : item.dayPillar;
+      const hourPillar  = item.isLunar
+        ? item.lunarHourPillar
+        : item.hourPillar;
+
       li.innerHTML += `
         <div class="info_btn_zone">
           <button class="drag_btn_zone" id="dragBtn_${index + 1}">
@@ -1693,10 +1760,10 @@ document.addEventListener("DOMContentLoaded", function () {
               <span>(만 <b id="ageSV_${index + 1}">${item.age}</b>세, <b id="genderSV_${index + 1}">${item.gender}</b>)</span>
             </li>
             <li class="ganzi" id="ganZi">
-              <span><b id="yearGZ_${index + 1}">${item.yearPillar}</b>년</span>
-              <span><b id="monthGZ_${index + 1}">${item.monthPillar}</b>월</span>
-              <span><b id="dayGZ_${index + 1}">${item.dayPillar}</b>일</span>
-              <span><b id="timeGZ_${index + 1}">${item.hourPillar}</b>시</span>
+              <span><b id="yearGZ_${index + 1}">${yearPillar}</b>년</span>
+              <span><b id="monthGZ_${index + 1}">${monthPillar}</b>월</span>
+              <span><b id="dayGZ_${index + 1}">${dayPillar}</b>일</span>
+              <span><b id="timeGZ_${index + 1}">${hourPillar}</b>시</span>
             </li>
             <li class="birth_day_time" id="birthDayTime">
               <span id="birthdaySV_${index + 1}">
@@ -6564,61 +6631,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 수정하기 버튼 눌렀을 때
   document.getElementById("calcBtn").addEventListener("click", function () {
-
     // 1) 새로 수집할 데이터 만들어오기
     const newData = makeNewData();
     latestMyeongsik = newData;
-
-    //console.log('birthPlaceLongitude', newData.birthPlaceLongitude);
-
+  
     // 2) 즐겨찾기 체크 상태 읽어서 newData에 추가
     const favCheckbox = document.getElementById('topPs');
     newData.isFavorite = favCheckbox.checked;
-
+  
     // 3) 기존 리스트 불러오기
     const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-
+  
     // 4) 수정 모드인지 확인
     if (typeof currentModifyIndex === "number") {
       // 변경 사항이 없으면 확인창
-      //const currentDataStr = JSON.stringify(newData);
       if (isModified === false) {
         const confirmSave = confirm("수정된 부분이 없습니다. 이대로 저장하시겠습니까?");
         if (!confirmSave) return;
       }
-
-      //console.log(isModified);
-
+  
+      // ▶ 추가: 보정시 다시 계산해서 newData.correctedDate에 저장
+      if (newData.birthday && newData.birthdayTime && newData.birthPlaceLongitude != null) {
+        const Y = Number(newData.birthday.slice(0,4));
+        const M = Number(newData.birthday.slice(4,6));
+        const D = Number(newData.birthday.slice(6,8));
+        const [h, m] = newData.birthdayTime.split(':').map(Number);
+        // UTC 기준으로 Date 객체 만들기
+        const birthUtc = new Date(Date.UTC(Y, M - 1, D, h, m));
+        // 보정 함수 호출
+        const corrected = adjustBirthDateWithLon(
+          birthUtc,
+          newData.birthPlaceLongitude,
+          newData.isPlaceUnknown
+        );
+        newData.correctedDate = corrected.toISOString();
+      }
+  
       // 5) 리스트에 덮어쓰기
       list[currentModifyIndex] = newData;
-
+  
       // 6) 로컬스토리지에 한 번에 저장
       localStorage.setItem("myeongsikList", JSON.stringify(list));
-
+  
       // 7) UI 갱신
       loadSavedMyeongsikList();
       alert("명식이 수정되었습니다.");
-
+  
       // 8) 모드 초기화
       isModified = false;
       isModifyMode = false;
       originalDataSnapshot = "";
       currentModifyIndex = null;
       updateSaveBtn();
-
+  
       const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
       if (savedList.length >= 2) {
-        coupleModeBtnV.style.display = '';   
+        coupleModeBtnV.style.display = '';
       } else {
-        coupleModeBtnV.style.display = 'none'; 
+        coupleModeBtnV.style.display = 'none';
       }
-
+  
       // 9) 화면 전환
       document.getElementById("inputWrap").style.display = "none";
       document.getElementById("resultWrapper").style.display = "block";
       backBtn.style.display = '';
     }
   });
+  
 
   new Sortable(document.querySelector(".list_ul"), {
     handle: ".drag_btn_zone", // 요 버튼 누르고 있어야 드래그 가능
