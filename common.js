@@ -2899,8 +2899,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const dayPillar   = pillars[2] || "-";
     let hourPillar  = isTimeUnknown ? null : pillars[3] || "-";
 
-    
-
     // 원국 기둥 분리
     const yearSplit  = splitPillar(yearPillar);
     const monthSplit = splitPillar(monthPillar);
@@ -2930,7 +2928,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('hourListWrap').style.display = 'none';
       } else {
         checkOption.style.display = 'none';
-        document.getElementById('hourListWrap').style.display = 'none';
+        document.getElementById('hourListWrap').style.display = 'block';
       }
     });
 
@@ -3094,7 +3092,6 @@ document.addEventListener("DOMContentLoaded", function () {
     updateAllDaewoonItems(daewoonData.list);
 
     const todayObj = toKoreanTime(new Date());
-    const currentDecimalAge = (refDate - correctedDate) / oneDayMs / 365;
 
     // (2) 적절한 인덱스 찾기
     let currentDaewoonIndex = 0;
@@ -4506,7 +4503,6 @@ document.addEventListener("DOMContentLoaded", function () {
           yeonjuLastChangeDateStart
         };
       }
-    
       
       let {
         sijuCurrentPillar, iljuCurrentPillar,
@@ -4782,10 +4778,7 @@ document.addEventListener("DOMContentLoaded", function () {
         isPickerVer3 = false;
       }
 
-
     }
-
-    
 
     const pickerButtons = document.querySelectorAll('.btn_box .picker_btn');
 
@@ -6243,7 +6236,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
       // 8) UI 업데이트
       updateColorClasses();
-      updateFunc(newCorrected);
+      updateFunc(refDate);
 
       manualOverride2 = false;
     }
