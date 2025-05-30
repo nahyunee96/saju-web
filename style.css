@@ -107,6 +107,10 @@
   }
 
   .woonkuk {
+    width: 57%;
+  }
+
+  .no_wolwoon .woonkuk {
     width: 67%;
   }
 
@@ -119,6 +123,10 @@
   }
 
   .lucky_wrap {
+    width: 43%;
+  }
+
+  .no_wolwoon .lucky_wrap {
     width: 33%;
   }
 
@@ -302,7 +310,7 @@
 
   .lucky_box {
     display: grid;
-    grid-template-columns: repeat(2,1fr);
+    grid-template-columns: repeat(3,1fr);
     direction: rtl;
     align-items: flex-start;
   }
@@ -311,8 +319,11 @@
     position: relative;
     gap: 10px;
     padding: 5px;
-    background-color: #02345E;
     z-index: 7;
+  }
+
+  .no_wolwoon .lucky_wrap .lucky_box .lucky.wolwoon {
+    display: none;
   }
 
   .lucky_box .lucky .ganji {
@@ -321,7 +332,6 @@
     flex-direction: column; 
     justify-content: center; 
     align-items: center; 
-    margin-bottom: 10px;
   }
 
   .lucky_box .lucky .ganji:last-child {
@@ -354,16 +364,30 @@
   .ganji .hanja_con {
     position: relative;
     width: 100%;
-    margin-bottom: 5px;
     background-color: #fff;
     text-align: center;
     font-size: 52px; 
     border-radius: 4px;
   }
 
+  .grid_box_1 li:nth-of-type(5) .hanja_con,
+  .grid_box_1 li:nth-of-type(6) .hanja_con,
+  .grid_box_1 li:nth-of-type(7) .hanja_con,
+  .grid_box_1 li:nth-of-type(8) .hanja_con {
+    margin-bottom: 10px;
+  }
+
+  .ganji .hanja_con {
+    margin-bottom: 10px;
+  }
+
   .grid_box_1 li .hanja_con {
+    width: 84px;
+    /*height: 90px;*/
+  }
+
+  .no_wolwoon .grid_box_1 li .hanja_con {
     width: 100px;
-    height: 90px;
   }
 
   .w100 .grid_box_1 li .hanja_con {
@@ -383,17 +407,18 @@
   }
 
   .ganji .hanja_con {
-    width: 96px;
-    height: 90px;
+    width: 88px;
+    /*height: 90px;*/
   }
 
-  
+  .no_wolwoon .ganji .hanja_con {
+    width: 100px;
+  }
 
   .grid_box_1 li .hanja_con b,
   .ganji .hanja_con b {
     display: block;
 	  line-height: 120%; 
-    margin-top: 5px;
   }
 
   .w50 .grid_box_1 li .hanja_con,
@@ -450,7 +475,6 @@
   .ganji .sin_sal {
     font-size: 16px;
     color: #fff;
-    margin-bottom: 5px;
   }
 
   .grid_box_1 li .sin_sal,
@@ -463,7 +487,7 @@
     background-color: transparent;
     color: #fff;
     padding: 0;
-    margin: 0;
+    margin-bottom:5px;
   }
 
   .grid_box_1 li p.label,
@@ -568,13 +592,21 @@
   }
 
   .fortune_section .w {
-    padding: 5px;
     width: 100%;
-    background-color: #fff;
-    margin-bottom: 5px;
+    /* background-color: #fff;
+    margin-bottom: 5px; */
+    color: #fff;
     text-align: center;
     font-size: 14px;
     border-radius: 2px;
+  }
+
+  .grid_box_1 li .ten_sin,
+  .ganji .ten_sin,
+  .fortune_section .w[class*="dt10sin"],
+  .fortune_section .w[class*="st10sin"],
+  .fortune_section .w[class*="0sin"] {
+    margin-bottom: 4px;
   }
 
   .fortune_section.grid_box_12 .w {
@@ -794,7 +826,7 @@
   .pharases {
     padding: 0px 20px;
     font-size: 14px;
-    color: #EED36C;
+    color: #E6BF28;
     margin-bottom: 5px;
   }
 
@@ -1377,20 +1409,32 @@
     }
     
     .woonkuk {
-      width: 65%;
+      width: 58%;
     }
 
     .lucky_wrap {
-      width: 35%;
+      width: 42%;
     }
     
     .lucky_wrap .lucky_box {
-      gap: 2vw;
+      gap: 0.8vw;
     }
 
     .lucky_box .lucky .ganji,
     .grid_box_1 li .hanja_con, .ganji .hanja_con {
-      margin-bottom: 0.8vw;
+      margin-bottom: 0;
+    }
+
+
+    .grid_box_1 li:nth-of-type(5) .hanja_con,
+    .grid_box_1 li:nth-of-type(6) .hanja_con,
+    .grid_box_1 li:nth-of-type(7) .hanja_con,
+    .grid_box_1 li:nth-of-type(8) .hanja_con {
+      margin-bottom: 1.2vw;
+    }
+
+    .ganji .hanja_con {
+      margin-bottom: 1vw;
     }
 
     .woon_container {
@@ -1402,7 +1446,7 @@
     }
 
     .w100 .grid_box {
-      gap: 2vw;
+      gap: 1.2vw;
     }
 
     .grid_box_10 {
@@ -1432,22 +1476,30 @@
     }
 
     .grid_box_1 li .hanja_con {
-      width: 14.1vw;
-      height: 10.8vw;
+      width: 12vw;
+      /*height: 10.8vw;*/
+    }
+
+    .no_wolwoon .grid_box_1 li .hanja_con {
+      width: 14.2vw;
     }
   
     .ganji .hanja_con {
-      width: 14.4vw;
-      height: 10.8vw;
+      width: 12vw;
+      /*height: 10.8vw;*/
+    }
+
+    .no_wolwoon .ganji .hanja_con {
+      width: 14.2vw;
     }
 
     .w100 .grid_box_1 li .hanja_con {
-      width: 21.2vw;
+      width: 22vw;
     }
 
     .w50 .grid_box_1 li .hanja_con {
       width: 10.4vw;
-      height: 9.6vw;
+      /*height: 9.6vw;*/
     }
 
     .grid_box_1.grid_box_8 li .hanja_con {
@@ -1466,6 +1518,7 @@
     .grid_box_1 li p.hanguel,
     .ganji p.hanguel  {
       font-size: 2.4vw;
+      margin-bottom: 0.8vw;
     }
 
     .grid_box_1 li p,
@@ -1490,7 +1543,12 @@
 
     .grid_box_1 li .hanja_con b,
     .ganji .hanja_con b {
-      margin-top: 0.4vw;
+      margin-top: 0.8vw;
+    }
+
+    .no_hanguel .grid_box_1 li .hanja_con b,
+    .no_hanguel .ganji .hanja_con b {
+      margin: 0.8vw 0;
     }
 
     .w50 .grid_box_1 li .hanja_con,
@@ -1506,7 +1564,6 @@
     .grid_box_1 li .sin_sal,
     .ganji .sin_sal {
         font-size: 3.2vw;
-        margin-bottom: 0.8vw;
     }
 
 
@@ -1563,10 +1620,15 @@
       font-weight: 700;
       background-color: #fff;
       border-radius: 2px;
+      margin-bottom: 0.4vw;
     }
 
-    .fortune_section .w {
-      padding: 0.4vw 0;
+    .grid_box_1 li .ten_sin,
+    .ganji .ten_sin,
+    .fortune_section .w[class*="dt10sin"],
+    .fortune_section .w[class*="st10sin"],
+    .fortune_section .w[class*="0sin"] {
+      margin-bottom: 0.4vw;
     }
     
     .fortune_section .w.dage {
@@ -1862,9 +1924,7 @@
       gap: 0.8vw;
     }
 
-    .couple_mode_wrap .grid_box_1 li p.eum_yang, 
-    .couple_mode_wrap .ganji p.eum_yang, 
-    .couple_mode_wrap .wongook_lucky .grid_box_1 li p.eum_yang {
-      
+    .couple_mode_wrap .w50 .grid_box_1 li .hanja_con {
+      width: 11vw;
     }
   }

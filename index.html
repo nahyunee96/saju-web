@@ -109,7 +109,7 @@
       }
   
       /* 인포모달 */
-      #infoModal3 {
+      #infoModal4 {
         position: fixed;
         left: 50%;
         top: 50%;
@@ -120,7 +120,7 @@
         border: 2px solid #252525;
       }
   
-      #infoModal3 .title {
+      #infoModal4 .title {
         width: 100%;
         background-color: #252525;
         color: #fff;
@@ -128,32 +128,32 @@
         padding: 10px;
       }
   
-      #infoModal3 .title b {
+      #infoModal4 .title b {
         font-size: 14px;
         color: #ccc;
       }
   
-      #infoModal3 .content {
+      #infoModal4 .content {
         width: 100%;
         padding: 20px;
         background-color: #fff;
         color: #252525;
       }
 
-      #infoModal3 .content li {
+      #infoModal4 .content li {
         margin-bottom: 8px;
       }
 
-      #infoModal3 .content li:last-child{
+      #infoModal4 .content li:last-child{
         margin-bottom: 0;
       }
 
-      #infoModal3 .btn_box {
+      #infoModal4 .btn_box {
         background-color: #252525;
         padding: 10px;
       }
 
-      #infoModal3 .btn_box button {
+      #infoModal4 .btn_box button {
         padding: 4px 12px;
         font-size: 14px;
       }
@@ -177,25 +177,25 @@
           height: 8vw;
         }
 
-        #infoModal3 .title {
-          font-size:5.2vw;
+        #infoModal4 .title {
+          font-size:4.4vw;
           padding: 2.4vw;
         }
     
-        #infoModal3 .title b {
-          font-size: 4.4vw;
+        #infoModal4 .title b {
+          font-size: 3.6vw;
         }
     
-        #infoModal3 .content {
+        #infoModal4 .content {
           padding: 2vw;
           font-size: 3.6vw;
         }
 
-        #infoModal3 .content li {
+        #infoModal4 .content li {
           margin-bottom: 1.2vw;
         }
 
-        #infoModal3 .btn_box button {
+        #infoModal4 .btn_box button {
           padding: 1.2vw 2vw;
           font-size: 3.2vw;
         }
@@ -215,15 +215,16 @@
         <div id="map"></div>
       </div>
     </div>
-    <div id="infoModal3">
+    <div id="infoModal4">
       <div class="inner">
         <div class="title">
-          <span>!! 안내드립니다 !! <b>만세력 UPDATE 3 ver.</b></span>
+          <span>!! 안내드립니다 !! <b>만세력 UPDATE 244 ver.</b></span>
         </div>
         <div class="content">
           <ul class="infoContent">
-            <li>운 리스트 UI 변경이 이루어졌습니다.</li>
-            <li>3시간 이상 꺼져있을 시, 자동으로 새로고침 되게 해놓았습니다 ! (그래도 자주 해주시면 좋습니다 ^^)</li>
+            <li>UI 변경이 대폭 이루어졌습니다. 월운까지 한번에 보실 수 있습니다.</li>
+            <li>각종 설정에서 설정을 해보실 수 있습니다. 이리저리 맞춰보시면서, 편한 쪽을 찾으시면 됩니다 !</li>
+            <li>새로 고침은 자주 해주시면 좋습니다. 🥰</li>
             <li>명식 모두 삭제를 하실 경우, 브라우저 데이터가 삭제되어 팝업이 또 뜨게 됩니다 ! <br> 브라우저에서 보지 않기를 눌러주세요!
               다른 브라우저 사용 & 캐시만 비워지지 않으면 이 팝업은 또 뜨지 않습니다 !
             </li>
@@ -247,12 +248,12 @@
       }
 
       document.addEventListener('DOMContentLoaded', () => {
-        const modal       = document.getElementById('infoModal3');
+        const modal       = document.getElementById('infoModal4');
         const hideForever = document.getElementById('lognTimeX');  // ← 수정
         const closeBtn    = document.getElementById('closeX');
 
         // 1) 페이지 로드 시, 숨김 플래그 확인
-        const hidden = localStorage.getItem('infoModalHidden3');
+        const hidden = localStorage.getItem('iinfoModalHidden4');
         if (hidden === 'true') {
           modal.style.display = 'none';
         } else {
@@ -261,7 +262,7 @@
 
         // 2) “이 이후 브라우저에서 보지 않기” 클릭
         hideForever.addEventListener('click', () => {
-          localStorage.setItem('infoModalHidden3', 'true');
+          localStorage.setItem('iinfoModalHidden4', 'true');
           modal.style.display = 'none';
         });
 
@@ -295,29 +296,41 @@
         <button class="black_btn close_btn" id="setCloaseBtn"><span>&times;</span></button>
         <ul class="" >
           <li class="title">각종 설정</li>
-          <!-- <li class="content">
-            <label for="">간지 글자 설정</label>
-            <div class="s12_ctrl_con radio_wrap" id="s12CtrlCon">
-              <span>
-                <input type="radio" name="ganjiType" id="ganjiType_01"/>
-                <label for="ganjiType_01">한자만</label>
-              </span>
-              <span>
-                <input type="radio" name="ganjiType" id="ganjiType_02"/>
-                <label for="ganjiType_02" >한글만</label>
-              </span>
-              <span>
-                <input type="radio" name="ganjiType" id="ganjiType_03" checked/>
-                <label for="ganjiType_03" >한자 + 한글 둘 다</label>
-              </span>
-            </div>
-          </li> -->
           <li class="content">
             <label for="음양">음양 표시 여부</label>
             <div class="s12_ctrl_con radio_wrap center">
               <span>
                 <input type="checkbox" name="eumyangDisplay" id="eumyangDisplay"/>
                 <label for="eumyangDisplay">음양표시여부</label>
+              </span>
+            </div>
+            
+          </li>
+          <li class="content">
+            <label for="간지한글표시여부">간지한글표시여부</label>
+            <div class="s12_ctrl_con radio_wrap center">
+              <span>
+                <input type="checkbox" name="hanguelDisplay" id="hanguelDisplay"/>
+                <label for="hanguelDisplay">간지한글표시여부</label>
+              </span>
+            </div>
+            
+          </li>
+          <li class="content">
+            <label for="지장간">지장간 전체 표시여부</label>
+            <div class="s12_ctrl_con radio_wrap center">
+              <span>
+                <input type="checkbox" name="jijangganDisplay" id="jijangganDisplay"/>
+                <label for="jijangganDisplay">지장간 전체 표시여부</label>
+              </span>
+            </div>
+          </li>
+          <li class="content">
+            <label for="월운">월운 상단 표시여부</label>
+            <div class="s12_ctrl_con radio_wrap center">
+              <span>
+                <input type="checkbox" name="wolwoonDisplay" id="wolwoonDisplay" checked/>
+                <label for="wolwoonDisplay">월운 상단 표시여부</label>
               </span>
             </div>
           </li>
@@ -381,6 +394,62 @@
         });
       </script>
       <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const jijangganCheckbox = document.getElementById("jijangganDisplay");
+          const hanguelCheckbox = document.getElementById("hanguelDisplay");
+      
+          const jijangganSuffixes = ["Jj1", "Jj2"];
+          const hanguelSuffix = "Hanguel";
+      
+          const jijangganKey = "showJijanggan";
+          const hanguelKey = "showHanguel";
+      
+          const body = document.body;
+      
+          // 공통: 특정 접미사로 끝나는 id 요소들 토글
+          function toggleBySuffix(suffixes, show) {
+            suffixes.forEach(suffix => {
+              document.querySelectorAll(`[id$="${suffix}"]`).forEach(el => {
+                el.style.display = show ? "block" : "none";
+              });
+            });
+          }
+      
+          // ── 1. 초기 상태 복원 ──
+          const savedJjState = localStorage.getItem(jijangganKey);
+          const jjShouldShow = savedJjState === null ? true : savedJjState === "true";
+          jijangganCheckbox.checked = jjShouldShow;
+          toggleBySuffix(jijangganSuffixes, jjShouldShow);
+      
+          const savedHgState = localStorage.getItem(hanguelKey);
+          const hgShouldShow = savedHgState === null ? true : savedHgState === "true";
+          hanguelCheckbox.checked = hgShouldShow;
+          toggleBySuffix([hanguelSuffix], hgShouldShow);
+          if (!hgShouldShow) {
+            body.classList.add("no_hanguel");
+          }
+      
+          // ── 2. 이벤트 리스너 설정 ──
+          jijangganCheckbox.addEventListener("change", function () {
+            const isChecked = jijangganCheckbox.checked;
+            toggleBySuffix(jijangganSuffixes, isChecked);
+            localStorage.setItem(jijangganKey, isChecked.toString());
+          });
+      
+          hanguelCheckbox.addEventListener("change", function () {
+            const isChecked = hanguelCheckbox.checked;
+            toggleBySuffix([hanguelSuffix], isChecked);
+            localStorage.setItem(hanguelKey, isChecked.toString());
+      
+            if (isChecked) {
+              body.classList.remove("no_hanguel");
+            } else {
+              body.classList.add("no_hanguel");
+            }
+          });
+        });
+      </script>      
+      <script>
         document.addEventListener('DOMContentLoaded', () => {
           const chk = document.getElementById('eumyangDisplay');
           const elems = document.querySelectorAll('.eum_yang');
@@ -394,7 +463,7 @@
           // 2) 표시 토글 함수
           function toggleEumYang() {
             elems.forEach(el => {
-              el.style.display = chk.checked ? 'none' : '';
+              el.style.display = chk.checked ? '' : 'none';
             });
           }
         
@@ -407,6 +476,39 @@
             toggleEumYang();
           });
         });
+      </script>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.getElementById("wolwoonDisplay");
+        const targetBox = document.getElementById("wongookLM");
+        const wolwoonBox = document.querySelector(".lucky.wolwoon");
+        const storageKey = "showWolwoon";
+
+        // ✅ 상태 적용 함수
+        function toggleWolwoonDisplay(show) {
+          if (show) {
+            targetBox.classList.remove("no_wolwoon");
+            if (wolwoonBox) wolwoonBox.style.display = "block";
+          } else {
+            targetBox.classList.add("no_wolwoon");
+            if (wolwoonBox) wolwoonBox.style.display = "none";
+          }
+        }
+
+        // ✅ 초기화 (로컬스토리지 → 없으면 기본값 true)
+        const saved = localStorage.getItem(storageKey);
+        const shouldShow = saved === null ? true : saved === "true";
+        checkbox.checked = shouldShow;
+        toggleWolwoonDisplay(shouldShow);
+
+        // ✅ 변경 시 반영
+        checkbox.addEventListener("change", function () {
+          const show = this.checked;
+          localStorage.setItem(storageKey, show);
+          toggleWolwoonDisplay(show);
+        });
+      });
+
       </script>
       <!-- 사이드바 -->
       <aside id="aside" class="aside">
@@ -457,7 +559,7 @@
         <form class="input_wrap" id="inputWrap">
           <div class="input_group">
             <label for="inputName" style="position: relative;">명주이름
-              <span class="pharases ver" style="position: absolute; right: 0;">Ver.243</span>
+              <span class="pharases ver" style="position: absolute; right: 0;">Ver.244</span>
             </label>
             <input type="text" class="valueClear" id="inputName" maxlength="10" placeholder="10글자 이내로 이름 입력" />
           </div>
@@ -717,7 +819,7 @@
           <div class="wongook_lucky" id="wongookLM">
             <div class="lucky_wrap" id="luckyWrap">
               <p class="buga_title"><span>운</span></p>
-              <div class="lucky_box">
+              <div class="lucky_box" id="luckyBox">
                 
                 <div class="lucky daewoony">
                   <div class="ganji">
@@ -771,6 +873,34 @@
                     <div id="Swb10sin" class="ten_sin"></div>
                     <div id="SWb12ws" class="woon_seong"></div>
                     <div id="SWb12ss" class="sin_sal"></div>
+                  </div>
+                </div>
+                <!-- 월운 -->
+                <div class="lucky wolwoon">
+                  <div class="ganji">
+                    <p class="label">월운</p>
+                    <div id="Wwt10sin" class="ten_sin"></div>
+                    <div class="hanja_con">
+                      <p id="WwtEumyang" class="eum_yang"></p>
+                      <b id="WwtHanja"></b>
+                      <p id="WwtHanguel" class="hanguel"></p>
+                    </div>
+                  </div>
+                  <div class="ganji">
+                    <div class="hanja_con">
+                      <p id="WwbEumyang" class="eum_yang"></p>
+                      <b id="WwbHanja"></b>
+                      <p id="WwbHanguel" class="hanguel"></p>
+                    </div>
+                    
+                    <ul class="jijanggan reverse" id="WwJj">
+                      <li id="WwJj1"></li>
+                      <li id="WwJj2"></li>
+                      <li id="WwJj3"></li>
+                    </ul>
+                    <div id="Wwb10sin" class="ten_sin"></div>
+                    <div id="Wwb12ws" class="woon_seong"></div>
+                    <div id="Wwb12ss" class="sin_sal"></div>
                   </div>
                 </div>
               </div>
@@ -1143,7 +1273,7 @@
             <div class="scroll_x">
               <!-- 대운리스트 -->
               <ul class="grid_box grid_box_10 fortune_section reverse" id="daewoonList">
-                <li id="daewoon_1" data-index="1" data-year="">
+                <li id="daewoon_1" data-index="1" >
                   <div class="dage w innerClear" id="Da1"></div>
                   <div class="dt10sin1 w innerClear" id="dt10sin1"></div>
                   <div class="ganji_w innerClear" id="DC_1"></div>
@@ -1153,7 +1283,7 @@
                   <div class="dsin1 w innerClear" id="Ds1"></div>
                   
                 </li>
-                <li id="daewoon_2" data-index="2" data-year="">
+                <li id="daewoon_2" data-index="2" >
                   <div class="dage w innerClear" id="Da2"></div>
                   <div class="dt10sin2 w innerClear" id="dt10sin2"></div>
                   <div class="ganji_w innerClear" id="DC_2"></div>
@@ -1163,7 +1293,7 @@
                   <div class="dsin2 w innerClear" id="Ds2"></div>
                   
                 </li>
-                <li id="daewoon_3" data-index="3" data-year="">
+                <li id="daewoon_3" data-index="3" >
                   <div class="dage w innerClear" id="Da3"></div>
                   <div class="dt10sin3 w innerClear" id="dt10sin3"></div>
                   <div class="ganji_w innerClear" id="DC_3"></div>
@@ -1173,7 +1303,7 @@
                   <div class="dsin3 w innerClear" id="Ds3"></div>
                   
                 </li>
-                <li id="daewoon_4" data-index="4" data-year="">
+                <li id="daewoon_4" data-index="4" >
                   <div class="dage w innerClear" id="Da4"></div>
                   <div class="dt10sin4 w innerClear" id="dt10sin4"></div>
                   <div class="ganji_w innerClear" id="DC_4"></div>
@@ -1183,7 +1313,7 @@
                   <div class="dsin4 w innerClear" id="Ds4"></div>
                   
                 </li>
-                <li id="daewoon_5" data-index="5" data-year="">
+                <li id="daewoon_5" data-index="5" >
                   <div class="dage w innerClear" id="Da5"></div>
                   <div class="dt10sin3 w innerClear" id="dt10sin5"></div>
                   <div class="ganji_w innerClear" id="DC_5"></div>
@@ -1193,7 +1323,7 @@
                   <div class="dsin5 w innerClear" id="Ds5"></div>
                   
                 </li>
-                <li id="daewoon_6" data-index="6" data-year="">
+                <li id="daewoon_6" data-index="6" >
                   <div class="dage w innerClear" id="Da6"></div>
                   <div class="dt10sin3 w innerClear" id="dt10sin6"></div>
                   <div class="ganji_w innerClear" id="DC_6"></div>
@@ -1203,7 +1333,7 @@
                   <div class="dsin6 w innerClear" id="Ds6"></div>
                   
                 </li>
-                <li id="daewoon_7" data-index="7" data-year="">
+                <li id="daewoon_7" data-index="7" >
                   <div class="dage w innerClear" id="Da7"></div>
                   <div class="dt10sin3 w innerClear" id="dt10sin7"></div>
                   <div class="ganji_w innerClear" id="DC_7"></div>
@@ -1213,7 +1343,7 @@
                   <div class="dsin7 w innerClear" id="Ds7"></div>
                   
                 </li>
-                <li id="daewoon_8" data-index="8" data-year="">
+                <li id="daewoon_8" data-index="8" >
                   <div class="dage w innerClear" id="Da8"></div>
                   <div class="dt10sin3 w innerClear" id="dt10sin8"></div>
                   <div class="ganji_w innerClear" id="DC_8"></div>
@@ -1223,7 +1353,7 @@
                   <div class="dsin8 w innerClear" id="Ds8"></div>
                   
                 </li>
-                <li id="daewoon_9" data-index="9" data-year="">
+                <li id="daewoon_9" data-index="9" >
                   <div class="dage w innerClear" id="Da9"></div>
                   <div class="dt10sin3 w innerClear" id="dt10sin9"></div>
                   <div class="ganji_w innerClear" id="DC_9"></div>
@@ -1233,7 +1363,7 @@
                   <div class="dsin9 w innerClear" id="Ds9"></div>
                   
                 </li>
-                <li id="daewoon_10" data-index="10" data-year="">
+                <li id="daewoon_10" data-index="10" >
                   <div class="dage w innerClear" id="Da10"></div>
                   <div class="dt10sin3 w innerClear" id="dt10sin10"></div>
                   <div class="ganji_w innerClear" id="DC_10"></div>
@@ -1250,7 +1380,7 @@
               <div class="scroll_x">
                 <!-- 세운리스트 -->
                 <ul class="grid_box grid_box_10 fortune_section reverse" id="sewoonList">
-                  <li id="Sewoon_1" data-index2="1" id="sewoonStart">
+                  <li id="Sewoon_1" data-index2="1" data-year="" id="sewoonStart">
                     <div class="dyear w" id="Dy1"></div>
                     <div class="st10sin1 w" id="st10sin1"></div>
                     <div class="ganji_w" id="SC_1"></div>
@@ -1260,7 +1390,7 @@
                     <div class="ssin1 w" id="Ss1"></div>
                     
                   </li>
-                  <li id="Sewoon_2" data-index2="2">
+                  <li id="Sewoon_2" data-index2="2" data-year="">
                     <div class="dyear w" id="Dy2"></div>
                     <div class="st10sin2 w" id="st10sin2"></div>
                     <div class="ganji_w" id="SC_2"></div>
@@ -1270,7 +1400,7 @@
                     <div class="ssin1 w" id="Ss2"></div>
                     
                   </li>
-                  <li id="Sewoon_3" data-index2="3">
+                  <li id="Sewoon_3" data-index2="3" data-year="">
                     <div class="dyear w" id="Dy3"></div>
                     <div class="st10sin3 w" id="st10sin3"></div>
                     <div class="ganji_w" id="SC_3"></div>
@@ -1280,7 +1410,7 @@
                     <div class="ssin1 w" id="Ss3"></div>
                     
                   </li>
-                  <li id="Sewoon_4" data-index2="4">
+                  <li id="Sewoon_4" data-index2="4" data-year="">
                     <div class="dyear w" id="Dy4"></div>
                     <div class="st10sin4 w" id="st10sin4"></div>
                     <div class="ganji_w" id="SC_4"></div>
@@ -1290,7 +1420,7 @@
                     <div class="ssin1 w" id="Ss4"></div>
                     
                   </li>
-                  <li id="Sewoon_5" data-index2="5">
+                  <li id="Sewoon_5" data-index2="5" data-year="">
                     <div class="dyear w" id="Dy5"></div>
                     <div class="st10sin5 w" id="st10sin5"></div>
                     <div class="ganji_w" id="SC_5"></div>
@@ -1300,7 +1430,7 @@
                     <div class="ssin1 w" id="Ss5"></div>
                     
                   </li>
-                  <li id="Sewoon_6" data-index2="6">
+                  <li id="Sewoon_6" data-index2="6" data-year="">
                     <div class="dyear w" id="Dy6"></div>
                     <div class="st10sin6 w" id="st10sin6"></div>
                     <div class="ganji_w" id="SC_6"></div>
@@ -1310,7 +1440,7 @@
                     <div class="ssin1 w" id="Ss6"></div>
                     
                   </li>
-                  <li id="Sewoon_7" data-index2="7">
+                  <li id="Sewoon_7" data-index2="7" data-year="">
                     <div class="dyear w" id="Dy7"></div>
                     <div class="st10sin7 w" id="st10sin7"></div>
                     <div class="ganji_w" id="SC_7"></div>
@@ -1320,7 +1450,7 @@
                     <div class="ssin1 w" id="Ss7"></div>
                     
                   </li>
-                  <li id="Sewoon_8" data-index2="8">
+                  <li id="Sewoon_8" data-index2="8" data-year="">
                     <div class="dyear w" id="Dy8"></div>
                     <div class="st10sin8 w" id="st10sin8"></div>
                     <div class="ganji_w" id="SC_8"></div>
@@ -1330,7 +1460,7 @@
                     <div class="ssin1 w" id="Ss8"></div>
                     
                   </li>
-                  <li id="Sewoon_9" data-index2="9">
+                  <li id="Sewoon_9" data-index2="9" data-year="">
                     <div class="dyear w" id="Dy9"></div>
                     <div class="st10sin9 w" id="st10sin9"></div>
                     <div class="ganji_w" id="SC_9"></div>
@@ -1340,7 +1470,7 @@
                     <div class="ssin1 w" id="Ss9"></div>
                     
                   </li>
-                  <li id="Sewoon_10" data-index2="10" id="sewoonEnd">
+                  <li id="Sewoon_10" data-index2="10" data-year="" id="sewoonEnd">
                     <div class="dyear w" id="Dy10"></div>
                     <div class="st10sin10 w" id="st10sin10"></div>
                     <div class="ganji_w" id="SC_10"></div>
