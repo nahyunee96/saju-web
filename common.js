@@ -1757,7 +1757,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const yearPillar  = item.yearPillar  || "-";
       const monthPillar = item.monthPillar || "-";
       const dayPillar   = item.dayPillar   || "-";
-      const hourPillar  = item.hourPillar  || "-";
+      const hourPillar  = isTimeUnknown ? "-" : item.hourPillar;
 
       const starState = item.isFavorite ? '★ ON' : '☆ OFF';
 
@@ -2930,7 +2930,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('hourListWrap').style.display = 'none';
       } else {
         checkOption.style.display = 'none';
-        document.getElementById('hourListWrap').style.display = 'block';
+        document.getElementById('hourListWrap').style.display = 'none';
       }
     });
 
@@ -3994,7 +3994,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("#mowoonList li").forEach(function(li) {
       li.addEventListener("click", function(event) {
         event.stopPropagation();
-        
+
         const wolwoonBox = document.querySelector(".lucky.wolwoon");
         const wongookLM = document.getElementById("wongookLM");
 
