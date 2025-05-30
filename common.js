@@ -787,9 +787,10 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
     hourBranchIndex = 1;
   }
 
-  if (isInsi && correctedDate.getHours() < 3 || correctedDate.getHours() >= 23) {
-    hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-  } else if (hourBranchIndex === 0){
+  // if (isInsi && correctedDate.getHours() < 3 || correctedDate.getHours() >= 23) {
+  //   hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
+  // } else
+  if (hourBranchIndex === 0){
     hourDayPillar = getDayGanZhi(nominalBirthDate);
   } else {
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
@@ -808,23 +809,25 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
 
-  if (yajasi && correctedDate.getHours() >= 24){
-    const daypillar = getDayGanZhi(nominalBirthDate);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  } 
+  // if (yajasi && correctedDate.getHours() >= 24){
+  //   const daypillar = getDayGanZhi(nominalBirthDate);
+  //   return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  // } 
     
+  // if (isInsi && (correctedDate.getHours() < 3 || correctedDate.getHours() >= 23)){
+  //   const daypillar = getDayGanZhi(nominalBirthDatePrev);
+  //   return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  // } else {
+  //   const daypillar = getDayGanZhi(nominalBirthDate);
+  //   return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  // }	
   if (isJasi && correctedDate.getHours() >= 23){
     const daypillar = getDayGanZhi(nominalBirthDate2);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  } 
-
-  if (isInsi && (correctedDate.getHours() < 3 || correctedDate.getHours() >= 23)){
-    const daypillar = getDayGanZhi(nominalBirthDatePrev);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } else {
     const daypillar = getDayGanZhi(nominalBirthDate);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  }	
+  }
 }
 
 let globalState = { birthYear: null, month: null, day: null, birthPlace: null, gender: null, daewoonData: null, sewoonStartYear: null, originalDayStem: null };
@@ -5648,7 +5651,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateMyowoonSection(myowoonResult);
     }
 
-    function radioFunc(refDate) {
+    function radioFunc() {
 
       let originalDate;
       let correctedRadio;
@@ -5810,7 +5813,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const branchName = Jiji[branchIndex];
 
       if (branchName === "자" || branchName === "축") {
-        radioFunc(refDate);
+        radioFunc();
       }
       updateCalenderFunc(refDate);
       updateExplanDetail(myowoonResult, hourPillar);
@@ -5957,7 +5960,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const hourListEl  = document.getElementById("hourList");
 
       // innerHTML 클리어는 최초 한 번만
-      if (!initialized) {
+      {
         hourListEl.innerHTML = "";
         sijuList.forEach((siju, idx) => {
           const lbl = labels[idx];
@@ -6132,7 +6135,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const birthDay   = day;
 
     // 1) 전날 계산 헬퍼
-    function updateDayPillarByPrev(baseDate = correctedDate) {
+    function updateDayPillarByPrev(baseDate) {
       // ① baseDate에서 “년·월·일”만 자정(0시)으로 추출
       const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
       // ② 전날로 이동
@@ -6149,8 +6152,9 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
     }
 
+
     // 2) 같은 날 계산 헬퍼
-    function updateDayPillarByCurr(baseDate = correctedDate) {
+    function updateDayPillarByCurr(baseDate) {
       // ① baseDate에서 “년·월·일”만 자정(0시)으로 추출
       const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
 
@@ -6159,6 +6163,23 @@ document.addEventListener("DOMContentLoaded", function () {
       const split     = splitPillar(dayPillar);
 
       // ③ 화면 업데이트
+      updateStemInfo("Dt", split, split.gan);
+      updateBranchInfo("Db", split.ji, split.gan);
+      setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
+      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
+    }
+
+    function updateDayPillarByNext(baseDate) {
+      // ① baseDate에서 “년·월·일”만 자정(0시)으로 추출
+      const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+      // ② 전날로 이동
+      d.setDate(d.getDate() + 1);
+
+      // ③ 간지 계산
+      const dayPillar = getDayGanZhi(d);
+      const split     = splitPillar(dayPillar);
+
+      // ④ 화면 업데이트 (split.gan 을 기준으로)
       updateStemInfo("Dt", split, split.gan);
       updateBranchInfo("Db", split.ji, split.gan);
       setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
@@ -6216,18 +6237,21 @@ document.addEventListener("DOMContentLoaded", function () {
       correctedDate = newCorrected;
     
       // 5) 자·축(子,丑) 시는 전날 로직과, 기준 통일된 updateDayPillar 호출
-      const useInsiMode = document.getElementById('insi').checked;
+      ///const useInsiMode = document.getElementById('insi').checked;
       const branchName  = manualSiju.charAt(1);
-      if ((branchName === "자" || branchName === "축") && useInsiMode) {
-        updateDayPillarByPrev(correctedDate);
-      } else {
-        updateDayPillarByCurr(correctedDate);
-      }
+      requestAnimationFrame(() => {
+        if (branchName === "자" || branchName === "축") {
+          updateDayPillarByPrev(correctedDate); // 의심
+        } else {
+          updateDayPillarByCurr(correctedDate);
+        }
+      });
       
       // 6) 마지막에 한번만, 기준이 통일된 updateDayPillar 호출
       if (!manualOverride2) {
-        updateDayPillar(manualSiju);
+        updateDayPillar(currentHourPillar);
       }
+        
     
       // 7) 원래 correctedDate 복원
       correctedDate = prevCorrectedDate;
@@ -6260,12 +6284,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const rawRefDate = (picker && picker.value) ? new Date(picker.value) : new Date();
 
         const radioDate = getRadioBasedDate(rawRefDate);
+        console.log(radioDate);
 
         const branchIndex = getHourBranchIndex(correctedDate);
         const branchName = Jiji[branchIndex];
 
         if (branchName === "자" || branchName === "축") {
-          radioFunc(radioDate);
+          const yajasiElem = document.getElementById('yajasi');
+          const yajasi = yajasiElem && yajasiElem.checked;
+          const jasiElem = document.getElementById('jasi');
+          const isJasi = jasiElem && jasiElem.checked;
+          const insiElem = document.getElementById('insi');
+          const isInsi = insiElem && insiElem.checked;
+
+          if ((isJasi && correctedDate.getHours() >= 23)
+          && (yajasi && correctedDate.getHours() >= 0)
+          && (isInsi && correctedDate.getHours() > 3)) {
+            requestAnimationFrame(()=>{
+              updateDayPillarByPrev(correctedDate);
+            });
+            radioFunc();
+          }
         }
         //radioFunc(radioDate);
         updateFunc(rawRefDate);

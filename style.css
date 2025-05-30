@@ -709,7 +709,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    padding: 10px 10px 0;
+    padding: 10px;
   }
 
   .aside .top_search_list > select {
@@ -972,8 +972,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #011627;
-    height: 60px;
   }
 
   .s12_ctrl_box {
@@ -1092,7 +1090,6 @@
   }
 
   .radio_wrap label {
-    color: #fff;
     cursor: pointer;
   }
 
@@ -1840,10 +1837,6 @@
       background-color: #fff;
       padding: 0 2.4vw;
       font-size: 3.6vw;
-    }
-
-    .check_option {
-      height: 7.2vw;
     }
 
     .check_option.fixed {

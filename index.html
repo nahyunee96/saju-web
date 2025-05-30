@@ -299,6 +299,26 @@
         <button class="black_btn close_btn" id="setCloaseBtn"><span>&times;</span></button>
         <ul class="" >
           <li class="title">각종 설정</li>
+          <li class="content" style="display: none;">
+            <div class="radio_wrap">
+              <ul class="check_option" id="checkOption">
+                <li class="time_chk02">
+                  <span>
+                    <input type="radio" name="timeChk02"  id="timeChk02_01" value="jasi" class="chkValueClear" />
+                    <label for="timeChk02_01">조자시(자시)</label>
+                  </span>
+                  <span>
+                    <input type="radio" name="timeChk02" id="timeChk02_02" value="yajasi" class="chkValueClear"/>
+                    <label for="timeChk02_02">야자시(자정)</label>
+                  </span>
+                  <span>
+                    <input type="radio" name="timeChk02" id="timeChk02_03" value="insi" class="chkValueClear" checked />
+                    <label for="timeChk02_03">인시</label>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </li>
           <li class="content">
             <label for="음양">음양 표시 여부</label>
             <div class="s12_ctrl_con radio_wrap center">
@@ -562,7 +582,7 @@
         <form class="input_wrap" id="inputWrap">
           <div class="input_group">
             <label for="inputName" style="position: relative;">명주이름
-              <span class="pharases ver" style="position: absolute; right: 0;">Ver.246</span>
+              <span class="pharases ver" style="position: absolute; right: 0;">Ver.247</span>
             </label>
             <input type="text" class="valueClear" id="inputName" maxlength="10" placeholder="10글자 이내로 이름 입력" />
           </div>
@@ -786,27 +806,6 @@
               <span id="bjTimeText"> 보정시 : <b id="resbjTime"></b></span>
             </div>
           </div>
-
-          <!-- 라디오 컨트롤 -->
-          <div class="radio_wrap" style="display: none;">
-            <ul class="check_option" id="checkOption">
-              <li class="time_chk02">
-                <span>
-                  <input type="radio" name="timeChk02"  id="timeChk02_01" value="jasi" class="chkValueClear" />
-                  <label for="timeChk02_01">조자시(자시)</label>
-                </span>
-                <span>
-                  <input type="radio" name="timeChk02" id="timeChk02_02" value="yajasi" class="chkValueClear"/>
-                  <label for="timeChk02_02">야자시(자정)</label>
-                </span>
-                <span>
-                  <input type="radio" name="timeChk02" id="timeChk02_03" value="insi" class="chkValueClear" checked />
-                  <label for="timeChk02_03">인시</label>
-                </span>
-              </li>
-            </ul>
-          </div>
-
 
           <!-- 버튼 컨트롤 -->
           <div class="btn_box mt20">
