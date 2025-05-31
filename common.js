@@ -2271,7 +2271,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // 입춘 이전이면 전년도 간지
       const ganZhiYear = (dateObj < ipChun) ? solarYear - 1 : solarYear;
 
-      // 4 CE가 '갑자' (60주기 기준점)
+      // 4 CE가 '갑자' (60주기 기준점)
       const idx = (ganZhiYear - 4) % 60;
 
       return toGz(idx);
@@ -2687,7 +2687,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (this.checked) {
       timeType.style.display = "none";
-      birthPlaceTxt.style.display = "block";  // 시 모르면 문구 표시
+      birthPlaceTxt.style.display = "none";  // 시 모르면 문구 표시
     } else {
       timeType.style.display = "block";
       birthPlaceTxt.style.display = "none";   // 시 입력 가능하면 문구 숨김
@@ -2921,7 +2921,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!isTimeUnknown) {
         if (hourSplit.ji === "자" || hourSplit.ji === "축") {
           
-          checkOption.style.display = 'flex';
+          checkOption.style.display = 'none';
         } else {
           checkOption.style.display = 'none';
         }
@@ -5174,7 +5174,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (isTimeUnknown) {
       document.querySelector(".check_option").style.display = "none";
     } else {
-      document.querySelector(".check_option").style.display = ""; // or "block" 등
+      document.querySelector(".check_option").style.display = "none"; // or "block" 등
     }
 
     function updateExplanDetail(myowoonResult, hourPillar) {
