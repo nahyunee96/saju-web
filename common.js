@@ -1980,11 +1980,9 @@ document.addEventListener("DOMContentLoaded", function () {
               el.classList.remove(...classesToRemove);
             });
           }
-          //if (isTimeUnknown) {
           setTimeout(()=>{
             clearAllColorClasses();
           }, 100)
-          //}
           document.getElementById("bitthTimeX").checked   = true;
           document.getElementById("inputBirthtime").value = "";
         } else {
@@ -2008,13 +2006,12 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("genderMan").checked   = false;
         }
     
-        requestAnimationFrame(function(){
-          const selTime = item.selectedTime2 || 'insi';
-          const r1 = document.querySelector(`input[name="time2"][value="${selTime}"]`);
-          const r2 = document.querySelector(`input[name="timeChk02"][value="${selTime}"]`);
-          if (r1) r1.checked = true;
-          if (r2) r2.checked = true;
-        });
+
+        const selTime = item.selectedTime2 || 'insi';
+        const r1 = document.querySelector(`input[name="time2"][value="${selTime}"]`);
+        const r2 = document.querySelector(`input[name="timeChk02"][value="${selTime}"]`);
+        if (r1) r1.checked = true;
+        if (r2) r2.checked = true;
     
         // 자동 계산
         calculateBtn.click();
@@ -2931,7 +2928,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('hourListWrap').style.display = 'none';
       } else {
         checkOption.style.display = 'none';
-        document.getElementById('hourListWrap').style.display = 'block';
+        document.getElementById('hourListWrap').style.display = 'none';
       }
     });
 
