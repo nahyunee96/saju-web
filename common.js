@@ -809,18 +809,18 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
 
-  // if (yajasi && correctedDate.getHours() >= 24){
-  //   const daypillar = getDayGanZhi(nominalBirthDate);
-  //   return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  // } 
+  if (yajasi && correctedDate.getHours() >= 24){
+    const daypillar = getDayGanZhi(nominalBirthDate);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  } 
     
-  // if (isInsi && (correctedDate.getHours() < 3 || correctedDate.getHours() >= 23)){
-  //   const daypillar = getDayGanZhi(nominalBirthDatePrev);
-  //   return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  // } else {
-  //   const daypillar = getDayGanZhi(nominalBirthDate);
-  //   return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  // }	
+  if (isInsi && (correctedDate.getHours() < 3 || correctedDate.getHours() >= 23)){
+    const daypillar = getDayGanZhi(nominalBirthDatePrev);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  } else {
+    const daypillar = getDayGanZhi(nominalBirthDate);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  }	
   if (isJasi && correctedDate.getHours() >= 23){
     const daypillar = getDayGanZhi(nominalBirthDate2);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
