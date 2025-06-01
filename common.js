@@ -796,11 +796,14 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   }
 
-  if (hourBranchIndex === 0 && (yajasi && correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) 
-  || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() >= 0 && correctedDate.getHours() < 3)){
+  if (hourBranchIndex === 0 && (yajasi && (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3)) 
+  || hourBranchIndex === 0 && (isJasi && (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3))
+  || hourBranchIndex === 0 && (isInsi && (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3))){
+    console.log('저기');
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   } else if (hourBranchIndex === 0 && (yajasi && correctedDate.getHours() < 24) 
   || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
+    console.log('저기저기');
     hourDayPillar = getDayGanZhi(nominalBirthDate);
   }
   const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
@@ -809,25 +812,37 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
 
-  if (yajasi && correctedDate.getHours() >= 24){
-    const daypillar = getDayGanZhi(nominalBirthDate);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  } 
+  if (isJasi && correctedDate.getHours() >= 23 || isJasi && (correctedDate.getHours() < 3)){
+    console.log('여기 자시');
+    if (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) {
+      const daypillar = getDayGanZhi(nominalBirthDate);
+      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+    } else {
+      const daypillar = getDayGanZhi(nominalBirthDate2);
+      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+    }
     
-  if (isInsi && (correctedDate.getHours() < 3 || correctedDate.getHours() >= 23)){
-    const daypillar = getDayGanZhi(nominalBirthDatePrev);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  } else if (isInsi && (correctedDate.getHours() < 3 || isInsi && correctedDate.getHours() >= 23)){
+    console.log('여기 인시');
+    if (hourBranchIndex === 0) {
+      if (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) {
+        const daypillar = getDayGanZhi(nominalBirthDatePrev);
+        return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+      } else {
+        const daypillar = getDayGanZhi(nominalBirthDate);
+        return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+      }
+      
+    } else {
+      const daypillar = getDayGanZhi(nominalBirthDatePrev);
+      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+    }
   } else {
+    console.log('여기 나머지');
     const daypillar = getDayGanZhi(nominalBirthDate);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   }	
-  if (isJasi && correctedDate.getHours() >= 23){
-    const daypillar = getDayGanZhi(nominalBirthDate2);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  } else {
-    const daypillar = getDayGanZhi(nominalBirthDate);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  }
+  
 }
 
 let globalState = { birthYear: null, month: null, day: null, birthPlace: null, gender: null, daewoonData: null, sewoonStartYear: null, originalDayStem: null };
@@ -5575,9 +5590,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getOriginalDateFromItem(item) {
-      const year = parseInt(item.birthday.substring(0, 4), 10);
-      const month = parseInt(item.birthday.substring(4, 6), 10) - 1;
-      const day = parseInt(item.birthday.substring(6, 8), 10);
+      const year = parseInt(item.year);
+      const month = parseInt(item.month) - 1;
+      const day = parseInt(item.day);
     
       let hour = 3, minute = 30; // 기본값
       if (!item.isTimeUnknown && item.birthtime) {
