@@ -799,11 +799,9 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   if (hourBranchIndex === 0 && (yajasi && (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3)) 
   || hourBranchIndex === 0 && (isJasi && (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3))
   || hourBranchIndex === 0 && (isInsi && (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3))){
-    console.log('저기');
     hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
   } else if (hourBranchIndex === 0 && (yajasi && correctedDate.getHours() < 24) 
   || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
-    console.log('저기저기');
     hourDayPillar = getDayGanZhi(nominalBirthDate);
   }
   const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
@@ -813,7 +811,6 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
 
   if (isJasi && correctedDate.getHours() >= 23 || isJasi && (correctedDate.getHours() < 3)){
-    console.log('여기 자시');
     if (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) {
       const daypillar = getDayGanZhi(nominalBirthDate);
       return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
@@ -823,7 +820,6 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
     }
     
   } else if (isInsi && (correctedDate.getHours() < 3 || isInsi && correctedDate.getHours() >= 23)){
-    console.log('여기 인시');
     if (hourBranchIndex === 0) {
       if (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) {
         const daypillar = getDayGanZhi(nominalBirthDatePrev);
@@ -838,7 +834,6 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
       return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
     }
   } else {
-    console.log('여기 나머지');
     const daypillar = getDayGanZhi(nominalBirthDate);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   }	
@@ -3317,10 +3312,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const sewoonList = [];
       for (let j = 0; j < 10; j++) {
         const year   = globalState.sewoonStartYear + j;
-        const ganZhi = getYearGanZhiForSewoon(year);
+        const age   = (year - correctedDate.getFullYear()) + 1;
+        const ganZhi = getYearGanZhiForSewoon(year); 
         const split  = splitPillar(ganZhi);
         sewoonList.push({
           year,
+          age,
           gan:           split.gan,
           ji:            split.ji,
           tenGodGan:     getTenGodForStem(split.gan, baseDayStem),
@@ -3333,6 +3330,7 @@ document.addEventListener("DOMContentLoaded", function () {
       sewoonList.forEach((item, i) => {
         const ix = i + 1;
         setText("Dy"       + ix, item.year);
+        setText("Sy"       + ix, item.age);
         setText("SC_"      + ix, stemMapping[item.gan]?.hanja     || "-");
         setText("SJ_"      + ix, branchMapping[item.ji]?.hanja    || "-");
         setText("st10sin"  + ix, item.tenGodGan);
@@ -4016,7 +4014,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const thisYear = parseInt(document.querySelector('#sewoonList li.active').dataset.year, 10);
         const thisMonth = parseInt(this.dataset.index3, 10);
-        console.log(thisYear, thisMonth);
 
         // 2) 월운 천간·지 계산
         const monthGanZhi = getMonthGanZhiForWolwoon(thisYear, thisMonth);
@@ -6296,7 +6293,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const rawRefDate = (picker && picker.value) ? new Date(picker.value) : new Date();
 
         const radioDate = getRadioBasedDate(rawRefDate);
-        console.log(radioDate);
 
         const branchIndex = getHourBranchIndex(correctedDate);
         const branchName = Jiji[branchIndex];
