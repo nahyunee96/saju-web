@@ -2931,14 +2931,14 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!isTimeUnknown) {
         if (hourSplit.ji === "자" || hourSplit.ji === "축") {
           
-          checkOption.style.display = 'none';
+          checkOption.style.display = 'block';
         } else {
           checkOption.style.display = 'none';
         }
         document.getElementById('hourListWrap').style.display = 'none';
       } else {
         checkOption.style.display = 'none';
-        document.getElementById('hourListWrap').style.display = 'none';
+        document.getElementById('hourListWrap').style.display = 'block';
       }
     });
 
@@ -5184,9 +5184,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (isTimeUnknown) {
-      document.querySelector(".check_option").style.display = "none";
+      document.querySelector("#checkOption").style.display = "none";
     } else {
-      document.querySelector(".check_option").style.display = "none"; // or "block" 등
+      document.querySelector("#checkOption").style.display = "block"; // or "block" 등
     }
 
     function updateExplanDetail(myowoonResult, hourPillar) {
