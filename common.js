@@ -3465,6 +3465,25 @@ document.addEventListener("DOMContentLoaded", function () {
       appendTenGod(monthBranch, "WMb", true);
       setText("WMb12ws", unseong || "-");
       setText("WMb12ss", shinsal || "-");
+    }
+
+    function updateMonthlyWoonTop(computedYear, currentMonthIndex, baseDayStem) {
+      const boundaries = getSolarTermBoundaries(computedYear);
+      if (!boundaries || boundaries.length === 0) return;
+      const cycleStartDate = boundaries[0].date;
+      const dayPillarText = document.getElementById("DtHanguel").innerText;
+      baseDayStem = dayPillarText ? dayPillarText.charAt(0) : "-";
+      const yearPillar = getYearGanZhi(cycleStartDate, computedYear);
+      const yearStem = yearPillar.charAt(0);
+      const yearStemIndex = Cheongan.indexOf(yearStem);
+      const monthNumber = currentMonthIndex + 1;
+      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 4) % 10;
+      const monthStem = Cheongan[monthStemIndex];
+      const monthBranch = MONTH_ZHI[monthNumber - 1];
+      const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
+      const tenGodBranch = getTenGodForBranch(monthBranch, baseDayStem);
+      const unseong = getTwelveUnseong(baseDayStem, monthBranch);
+      const shinsal = getTwelveShinsalDynamic(dayPillar, yearPillar, monthBranch);
 
       setText("WwtHanja", stemMapping[monthStem]?.hanja || "-");
       setText("WwtHanguel", stemMapping[monthStem]?.hanguel || "-");
@@ -3499,8 +3518,29 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       updateMonthlyWoon(computedYear, currentMonthIndex, baseDayStem);
     }
+    
     updateMonthlyWoonByToday(refDate);
 
+    function updateMonthlyWoonByTodayTop(refDate) {
+      const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
+      //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
+      const computedYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
+      const boundaries = getSolarTermBoundaries(computedYear);
+      if (!boundaries || boundaries.length === 0) return;
+      let currentMonthIndex = 0;
+      for (let i = 0; i < boundaries.length - 1; i++) {
+        if (refDate >= boundaries[i].date && refDate < boundaries[i + 1].date) {
+          currentMonthIndex = i;
+          break;
+        }
+      }
+      if (refDate >= boundaries[boundaries.length - 1].date) {
+        currentMonthIndex = boundaries.length - 1;
+      }
+      updateMonthlyWoonTop(computedYear, currentMonthIndex, baseDayStem);
+    }
+
+    updateMonthlyWoonByTodayTop(refDate);
     
 
     document.addEventListener("click", function (event) {
