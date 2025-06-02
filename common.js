@@ -2759,7 +2759,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const gender = document.getElementById("genderMan").checked ? "남" 
                   : (document.getElementById("genderWoman").checked ? "여" : "-");
     const birthPlaceInput = document.getElementById("inputBirthPlace").value || "-";
-
+    const selectTimeValue = document.querySelector('input[name="time2"]:checked')?.value;
     
 
     // 계산용: 시/분 기본값은 "0000", 출생지 기본값은 "서울특별시"
@@ -4148,34 +4148,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const { yeonjuCycle, woljuCycle, iljuCycle, sijuCycle } = getDynamicCycles(birthDate);
 
-    // 지지별 시간 범위 (분 단위)
-    const timeRanges2 = [
-      { branch: '子', start: 1380, end: 60 },
-      { branch: '丑', start: 60, end: 180 },
-      { branch: '寅', start: 180, end: 300 },
-      { branch: '卯', start: 300, end: 420 },
-      { branch: '辰', start: 420, end: 540 },
-      { branch: '巳', start: 540, end: 660 },
-      { branch: '午', start: 660, end: 780 },
-      { branch: '未', start: 780, end: 900 },
-      { branch: '申', start: 900, end: 1020 },
-      { branch: '酉', start: 1020, end: 1140 },
-      { branch: '戌', start: 1140, end: 1260 },
-      { branch: '亥', start: 1260, end: 1380 }
-    ];
-
     // Helper: 주어진 Date에서 시지(地支)를 반환
-    function getHourBranch(date) {
-      const minutes = date.getHours() * 60 + date.getMinutes();
-      for (const range of timeRanges2) {
-        if (range.start < range.end) {
-          if (minutes >= range.start && minutes < range.end) return range.branch;
-        } else {
-          if (minutes >= range.start || minutes < range.end) return range.branch;
-        }
-      }
-      return null;
-    }
 
     function getHourBranchIndex2(date) {
       if (!(date instanceof Date)) {
@@ -4199,18 +4172,10 @@ document.addEventListener("DOMContentLoaded", function () {
       return GANZHI_60[i];
     }
 
-    function nextEvent(prevDate, prevIdx, stepDays, mode) {
-      const dir     = mode === '순행' ?  1 : -1;
-      const oneDay  = 24 * 60 * 60 * 1000;
-      const nextDate = new Date(prevDate.getTime() + dir * stepDays * oneDay);
-      const nextIdx  = (prevIdx + dir + 60) % 60;
-      return { date: nextDate, index: nextIdx };
-    }
-
     // originalDate = new Date(year, month - 1, day, hour, minute);
     // correctedDate = adjustBirthDateWithLon(originalDate, usedBirthPlace, isPlaceUnknown);
 
-    function getMyounPillars(person, refDate, basisOverride = "insi") {
+    function getMyounPillars(person, refDate, basisOverride) {
       
       const { year, month, day, hour, minute, gender, correctedDate } = person;
 
@@ -4332,20 +4297,50 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // ── 월주 간지 배열 (monthPillars부터 시작!) ──
-        //if (!(correctedDate instanceof Date)) {
-          //correctedDate = new Date(correctedDate);
-        //}
-        let year = birthDate.getFullYear();
-        const allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
+        // 월주 & 연주
+        const mPillars = [ monthPillar ]; // ["병오", "정미", …] 형식
+        const yPillars = [ yearPillar ];  // ["신축", …] 형식
+        
+        // 2) 절기 배열(principals)은 고정
+        const principals = [
+          "입춘","경칩","청명","입하",
+          "망종","소서","입추","백로",
+          "한로","입동","대설","소한"
+        ];
+        
+        // 3) monthZhiMap 정의 (위에서 설명한 것과 동일)
+        const monthZhiMap = {
+          insi: {
+            순행: ["寅","卯","辰","巳","午","未","申","酉","戌","亥","子","丑"],
+            역행: ["丑","子","亥","戌","酉","申","未","午","巳","辰","卯","寅"]
+          },
+          jasi: {
+            순행: ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],
+            역행: ["亥","戌","酉","申","未","午","巳","辰","卯","寅","丑","子"]
+          },
+          yajasi: {
+            순행: ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],
+            역행: ["亥","戌","酉","申","未","午","巳","辰","卯","寅","丑","子"]
+          }
+        };
+        
+        // 4) 연주 변경 대상 월지(支) 맵
+        const yeonjuTargetMap = {
+          insi:   { 순행: "卯", 역행: "寅" },
+          jasi:   { 순행: "卯", 역행: "寅" },
+          yajasi: { 순행: "卯", 역행: "寅" }
+        };
+        
+        // 5) 절기 경계(allTerms) 세팅
+        let year = correctedDate.getFullYear();
+        let allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
         let pointer;
-
+        
         if (dirMode === '순행') {
           pointer = allTerms.findIndex(t => t.date >= correctedDate);
           if (pointer < 0) {
             year++;
-            allTerms.length = 0;
-            allTerms.push(...getSolarTermBoundaries(year).sort((a,b) => a.date - b.date));
+            allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
             pointer = 0;
           }
         } else {
@@ -4353,78 +4348,65 @@ document.addEventListener("DOMContentLoaded", function () {
           pointer = past.length - 1;
           if (pointer < 0) {
             year--;
-            allTerms.length = 0;
-            allTerms.push(...getSolarTermBoundaries(year).sort((a,b) => a.date - b.date));
+            allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
             pointer = allTerms.length - 1;
           }
         }
-
-        const mPillars = [ monthPillar ];
-        const yPillars = [ yearPillar ];
-        const principals = [
-          "입춘","경칩","청명","입하",
-          "망종","소서","입추","백로",
-          "한로","입동","대설","소한"
-        ];
-        const MONTH_ZHI2 = [
-          "寅","卯","辰","巳",
-          "午","未","申","酉",
-          "戌","亥","子","丑"
-        ];
-        const yeonjuTargetMap = {
-          insi:   { 순행:"寅", 역행:"丑" },
-          jasi:   { 순행:"寅", 역행:"丑" },
-          yajasi: { 순행:"寅", 역행:"丑" }
-        };
-        const yeonjuTarget = yeonjuTargetMap[basis][dirMode];
-        let lastMb = MONTH_ZHI2[allTerms.findIndex((t, i) => principals[i] === allTerms[pointer].name)];
-
+        
+        // 6) 반복문: sDates[1]~ sDates[sDates.length-1] 구간 처리
         for (let i = 1; i < sDates.length; i++) {
           const dt = sDates[i];
           const term = allTerms[pointer];
           const hit = (dirMode === '순행') ? (dt >= term.date) : (dt <= term.date);
-
+        
           if (hit) {
-            mPillars[i] = getMonthGanZhi(dt, year);
-            // move pointer
+            // (1) 월주 계산: 항상 dt.getFullYear() 기준
+            mPillars[i] = getMonthGanZhi(dt, dt.getFullYear());
+        
+            // (2) 절기 포인터(+/-) 이동 및 연도(year) 갱신
             if (dirMode === '순행') {
               pointer++;
               if (pointer >= allTerms.length) {
                 year++;
-                allTerms.length = 0;
-                allTerms.push(...getSolarTermBoundaries(year).sort((a,b) => a.date - b.date));
+                allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
                 pointer = 0;
               }
             } else {
               pointer--;
               if (pointer < 0) {
                 year--;
-                allTerms.length = 0;
-                allTerms.push(...getSolarTermBoundaries(year).sort((a,b) => a.date - b.date));
+                allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
                 pointer = allTerms.length - 1;
               }
             }
-
-            // 연주 결정
-            const termName = allTerms[pointer].name;
-            const princIdx = principals.indexOf(termName);
-            const mb = princIdx !== -1 ? MONTH_ZHI2[princIdx] : lastMb;
-            const prevY = yPillars[i-1];
+        
+            // (3) 절기 이름으로 인덱스 찾기
+            const termName = allTerms[pointer].name;         // ex) "입추"
+            const princIdx = principals.indexOf(termName);   // ex) 6
+        
+            // (4) basis/dirMode에 맞는 월지(支) 꺼내기
+            const mb = monthZhiMap[basis][dirMode][princIdx];    
+            const prevMb = mPillars[i - 1].charAt(1);  // 이전 단계 월지
+        
+            // (5) 연주 계산
+            const prevY = yPillars[i - 1];
             let newY = prevY;
-
-            if (princIdx !== -1 && mb === yeonjuTarget && mb !== lastMb) {
+            const targetBranch = yeonjuTargetMap[basis][dirMode];
+            if (mb === targetBranch && mb !== prevMb) {
               const idx = getGanZhiIndex(prevY);
-              newY = dirMode === '순행'
+              newY = (dirMode === '순행')
                 ? getGanZhiByIndex((idx + 1) % 60)
                 : getGanZhiByIndex((idx + 59) % 60);
             }
             yPillars[i] = newY;
-            lastMb = mb;
+        
           } else {
-            mPillars[i] = mPillars[i-1];
-            yPillars[i] = yPillars[i-1];
+            // hit 아닌 구간: 이전 값 그대로
+            mPillars[i] = mPillars[i - 1];
+            yPillars[i] = yPillars[i - 1];
           }
         }
+        
         
         // ── 적용기간 계산 (시주 기준) ──
         const periods = [];
@@ -4445,17 +4427,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       
         //── 콘솔 한 줄 출력 ──
-        // console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
-        // for (let i = 0; i < sDates.length; i++) {
-        //   console.log(
-        //     `${sPillars[i]}\t` +
-        //     `${iPillars[i]}\t` +
-        //     `${mPillars[i]}\t` +
-        //     `${yPillars[i]}\t` +
-        //     `${formatDate(sDates[i])}\t` +
-        //     `${formatDate(periods[i].start)} → ${formatDate(periods[i].end)}`
-        //   );
-        // }
+        console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
+        for (let i = 0; i < sDates.length; i++) {
+          console.log(
+            `${sPillars[i]}\t` +
+            `${iPillars[i]}\t` +
+            `${mPillars[i]}\t` +
+            `${yPillars[i]}\t` +
+            `${formatDate(sDates[i])}\t` +
+            `${formatDate(periods[i].start)} → ${formatDate(periods[i].end)}`
+          );
+        }
         
 
         // ── 헬퍼: 첫 변경 시점 찾기 ──
@@ -5101,7 +5083,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
     refDate = (picker && picker.value) ? toKoreanTime(new Date(picker.value)) : toKoreanTime(new Date());  
-    myowoonResult = getMyounPillars(myData, refDate);
+    myowoonResult = getMyounPillars(myData, refDate, selectTimeValue);
     if (picker) {
       const now = toKoreanTime(new Date());
       const yearNow = now.getFullYear();
@@ -5650,7 +5632,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateDayWoon(refDate);
       
       // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
-      myowoonResult = getMyounPillars(myData, refDate);
+      myowoonResult = getMyounPillars(myData, refDate, selectTimeValue);
       updateMyowoonSection(myowoonResult);
     }
 
@@ -5696,7 +5678,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateDayWoon(refDate);
       
       // 묘운 업데이트: getMyounPillars() 호출 시에도 최신 기준값 사용
-      myowoonResult = getMyounPillars(myData, refDate);
+      myowoonResult = getMyounPillars(myData, refDate, selectTimeValue);
       updateMyowoonSection(myowoonResult);
     }
 
@@ -6070,7 +6052,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 hourPillar: null,
                 gender
               };
-              const resetResult = getMyounPillarsVr(resetData, refDate);
+              const resetResult = getMyounPillarsVr(resetData, refDate, selectTimeValue);
               updateMyowoonSection(resetResult);
               updateExplanDetail(resetResult, hourPillar);
               registerMyowoonMoreHandler(hourSplit = null);
@@ -6155,7 +6137,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 hourPillar: siju,
                 gender
               };
-              const myResult = getMyounPillarsVr(myData2, refDate);
+              const myResult = getMyounPillarsVr(myData2, refDate, selectTimeValue);
               setTimeout(()=>{
                 updateMyowoonSection(myResult);
                 updateExplanDetail(myResult, siju);
