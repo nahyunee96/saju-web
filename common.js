@@ -4427,17 +4427,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       
         //── 콘솔 한 줄 출력 ──
-        console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
-        for (let i = 0; i < sDates.length; i++) {
-          console.log(
-            `${sPillars[i]}\t` +
-            `${iPillars[i]}\t` +
-            `${mPillars[i]}\t` +
-            `${yPillars[i]}\t` +
-            `${formatDate(sDates[i])}\t` +
-            `${formatDate(periods[i].start)} → ${formatDate(periods[i].end)}`
-          );
-        }
+        // console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
+        // for (let i = 0; i < sDates.length; i++) {
+        //   console.log(
+        //     `${sPillars[i]}\t` +
+        //     `${iPillars[i]}\t` +
+        //     `${mPillars[i]}\t` +
+        //     `${yPillars[i]}\t` +
+        //     `${formatDate(sDates[i])}\t` +
+        //     `${formatDate(periods[i].start)} → ${formatDate(periods[i].end)}`
+        //   );
+        // }
         
 
         // ── 헬퍼: 첫 변경 시점 찾기 ──
