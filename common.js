@@ -6442,12 +6442,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    document.querySelectorAll('#s12CtrlType01, #s12CtrlType02, #s12CtrlType03, #s12CtrlType04, #s12CtrlType05').forEach(el => {
-      el.addEventListener('change', function() {
-        updateAllTwelveShinsal(dayPillar, yearPillar);
-      });
-    });
-
     updateAllTwelveShinsal(dayPillar, yearPillar);
     
      const controlIds = [
@@ -6475,8 +6469,60 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
+    // 2) 변경 시 저장: 체크된 라디오의 id를 저장
+    ['s12CtrlType01', 's12CtrlType02'].forEach(id => {
+      const radio = document.getElementById(id);
+      if (!radio) return;
+      radio.addEventListener('change', () => {
+        if (radio.checked) {
+          localStorage.setItem(RADIO_KEY, id);
+        }
+      });
+    });
+
+    const RADIO_KEY = 's12SelectedShin';
+    const savedId   = localStorage.getItem(RADIO_KEY);
+    if (savedId) {
+      const radio = document.getElementById(savedId);
+      if (radio) {
+        // 1) 체크 복원
+        radio.checked = true;
+        // 2) 강제 change 이벤트 발생 → 기존 change 리스너가 updateAllTwelveShinsal 호출
+        radio.dispatchEvent(new Event('change'));
+      }
+    }
+
+    // 2) 변경 시 저장: 체크된 라디오의 id를 저장
+    ['s12CtrlType04', 's12CtrlType05'].forEach(id => {
+      const radio2 = document.getElementById(id);
+      if (!radio2) return;
+      radio2.addEventListener('change', () => {
+        if (radio2.checked) {
+          localStorage.setItem(RADIO_KEY2, id);
+        }
+      });
+    });
+
+    const RADIO_KEY2 = 's12SelectedShin2';
+    const savedId2   = localStorage.getItem(RADIO_KEY2);
+    if (savedId) {
+      const radio2 = document.getElementById(savedId2);
+      if (radio2) {
+        // 1) 체크 복원
+        radio2.checked = true;
+        // 2) 강제 change 이벤트 발생 → 기존 change 리스너가 updateAllTwelveShinsal 호출
+        radio2.dispatchEvent(new Event('change'));
+      }
+    }
+
     // 3) 초기 렌더 (복원된 체크 상태 반영)
     updateAllTwelveShinsal(dayPillar, yearPillar);
+
+    document.querySelectorAll('#s12CtrlType01, #s12CtrlType02, #s12CtrlType03, #s12CtrlType04, #s12CtrlType05').forEach(el => {
+      el.addEventListener('change', function() {
+        updateAllTwelveShinsal(dayPillar, yearPillar);
+      });
+    });
 
     window.scrollTo(0, 0);
     document.getElementById('inputWrap').style.display = 'none';
