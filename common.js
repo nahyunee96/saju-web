@@ -3853,33 +3853,33 @@ document.addEventListener("DOMContentLoaded", function () {
         // 세운(운) 리스트 생성
         const sewoonList = [];
         for (let j = 0; j < 10; j++) {
-          let sewoonYear = globalState.sewoonStartYear + j;
-          let yearGanZhi = getYearGanZhiForSewoon(sewoonYear);
-          const splitYear = splitPillar(yearGanZhi);
-          const tenGod = getTenGodForStem(splitYear.gan, baseDayStem);
-          const tenGodJiji = getTenGodForBranch(splitYear.ji, baseDayStem);
+          const year   = globalState.sewoonStartYear + j;
+          const age   = (year - correctedDate.getFullYear()) + 1;
+          const ganZhi = getYearGanZhiForSewoon(year); 
+          const split  = splitPillar(ganZhi);
           sewoonList.push({
-            year: sewoonYear,
-            gan: splitYear.gan,
-            ji: splitYear.ji,
-            tenGod: tenGod,
-            tenGodJiji: tenGodJiji
+            year,
+            age,
+            gan:           split.gan,
+            ji:            split.ji,
+            tenGodGan:     getTenGodForStem(split.gan, baseDayStem),
+            tenGodBranch:  getTenGodForBranch(split.ji, baseDayStem)
           });
         }
-        
-        // 세운 데이터 업데이트 함수
-        function updateSewoonData(baseDayStem) {
-          sewoonList.forEach(function (item, index) {
-            const idx = index + 1;
-            setText("SC_" + idx, stemMapping[item.gan]?.hanja || "-");
-            setText("SJ_" + idx, branchMapping[item.ji]?.hanja || "-");
-            setText("st10sin" + idx, item.tenGod);
-            setText("sb10sin" + idx, item.tenGodJiji);
-            setText("SwW" + idx, getTwelveUnseong(baseDayStem, item.ji) || "-");
-            setText("Ss" + idx, getTwelveShinsalDynamic(dayPillar, yearPillar, item.ji) || "-");
-            setText("Dy" + idx, item.year);
-          });
-        }
+        globalState.sewoonList = sewoonList;
+      
+        // 8) 화면에 뿌리기 (연도 + 간지 + 십신 + 운성 등)
+        sewoonList.forEach((item, i) => {
+          const ix = i + 1;
+          setText("Dy"       + ix, item.year);
+          setText("Sy"       + ix, item.age);
+          setText("SC_"      + ix, stemMapping[item.gan]?.hanja     || "-");
+          setText("SJ_"      + ix, branchMapping[item.ji]?.hanja    || "-");
+          setText("st10sin"  + ix, item.tenGodGan);
+          setText("sb10sin"  + ix, item.tenGodBranch);
+          setText("SwW"      + ix, getTwelveUnseong(baseDayStem, item.ji));
+          setText("Ss"       + ix, getTwelveShinsalDynamic(dayPillar, yearPillar, item.ji));
+        });
         updateSewoonData(baseDayStem);
         
         // 원국 대운 HTML 업데이트 함수
