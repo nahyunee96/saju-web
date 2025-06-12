@@ -2048,6 +2048,12 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("woonChangeBtn").click();
         const sewoonBox = document.querySelector(".lucky.sewoon");
         if (sewoonBox) { sewoonBox.style.display = "grid"; }
+        const wolwoonBox = document.querySelector(".lucky.wolwoon");
+        const wongookLM = document.getElementById("wongookLM");
+        if (wolwoonBox && wongookLM && !wongookLM.classList.contains("no_wolwoon")) {
+          if (wolwoonBox) { wolwoonBox.style.display = "grid"; }
+        }
+        
         const iljuCalenderBox = document.getElementById('iljuCalender');
         if (iljuCalenderBox) { iljuCalenderBox.style.display = "block"; }
     
@@ -3880,7 +3886,6 @@ document.addEventListener("DOMContentLoaded", function () {
           setText("SwW"      + ix, getTwelveUnseong(baseDayStem, item.ji));
           setText("Ss"       + ix, getTwelveShinsalDynamic(dayPillar, yearPillar, item.ji));
         });
-        updateSewoonData(baseDayStem);
         
         // 원국 대운 HTML 업데이트 함수
         function updateDaewoonHTML(selectedDaewoon, baseDayStem) {
