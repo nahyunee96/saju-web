@@ -1787,11 +1787,29 @@ document.addEventListener("DOMContentLoaded", function () {
       //  ? `<span id="lunarBirthSV_${index+1}">(${lunarBirthDisplay})</span><br>` 
       //  : ""
       //}
-      
-      const yearPillar  = item.yearPillar  || "-";
-      const monthPillar = item.monthPillar || "-";
-      const dayPillar   = item.dayPillar   || "-";
-      const hourPillar  = isTimeUnknown ? "-" : item.hourPillar;
+      // 1) 네 기둥 변수 선언
+      let yearPillar, monthPillar, dayPillar, hourPillar;
+
+
+      console.log(item.year, item.month, item.day);
+
+      // 2) “음력 + 시간 모름”인 경우에만 변환 & 재계산
+      if (item.monthType === '음력' && item.isTimeUnknown) {
+        const cal = new KoreanLunarCalendar();
+        cal.setLunarDate(item.year, item.month, item.day, false);
+        const dateL = new Date(item.year, item.month - 1, item.day, 4, 0);
+        console.log(dateL);  
+        yearPillar  = getYearGanZhi(dateL, dateL.getFullYear());
+        monthPillar = getMonthGanZhi(dateL, dateL.getFullYear());
+        dayPillar   = getDayGanZhi(dateL);
+        hourPillar = '-';
+      } else {
+        // 그 외는 기존에 저장된 값 그대로
+        yearPillar  = item.yearPillar  || "-";
+        monthPillar = item.monthPillar || "-";
+        dayPillar   = item.dayPillar   || "-";
+        hourPillar  = item.isTimeUnknown ? "-" : item.hourPillar;
+      }
 
       const starState = item.isFavorite ? '★ ON' : '☆ OFF';
 
@@ -2015,15 +2033,64 @@ document.addEventListener("DOMContentLoaded", function () {
         const r2 = document.querySelector(`input[name="timeChk02"][value="${selTime}"]`);
         if (r1) r1.checked = true;
         if (r2) r2.checked = true;
-    
+
+        const monthTypeSel = document.getElementById("monthType");
+        monthTypeSel.value = item.monthType;
+        monthTypeSel.dispatchEvent(new Event("change"));
+        
         calculateBtn.click();
-    
-        const myowoonBtn = document.getElementById("myowoonMore");
-        myowoonBtn.classList.remove("active");
-        myowoonBtn.innerText = "묘운력(운 전체) 상세보기";
-    
-        resetHourButtons();
-    
+
+        let yearPillar, monthPillar, dayPillar, hourPillar;
+
+        if (item.monthType === '음력' && item.isTimeUnknown) {
+          const cal = new KoreanLunarCalendar();
+          cal.setLunarDate(item.year, item.month, item.day, false);
+          const dateL = new Date(item.year, item.month - 1, item.day, 4, 0);
+          console.log(dateL);  
+          yearPillar  = getYearGanZhi(dateL, dateL.getFullYear());
+          monthPillar = getMonthGanZhi(dateL, dateL.getFullYear());
+          dayPillar = getDayGanZhi(dateL);
+          hourPillar = '-';
+
+          const yearSplit  = splitPillar(yearPillar);
+          const monthSplit = splitPillar(monthPillar);
+          const daySplit   = splitPillar(dayPillar);
+          daySplitGlobal = daySplit;
+          let hourSplit  = isTimeUnknown ? null : "-";
+          hourSplitGlobal = hourSplit;
+
+          baseDayStem = daySplit.gan;
+          baseDayBranch = dayPillar.charAt(1);
+          baseYearBranch = yearPillar.charAt(1);
+          
+          setTimeout(()=>{
+            function updateOriginalSetMapping(daySplit, hourSplit) {
+              if (manualOverride) {
+                return;
+              }
+              setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, hourSplit.ji));
+              setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsalDynamic(dayPillar, yearPillar, hourSplit.ji));
+              setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
+              setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, daySplit.ji));
+              setText("Mb12ws", getTwelveUnseong(baseDayStem, monthSplit.ji));
+              setText("Mb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, monthSplit.ji));
+              setText("Yb12ws", getTwelveUnseong(baseDayStem, baseYearBranch));
+              setText("Yb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, baseYearBranch));
+            }
+        
+            updateStemInfo("Yt", yearSplit, baseDayStem);
+            updateStemInfo("Mt", monthSplit, baseDayStem);
+            updateStemInfo("Dt", daySplit, baseDayStem);
+            updateStemInfo("Ht", isTimeUnknown ? "-" : hourSplit, baseDayStem);
+            updateBranchInfo("Yb", baseYearBranch, baseDayStem);
+            updateBranchInfo("Mb", monthSplit.ji, baseDayStem);
+            updateBranchInfo("Db", daySplit.ji, baseDayStem);
+            updateBranchInfo("Hb", isTimeUnknown ? "-" : hourSplit.ji, baseDayStem);
+            updateOriginalSetMapping(daySplit, hourSplit);
+            updateColorClasses();
+          });
+        }
+        
         const typeSpan = document.getElementById('typeSV');
         if (typeSpan) {
           typeSpan.innerHTML = `<b>${item.group || '미선택'}</b>`;
@@ -2441,6 +2508,8 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("woonVer1Change2").click();
       });
     });
+
+    
   }
 
   function exitCoupleMode() {
@@ -2494,6 +2563,7 @@ document.addEventListener("DOMContentLoaded", function () {
         stripColorClasses('#people2');  
       }, 0);
     }
+    
   });
   
   document.getElementById("listViewBtn").addEventListener("click", function () {
@@ -2781,9 +2851,9 @@ document.addEventListener("DOMContentLoaded", function () {
     let hourSplit  = isTimeUnknown ? null : splitPillar(hourPillar);
     hourSplitGlobal = hourSplit;
 
-    baseDayStem = daySplit.gan; // 원국 일간
+    baseDayStem = daySplit.gan;
     baseDayBranch = dayPillar.charAt(1);
-    baseYearBranch = yearPillar.charAt(1); // 원국 연지 (예: "병자"에서 "자")
+    baseYearBranch = yearPillar.charAt(1); 
 
     const branchIndex = getHourBranchIndex(correctedDate);
     const branchName = Jiji[branchIndex];
@@ -5547,9 +5617,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (el) el.textContent = "-";
               });
 
+              const birthType = document.getElementById("monthType").value;  // "음력" 또는 "양력"
+              let solarY = birthYear,
+                  solarM = birthMonth,
+                  solarD = birthDay;
+
+              if (birthType === "음력") {
+                const cal = new KoreanLunarCalendar();
+                cal.setLunarDate(birthYear, birthMonth, birthDay, false);
+                const sol = cal.getSolarCalendar();
+                solarY = sol.year;
+                solarM = sol.month;
+                solarD = sol.day;
+              }
+
               const resetData = {
                 correctedDate,
-                year, month, day,
+                solarY, solarM, solarD,
                 hour: null, minute: null,
                 yearPillar, monthPillar, dayPillar,
                 hourPillar: null,
@@ -5611,8 +5695,22 @@ document.addEventListener("DOMContentLoaded", function () {
               else if (["자","해"].includes(lbl)) btn.classList.add("b_black");
               else                                 btn.classList.add("b_yellow");
 
+              const birthType = document.getElementById("monthType").value;  // "음력" 또는 "양력"
+              let solarY = birthYear,
+                  solarM = birthMonth,
+                  solarD = birthDay;
+
+              if (birthType === "음력") {
+                const cal = new KoreanLunarCalendar();
+                cal.setLunarDate(birthYear, birthMonth, birthDay, false);
+                const sol = cal.getSolarCalendar();
+                solarY = sol.year;
+                solarM = sol.month;
+                solarD = sol.day;
+              }
+
               const { hour, minute } = parseTimeStr(timeMap[lbl]);
-              const orig = new Date(birthYear, birthMonth - 1, birthDay, hour, minute);
+              const orig = new Date(solarY, solarM - 1, solarD, hour, minute);
               const corr = adjustBirthDateWithLon(orig, birthPlaceInput, isPlaceUnknown);
               correctedDate = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
               document.getElementById("inputBirthtime").value = timeMap[lbl];
@@ -6102,10 +6200,6 @@ document.addEventListener("DOMContentLoaded", function () {
   
     const timeCheckbox = document.getElementById("bitthTimeX");
     const timeInput = document.getElementById("inputBirthtime");
-    timeInput.addEventListener('change', () => {
-      // 기존 보정시 고정 해제
-      //fixedCorrectedDate = null;
-    });
     isTimeUnknown = selected.isTimeUnknown === true;
 
     timeCheckbox.checked = isTimeUnknown;
@@ -6144,13 +6238,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const monthTypeSel = document.getElementById("monthType");
-    monthTypeSel.value = selected.monthType || "양력";
-    monthTypeSel.dispatchEvent(new Event("change"));
-    monthTypeSel.addEventListener("change", () => {
-      fixedCorrectedDate = null;           
-      const newData = makeNewData();  
-      drawResult(newData);            
-    });
+    if (!isTimeUnknown) {
+      monthTypeSel.value = selected.monthType;
+      //monthTypeSel.dispatchEvent(new Event("change"));
+      monthTypeSel.addEventListener("change", () => {
+        fixedCorrectedDate = null;           
+        const newData = makeNewData();  
+        drawResult(newData);            
+      });
+    }
     ensureGroupOption(selected.group);
     document.getElementById("inputMeGroup").value = selected.group || "미선택";
     updateMeGroupOption(selected.group);   // ← 여기서 selected를 넘겨줍니다
@@ -6166,6 +6262,8 @@ document.addEventListener("DOMContentLoaded", function () {
     nameInput.setSelectionRange(nameInput.value.length, nameInput.value.length);
 
     const favCheckbox = document.getElementById('topPs');
+
+    
     
     favCheckbox.checked = !!selected.isFavorite;
     currentModifyIndex = index;
@@ -6374,6 +6472,57 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("inputWrap").style.display = "none";
       document.getElementById("resultWrapper").style.display = "block";
       backBtn.style.display = '';
+
+      let yearPillar, monthPillar, dayPillar, hourPillar;
+
+      if (newData.monthType === '음력' && newData.isTimeUnknown) {
+        const cal = new KoreanLunarCalendar();
+        cal.setLunarDate(newData.year, newData.month, newData.day, false);
+        const dateL = new Date(newData.year, newData.month - 1, newData.day, 4, 0);
+        console.log(dateL);  
+        yearPillar  = getYearGanZhi(dateL, dateL.getFullYear());
+        monthPillar = getMonthGanZhi(dateL, dateL.getFullYear());
+        dayPillar = getDayGanZhi(dateL);
+        hourPillar = '-';
+
+        const yearSplit  = splitPillar(yearPillar);
+        const monthSplit = splitPillar(monthPillar);
+        const daySplit   = splitPillar(dayPillar);
+        daySplitGlobal = daySplit;
+        let hourSplit  = isTimeUnknown ? null : "-";
+        hourSplitGlobal = hourSplit;
+
+        baseDayStem = daySplit.gan;
+        baseDayBranch = dayPillar.charAt(1);
+        baseYearBranch = yearPillar.charAt(1);
+        
+        setTimeout(()=>{
+          function updateOriginalSetMapping(daySplit, hourSplit) {
+            if (manualOverride) {
+              return;
+            }
+            setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, hourSplit.ji));
+            setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsalDynamic(dayPillar, yearPillar, hourSplit.ji));
+            setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
+            setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, daySplit.ji));
+            setText("Mb12ws", getTwelveUnseong(baseDayStem, monthSplit.ji));
+            setText("Mb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, monthSplit.ji));
+            setText("Yb12ws", getTwelveUnseong(baseDayStem, baseYearBranch));
+            setText("Yb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, baseYearBranch));
+          }
+      
+          updateStemInfo("Yt", yearSplit, baseDayStem);
+          updateStemInfo("Mt", monthSplit, baseDayStem);
+          updateStemInfo("Dt", daySplit, baseDayStem);
+          updateStemInfo("Ht", isTimeUnknown ? "-" : hourSplit, baseDayStem);
+          updateBranchInfo("Yb", baseYearBranch, baseDayStem);
+          updateBranchInfo("Mb", monthSplit.ji, baseDayStem);
+          updateBranchInfo("Db", daySplit.ji, baseDayStem);
+          updateBranchInfo("Hb", isTimeUnknown ? "-" : hourSplit.ji, baseDayStem);
+          updateOriginalSetMapping(daySplit, hourSplit);
+          updateColorClasses();
+        });
+      }
 
       isModifyMode = false;
       originalDataSnapshot = "";
