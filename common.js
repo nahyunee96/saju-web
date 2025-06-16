@@ -1790,15 +1790,11 @@ document.addEventListener("DOMContentLoaded", function () {
       // 1) 네 기둥 변수 선언
       let yearPillar, monthPillar, dayPillar, hourPillar;
 
-
-      console.log(item.year, item.month, item.day);
-
       // 2) “음력 + 시간 모름”인 경우에만 변환 & 재계산
       if (item.monthType === '음력' && item.isTimeUnknown) {
         const cal = new KoreanLunarCalendar();
         cal.setLunarDate(item.year, item.month, item.day, false);
         const dateL = new Date(item.year, item.month - 1, item.day, 4, 0);
-        console.log(dateL);  
         yearPillar  = getYearGanZhi(dateL, dateL.getFullYear());
         monthPillar = getMonthGanZhi(dateL, dateL.getFullYear());
         dayPillar   = getDayGanZhi(dateL);
@@ -2046,7 +2042,6 @@ document.addEventListener("DOMContentLoaded", function () {
           const cal = new KoreanLunarCalendar();
           cal.setLunarDate(item.year, item.month, item.day, false);
           const dateL = new Date(item.year, item.month - 1, item.day, 4, 0);
-          console.log(dateL);  
           yearPillar  = getYearGanZhi(dateL, dateL.getFullYear());
           monthPillar = getMonthGanZhi(dateL, dateL.getFullYear());
           dayPillar = getDayGanZhi(dateL);
@@ -3127,7 +3122,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll("#sewoonList li").forEach(e => e.classList.remove("active"));
         this.classList.add("active");
         const year = parseInt(this.dataset.year, 10);
-        console.log("Clicked year:", year);
       });
     });
 
@@ -6479,7 +6473,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const cal = new KoreanLunarCalendar();
         cal.setLunarDate(newData.year, newData.month, newData.day, false);
         const dateL = new Date(newData.year, newData.month - 1, newData.day, 4, 0);
-        console.log(dateL);  
         yearPillar  = getYearGanZhi(dateL, dateL.getFullYear());
         monthPillar = getMonthGanZhi(dateL, dateL.getFullYear());
         dayPillar = getDayGanZhi(dateL);
