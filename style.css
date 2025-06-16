@@ -781,6 +781,7 @@
     border-radius: 4px;
     border: none;
     outline: none;
+    cursor: pointer;
   }
 
   .aside .list_ul > li .info_btn_zone {
