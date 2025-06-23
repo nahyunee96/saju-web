@@ -379,37 +379,37 @@
   }
 
   .grid_box_1 li .hanja_con {
-    width: 84px;
+    /* width: 84px; */
     /*height: 90px;*/
   }
 
   .no_wolwoon .grid_box_1 li .hanja_con {
-    width: 100px;
+    /* width: 100px; */
   }
 
   .w100 .grid_box_1 li .hanja_con {
-    width: 156px;
+    /* width: 156px; */
   }
 
   .w50 .grid_box_1 li .hanja_con {
-    width: 76px;
+    /* width: 76px; */
   }
 
   .couple_mode_wrap .w50 .grid_box_1 li .hanja_con {
-    width: 84px;
+    /* width: 84px; */
   }
 
   .grid_box_8 li .hanja_con {
-    width: 84px;
+    /* width: 84px; */
   }
 
   .ganji .hanja_con {
-    width: 88px;
+    /* width: 88px; */
     /*height: 90px;*/
   }
 
   .no_wolwoon .ganji .hanja_con {
-    width: 100px;
+    /* width: 100px; */
   }
 
   .grid_box_1 li .hanja_con b,
@@ -1476,21 +1476,21 @@
     }
 
     .grid_box_1 li .hanja_con {
-      width: 12vw;
+      /* width: 12vw; */
       /*height: 10.8vw;*/
     }
 
     .no_wolwoon .grid_box_1 li .hanja_con {
-      width: 14.2vw;
+      /* width: 14.2vw; */
     }
   
     .ganji .hanja_con {
-      width: 12vw;
+      /* width: 12vw; */
       /*height: 10.8vw;*/
     }
 
     .no_wolwoon .ganji .hanja_con {
-      width: 14.2vw;
+      /* width: 14.2vw; */
     }
 
     .w100 .grid_box_1 li .hanja_con {
@@ -1498,7 +1498,7 @@
     }
 
     .w50 .grid_box_1 li .hanja_con {
-      width: 10.4vw;
+      /* width: 10.4vw; */
       /*height: 9.6vw;*/
     }
 
