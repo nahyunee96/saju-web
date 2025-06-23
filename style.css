@@ -421,7 +421,6 @@
   .w50 .grid_box_1 li .hanja_con,
   .w50 .ganji .hanja_con  {
     font-size: 44px;
-    
   }
 
   .hanja_con {
@@ -1468,8 +1467,12 @@
 
     .grid_box_1 li .hanja_con,
 	  .ganji .hanja_con {
+      display: flex;
+      flex-direction:column;
+      justify-content: center;
+      align-items: center;
       font-size: 10vw;
-      padding: 0.8vw;
+      padding: 1.6vw;
     }
 
     .grid_box_1 li .hanja_con {
