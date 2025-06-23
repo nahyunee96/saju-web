@@ -717,7 +717,6 @@
     width: 15%;
     max-width: 100px;
     height: 46px;
-    padding: 0 10px;
     text-align: center;
   }
 
@@ -1470,7 +1469,7 @@
 
     .grid_box_1 li .hanja_con,
 	  .ganji .hanja_con {
-      font-size: 5.6vw;
+      font-size: 7.2vw;
     }
 
     .grid_box_1 li .hanja_con {
@@ -1515,8 +1514,9 @@
 
     .grid_box_1 li p.hanguel,
     .ganji p.hanguel  {
-      font-size: 2.4vw;
+      font-size: 3vw;
       margin-bottom: 0.8vw;
+      line-height: 100%;
     }
 
     .grid_box_1 li p,
@@ -1541,7 +1541,7 @@
 
     .grid_box_1 li .hanja_con b,
     .ganji .hanja_con b {
-      margin-top: 0.8vw;
+      line-height: 110%;
     }
 
     .no_hanguel .grid_box_1 li .hanja_con b,
@@ -1673,7 +1673,6 @@
 
     .aside .top_search_list > select {
       height: 6.2vw;
-      padding: 0 2vw;
       font-size: 3.2vw;
     }
 
