@@ -1472,7 +1472,7 @@
       justify-content: center;
       align-items: center;
       font-size: 10vw;
-      padding: 1.6vw;
+      padding: 1.6vw 0 0.8vw;
     }
 
     .grid_box_1 li .hanja_con {
