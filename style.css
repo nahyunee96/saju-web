@@ -351,9 +351,6 @@
     z-index: 5;
   }
 
-  .woonkuk .grid_box {
-    padding: 5px;
-  }
 
   .grid_box_1 > li,
   .lucky_box .lucky .ganji {
@@ -1266,7 +1263,7 @@
   @media screen and (max-width:991px){
 
     .wongook_lucky {
-      gap: 2vw;
+      gap: 4vw;
     }
 
     .mb10 {
@@ -1416,6 +1413,7 @@
     
     .lucky_wrap .lucky_box {
       gap: 0.8vw;
+      padding: 0;
     }
 
     .lucky_box .lucky .ganji,
