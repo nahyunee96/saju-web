@@ -409,7 +409,7 @@
   }
 
   .no_wolwoon .ganji .hanja_con {
-    /* width: 100px; */
+    width: 100px;
   }
 
   .grid_box_1 li .hanja_con b,
@@ -1490,7 +1490,7 @@
     }
 
     .no_wolwoon .ganji .hanja_con {
-      /* width: 14.2vw; */
+      width: 14.2vw;
     }
 
     .w100 .grid_box_1 li .hanja_con {
