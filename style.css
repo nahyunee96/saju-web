@@ -1555,7 +1555,7 @@
     .w50 .grid_box_1 li .hanja_con,
     .w50 .ganji .hanja_con {
       font-size:4.4vw;
-	    padding: 0;
+	    padding: 0.8vw 0 0.4vw;
     }
 
     .grid_box_1 li .ten_sin,
