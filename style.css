@@ -319,6 +319,7 @@
     position: relative;
     gap: 10px;
     z-index: 7;
+    padding: 10px 10px 10px 0;
   }
 
   .no_wolwoon .lucky_wrap .lucky_box .lucky.wolwoon {
@@ -350,6 +351,9 @@
     z-index: 5;
   }
 
+  .grid_box_1 {
+    padding: 10px;
+  }
 
   .grid_box_1 > li,
   .lucky_box .lucky .ganji {
@@ -1411,6 +1415,10 @@
     
     .lucky_wrap .lucky_box {
       gap: 0.8vw;
+      padding: 0;
+    }
+
+    .grid_box_1 {
       padding: 0;
     }
 
