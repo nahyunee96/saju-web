@@ -1606,6 +1606,11 @@
       font-size: 2.4vw;
     }
 
+    .no_wolwoon .jijanggan li,
+    .no_wolwoon .w50 .jijanggan li {
+      font-size: 2.8vw;
+    }
+
     .w50 .jijanggan li {
       font-size: 2vw;
     }
