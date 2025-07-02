@@ -2011,16 +2011,7 @@ document.addEventListener("DOMContentLoaded", function () {
         backBtn.style.display = '';
         
         handleViewClick();
-
-        originalDate = new Date(item.birthday);           // 원시 생년월일
-        correctedDate = adjustBirthDate(originalDate, item.birthPlace, item.isPlaceUnknown);
-
-        // ── ③ 대운 데이터 새로 계산 ──
-        const daewoonData = getDaewoonData(item.gender, originalDate, correctedDate);
-
-        // ── ④ active 업데이트 ──
-        updateDaewoonActive(correctedDate, correctedDate, daewoonData);
-    
+        
         const saved = localStorage.getItem("fixedCorrectedDate");
         if (saved) fixedCorrectedDate = new Date(saved);
     
@@ -2030,6 +2021,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const item = savedList[idx];
         currentMyeongsik = item;
         if (!item) return;
+
+        // ── 4) 저장
+        localStorage.setItem(idx, JSON.stringify(item));
+        console.log(`Migrated profile ${idx} to schema v${CURRENT_SCHEMA_VERSION}`);
+    
     
         restoreCurrentPlaceMapping(item);
         new Date(localStorage.getItem('correctedDate'));
