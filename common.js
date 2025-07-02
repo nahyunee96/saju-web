@@ -5287,7 +5287,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         html +=`<br>
         방향: <b>${myowoonResult.dirMode}</b><br><br>
-        묘운 연주의 경우, 시주가 일주의 12개의 팔이기 때문에, 묘운 인월에 변경됩니다.<br>
+        묘운 연주의 경우, 시주가 일주의 12개의 팔이기 때문에, 묘운 인월에 변경됩니다. (역행은 축월)<br>
         월주(월지)기준으로, 순행은 인월 역행은 축월(역으로 흐르기 때문에)에<br> 방향에 따라, 연주가 바뀝니다.
       </li>
     `;
