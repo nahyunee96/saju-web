@@ -36,7 +36,9 @@ let getMyounPillarsVr,
     renderSijuButtonsVr,
     handleChangeVr,
     updateGanzhiDisplayVr,
-    updateOriginalAndMyowoonVr;
+    updateOriginalAndMyowoonVr,
+    updateFuncVr,
+    updateAllDaewoonItemsVr;
 
 let myData = null,
     partnerData = null,
@@ -3068,6 +3070,8 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("Da" + idx, displayedDaewoonNum);
       }
     }
+
+    updateAllDaewoonItemsVr = updateAllDaewoonItems;
     
     updateAllDaewoonItems(daewoonData.list);
 
@@ -5373,6 +5377,8 @@ document.addEventListener("DOMContentLoaded", function () {
       updateMyowoonSection(myowoonResult);
     }
 
+    updateFuncVr = updateFunc;
+
     function radioFunc() {
 
       let originalDate;
@@ -6680,6 +6686,10 @@ document.addEventListener("DOMContentLoaded", function () {
         updateBranchInfo("Db", daySplit.ji, baseDayStem);
         updateBranchInfo("Hb", isTimeUnknown ? "-" : hourSplit.ji, baseDayStem);
         updateOriginalSetMapping(daySplit, hourSplit);
+        updateColorClasses();
+
+        const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
+        updateAllDaewoonItemsVr(daewoonData.list);
         updateColorClasses();
       });
   
