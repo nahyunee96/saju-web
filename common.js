@@ -2012,7 +2012,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         handleViewClick();
 
-        originalDate = new Date(item.birthDate);           // 원시 생년월일
+        originalDate = new Date(item.birthday);           // 원시 생년월일
         correctedDate = adjustBirthDate(originalDate, item.birthPlace, item.isPlaceUnknown);
 
         // ── ③ 대운 데이터 새로 계산 ──
