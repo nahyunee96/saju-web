@@ -732,7 +732,7 @@ function getEffectiveYearForSet(dateObj) {
 }
 
 function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate) {
-	const originalDate = new Date(year, month - 1, day, hour, minute);
+	originalDate = new Date(year, month - 1, day, hour, minute);
   const effectiveYearForSet = getEffectiveYearForSet(correctedDate);
 	const nominalBirthDate = new Date(year, month - 1, day);
   const nominalBirthDate2 = new Date(year, month - 1, day + 1);
@@ -1376,6 +1376,50 @@ function calcGanzhi(dateObj) {
   };
 }
 
+// constants.js 등에 현재 스키마 버전을 정의
+const CURRENT_SCHEMA_VERSION = 2;
+
+// 앱 시작 시 호출
+function migrateAllProfiles() {
+  // localStorage 예시: key 패턴이 'myeongsik_<id>' 라고 가정
+  Object.keys(localStorage)
+    .filter(key => key.startsWith('myeongsik_'))
+    .forEach(key => {
+      const raw = localStorage.getItem(key);
+      if (!raw) return;
+
+      let profile;
+      try {
+        profile = JSON.parse(raw);
+      } catch {
+        console.warn(`Invalid JSON for ${key}`);
+        return;
+      }
+
+      // 이미 최신 버전이면 스킵
+      if (profile.schemaVersion === CURRENT_SCHEMA_VERSION) return;
+
+      // ── 1) 원본 생년월일, 장소, 미상 여부
+      const originalDate  = new Date(profile.birthDate);
+      const correctedDate = adjustBirthDate(originalDate, profile.birthPlace, profile.isPlaceUnknown);
+
+      // ── 2) 새 대운 데이터 계산
+      const daewoonData = getDaewoonData(profile.gender, originalDate, correctedDate);
+
+      // ── 3) 프로필 객체 업데이트
+      profile.correctedDate = correctedDate.toISOString();
+      profile.daewoonData    = daewoonData;
+      profile.schemaVersion  = CURRENT_SCHEMA_VERSION;
+
+      // ── 4) 저장
+      localStorage.setItem(key, JSON.stringify(profile));
+      console.log(`Migrated profile ${key} to schema v${CURRENT_SCHEMA_VERSION}`);
+    });
+}
+
+// 호출 위치: main.js 또는 초기화 로직 맨 앞
+migrateAllProfiles();
+
 document.addEventListener("DOMContentLoaded", function () {
 
   migrateTenGods();
@@ -1863,11 +1907,12 @@ document.addEventListener("DOMContentLoaded", function () {
         li.innerHTML += `
           <div class="btn_zone">
             <button class="black_btn detailViewBtn" id="detailViewBtn_${index + 1}" data-index="${index}">명식 보기</button>
-            
             <button class="black_btn delete_btn" data-index="delete_${index + 1}"><span>&times;</span></button>
           </div>
         `;
       }
+
+      // <button class="black_btn modify_btn" id="modifyBtn_${index + 1}" data-index="${index}">수정</button>
 
       li.querySelector(`#topPs_${index + 1}`).addEventListener('click', e => {
         e.stopPropagation();
@@ -1966,6 +2011,15 @@ document.addEventListener("DOMContentLoaded", function () {
         backBtn.style.display = '';
         
         handleViewClick();
+
+        originalDate = new Date(item.birthDate);           // 원시 생년월일
+        correctedDate = adjustBirthDate(originalDate, item.birthPlace, item.isPlaceUnknown);
+
+        // ── ③ 대운 데이터 새로 계산 ──
+        const daewoonData = getDaewoonData(item.gender, originalDate, correctedDate);
+
+        // ── ④ active 업데이트 ──
+        updateDaewoonActive(correctedDate, correctedDate, daewoonData);
     
         const saved = localStorage.getItem("fixedCorrectedDate");
         if (saved) fixedCorrectedDate = new Date(saved);
@@ -6303,7 +6357,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const savedBirthPlace = isPlaceUnknown ? "" : birthPlaceInput;
 
-    let correctedDate = fixedCorrectedDate;
+    correctedDate = fixedCorrectedDate;
 
     const calendar = new KoreanLunarCalendar();
     if (monthType === "음력" || monthType === "음력(윤달)") {
