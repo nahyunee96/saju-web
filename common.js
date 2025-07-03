@@ -1415,7 +1415,6 @@ function migrateAllProfiles() {
 
       // ── 4) 저장
       localStorage.setItem(key, JSON.stringify(profile));
-      console.log(`Migrated profile ${key} to schema v${CURRENT_SCHEMA_VERSION}`);
     });
 }
 
@@ -1847,9 +1846,7 @@ document.addEventListener("DOMContentLoaded", function () {
       fixedCorrectedDate = null;  
       const iv = getSummerTimeInterval(item.year);
       const origin = new Date(item.year, item.month - 1, item.day, item.hour, item.minute);
-      console.log(origin);
       fixedCorrectedDate = adjustBirthDateWithLon(origin, item.birthPlaceLongitude, item.isPlaceUnknown);
-      console.log(fixedCorrectedDate);
       if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
         fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
       }
@@ -2134,7 +2131,6 @@ document.addEventListener("DOMContentLoaded", function () {
           fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
         }
         correctedDate = fixedCorrectedDate;
-        console.log(fixedCorrectedDate, 'fixedCorrectedDate', correctedDate);
 
         if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
           summerTimeBtn.style.display = 'inline-block';
@@ -6286,9 +6282,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const selected = savedList[index];
     if (!selected) return;
 
-    console.log("👉 선택된 데이터:", selected);
-    if (!selected) return;
-
     restoreCurrentPlaceMapping(selected);
 
     startModify(index);
@@ -6681,8 +6674,6 @@ document.addEventListener("DOMContentLoaded", function () {
         summerTimeBtn.style.display = 'none';
         bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
       }
-
-      console.log(fixedCorrectedDate);
   
       const fullResult = getFourPillarsWithDaewoon(
         correctedDate.getFullYear(),
