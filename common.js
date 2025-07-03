@@ -2039,15 +2039,11 @@ document.addEventListener("DOMContentLoaded", function () {
         loadCityLongitudes();
         const idx = parseInt(button.getAttribute("data-index"), 10);
         currentDetailIndex = idx;
+        const savedList = JSON.parse(localStorage.getItem("myeongsikList") || "[]");
         const item = savedList[idx];
         currentMyeongsik = item;
         if (!item) return;
 
-        // ── 4) 저장
-        localStorage.setItem(idx, JSON.stringify(item));
-        console.log(`Migrated profile ${idx} to schema v${CURRENT_SCHEMA_VERSION}`);
-    
-    
         restoreCurrentPlaceMapping(item);
         new Date(localStorage.getItem('correctedDate'));
     
@@ -6567,6 +6563,10 @@ document.addEventListener("DOMContentLoaded", function () {
       let day    = parseInt(birthdayStr.substring(6, 8), 10);
       let hour = isTimeUnknown ? 4 : parseInt(usedBirthtime.substring(0, 2), 10);
       let minute = isTimeUnknown ? 30 : parseInt(usedBirthtime.substring(2, 4), 10);
+
+     newData.year  = year;
+     newData.month = month;
+     newData.day   = day;
   
       if (year < 1900 || year > 2099) { alert("연도는 1900년부터 2099년 사이로 입력하세요."); return; }
       if (month < 1 || month > 12)     { alert("월은 1부터 12 사이의 숫자로 입력하세요."); return; }
@@ -6602,9 +6602,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const ok = calendar.setLunarDate(year, month, day, isLeap);
         if (!ok) { console.error("음력 변환 실패"); return; }
         const solar = calendar.getSolarCalendar();
-        workYear  = solar.year;
-        workMonth = solar.month;
-        workDay   = solar.day;
+        newData.year  = workYear;
+        newData.month = workMonth;
+        newData.day   = workDay;
       } else {
         calendar.setSolarDate(year, month, day);
       }
@@ -6663,6 +6663,11 @@ document.addEventListener("DOMContentLoaded", function () {
       baseDayStem = daySplit.gan;
       baseDayBranch = dayPillar.charAt(1);
       baseYearBranch = yearPillar.charAt(1);
+
+      newData.yearPillar  = yearPillar;
+      newData.monthPillar = monthPillar;
+      newData.dayPillar   = dayPillar;
+      newData.hourPillar  = hourPillar;
   
       setTimeout(() => {
         function updateOriginalSetMapping(daySplit, hourSplit) {
@@ -6721,13 +6726,8 @@ document.addEventListener("DOMContentLoaded", function () {
     currentModifyIndex = null;
     isModified = false;
     newData = latestMyeongsik;
-  
-    
   });
   
-  
-  
-
   new Sortable(document.querySelector(".list_ul"), {
     handle: ".drag_btn_zone", // 요 버튼 누르고 있어야 드래그 가능
     animation: 150,

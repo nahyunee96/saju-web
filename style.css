@@ -1687,6 +1687,7 @@
 
     .aside .top_search_list > select {
       height: 6.2vw;
+      padding: 0 2vw;
       font-size: 3.2vw;
     }
 
