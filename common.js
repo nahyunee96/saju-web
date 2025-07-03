@@ -1664,7 +1664,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const minutes = date.getMinutes();
       return `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes}`;
     }
-  
+
     const age = correctedDate ? calculateAge(correctedDate) : "-";
     const birthdayTime = correctedDate ? formatTime(correctedDate) : "?";
 
@@ -1841,10 +1841,31 @@ document.addEventListener("DOMContentLoaded", function () {
       // 음력 생일: 값이 있으면 그대로, 없으면 "-"
       //const lunarBirthDisplay = item.lunarBirthday ? item.lunarBirthday : "-";
       // 보정시: item.adjustedTime 값이 있으면, 없으면 "-"
-      const { isTimeUnknown, birthdayTime } = item;
-      const adjustedTimeDisplay = isTimeUnknown
-        ? "보정시 모름"
-        : (birthdayTime || "-");
+      //let { isTimeUnknown, correctedDate } = item;
+      let adjustedTimeDisplay;
+      
+      fixedCorrectedDate = null;  
+      const iv = getSummerTimeInterval(item.year);
+      const origin = new Date(item.year, item.month - 1, item.day, item.hour, item.minute);
+      console.log(origin);
+      fixedCorrectedDate = adjustBirthDateWithLon(origin, item.birthPlaceLongitude, item.isPlaceUnknown);
+      console.log(fixedCorrectedDate);
+      if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
+        fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
+      }
+      correctedDate = fixedCorrectedDate;
+
+      if (item.isTimeUnknown) {
+        adjustedTimeDisplay = "보정시 모름";
+      } else if (correctedDate) {
+        // ISO 문자열을 Date 객체로 변환
+        const cd = new Date(correctedDate);
+        const hh = cd.getHours().toString().padStart(2, "0");
+        const mm = cd.getMinutes().toString().padStart(2, "0");
+        adjustedTimeDisplay = `${hh}:${mm}`;
+      } else {
+        adjustedTimeDisplay = "-";
+      }
 
       /////////////////////////
       //${lunarBirthDisplay !== "-" 
@@ -2102,6 +2123,32 @@ document.addEventListener("DOMContentLoaded", function () {
         monthTypeSel.dispatchEvent(new Event("change"));
         
         calculateBtn.click();
+
+        const bjTimeTextEl = document.getElementById("bjTimeText");
+        const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
+
+        fixedCorrectedDate = null;
+        const iv = getSummerTimeInterval(originalDate.getFullYear());
+        fixedCorrectedDate = adjustBirthDateWithLon(originalDate, item.birthPlaceLongitude, item.isPlaceUnknown);
+        if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
+          fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
+        }
+        correctedDate = fixedCorrectedDate;
+        console.log(fixedCorrectedDate, 'fixedCorrectedDate', correctedDate);
+
+        if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
+          summerTimeBtn.style.display = 'inline-block';
+          bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+        } else if (isPlaceUnknown && isTimeUnknown) {
+          summerTimeBtn.style.display = 'none';
+          bjTimeTextEl.innerHTML = `보정없음 : <b id="resbjTime">시간모름</b>`;
+        } else if (isPlaceUnknown) {
+          summerTimeBtn.style.display = 'none';
+          bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+        } else {
+          summerTimeBtn.style.display = 'none';
+          bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+        }
 
         let yearPillar, monthPillar, dayPillar, hourPillar;
 
