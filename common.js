@@ -6602,9 +6602,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const ok = calendar.setLunarDate(year, month, day, isLeap);
         if (!ok) { console.error("음력 변환 실패"); return; }
         const solar = calendar.getSolarCalendar();
-        newData.year  = workYear;
-        newData.month = workMonth;
-        newData.day   = workDay;
+        workYear = solar.year;
+        workMonth = solar.month;
+        workDay = solar.day;
       } else {
         calendar.setSolarDate(year, month, day);
       }
@@ -6615,11 +6615,9 @@ document.addEventListener("DOMContentLoaded", function () {
   
       fixedCorrectedDate = null;
       const iv = getSummerTimeInterval(originalDate.getFullYear());
-      if (!fixedCorrectedDate) {
-        fixedCorrectedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
-        if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
-          fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
-        }
+      fixedCorrectedDate = adjustBirthDateWithLon(originalDate, newData.birthPlaceLongitude, newData.isPlaceUnknown);
+      if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
+        fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
       }
       correctedDate = fixedCorrectedDate;
   
@@ -6636,6 +6634,8 @@ document.addEventListener("DOMContentLoaded", function () {
         summerTimeBtn.style.display = 'none';
         bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
       }
+
+      console.log(fixedCorrectedDate);
   
       const fullResult = getFourPillarsWithDaewoon(
         correctedDate.getFullYear(),
