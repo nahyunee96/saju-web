@@ -2224,6 +2224,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("aside").style.display      = "none";
         document.getElementById("inputWrap").style.display  = "none";
         document.getElementById("resultWrapper").style.display = "block";
+        setBtnCtrl.style.display = "block";
         
         window.scrollTo(0, 0);
       });
@@ -6167,7 +6168,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //document.getElementById('inputWrap').style.display = 'none';
     //document.getElementById('resultWrapper').style.display = 'block';
     //document.getElementById("saveBtn").style.display = "inline-block";
-    //setBtnCtrl.style.display = "block";
+    
   });
 
   let originalBirthPlace = ""; 
@@ -6753,7 +6754,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("inputWrap").style.display     = "none";
       document.getElementById("resultWrapper").style.display = "block";
       backBtn.style.display = "";
-      setBtnCtrl.style.display = "inline-block";
+      setBtnCtrl.style.display = "block";
     }
   
     localStorage.setItem("myeongsikList", JSON.stringify(list));
