@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className={notoSansKR.variable}>
       <body>
-        <header id="header" className="header fixed w-full h-16 z-99 border-b-1 border-[#EED36C]">
+        <header id="header" className="header fixed w-full h-16 z-99 bg-[#011627] border-b-1 border-[#EED36C]">
           <div id="headerInner" className="inner flex max-w-3xl h-full justify-between items-center mx-auto">
             <div>
               <button className="cursor-pointer">
@@ -43,9 +43,9 @@ export default function RootLayout({
           </div>
         </header>
         {children}
-        <footer id="footer" className="footer">
+        <footer id="footer" className="footer p-8 text-center">
           <div id="footerInner" className="inner">
-            <p>Copyright © 2025 Hwarim96. All rights reserved.</p>
+            <p className="text-sm">Copyright © 2025 Hwarim96. All rights reserved.</p>
           </div>
         </footer>
       </body>
