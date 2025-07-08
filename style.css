@@ -423,7 +423,7 @@
 
   .grid_box_1 li .hanja_con b.eum,
   .ganji .hanja_con b.eum {
-    font-weight: 100;
+    font-weight: 200;
   }
 
   .w50 .grid_box_1 li .hanja_con,
@@ -592,7 +592,7 @@
   }
 
   .ganji_w.eum {
-    font-weight: 100;
+    font-weight: 200;
   }
 
   .grid_box_12 .ganji_w {
@@ -932,7 +932,7 @@
 
   .calander_table .ilwoon li.ilwoon_ganji_cheongan span.eum,
   .calander_table .ilwoon li.ilwoon_ganji_jiji span.eum {
-    font-weight: 100;
+    font-weight: 200;
   }
 
   .calander_table .ilwoon li:last-child {
