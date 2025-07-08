@@ -421,6 +421,11 @@
 	  line-height: 120%; 
   }
 
+  .grid_box_1 li .hanja_con b.eum,
+  .ganji .hanja_con b.eum {
+    font-weight: 100;
+  }
+
   .w50 .grid_box_1 li .hanja_con,
   .w50 .ganji .hanja_con  {
     font-size: 44px;
@@ -582,7 +587,12 @@
     margin-bottom: 5px;
     text-align: center;
     font-size: 25px;
+    font-weight: bold;
     line-height: 90%;
+  }
+
+  .ganji_w.eum {
+    font-weight: 100;
   }
 
   .grid_box_12 .ganji_w {
@@ -917,6 +927,12 @@
     background-color: #e5e5e5;
     border-radius: 10px;
     font-size: 20px;
+    font-weight: bold;
+  }
+
+  .calander_table .ilwoon li.ilwoon_ganji_cheongan span.eum,
+  .calander_table .ilwoon li.ilwoon_ganji_jiji span.eum {
+    font-weight: 100;
   }
 
   .calander_table .ilwoon li:last-child {

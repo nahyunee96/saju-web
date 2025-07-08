@@ -525,6 +525,91 @@ const branchMapping = {
   "해": { hanja: "亥", hanguel: "해수", hanguelShort: "해",  eumYang: "양" }
 };
 
+const branchMapping2 = {
+  "자": { hanja: "子", hanguel: "자수", hanguelShort: "자", eumYang: "양" },
+  "축": { hanja: "丑", hanguel: "축토", hanguelShort: "축", eumYang: "음" },
+  "인": { hanja: "寅", hanguel: "인목", hanguelShort: "인",  eumYang: "양" },
+  "묘": { hanja: "卯", hanguel: "묘목", hanguelShort: "묘",  eumYang: "음" },
+  "진": { hanja: "辰", hanguel: "진토", hanguelShort: "진",  eumYang: "양" },
+  "사": { hanja: "巳", hanguel: "사화", hanguelShort: "사",  eumYang: "음" },
+  "오": { hanja: "午", hanguel: "오화", hanguelShort: "오",  eumYang: "양" },
+  "미": { hanja: "未", hanguel: "미토", hanguelShort: "미",  eumYang: "음" },
+  "신": { hanja: "申", hanguel: "신금", hanguelShort: "신",  eumYang: "양" },
+  "유": { hanja: "酉", hanguel: "유금", hanguelShort: "유",  eumYang: "음" },
+  "술": { hanja: "戌", hanguel: "술토", hanguelShort: "술",  eumYang: "양" },
+  "해": { hanja: "亥", hanguel: "해수", hanguelShort: "해",  eumYang: "음" }
+};
+
+function updateEumYangClasses() {
+  // 1) .hanja_con 케이스 (한자 엘리먼트와 eum/yang 텍스트 갱신)
+  document.querySelectorAll('[id$="Hanja"]').forEach(hanjaEl => {
+    // 2) id에서 "Hanja" 부분만 제거해서 접두사 얻기
+    const prefix = hanjaEl.id.replace(/Hanja$/, '');
+    const eumYangEl = document.getElementById(prefix + 'Eumyang');
+    if (!eumYangEl) return;
+
+    // 3) 텍스트(한자) 기준으로 info 찾기
+    const char = hanjaEl.textContent.trim();
+    let info = null;
+
+    // 3-1) 천간 매핑
+    info = Object.values(stemMapping).find(v => v.hanja === char);
+
+    // 3-2) 못 찾으면 지지 매핑
+    if (!info) {
+      info = Object.values(branchMapping2).find(v => v.hanja === char);
+    }
+    if (!info) return;
+
+    // 4) 기존 음/양 클래스는 항상 제거
+    hanjaEl.classList.remove('eum', 'yang');
+
+    // 5) 새로 붙이기
+    const cls = info.eumYang === '양' ? 'yang' : 'eum';
+    hanjaEl.classList.add(cls);
+
+    // 6) Eumyang 텍스트 갱신
+    eumYangEl.textContent = info.eumYang;
+  });
+
+  // 2) 일운 간지(천간/지지) span 케이스 (한글 약호로 매핑)
+  document
+  .querySelectorAll('li.ilwoon_ganji_cheongan span, li.ilwoon_ganji_jiji span')
+  .forEach(el => {
+    const isStem = !!el.closest('li.ilwoon_ganji_cheongan');
+    const mapping = isStem ? stemMapping : branchMapping2;
+    const char = el.textContent.trim();
+    if (!char) return;
+
+    const key = Object.keys(mapping).find(k => mapping[k].hanguelShort === char);
+    if (!key) return;
+
+    const info = mapping[key];
+    el.classList.toggle('yang', info.eumYang === '양');
+    el.classList.toggle('eum',  info.eumYang === '음');
+  });
+
+  // 3) .ganji_w 케이스 (요소 자체 텍스트 한자 기준)
+  document.querySelectorAll('.ganji_w').forEach(el => {
+    const char = el.textContent.trim();
+    if (!char) return;
+
+    // 우선 천간 매핑, 없으면 지지 매핑
+    let info = null;
+    let key  = Object.keys(stemMapping).find(k => stemMapping[k].hanja === char);
+    if (key) {
+      info = stemMapping[key];
+    } else {
+      key  = Object.keys(branchMapping2).find(k => branchMapping2[k].hanja === char);
+      if (key) info = branchMapping2[key];
+    }
+    if (!info) return;
+
+    el.classList.toggle('yang', info.eumYang === '양');
+    el.classList.toggle('eum',  info.eumYang === '음');
+  });
+}
+
 function get120YearAverages(birthDate) {
   const oneDayMs = 24 * 60 * 60 * 1000;
   const endDate = new Date(birthDate.getTime());
@@ -2225,7 +2310,11 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("inputWrap").style.display  = "none";
         document.getElementById("resultWrapper").style.display = "block";
         setBtnCtrl.style.display = "block";
-        
+
+        const myowoonBtn = document.getElementById("myowoonMore");
+        myowoonBtn.classList.remove("active");
+        myowoonBtn.innerText = "묘운력(운 전체) 상세보기";
+        updateEumYangClasses();
         window.scrollTo(0, 0);
       });
     });
@@ -2612,7 +2701,9 @@ document.addEventListener("DOMContentLoaded", function () {
           console.warn("인덱스가 유효하지 않습니다.", myIndex, partnerIndex);
         }
         document.getElementById("woonVer1Change2").click();
+         updateEumYangClasses();
       });
+     
     });
 
     
@@ -2670,6 +2761,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 0);
     }
     
+    updateEumYangClasses();
   });
   
   document.getElementById("listViewBtn").addEventListener("click", function () {
@@ -5552,6 +5644,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll('.siju_con3').forEach(root => {
         clearHyphenElements(root);
       });
+
+      updateEumYangClasses();
     });
 
     document.getElementById("woonChangeBtn").addEventListener("click", function () {
@@ -5597,6 +5691,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll('.siju_con4').forEach(root => {
         clearHyphenElements(root);
       });
+
+      updateEumYangClasses();
     });
 
     const pickerIds = [
@@ -6163,6 +6259,8 @@ document.addEventListener("DOMContentLoaded", function () {
         updateAllTwelveShinsal(dayPillar, yearPillar);
       });
     });
+
+    updateEumYangClasses();
 
     window.scrollTo(0, 0);
     //document.getElementById('inputWrap').style.display = 'none';
@@ -6765,6 +6863,7 @@ document.addEventListener("DOMContentLoaded", function () {
     currentModifyIndex = null;
     isModified = false;
     newData = latestMyeongsik;
+    updateEumYangClasses();
   });
   
   new Sortable(document.querySelector(".list_ul"), {
