@@ -1,5 +1,5 @@
 // lib/ganziUtils.ts
-import type { Branch, Jijanggan } from './types/ganzi';
+import type { Branch, Jijanggan } from './types/typeGanzi';
 
 /**
  * 음양 구분 (간지의 음양에 따라 폰트 가중치 결정)
@@ -45,7 +45,7 @@ export function getBackgroundClass(entity: { hanja: string }): string {
 
   if (green.includes(entity.hanja))  return 'bg-[#097711]';
   if (red.includes(entity.hanja))    return 'bg-[#DC2323]';
-  if (yellow.includes(entity.hanja)) return 'bg-[#E4D01B]';
+  if (yellow.includes(entity.hanja)) return 'bg-[#E6BF28]';
   if (gray.includes(entity.hanja))   return 'bg-[#b0b0b0]';
   if (black.includes(entity.hanja))  return 'bg-[#353535]';
   return '';

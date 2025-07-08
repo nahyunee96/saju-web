@@ -1,7 +1,7 @@
 import React from 'react';
 import { isYangEntity, getHiddenStems, getBackgroundClass } from '../lib/ganziUtils';
-import type { Pillar } from '../lib/types/ganzi';
-import type { Jijanggan } from '../lib/types/ganzi';
+import type { Pillar } from '../lib/types/typeGanzi';
+import type { Jijanggan } from '../lib/types/typeGanzi';
 
 interface Props {
   label: string;            // '시주', '일주' 등

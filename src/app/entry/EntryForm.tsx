@@ -22,12 +22,14 @@ interface EntryFormProps {
 }
 
 export default function EntryForm({ onSubmit }: EntryFormProps) {
+  const [calendarType, setCalendarType] = React.useState<CalendarType>('solar');
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const payload = {
       name: form.get('name') as string,
-      calendarType: form.get('calendarType') as CalendarType,
+      calendarType,
       birthDate: form.get('birthDate') as string,
       birthTime: form.get('birthTime') as string,
       birthPlace: form.get('birthPlace') as string,
@@ -55,37 +57,37 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
         </div>
         
         <div className="basis-[50%]">
-            <label htmlFor="category" className="block text-sm font-medium">카테고리</label>
-            <select
-              id="category"
-              name="category"
+          <label htmlFor="category" className="block text-sm font-medium">카테고리</label>
+          <select
+            id="category"
+            name="category"
+            required
+            className="mt-1 w-full border-b outline-none px-2 py-1 h-8 text-sm"
+          >
+            <option value="family">가족</option>
+            <option value="partner">연인/배우자</option>
+            <option value="friend">친구</option>
+            <option value="work">직장</option>
+            <option value="ect">기타</option>
+            <option value="직접입력">직접입력</option>
+          </select>
+          <div className="flex items-end hidden">
+            <input 
+              type="text" 
+              name="직접입력란"
               required
-              className="mt-1 w-full border-b outline-none px-2 py-1 h-8 text-sm"
+              placeholder="직접입력"
+              className="mt-1 border-b outline-none px-2 py-1 h-8 w-[calc(100%-30px)] text-sm"
+            />
+            <button 
+              className="flex items-center justify-center w-[30px] bg-[#EED36C] text-white text-sm h-8 rounded font-medium" 
+              id="resetSelectBtn"
             >
-              <option value="family">가족</option>
-              <option value="partner">연인/배우자</option>
-              <option value="friend">친구</option>
-              <option value="work">직장</option>
-              <option value="ect">기타</option>
-              <option value="직접입력">직접입력</option>
-            </select>
-            <div className="flex items-end hidden">
-              <input 
-                type="text" 
-                name="직접입력란"
-                required
-                placeholder="직접입력"
-                className="mt-1 border-b outline-none px-2 py-1 h-8 w-[calc(100%-30px)] text-sm"
-              />
-              <button 
-                className="flex items-center justify-center w-[30px] bg-[#EED36C] text-white text-sm h-8 rounded font-medium" 
-                id="resetSelectBtn"
-              >
-                <RefreshCw size="20" />
-              </button>
-            </div>
+              <RefreshCw size="20" />
+            </button>
           </div>
         </div>
+      </div>
 
       {/* 생년월실 & 태어난시간 & 양음력 선택 */}
       <div>
@@ -112,16 +114,34 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
             />
           </div>
           <div className="flex gap-2 basis-[35%] md:w-auto justify-start items-end ml-3 text-sm">
+            {/* 양력 옵션 */}
             <div className="flex items-center">
-              <input type="radio" name="calendarType" value="solar" id="solar" className="hidden" />
-              <label htmlFor="solar" className="flex items-center">
-                <b><Check size="16" /></b>양력
-              </label>
+              <label className="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="calendarType"
+                value="solar"
+                checked={calendarType === 'solar'}
+                onChange={() => setCalendarType('solar')}
+                className="sr-only"
+              />
+              {calendarType === 'solar' && <Check className="text-[#EED36C]" size={16} />}
+              <span className={`ml-1 ${calendarType === 'solar' ? 'text-[#EED36C]' : ''}`}>양력</span>
+            </label>
             </div>
+            {/* 음력 옵션 */}
             <div className="flex items-center">
-              <input type="radio" name="calendarType" value="lunar" id="lunar" className="hidden" />
-              <label htmlFor="lunar" className="flex items-center">
-                <b><Check size="16" className="hidden"/></b>음력
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="calendarType"
+                  value="lunar"
+                  checked={calendarType === 'lunar'}
+                  onChange={() => setCalendarType('lunar')}
+                  className="sr-only"
+                />
+                {calendarType === 'lunar' && <Check className="text-[#EED36C]" size={16} />}
+                <span className={`ml-1 ${calendarType === 'lunar' ? 'text-[#EED36C]' : ''}`}>음력</span>
               </label>
             </div>
           </div>

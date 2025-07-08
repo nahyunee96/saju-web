@@ -30,8 +30,6 @@ const EARTHLY_BRANCHES: Array<{ hanja: string; hanguel: string }> = [
   { hanja: '戌', hanguel: '술토' },
   { hanja: '亥', hanguel: '해수' },
 ];
-
-// 시각(시간)→지지 매핑 (24시간제)
 const HOUR_BRANCH_MAP: Array<{ from: number; to: number; idx: number }> = [
   { from: 23, to: 1, idx: 0 },   // 子
   { from: 1, to: 3, idx: 1 },    // 丑
@@ -46,6 +44,7 @@ const HOUR_BRANCH_MAP: Array<{ from: number; to: number; idx: number }> = [
   { from: 19, to: 21, idx: 10 }, // 戌
   { from: 21, to: 23, idx: 11 }, // 亥
 ];
+
 function getHourBranchIndex(hour: number): number {
   for (const m of HOUR_BRANCH_MAP) {
     if (m.from > m.to) {
@@ -58,8 +57,16 @@ function getHourBranchIndex(hour: number): number {
 }
 
 /**
+ * 로컬 타임존 기준 율리우스일(JD) 계산
+ */
+function getLocalJD(date: Date): number {
+  const jdUTC = getJDFromDate(date);
+  const offsetMin = date.getTimezoneOffset();
+  return jdUTC + (-offsetMin / 1440);
+}
+
+/**
  * 연기둥 계산
- * 연도 - 4를 기준으로 10간/12지 순환
  */
 export function getYearPillar(date: Date): Pillar {
   const y = date.getFullYear();
@@ -72,19 +79,14 @@ export function getYearPillar(date: Date): Pillar {
 }
 
 /**
- * 월기둥 계산
- * 절기 기준 태양 황경을 이용해 0~11월 매핑
+ * 월기둥 계산 (로컬 JD 기준)
  */
 export function getMonthPillar(date: Date): Pillar {
-  const jd = getJDFromDate(date);
-  const lon = getSunLongitude(jd);
-  // solar longitude +30도 → 0~360 매핑 후 30도로 나눠 월 번호(0~11)
+  const jdLocal = getLocalJD(date);
+  const lon = getSunLongitude(jdLocal);
   const monthNo = Math.floor(((lon + 30) % 360) / 30);
-  // 지지: 寅=2번 인덱스부터 시작 → 오프셋 +2
   const branchIdx = (monthNo + 2) % 12;
-  // 연간 기둥 스템 인덱스
   const yearStemIdx = ((date.getFullYear() - 4) % 10 + 10) % 10;
-  // 월 스템: 연간*2 + 지지 인덱스
   const stemIdx = (yearStemIdx * 2 + branchIdx) % 10;
   return {
     stem: HEAVENLY_STEMS[stemIdx],
@@ -93,12 +95,11 @@ export function getMonthPillar(date: Date): Pillar {
 }
 
 /**
- * 일기둥 계산
- * JD+0.5 → 정수일 기준 甲子 기준점 오프셋 +49 사용
+ * 일기둥 계산 (로컬 JD 기준)
  */
 export function getDayPillar(date: Date): Pillar {
-  const jd = getJDFromDate(date);
-  const dayCount = Math.floor(jd + 0.5);
+  const jdLocal = getLocalJD(date);
+  const dayCount = Math.floor(jdLocal + 0.5);
   const idx60 = (dayCount + 49) % 60;
   const stemIdx = idx60 % 10;
   const branchIdx = idx60 % 12;
@@ -110,13 +111,10 @@ export function getDayPillar(date: Date): Pillar {
 
 /**
  * 시기둥 계산
- * 일간 스템과 시간 지지 인덱스 사용
  */
 export function getHourPillar(date: Date): Pillar {
-  const day = getDayPillar(date);
-  const dayStemIdx = HEAVENLY_STEMS.findIndex(
-    s => s.hanja === day.stem.hanja
-  );
+  const dayP = getDayPillar(date);
+  const dayStemIdx = HEAVENLY_STEMS.findIndex(s => s.hanja === dayP.stem.hanja);
   const hrIdx = getHourBranchIndex(date.getHours());
   const stemIdx = (dayStemIdx * 2 + hrIdx) % 10;
   return {
@@ -128,12 +126,7 @@ export function getHourPillar(date: Date): Pillar {
 /**
  * 네 기둥(연·월·일·시) 한꺼번에 반환
  */
-export function getFourPillars(date: Date): {
-  year: Pillar;
-  month: Pillar;
-  day: Pillar;
-  hour: Pillar;
-} {
+export function getFourPillars(date: Date) {
   return {
     year: getYearPillar(date),
     month: getMonthPillar(date),
