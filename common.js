@@ -2996,7 +2996,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     summerTimeBtn.addEventListener('click', function () {
 
-      fixedCorrectedDate = null;
+      //fixedCorrectedDate = null;
 
       if (!isSummerOn) {
         summerTimeBtn.classList.remove('active');
