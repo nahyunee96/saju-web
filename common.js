@@ -2314,6 +2314,26 @@ document.addEventListener("DOMContentLoaded", function () {
         const myowoonBtn = document.getElementById("myowoonMore");
         myowoonBtn.classList.remove("active");
         myowoonBtn.innerText = "묘운력(운 전체) 상세보기";
+
+        function resetSummerTime() {
+          // 1) 플래그 & 버튼 텍스트·클래스 초기화
+          isSummerOn = false;
+          summerTimeBtn.classList.remove('active');
+          summerTimeBtn.textContent = '썸머타임 보정 OFF';
+
+          // 2) 고정된 originDate 기준으로 보정시각 재계산
+          fixedCorrectedDate = adjustBirthDateWithLon(
+            originDate,                  // detailViewBtn 실행 시 미리 저장해 둔 원본 Date
+            item.birthPlaceLongitude,
+            item.isPlaceUnknown
+          );
+          correctedDate = fixedCorrectedDate;
+
+          // 3) (필요하다면) 화면에 표시만 다시 해주면 완전 초기화됩니다.
+        }
+
+        resetSummerTime();
+
         updateEumYangClasses();
         window.scrollTo(0, 0);
       });
@@ -2973,7 +2993,7 @@ document.addEventListener("DOMContentLoaded", function () {
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     }
     
-
+    
     summerTimeBtn.addEventListener('click', function () {
       if (isSummerOn) {
         summerTimeBtn.classList.remove('active');
