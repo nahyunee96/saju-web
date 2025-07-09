@@ -55,6 +55,8 @@ let hourSplitGlobal,
 
 let fixedCorrectedDate = null;
 
+let isSummerOn = false;
+
 let cityLongitudes = {};
 
 const placeBtn  = document.getElementById('inputBirthPlace');
@@ -179,11 +181,8 @@ function parseBirthAsUTC(Y, M, D, h, m) {
 }
 
 function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
-  if (isPlaceUnknown) {
+  if (isPlaceUnknown || cityLon == null) {
     return new Date(dateObj.getTime() - 30 * 60 * 1000);
-  }
-  if (cityLon == null) {
-    return dateObj;
   }
 
   const rawOffset  = cityLon / 15;
@@ -1916,21 +1915,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // ★ 여기서 monthTypeLabel은 item.monthType 그대로!
         const isLunar = item.monthType === '음력' ? true : false;
+        const monthTypeLabel = item.monthType;
+        //const monthTypeLabel = item.monthType;
 
-
-        const monthTypeLabel = isLunar ? '음력' : '양력';
-      //const monthTypeLabel = item.monthType;
-
-      //const lunarBirthDisplay = item.lunarBirthday || "-";
-      // 음력 생일: 값이 있으면 그대로, 없으면 "-"
-      //const lunarBirthDisplay = item.lunarBirthday ? item.lunarBirthday : "-";
-      // 보정시: item.adjustedTime 값이 있으면, 없으면 "-"
-      //let { isTimeUnknown, correctedDate } = item;
+        //const lunarBirthDisplay = item.lunarBirthday || "-";
+        // 음력 생일: 값이 있으면 그대로, 없으면 "-"
+        //const lunarBirthDisplay = item.lunarBirthday ? item.lunarBirthday : "-";
+        // 보정시: item.adjustedTime 값이 있으면, 없으면 "-"
+        //let { isTimeUnknown, correctedDate } = item;
+        const calendar = new KoreanLunarCalendar();
+        let workYear   = item.year;
+        let workMonth  = item.month;
+        let workDay    = item.day;
+        if (isLunar) {
+          const ok = calendar.setLunarDate(item.year, item.month, item.day);
+          if (!ok) {
+            console.error(`음력 ${rawYear}.${rawMonth}.${rawDay} 변환 실패`);
+            return;
+          }
+          const solar = calendar.getSolarCalendar();
+            workYear  = solar.year;    
+            workMonth = solar.month;   
+            workDay   = solar.day;     
+        } else {
+          if (!calendar.setSolarDate(item.year, item.month, item.day)) {
+            console.error("양력 날짜 설정에 실패했습니다.");
+          } else {
+            lunarDate = calendar.getLunarCalendar();
+          }
+        }
+  
       let adjustedTimeDisplay;
       
       fixedCorrectedDate = null;  
       const iv = getSummerTimeInterval(item.year);
-      const origin = new Date(item.year, item.month - 1, item.day, item.hour, item.minute);
+      const origin = new Date(workYear, workMonth - 1, workDay, item.hour, item.minute);
       fixedCorrectedDate = adjustBirthDateWithLon(origin, item.birthPlaceLongitude, item.isPlaceUnknown);
       if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
         fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
@@ -2210,7 +2229,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
 
         fixedCorrectedDate = null;
-        const iv = getSummerTimeInterval(originalDate.getFullYear());
+        //const originalMS = new Date(item.year, item.month - 1, item.day, item.hour, item.minute);
+        const iv = getSummerTimeInterval(item.year);
         fixedCorrectedDate = adjustBirthDateWithLon(originalDate, item.birthPlaceLongitude, item.isPlaceUnknown);
         if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
           fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
@@ -2310,30 +2330,10 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("inputWrap").style.display  = "none";
         document.getElementById("resultWrapper").style.display = "block";
         setBtnCtrl.style.display = "block";
-
+        
         const myowoonBtn = document.getElementById("myowoonMore");
         myowoonBtn.classList.remove("active");
         myowoonBtn.innerText = "묘운력(운 전체) 상세보기";
-
-        function resetSummerTime() {
-          // 1) 플래그 & 버튼 텍스트·클래스 초기화
-          isSummerOn = false;
-          summerTimeBtn.classList.remove('active');
-          summerTimeBtn.textContent = '썸머타임 보정 OFF';
-
-          // 2) 고정된 originDate 기준으로 보정시각 재계산
-          fixedCorrectedDate = adjustBirthDateWithLon(
-            originDate,                  // detailViewBtn 실행 시 미리 저장해 둔 원본 Date
-            item.birthPlaceLongitude,
-            item.isPlaceUnknown
-          );
-          correctedDate = fixedCorrectedDate;
-
-          // 3) (필요하다면) 화면에 표시만 다시 해주면 완전 초기화됩니다.
-        }
-
-        resetSummerTime();
-
         updateEumYangClasses();
         window.scrollTo(0, 0);
       });
@@ -2968,14 +2968,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const bjTimeTextEl = document.getElementById("bjTimeText");
     const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
-    let isSummerOn = true;
+    
     originalDate = new Date(workYear, workMonth - 1, workDay, hour, minute);
     const iv = getSummerTimeInterval(originalDate.getFullYear());
-    if (!fixedCorrectedDate) {
-      fixedCorrectedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
-      if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
-        fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 60 * 60 * 1000);
-      }
+    fixedCorrectedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
+    if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
+      fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 60 * 60 * 1000);
     }
     correctedDate = fixedCorrectedDate;
 
@@ -2987,18 +2985,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
       bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
+      isSummerOn = true;
     } else if (isPlaceUnknown) {
       bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     } else {
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
     }
     
+
     
     summerTimeBtn.addEventListener('click', function () {
-      if (isSummerOn) {
+
+      fixedCorrectedDate = null;
+
+      if (!isSummerOn) {
         summerTimeBtn.classList.remove('active');
         summerTimeBtn.textContent = '썸머타임 보정 OFF';
-        fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() + 60 * 60 * 1000);
+        fixedCorrectedDate = new Date(correctedDate.getTime() - 60 * 60 * 1000);
         correctedDate = fixedCorrectedDate;
         bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
         hourPillar  = getHourGanZhiRef(correctedDate);
@@ -3013,7 +3016,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         summerTimeBtn.classList.add('active');
         summerTimeBtn.textContent = '썸머타임 보정 ON';
-        fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 60 * 60 * 1000);
+        fixedCorrectedDate = new Date(correctedDate.getTime() + 60 * 60 * 1000);
         correctedDate = fixedCorrectedDate;
         bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
         hourPillar  = getHourGanZhiRef(correctedDate);
@@ -3025,12 +3028,11 @@ document.addEventListener("DOMContentLoaded", function () {
           updateMyowoonSection(myowoonResult);
         }, 0);
         updateExplanDetail(myowoonResult, hourPillar);
-        
       }
-      correctedDate = fixedCorrectedDate;
       isSummerOn = !isSummerOn;
-      
+      updateEumYangClasses();
     });
+
     
 
     const formattedBirth = `${workYear}-${pad(workMonth)}-${pad(workDay)}`;
@@ -3075,6 +3077,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const branchIndex = getHourBranchIndex(correctedDate);
     const branchName = Jiji[branchIndex];
+
+    
 
     if (branchName === "자" || branchName === "축") {
     }
