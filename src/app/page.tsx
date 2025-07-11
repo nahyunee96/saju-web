@@ -1,5 +1,5 @@
 //import Image from "next/image";
-import TodayGanziWidget from './components/TodayGanziWidget';
+//import TodayGanziWidget from './components/TodayGanziWidget';
 
 export default function Home() {
   return (
@@ -9,7 +9,7 @@ export default function Home() {
           오늘의 간지
         </div>
         {/* data prop 없이 그냥 렌더링 */}
-        <TodayGanziWidget />
+        {/* <TodayGanziWidget /> */}
       </main>
     </div>
   );

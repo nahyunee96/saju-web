@@ -1,222 +1,257 @@
+// app/entry/EntryForm.tsx
 'use client';
-import React from 'react';
-import { RefreshCw } from 'lucide-react';
-import { Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { RefreshCw, Check } from 'lucide-react';
+//import MapPicker from '../components/MapPicker';
+import dynamic from 'next/dynamic';
 
-type CalendarType = 'solar' | 'lunar';
-type Gender = 'male' | 'female';
-type TimeType = 'zashi' | 'yazashi' | 'insi';
-type Category = 'family' | 'friend' | 'work' | string;
+// ssr: false → 서버에는 로드되지 않고, 클라이언트에서만 import
+const MapPicker = dynamic(
+  () => import('../components/MapPicker'),
+  { ssr: false }
+);
+import type {
+  EntryFormValues,
+  CalendarType,
+  Gender,
+  TimeType,
+  CategoryOption,
+} from './types/form';
 
-interface EntryFormProps {
-  onSubmit: (data: {
-    name: string;
-    calendarType: CalendarType;
-    birthDate: string;
-    birthTime: string;
-    birthPlace: string;
-    gender: Gender;
-    timeType: TimeType;
-    category: Category;
-  }) => void;
+export interface EntryFormProps {
+  onSubmit: (data: EntryFormValues) => void;
 }
 
 export default function EntryForm({ onSubmit }: EntryFormProps) {
-  const [calendarType, setCalendarType] = React.useState<CalendarType>('solar');
+  const [name, setName] = useState('');
+  const [calendarType] =
+    useState<CalendarType>('solar');
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // 날짜를 숫자로만 입력하도록 분리
+  const [year, setYear] = useState('');
+  const [month, setMonth] = useState('');
+  const [day, setDay] = useState('');
+
+  const [birthTime, setBirthTime] = useState('');
+  const [birthPlace, setBirthPlace] = useState('');
+  const [gender, setGender] = useState<Gender>('male');
+  const [timeType, setTimeType] =
+    useState<TimeType>('zashi');
+  const [category, setCategory] =
+    useState<CategoryOption>('family');
+  const [customCategory, setCustomCategory] = useState('');
+
+  const formatDate = () => {
+    const mm = month.padStart(2, '0');
+    const dd = day.padStart(2, '0');
+    return `${year}-${mm}-${dd}`;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const payload = {
-      name: form.get('name') as string,
+    onSubmit({
+      name,
       calendarType,
-      birthDate: form.get('birthDate') as string,
-      birthTime: form.get('birthTime') as string,
-      birthPlace: form.get('birthPlace') as string,
-      gender: form.get('gender') as Gender,
-      timeType: form.get('timeType') as TimeType,
-      category: form.get('category') as Category,
-    };
-    onSubmit(payload);
+      birthDate: formatDate(),
+      birthTime,
+      birthPlace,
+      gender,
+      timeType,
+      category:
+        category === 'custom'
+          ? customCategory.trim()
+          : category,
+    });
+  };
+
+  const resetCategory = () => {
+    setCategory('family');
+    setCustomCategory('');
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* 이름 & 카테고리 */}
-      <div className="flex">
-        <div className="basis-[50%]">
-          <label htmlFor="mjname" className="block text-sm font-medium">이름</label>
+      <div className="flex gap-2">
+        {/* 이름 */}
+        <div>
+          <label className="block text-sm font-medium">
+            이름
+          </label>
           <input
-            id="mjname"
-            name="mjname"
             type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
-            className="mt-1 w-full border-b outline-none focus:outline-none focus:ring-0 px-2 py-1 h-8 text-sm"
+            className="mt-1 w-full border-b px-2 py-1 text-sm outline-none"
             placeholder="이름"
           />
         </div>
-        
-        <div className="basis-[50%]">
-          <label htmlFor="category" className="block text-sm font-medium">카테고리</label>
-          <select
-            id="category"
-            name="category"
-            required
-            className="mt-1 w-full border-b outline-none px-2 py-1 h-8 text-sm"
-          >
-            <option value="family">가족</option>
-            <option value="partner">연인/배우자</option>
-            <option value="friend">친구</option>
-            <option value="work">직장</option>
-            <option value="ect">기타</option>
-            <option value="직접입력">직접입력</option>
-          </select>
-          <div className="flex items-end hidden">
-            <input 
-              type="text" 
-              name="직접입력란"
+
+        {/* 카테고리 */}
+        <div className="flex items-end gap-2">
+          <div className="flex-1">
+            <label className="block text-sm font-medium">
+              카테고리
+            </label>
+            <select
+              value={category}
+              onChange={(e) =>
+                setCategory(e.target.value as CategoryOption)
+              }
               required
-              placeholder="직접입력"
-              className="mt-1 border-b outline-none px-2 py-1 h-8 w-[calc(100%-30px)] text-sm"
-            />
-            <button 
-              className="flex items-center justify-center w-[30px] bg-[#EED36C] text-white text-sm h-8 rounded font-medium" 
-              id="resetSelectBtn"
+              className="w-full border-b px-2 py-1 text-sm outline-none h-8"
             >
-              <RefreshCw size="20" />
-            </button>
+              <option value="family">가족</option>
+              <option value="partner">연인/배우자</option>
+              <option value="friend">친구</option>
+              <option value="work">직장</option>
+              <option value="ect">기타</option>
+              <option value="custom">직접입력</option>
+            </select>
           </div>
-        </div>
-      </div>
-
-      {/* 생년월실 & 태어난시간 & 양음력 선택 */}
-      <div>
-        <span className="block text-sm font-medium">생년월일시</span>
-        <div className="flex mt-1">
-          <div className="basis-[30%]">
-            <input
-              id="birthDate"
-              name="birthDate"
-              type="text"
-              required
-              className="mt-1 w-full border-b outline-none px-2 py-1 text-sm"
-              placeholder="생년월일"
-            />
-          </div>
-          <div className="basis-[25%]">
-            <input
-              id="birthTime"
-              name="birthTime"
-              type="text"
-              required
-              className="mt-1 w-full border-b outline-none px-2 py-1 text-sm"
-              placeholder="생시"
-            />
-          </div>
-          <div className="flex gap-2 basis-[35%] md:w-auto justify-start items-end ml-3 text-sm">
-            {/* 양력 옵션 */}
-            <div className="flex items-center">
-              <label className="flex items-center cursor-pointer">
+          {category === 'custom' && (
+            <div className="flex items-center gap-2">
               <input
-                type="radio"
-                name="calendarType"
-                value="solar"
-                checked={calendarType === 'solar'}
-                onChange={() => setCalendarType('solar')}
-                className="sr-only"
+                type="text"
+                value={customCategory}
+                onChange={(e) =>
+                  setCustomCategory(e.target.value)
+                }
+                required
+                placeholder="직접입력"
+                className="mt-1 border-b px-2 py-1 text-sm outline-none h-8"
               />
-              {calendarType === 'solar' && <Check className="text-[#EED36C]" size={16} />}
-              <span className={`ml-1 ${calendarType === 'solar' ? 'text-[#EED36C]' : ''}`}>양력</span>
-            </label>
+              <button
+                type="button"
+                onClick={resetCategory}
+                className="w-8 h-8 bg-[#DDC480] flex items-center justify-center rounded"
+              >
+                <RefreshCw size={16} />
+              </button>
             </div>
-            {/* 음력 옵션 */}
-            <div className="flex items-center">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="calendarType"
-                  value="lunar"
-                  checked={calendarType === 'lunar'}
-                  onChange={() => setCalendarType('lunar')}
-                  className="sr-only"
-                />
-                {calendarType === 'lunar' && <Check className="text-[#EED36C]" size={16} />}
-                <span className={`ml-1 ${calendarType === 'lunar' ? 'text-[#EED36C]' : ''}`}>음력</span>
-              </label>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-
-      {/* 시간타입 & 성별 */}
-      <div className="flex">
-        <div className="basis-[50%]">
-          <label htmlFor="timeType" className="block text-sm font-medium">시간 타입</label>
-          <div className="flex items-end gap-2 h-8 md:gap-4 mt- text-sm">
-            <label className="flex items-center">
-              <input type="radio" name="timeType" value="zashi" id="zashi" className="hidden"/>
-              <label htmlFor="zashi" className="flex items-center">
-                <b><Check size="16" className="hidden"/></b>자시
-              </label>
-            </label>
-            <label className="flex items-center">
-              <input type="radio" name="timeType" value="yazashi" id="yazashi" className="hidden"/> 
-              <label htmlFor="yazashi" className="flex items-center">
-                <b><Check size="16" className="hidden"/></b>야자시
-              </label>
-            </label>
-            <label className="flex items-center">
-              <input type="radio" name="timeType" value="insi" id="insi" className="hidden"/> 
-              <label htmlFor="insi" className="flex items-center">
-                <b><Check size="16"/></b>인시
-              </label>
-            </label>
-          </div>
-        </div>
-
-        <div className="basis-[50%]">
-          <span className="block text-sm font-medium">성별</span>
-          <div className="flex items-end gap-2 h-8 md:gap-4 text-sm">
-            <label className="flex items-center">
-              <input type="radio" name="gender" value="male" id="male" className="hidden"/>
-              <label htmlFor="male" className="flex items-center"><b><Check size="16"/></b>남성</label>
-            </label>
-            <label className="flex items-center">
-              <input type="radio" name="gender" value="female" id="female" className="hidden"/> 
-              <label htmlFor="female" className="flex items-center"><b><Check size="16" className="hidden"/></b>여성</label>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {/* 지역 & 메모 */}
-      <div className="flex">
-        <div className="basis-[50%]">
-          <label htmlFor="birthPlace" className="block text-sm font-medium">출생지 입력</label>
+      {/* 생년월일 (숫자 입력) */}
+      <div>
+        <label className="block text-sm font-medium">
+          생년월일 + 시간
+        </label>
+        <div className="flex gap-2 mt-1">
           <input
-            id="birthPlace"
-            name="birthPlace"
-            type="text"
-            placeholder="지역입력"
+            type="tel"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            placeholder="YYYY"
             required
-            className="mt-1 w-full border-b outline-none px-2 py-1 text-sm h-8"
-          /> 
-        </div>
-        <div className="basis-[50%]">
-          <span className="block text-sm font-medium">기타명식메모</span>
-          <input 
-            type="text" 
-            name="memo"
-            placeholder="메모입력"
+            className="w-1/4 border-b px-2 py-1 text-sm outline-none"
+          />
+          <input
+            type="tel"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            placeholder="MM"
             required
-            className="mt-1 w-full border-b outline-none px-2 py-1 text-sm h-8"
+            className="w-1/4 border-b px-2 py-1 text-sm outline-none"
+          />
+          <input
+            type="tel"
+            value={day}
+            onChange={(e) => setDay(e.target.value)}
+            placeholder="DD"
+            required
+            className="w-1/4 border-b px-2 py-1 text-sm outline-none"
+          />
+          <input
+            type="tel"
+            value={birthTime}
+            onChange={(e) => setBirthTime(e.target.value)}
+            placeholder="HHMM"
+            required
+            className="w-1/4 border-b px-2 py-1 text-sm outline-none"
           />
         </div>
       </div>
 
-      {/* 저장 버튼 */}
-      <button type="submit" className="w-full bg-[#EED36C] text-black py-2 rounded font-medium">
+      {/* 출생지 (지도 선택) */}
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          출생지 선택
+        </label>
+        <MapPicker
+          onSelectPosition={(lat, lng) =>
+            setBirthPlace(`${lat},${lng}`)
+          }
+          className="w-full h-[160px] md:h-[200px]"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          선택된 좌표: {birthPlace}
+        </p>
+      </div>
+
+      {/* 시간 타입 & 성별 */}
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <label className="block text-sm font-medium">
+            시간 타입
+          </label>
+          <div className="flex gap-3 mt-1 text-sm">
+            {(['zashi', 'yazashi', 'insi'] as TimeType[]).map((t) => {
+              const isChecked = timeType === t;
+              const labelText = t === 'zashi' ? '자시' : t === 'yazashi' ? '야자시' : '인시';
+              return (
+                <label key={t} className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="timeType"
+                    value={t}
+                    checked={isChecked}
+                    onChange={() => setTimeType(t)}
+                    className="hidden"
+                  />
+                  {isChecked && <Check className="text-[#DDC480]" size={16} />}
+                  <span className={isChecked ? 'text-[#DDC480]' : ''}>
+                    {labelText}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex-1">
+          <label className="block text-sm font-medium">
+            성별
+          </label>
+          <div className="flex gap-3 mt-1 text-sm">
+            {(['male', 'female'] as Gender[]).map((g) => {
+              const isChecked = gender === g;
+              const labelText = g === 'male' ? '남성' : '여성';
+              return (
+                <label key={g} className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value={g}
+                    checked={isChecked}
+                    onChange={() => setGender(g)}
+                    className="hidden"
+                  />
+                  {isChecked && <Check className="text-[#DDC480]" size={16} />}
+                  <span className={isChecked ? 'text-[#DDC480]' : ''}>
+                    {labelText}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        className="w-full bg-[#DDC480] text-black py-2 rounded font-medium"
+      >
         저장
       </button>
     </form>
