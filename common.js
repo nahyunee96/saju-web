@@ -4485,17 +4485,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       
         //── 콘솔 한 줄 출력 ──
-         console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
-         for (let i = 0; i < sDates.length; i++) {
-           console.log(
-             `${sPillars[i]}\t` +
-             `${iPillars[i]}\t` +
-             `${mPillars[i]}\t` +
-             `${yPillars[i]}\t` +
-             `${formatDateTime(sDates[i])}\t` +
-             `${formatDateTime(periods[i].start)} → ${formatDateTime(periods[i].end)}`
-            );
-          }
+        //  console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
+        //  for (let i = 0; i < sDates.length; i++) {
+        //    console.log(
+        //      `${sPillars[i]}\t` +
+        //      `${iPillars[i]}\t` +
+        //      `${mPillars[i]}\t` +
+        //      `${yPillars[i]}\t` +
+        //      `${formatDateTime(sDates[i])}\t` +
+        //      `${formatDateTime(periods[i].start)} → ${formatDateTime(periods[i].end)}`
+        //     );
+        //   }
         
         function findFirstChange(pillarsArr) {
           for (let i = 1; i < pillarsArr.length; i++) {
