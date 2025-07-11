@@ -153,14 +153,8 @@ suggList.addEventListener('click', e => {
   placeBtn.value       = name;
   placeBtn.textContent = name;
   suggList.innerHTML  = '';
+  placeBtn.dataset.lon = lon;
 });
-
-
-function initializeCorrectedDate(dateObj, cityLon, isPlaceUnknown) {
-  if (fixedCorrectedDate) return fixedCorrectedDate; // 이미 고정된 값이 있으면 그걸 반환
-  fixedCorrectedDate = adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown);
-  return fixedCorrectedDate;
-}
 
 function loadCityLongitudes() {
   cityLongitudes = JSON.parse(localStorage.getItem('cityLongitudes') || '{}');
@@ -2861,11 +2855,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const birthPlaceInput = document.getElementById("inputBirthPlace").value || "-";
     const selectTimeValue = document.querySelector('input[name="time2"]:checked')?.value;
     
+    
 
     // 계산용: 시/분 기본값은 "0000", 출생지 기본값은 "서울특별시"
     let usedBirthtime = isTimeUnknown ? null : birthtimeStr;
     const usedBirthPlace = (isPlaceUnknown)
                             ? "서울특별시" : birthPlaceInput;
+
+    
 
     // 저장용은 원래 입력 그대로 유지
     const savedBirthPlace = isPlaceUnknown ? "출생지無" : birthPlaceInput;
@@ -2969,12 +2966,39 @@ document.addEventListener("DOMContentLoaded", function () {
     const bjTimeTextEl = document.getElementById("bjTimeText");
     const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
     
-    originalDate = new Date(workYear, workMonth - 1, workDay, hour, minute);
+    // ① 원본 Date 만들기
+    const originalDate = new Date(workYear, workMonth - 1, workDay, hour, minute);
+
+    // ② DST 구간
     const iv = getSummerTimeInterval(originalDate.getFullYear());
-    fixedCorrectedDate = adjustBirthDateWithLon(originalDate, cityLon, isPlaceUnknown);
-    if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
+
+    // ③ placeBtn.dataset.lon 이 없을 때를 대비한 fallback
+    const placeName    = placeBtn.value;
+    const storedMap    = JSON.parse(localStorage.getItem('cityLongitudes') || '{}');
+    let selectedLon    = parseFloat(placeBtn.dataset.lon);
+    if (isNaN(selectedLon)) {
+      // 저장된 명식에는 dataset.lon 이 없으므로 cityLongitudes 맵에서 꺼내 쓰기
+      selectedLon = storedMap[placeName] 
+                ?? storedMap[placeName.split(' ')[0]];
+    }
+
+    // ④ 보정시 계산
+    fixedCorrectedDate = adjustBirthDateWithLon(
+      originalDate,
+      selectedLon,
+      isPlaceUnknown
+    );
+
+    // ⑤ DST 한 시간 빼기
+    if (iv
+      && fixedCorrectedDate >= iv.start
+      && fixedCorrectedDate < iv.end
+      && !isTimeUnknown
+    ) {
       fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 60 * 60 * 1000);
     }
+
+    // ⑥ 최종
     correctedDate = fixedCorrectedDate;
 
     if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
@@ -4226,6 +4250,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const monthPillar = pillars[1] || "-";
       const dayPillar   = pillars[2] || "-";
       //const hourPillar  = pillars[3] || "-";
+      console.log('hourPillar', hourPillar);
 
       const isYangStem = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
       const direction  = ((gender === '남' && isYangStem) || (gender === '여' && !isYangStem)) ? 1 : -1;
@@ -4246,15 +4271,30 @@ document.addEventListener("DOMContentLoaded", function () {
         const cycleMs  = 10 * 24 * 60 * 60 * 1000;     // 10일
       
         function getFirstSijuChange(dt) {
-          const branch   = getHourBranchReturn(dt);
-          const startMap = { 子:23, 丑:1, 寅:3, 卯:5, 辰:7, 巳:9,
-                             午:11, 未:13, 申:15, 酉:17, 戌:19, 亥:21 };
+          const branch = getHourBranchReturn(dt);
+          const startMap = { 子:23, 丑:1, 寅:3, 卯:5, 辰:7, 巳:9, 午:11, 未:13, 申:15, 酉:17, 戌:19, 亥:21 };
+          const h0 = startMap[branch];
+          const h1 = (h0 + 2) % 24;
+          const targetHour = dirMode === '순행' ? h1 : h0;
+
+          // dt 시분초 복사 후 boundary 시각(분·초=0) 설정
           let bnd = new Date(dt);
-          const h0  = startMap[branch];
-          const h1  = (h0 + 2) % 24;
-          bnd.setHours(dirMode==='순행'? h1 : h0, 0);
-          if (dirMode==='순행' && bnd <= dt) bnd.setDate(bnd.getDate()+1);
-          if (dirMode==='역행' && bnd >= dt) bnd.setDate(bnd.getDate()-1);
+          bnd.setHours(targetHour, 0, 0, 0);
+
+          const cycleDur = cycleMin * msMin; // 한 주기(2시간)
+
+          if (dirMode === '순행') {
+            // 순행: dt 이후 첫 경계
+            if (bnd <= dt) {
+              bnd = new Date(bnd.getTime() + cycleDur);
+            }
+          } else {
+            // 역행: dt 이전 첫 경계
+            if (bnd >= dt) {
+              bnd = new Date(bnd.getTime() - cycleDur);
+            }
+          }
+
           return bnd;
         }
         
@@ -4275,8 +4315,8 @@ document.addEventListener("DOMContentLoaded", function () {
       
         
         const maxCycles = 4381; 
-        const sDates = [ birthDate, getFirstSijuChange(birthDate) ];
-        const iDates = [ birthDate, getFirstIljuChange(birthDate) ];
+        const sDates = [ correctedDate, getFirstSijuChange(correctedDate) ];
+        const iDates = [ correctedDate, getFirstIljuChange(correctedDate) ];
         for (let i = 2; i < maxCycles; i++) {
           const deltaMs = (dirMode==='순행'?1:-1) * cycleMin * msMin;
           sDates[i] = new Date(sDates[i-1].getTime() + deltaMs);
@@ -4406,36 +4446,56 @@ document.addEventListener("DOMContentLoaded", function () {
             yPillars[i] = yPillars[i - 1];
           }
         }
-
-
-        const periods = [];
+        
+        // 3) periods[0]: correctedDate → correctedDate + firstMapMs
+        // 1) 첫 구간과 두 번째 구간 길이 계산
+        // 1) Δ시간 비율로 첫 맵핑(ms) 계산
         const realFirstMs = Math.abs(sDates[1] - sDates[0]);
-        const firstMapMs  = realFirstMs/(cycleMin*msMin)*cycleMs - msMin;
-        periods[0] = {
-          start: new Date(sDates[0]),
-          end:   new Date(sDates[0].getTime() + firstMapMs)
-        };
-        // 이후: +10일 -1분
-        for (let i = 1; i < sDates.length; i++) {
-          const prevEnd = periods[i-1].end.getTime();
-          periods[i] = {
-            start: new Date(prevEnd + msMin),
+        const firstMapMs  = (realFirstMs / (cycleMin * msMin)) * cycleMs;
+
+        // 2) periods 배열 생성 (첫 구간 제거)
+        const periods = [];
+
+        // periods[0]: firstBoundary → firstBoundary + firstMapMs
+        periods.push({
+          start: sDates[1],
+          end:   new Date(sDates[1].getTime() + firstMapMs)
+        });
+
+        // 3) 그다음부터는 10일(cycleMs)씩
+        for (let i = 1; i < maxCycles; i++) {
+          const prevEnd = periods[i - 1].end.getTime();
+          periods.push({
+            start: new Date(prevEnd),
             end:   new Date(prevEnd + cycleMs)
-          };
+          });
+        }
+
+
+        function formatDateTime(date) {
+          if (!(date instanceof Date)) {
+            date = new Date(date);
+          }
+          const y = date.getFullYear();
+          const m = (date.getMonth() + 1).toString().padStart(2, "0");
+          const d = date.getDate().toString().padStart(2, "0");
+          const hh = date.getHours().toString().padStart(2, "0");
+          const mm = date.getMinutes().toString().padStart(2, "0");
+          return `${y}-${m}-${d} ${hh}:${mm}`;
         }
       
         //── 콘솔 한 줄 출력 ──
-        // console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
-        // for (let i = 0; i < sDates.length; i++) {
-        //   console.log(
-        //     `${sPillars[i]}\t` +
-        //     `${iPillars[i]}\t` +
-        //     `${mPillars[i]}\t` +
-        //     `${yPillars[i]}\t` +
-        //     `${formatDate(sDates[i])}\t` +
-        //     `${formatDate(periods[i].start)} → ${formatDate(periods[i].end)}`
-        //   );
-        // }
+         console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
+         for (let i = 0; i < sDates.length; i++) {
+           console.log(
+             `${sPillars[i]}\t` +
+             `${iPillars[i]}\t` +
+             `${mPillars[i]}\t` +
+             `${yPillars[i]}\t` +
+             `${formatDateTime(sDates[i])}\t` +
+             `${formatDateTime(periods[i].start)} → ${formatDateTime(periods[i].end)}`
+            );
+          }
         
         function findFirstChange(pillarsArr) {
           for (let i = 1; i < pillarsArr.length; i++) {
@@ -4581,7 +4641,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     getMyounPillarsVr = getMyounPillars;
 
-    getMyounPillars(myData, refDate);
+    getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
 
     let myowoonResult = getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
 
