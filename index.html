@@ -2146,87 +2146,10 @@
       />
       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-      <script type="module" src="./common.js?ver=202507170823"></script>
+      <script type="module" src="./common.js?ver=202507170844"></script>
       <script>
         document.addEventListener('DOMContentLoaded', () => {
-          const STORAGE_KEY = 'myeongsikList';
-          let list = [];
-          try {
-            list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-          } catch (e) {
-            console.error('❌ localStorage 파싱 실패', e);
-            return;
-          }
-
-          let success = 0, fail = 0;
-          const migrate = window.getMyounPillars;
-
-          if (typeof migrate !== 'function') {
-            //console.error('❗ getMyounPillars 전역 미노출!');
-            return;
-          }
-
-          list.forEach((item, i) => {
-            if (item.myounData) return;
-            try {
-              // person 구성
-              const person = {
-                year:          item.year,
-                month:         item.month,
-                day:           item.day,
-                hour:          item.hour,
-                minute:        item.minute,
-                gender:        item.gender,
-                correctedDate: item.correctedDate
-              };
-              // refDate 결정
-              const refDate = item.refDate ? new Date(item.refDate) : new Date();
-
-              // hourPillar 보장
-              let hourPillar = item.hourPillar;
-              if (!hourPillar) {
-                const bd = person.correctedDate
-                  ? new Date(person.correctedDate)
-                  : new Date(person.year, person.month - 1, person.day, person.hour, person.minute);
-                const full = window.getFourPillarsWithDaewoon(
-                  bd.getFullYear(), bd.getMonth()+1, bd.getDate(),
-                  bd.getHours(), bd.getMinutes(),
-                  person.gender, bd
-                );
-                hourPillar = full.split(', ')[0].split(' ')[3];
-              }
-
-              const res = migrate(person, refDate, null, hourPillar);
-
-              // 직렬화해서 저장
-              item.myounData = {
-                dirMode:                   res.dirMode,
-                sijuCurrentPillar:         res.sijuCurrentPillar,
-                iljuCurrentPillar:         res.iljuCurrentPillar,
-                woljuCurrentPillar:        res.woljuCurrentPillar,
-                yeonjuCurrentPillar:       res.yeonjuCurrentPillar,
-                sijuFirstChangeDate:       res.sijuFirstChangeDate?.toISOString()      || null,
-                iljuFirstChangeDate:       res.iljuFirstChangeDate?.toISOString()      || null,
-                woljuFirstChangeDate:      res.woljuFirstChangeDate?.toISOString()     || null,
-                yeonjuFirstChangeDate:     res.yeonjuFirstChangeDate?.toISOString()    || null,
-                sijuLastChangeDate:        res.sijuLastChangeDate?.toISOString()       || null,
-                iljuLastChangeDate:        res.iljuLastChangeDate?.toISOString()       || null,
-                woljuLastChangeDate:       res.woljuLastChangeDate?.toISOString()      || null,
-                yeonjuLastChangeDate:      res.yeonjuLastChangeDate?.toISOString()     || null,
-                sijuLastChangeDateStart:   res.sijuLastChangeDateStart?.toISOString()  || null,
-                iljuLastChangeDateStart:   res.iljuLastChangeDateStart?.toISOString()  || null,
-                woljuLastChangeDateStart:  res.woljuLastChangeDateStart?.toISOString() || null,
-                yeonjuLastChangeDateStart: res.yeonjuLastChangeDateStart?.toISOString()|| null
-              };
-              success++;
-            } catch (err) {
-              console.error(`❌ [Migration Failed] index=${i}`, err);
-              fail++;
-            }
-          });
-
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-          console.log(`✅ 마이그레이션 완료: ${success}개 성공, ${fail}개 실패`);
+          
         });
       </script>
       <!-- <script src="./calc.js"></script> -->
