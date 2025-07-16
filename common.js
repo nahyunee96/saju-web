@@ -1541,10 +1541,78 @@ function migrateStoredRecords() {
   }
 }
 
+function migrateCycleData() {
+  // 1) helper: 사이클 날짜 생성
+  function generateCycleDates(correctedDate, dirMode) {
+    const msMin    = 60 * 1000;
+    const cycleMin = 120;                          // 2시간 (분 단위)
+    const cycleMs  = 10 * 24 * 60 * 60 * 1000;     // 10일 (밀리초)
+    const maxCycles = 4381;
+
+    const sDates = [
+      correctedDate,
+      getFirstSijuChange(correctedDate)
+    ];
+    const iDates = [
+      correctedDate,
+      getFirstIljuChange(correctedDate)
+    ];
+
+    for (let i = 2; i < maxCycles; i++) {
+      const deltaS = (dirMode === '순행' ? 1 : -1) * cycleMin * msMin;
+      const deltaI = (dirMode === '순행' ? 1 : -1) * cycleMs;
+      sDates[i] = new Date(sDates[i - 1].getTime() + deltaS);
+      iDates[i] = new Date(iDates[i - 1].getTime() + deltaI);
+    }
+    return { sDates, iDates };
+  }
+
+  // 2) helper: 차이 포맷팅
+  function formatDiffDaysHours(fromDate, toDate) {
+    const f = new Date(fromDate), t = new Date(toDate);
+    if (isNaN(f) || isNaN(t)) return '';
+
+    const diff     = t - f;
+    const dayMs    = 24 * 60 * 60 * 1000;
+    const hourMs   = 60 * 60 * 1000;
+    const minuteMs = 60 * 1000;
+
+    let days  = Math.floor(diff / dayMs);
+    let rem   = diff % dayMs;
+    let hours = Math.floor(rem / hourMs);
+    rem       = rem % hourMs;
+    let minutes = Math.round(rem / minuteMs);
+
+    if (minutes === 60) { minutes = 0; hours++; }
+    if (hours   === 24) { hours   = 0; days++; }
+
+    return `${days}일 ${hours}시간 ${minutes}분`;
+  }
+
+  // 3) 마이그레이션 실행
+  const list = JSON.parse(localStorage.getItem('myeongsikList')) || [];
+  list.forEach(item => {
+    // 이미 마이그레이션 된 항목이면 건너뛰기
+    if (item.sDates && item.iDates) return;
+
+    const correctedDate = new Date(item.correctedDate);
+    const dirMode = item.dirMode || '순행';
+    const { sDates, iDates } = generateCycleDates(correctedDate, dirMode);
+
+    item.sDates = sDates;
+    item.iDates = iDates;
+    // 필요하면 나중에 formatDiffDaysHours(item.correctedDate, someDate) 로 호출하세요
+    formatDiffDaysHours(item.correctedDate, someDate);
+  });
+
+  localStorage.setItem('myeongsikList', JSON.stringify(list));
+};
+
 document.addEventListener("DOMContentLoaded", function () {
 
   migrateStoredRecords()
   migrateTenGods();
+  migrateCycleData();
 
   localStorage.removeItem('correctedDate');
 
@@ -7410,72 +7478,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-
-// migration-cycle.js
-
-(function migrateCycleData() {
-  // 1) helper: 사이클 날짜 생성
-  function generateCycleDates(correctedDate, dirMode) {
-    const msMin    = 60 * 1000;
-    const cycleMin = 120;                          // 2시간 (분 단위)
-    const cycleMs  = 10 * 24 * 60 * 60 * 1000;     // 10일 (밀리초)
-    const maxCycles = 4381;
-
-    const sDates = [
-      correctedDate,
-      getFirstSijuChange(correctedDate)
-    ];
-    const iDates = [
-      correctedDate,
-      getFirstIljuChange(correctedDate)
-    ];
-
-    for (let i = 2; i < maxCycles; i++) {
-      const deltaS = (dirMode === '순행' ? 1 : -1) * cycleMin * msMin;
-      const deltaI = (dirMode === '순행' ? 1 : -1) * cycleMs;
-      sDates[i] = new Date(sDates[i - 1].getTime() + deltaS);
-      iDates[i] = new Date(iDates[i - 1].getTime() + deltaI);
-    }
-    return { sDates, iDates };
-  }
-
-  // 2) helper: 차이 포맷팅
-  function formatDiffDaysHours(fromDate, toDate) {
-    const f = new Date(fromDate), t = new Date(toDate);
-    if (isNaN(f) || isNaN(t)) return '';
-
-    const diff     = t - f;
-    const dayMs    = 24 * 60 * 60 * 1000;
-    const hourMs   = 60 * 60 * 1000;
-    const minuteMs = 60 * 1000;
-
-    let days  = Math.floor(diff / dayMs);
-    let rem   = diff % dayMs;
-    let hours = Math.floor(rem / hourMs);
-    rem       = rem % hourMs;
-    let minutes = Math.round(rem / minuteMs);
-
-    if (minutes === 60) { minutes = 0; hours++; }
-    if (hours   === 24) { hours   = 0; days++; }
-
-    return `${days}일 ${hours}시간 ${minutes}분`;
-  }
-
-  // 3) 마이그레이션 실행
-  const list = JSON.parse(localStorage.getItem('myeongsikList')) || [];
-  list.forEach(item => {
-    // 이미 마이그레이션 된 항목이면 건너뛰기
-    if (item.sDates && item.iDates) return;
-
-    const correctedDate = new Date(item.correctedDate);
-    const dirMode = item.dirMode || '순행';
-    const { sDates, iDates } = generateCycleDates(correctedDate, dirMode);
-
-    item.sDates = sDates;
-    item.iDates = iDates;
-    // 필요하면 나중에 formatDiffDaysHours(item.correctedDate, someDate) 로 호출하세요
-    formatDiffDaysHours(item.correctedDate, someDate);
-  });
-
-  localStorage.setItem('myeongsikList', JSON.stringify(list));
-})();
