@@ -1549,9 +1549,7 @@ document.addEventListener("DOMContentLoaded", function () {
   localStorage.removeItem('correctedDate');
 
   const savedCorrectedDate = localStorage.getItem('correctedDate');
-  const correctedDate = savedCorrectedDate
-    ? new Date(savedCorrectedDate)
-    : new Date(correctedDate)
+  correctedDate = savedCorrectedDate;
 
   let currentMyeongsik = null;
 
