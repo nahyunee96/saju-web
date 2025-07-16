@@ -4311,36 +4311,34 @@ document.addEventListener("DOMContentLoaded", function () {
         dayPillar,
         hourPillar
       }) {
-        const msMin    = 60 * 1000;
-        const cycleMin = 120;                          // 2시간
-        const cycleMs  = 10 * 24 * 60 * 60 * 1000;     // 10일
+        
       
         function getFirstSijuChange(dt) {
-        const branch   = getHourBranchReturn(dt);
-        const startMap = {
-          子:23, 丑:1, 寅:3, 卯:5,
-          辰:7,  巳:9, 午:11, 未:13,
-          申:15, 酉:17, 戌:19, 亥:21
-        };
-        const h0 = startMap[branch];
-        const h1 = (h0 + 2) % 24;
+          const branch   = getHourBranchReturn(dt);
+          const startMap = {
+            子:23, 丑:1, 寅:3, 卯:5,
+            辰:7,  巳:9, 午:11, 未:13,
+            申:15, 酉:17, 戌:19, 亥:21
+          };
+          const h0 = startMap[branch];
+          const h1 = (h0 + 2) % 24;
 
-        // dt는 분 단위까지만 남기고 (초·밀리 0) 넘겨 주세요.
-        const base = new Date(dt);
-        base.setSeconds(0, 0);
+          // dt는 분 단위까지만 남기고 (초·밀리 0) 넘겨 주세요.
+          const base = new Date(dt);
+          base.setSeconds(0, 0);
 
-        const bnd = new Date(base);
-        if (dirMode === '순행') {
-          // 다음 기둥 끝나는 시각: h1:00
-          bnd.setHours(h1, 0, 0, 0);
-          if (bnd <= base) bnd.setDate(bnd.getDate() + 1);
-        } else {
-          // 이전 기둥 시작 시각: h0:00
-          bnd.setHours(h0, 0, 0, 0);
-          if (bnd >= base) bnd.setDate(bnd.getDate() - 1);
+          const bnd = new Date(base);
+          if (dirMode === '순행') {
+            // 다음 기둥 끝나는 시각: h1:00
+            bnd.setHours(h1, 0, 0, 0);
+            if (bnd <= base) bnd.setDate(bnd.getDate() + 1);
+          } else {
+            // 이전 기둥 시작 시각: h0:00
+            bnd.setHours(h0, 0, 0, 0);
+            if (bnd >= base) bnd.setDate(bnd.getDate() - 1);
+          }
+          return bnd;
         }
-        return bnd;
-      }
         
         const iljuTarget = {
           insi:   { 순행:'寅', 역행:'寅' },
@@ -4356,15 +4354,23 @@ document.addEventListener("DOMContentLoaded", function () {
           }
           return cursor;
         }
-      
-        
+
+        const msMin    = 60 * 1000;
+        const cycleMin = 120;                          // 2시간 (분 단위)
+        const cycleMs  = 10 * 24 * 60 * 60 * 1000;     // 10일 (밀리초)
+
         const maxCycles = 4381; 
         const sDates = [ correctedDate, getFirstSijuChange(correctedDate) ];
         const iDates = [ correctedDate, getFirstIljuChange(correctedDate) ];
+
         for (let i = 2; i < maxCycles; i++) {
-          const deltaMs = (dirMode==='순행'?1:-1) * cycleMin * msMin;
-          sDates[i] = new Date(sDates[i-1].getTime() + deltaMs);
-          iDates[i] = new Date(iDates[i-1].getTime() + deltaMs);
+          // 시주용: 2시간 간격
+          const deltaS = (dirMode === '순행' ? 1 : -1) * cycleMin * msMin;
+          // 일주용:   10일   간격
+          const deltaI = (dirMode === '순행' ? 1 : -1) * cycleMs;
+
+          sDates[i] = new Date(sDates[i - 1].getTime() + deltaS);
+          iDates[i] = new Date(iDates[i - 1].getTime() + deltaI);
         }
       
         const sPillars = [ hourPillar ];
@@ -5439,14 +5445,32 @@ document.addEventListener("DOMContentLoaded", function () {
           return '';
         }
 
-        const diff = t.getTime() - f.getTime();
+        const diff     = t.getTime() - f.getTime();
         const dayMs    = 24 * 60 * 60 * 1000;
         const hourMs   = 60 * 60 * 1000;
         const minuteMs = 60 * 1000;
 
-        const days    = Math.floor(diff / dayMs);
-        const hours   = Math.floor((diff - days * dayMs) / hourMs);
-        const minutes = Math.floor((diff - days * dayMs - hours * hourMs) / minuteMs);
+        // 일 단위
+        let days = Math.floor(diff / dayMs);
+        let rem  = diff % dayMs;
+
+        // 시 단위
+        let hours = Math.floor(rem / hourMs);
+        rem        = rem % hourMs;
+
+        // 분 단위(반올림)
+        let minutes = Math.round(rem / minuteMs);
+
+        // 분이 60이 될 경우 시에 올려주기
+        if (minutes === 60) {
+          minutes = 0;
+          hours++;
+        }
+        // 시가 24가 될 경우 일에 올려주기
+        if (hours === 24) {
+          hours = 0;
+          days++;
+        }
 
         return `${days}일 ${hours}시간 ${minutes}분`;
       }
