@@ -4063,6 +4063,8 @@ document.addEventListener("DOMContentLoaded", function () {
   
     document.querySelectorAll("[id^='Sewoon_']").forEach(function (sewoonLi) {
       sewoonLi.addEventListener("click", function () {
+        const wolwoonBox = document.querySelector(".lucky.wolwoon");
+        if (wolwoonBox) { wolwoonBox.style.display = "none"; }
         document.getElementById('iljuCalender').style.display = 'none';
         const sewoonBox = document.querySelector(".lucky.sewoon");
         if (sewoonBox) { sewoonBox.style.display = "grid"; }
@@ -4180,7 +4182,7 @@ document.addEventListener("DOMContentLoaded", function () {
           setText("Wwb10sin", getTenGodForBranch(selectedWolwoon.ji, baseDayStem));
           const wolwoonHidden = hiddenStemMapping[selectedWolwoon.ji] || ["-", "-", "-"];
           setText("WwJj1", wolwoonHidden[0]);
-          appendTenGod("SwJj1", wolwoonHidden[0], true);
+          appendTenGod("WwJj1", wolwoonHidden[0], true);
           
           setText("WwJj2", wolwoonHidden[1]);
           appendTenGod("WwJj2", wolwoonHidden[1], true);
