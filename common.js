@@ -59,6 +59,8 @@ let isSummerOn = false;
 
 let cityLongitudes = {};
 
+
+
 const placeBtn  = document.getElementById('inputBirthPlace');
 const modal     = document.getElementById('mapModal');
 const closeMap  = document.getElementById('closeMap');
@@ -1540,12 +1542,9 @@ function migrateStoredRecords() {
     console.info('명식 목록 마이그레이션 완료: lon 속성 보강');
   }
 }
-
  
 
 document.addEventListener("DOMContentLoaded", function () {
-
-  
 
   localStorage.removeItem('correctedDate');
 
@@ -7414,3 +7413,5 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+

@@ -2146,7 +2146,56 @@
       />
       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-      <script type="module" src="./common.js?ver=202507170747"></script>
+      <script type="module" src="./common.js?ver=202507170819"></script>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          if (typeof getFirstSijuChange !== 'function' || typeof getFirstIljuChange !== 'function') {
+            //console.error('getFirstSijuChange / getFirstIljuChange 함수가 아직 로드되지 않았습니다.');
+            return;
+          }
+
+          const KEY = 'myeongsikList';
+          const raw = localStorage.getItem(KEY);
+          if (!raw) {
+            console.log('▶ 마이그레이션 대상이 없습니다.');
+            return;
+          }
+          let list;
+          try {
+            list = JSON.parse(raw);
+          } catch (e) {
+            console.error('▶ JSON 파싱 오류:', e);
+            return;
+          }
+
+          const msMin    = 60 * 1000;
+          const cycleMin = 120;                          // 2시간 (분)
+          const cycleMs  = 10 * 24 * 60 * 60 * 1000;     // 10일 (밀리초)
+          const maxCycles = 4381;
+
+          list.forEach((item, idx) => {
+            try {
+              const correctedDate = new Date(item.correctedDate);
+              const dirMode = item.dirMode || '순행';
+              const sDates = [correctedDate, getFirstSijuChange(correctedDate)];
+              const iDates = [correctedDate, getFirstIljuChange(correctedDate)];
+              for (let i = 2; i < maxCycles; i++) {
+                const deltaS = (dirMode === '순행' ? 1 : -1) * cycleMin * msMin;
+                const deltaI = (dirMode === '순행' ? 1 : -1) * cycleMs;
+                sDates.push(new Date(sDates[i - 1].getTime() + deltaS));
+                iDates.push(new Date(iDates[i - 1].getTime() + deltaI));
+              }
+              item.sDates = sDates.map(d => d.toISOString());
+              item.iDates = iDates.map(d => d.toISOString());
+            } catch (err) {
+              console.warn(`▶ [${idx}] 항목 마이그레이션 실패:`, err);
+            }
+          });
+
+          localStorage.setItem(KEY, JSON.stringify(list));
+          console.log(`✅ 마이그레이션 완료: 총 ${list.length}개 항목 업데이트됨.`);
+        });
+        </script>
       <!-- <script src="./calc.js"></script> -->
     </div>
 
