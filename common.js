@@ -1546,6 +1546,13 @@ document.addEventListener("DOMContentLoaded", function () {
   migrateStoredRecords()
   migrateTenGods();
 
+  localStorage.removeItem('correctedDate');
+
+  const savedCorrectedDate = localStorage.getItem('correctedDate');
+  const correctedDate = savedCorrectedDate
+    ? new Date(savedCorrectedDate)
+    : new Date(correctedDate)
+
   let currentMyeongsik = null;
 
   window.scrollTo(0, 0);
@@ -1992,6 +1999,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
       }
       correctedDate = fixedCorrectedDate;
+      localStorage.setItem('correctedDate', correctedDate.toISOString());
 
       if (item.isTimeUnknown) {
         adjustedTimeDisplay = "보정시 모름";
@@ -2273,6 +2281,7 @@ document.addEventListener("DOMContentLoaded", function () {
           fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
         }
         correctedDate = fixedCorrectedDate;
+        localStorage.setItem('correctedDate', correctedDate.toISOString());
 
         if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
           summerTimeBtn.style.display = 'inline-block';
@@ -3043,6 +3052,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ⑥ 최종
     correctedDate = fixedCorrectedDate;
+    localStorage.setItem('correctedDate', correctedDate.toISOString());
 
     if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
       summerTimeBtn.style.display = 'inline-block';
@@ -3070,6 +3080,7 @@ document.addEventListener("DOMContentLoaded", function () {
         summerTimeBtn.textContent = '썸머타임 보정 OFF';
         fixedCorrectedDate = new Date(correctedDate.getTime() - 60 * 60 * 1000);
         correctedDate = fixedCorrectedDate;
+        localStorage.setItem('correctedDate', correctedDate.toISOString());
         bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
         hourPillar  = getHourGanZhiRef(correctedDate);
         hourSplit = splitPillar(hourPillar);
@@ -3085,6 +3096,7 @@ document.addEventListener("DOMContentLoaded", function () {
         summerTimeBtn.textContent = '썸머타임 보정 ON';
         fixedCorrectedDate = new Date(correctedDate.getTime() + 60 * 60 * 1000);
         correctedDate = fixedCorrectedDate;
+        localStorage.setItem('correctedDate', correctedDate.toISOString());
         bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
         hourPillar  = getHourGanZhiRef(correctedDate);
         hourSplit = splitPillar(hourPillar);
@@ -6756,6 +6768,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const savedBirthPlace = isPlaceUnknown ? "" : birthPlaceInput;
 
     correctedDate = fixedCorrectedDate;
+    localStorage.setItem('correctedDate', correctedDate.toISOString());
 
     const calendar = new KoreanLunarCalendar();
     if (monthType === "음력" || monthType === "음력(윤달)") {
@@ -7001,6 +7014,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
       }
       correctedDate = fixedCorrectedDate;
+      localStorage.setItem('correctedDate', correctedDate.toISOString());
   
       if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
         summerTimeBtn.style.display = 'inline-block';
