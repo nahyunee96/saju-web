@@ -1542,19 +1542,14 @@ function migrateStoredRecords() {
 }
 
 function migrateMyounData() {
+  // 1) load list
   const list = JSON.parse(localStorage.getItem('myeongsikList')) || [];
 
   list.forEach(item => {
+    // 이미 마이그레이션된 항목이면 패스
     if (item.myounData) return;
 
-    // 문자열로 저장된 correctedDate / refDate를 Date 객체로 복원
-    const correctedDate = item.correctedDate
-      ? new Date(item.correctedDate)
-      : new Date();
-    const refDate = item.refDate
-      ? new Date(item.refDate)
-      : new Date();
-
+    // 2) person 객체 구성
     const person = {
       year:          item.year,
       month:         item.month,
@@ -1562,36 +1557,43 @@ function migrateMyounData() {
       hour:          item.hour,
       minute:        item.minute,
       gender:        item.gender,
-      correctedDate // 이제 진짜 Date
+      correctedDate: item.correctedDate
     };
 
+    // 3) 기준일(refDate)을 원하는 값으로 설정
+    //    예: 지금 시점(new Date()), 또는 저장된 item.refDate가 있다면 그걸 사용
+    const refDate = item.refDate ? new Date(item.refDate) : new Date();
+
+    // 4) getMyounPillars 호출 (basisOverride, hourPillar은 필요시 넘겨주세요)
     const resultMyoun = getMyounPillarsVr(person, refDate, item.selectedTime2);
 
+    // 5) 바로 JSON 직렬화 가능한 값만 저장
     item.myounData = {
-      dirMode:               resultMyoun.dirMode,
-      sijuCurrentPillar:     resultMyoun.sijuCurrentPillar,
-      iljuCurrentPillar:     resultMyoun.iljuCurrentPillar,
-      woljuCurrentPillar:    resultMyoun.woljuCurrentPillar,
-      yeonjuCurrentPillar:   resultMyoun.yeonjuCurrentPillar,
-      sijuFirstChangeDate:   resultMyoun.sijuFirstChangeDate?.toISOString(),
-      iljuFirstChangeDate:   resultMyoun.iljuFirstChangeDate?.toISOString(),
-      woljuFirstChangeDate:  resultMyoun.woljuFirstChangeDate?.toISOString(),
-      yeonjuFirstChangeDate: resultMyoun.yeonjuFirstChangeDate?.toISOString(),
-      sijuLastChangeDate:    resultMyoun.sijuLastChangeDate?.toISOString(),
-      iljuLastChangeDate:    resultMyoun.iljuLastChangeDate?.toISOString(),
-      woljuLastChangeDate:   resultMyoun.woljuLastChangeDate?.toISOString(),
-      yeonjuLastChangeDate:  resultMyoun.yeonjuLastChangeDate?.toISOString(),
-      sijuLastChangeDateStart:   resultMyoun.sijuLastChangeDateStart?.toISOString(),
-      iljuLastChangeDateStart:   resultMyoun.iljuLastChangeDateStart?.toISOString(),
-      woljuLastChangeDateStart:  resultMyoun.woljuLastChangeDateStart?.toISOString(),
-      yeonjuLastChangeDateStart: resultMyoun.yeonjuLastChangeDateStart?.toISOString()
+      dirMode:                      resultMyoun.dirMode,
+      sijuCurrentPillar:            resultMyoun.sijuCurrentPillar,
+      iljuCurrentPillar:            resultMyoun.iljuCurrentPillar,
+      woljuCurrentPillar:           resultMyoun.woljuCurrentPillar,
+      yeonjuCurrentPillar:          resultMyoun.yeonjuCurrentPillar,
+      sijuFirstChangeDate:          resultMyoun.sijuFirstChangeDate?.toISOString(),
+      iljuFirstChangeDate:          resultMyoun.iljuFirstChangeDate?.toISOString(),
+      woljuFirstChangeDate:         resultMyoun.woljuFirstChangeDate?.toISOString(),
+      yeonjuFirstChangeDate:        resultMyoun.yeonjuFirstChangeDate?.toISOString(),
+      sijuLastChangeDate:           resultMyoun.sijuLastChangeDate?.toISOString(),
+      iljuLastChangeDate:           resultMyoun.iljuLastChangeDate?.toISOString(),
+      woljuLastChangeDate:          resultMyoun.woljuLastChangeDate?.toISOString(),
+      yeonjuLastChangeDate:         resultMyoun.yeonjuLastChangeDate?.toISOString(),
+      sijuLastChangeDateStart:      resultMyoun.sijuLastChangeDateStart?.toISOString(),
+      iljuLastChangeDateStart:      resultMyoun.iljuLastChangeDateStart?.toISOString(),
+      woljuLastChangeDateStart:     resultMyoun.woljuLastChangeDateStart?.toISOString(),
+      yeonjuLastChangeDateStart:    resultMyoun.yeonjuLastChangeDateStart?.toISOString()
     };
   });
 
+  // 6) 저장
   localStorage.setItem('myeongsikList', JSON.stringify(list));
-  console.log('✅ 묘운 전체 마이그레이션 완료:', list.length, 'items processed');
-}
 
+  console.log('✅ 묘운 전체 마이그레이션 완료:', list.length, 'items processed');
+};
  
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -1605,7 +1607,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   migrateStoredRecords()
   migrateTenGods();
-  
+  migrateMyounData();
 
   window.scrollTo(0, 0);
 
@@ -2943,10 +2945,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const setBtnCtrl = document.getElementById('setBtn'); 
 
   document.getElementById("calcBtn").addEventListener("click", function () {
-
-    setTimeout(()=>{
-      migrateMyounData();
-    });
 
     let refDate = toKoreanTime(new Date());
 
