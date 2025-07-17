@@ -2173,7 +2173,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function handleSortChange () {
       const sortKey = alignTypeSel.value;
-      let list      = JSON.parse(localStorage.getItem('myeongsikList')) || [];
+      let list = JSON.parse(localStorage.getItem('myeongsikList')) || [];
     
       // 1) 즐겨찾기 / 일반 분리
       const favs  = list.filter(v => v.isFavorite);
@@ -2945,6 +2945,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const setBtnCtrl = document.getElementById('setBtn'); 
 
   document.getElementById("calcBtn").addEventListener("click", function () {
+
+    migrateMyounData();
 
     let refDate = toKoreanTime(new Date());
 
