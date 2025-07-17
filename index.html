@@ -109,7 +109,7 @@
       }
   
       /* 인포모달 */
-      #infoModal4 {
+      #infoModal5 {
         display: none;
         position: fixed;
         left: 50%;
@@ -121,7 +121,7 @@
         border: 2px solid #252525;
       }
   
-      #infoModal4 .title {
+      #infoModal5 .title {
         width: 100%;
         background-color: #252525;
         color: #fff;
@@ -129,32 +129,32 @@
         padding: 10px;
       }
   
-      #infoModal4 .title b {
+      #infoModal5 .title b {
         font-size: 14px;
         color: #ccc;
       }
   
-      #infoModal4 .content {
+      #infoModal5 .content {
         width: 100%;
         padding: 20px;
         background-color: #fff;
         color: #252525;
       }
 
-      #infoModal4 .content li {
+      #infoModal5 .content li {
         margin-bottom: 8px;
       }
 
-      #infoModal4 .content li:last-child{
+      #infoModal5 .content li:last-child{
         margin-bottom: 0;
       }
 
-      #infoModal4 .btn_box {
+      #infoModal5 .btn_box {
         background-color: #252525;
         padding: 10px;
       }
 
-      #infoModal4 .btn_box button {
+      #infoModal5 .btn_box button {
         padding: 4px 12px;
         font-size: 14px;
       }
@@ -178,25 +178,25 @@
           height: 8vw;
         }
 
-        #infoModal4 .title {
+        #infoModal5 .title {
           font-size:4.4vw;
           padding: 2.4vw;
         }
     
-        #infoModal4 .title b {
+        #infoModal5 .title b {
           font-size: 3.6vw;
         }
     
-        #infoModal4 .content {
+        #infoModal5 .content {
           padding: 2vw;
           font-size: 3.6vw;
         }
 
-        #infoModal4 .content li {
+        #infoModal5 .content li {
           margin-bottom: 1.2vw;
         }
 
-        #infoModal4 .btn_box button {
+        #infoModal5 .btn_box button {
           padding: 1.2vw 2vw;
           font-size: 3.2vw;
         }
@@ -216,19 +216,20 @@
         <div id="map"></div>
       </div>
     </div>
-    <div id="infoModal4">
+    <div id="infoModal5">
       <div class="inner">
         <div class="title">
-          <span>!! 안내드립니다 !! <b>만세력 UPDATE 311 ver.</b></span>
+          <span>!! 안내드립니다 !! <b>만세력 UPDATE 315 ver.</b></span>
         </div>
         <div class="content">
           <ul class="infoContent">
-            <li>UI 변경이 대폭 이루어졌습니다. 월운까지 한번에 보실 수 있습니다.</li>
-            <li>각종 설정에서 설정을 해보실 수 있습니다. 이리저리 맞춰보시면서, 편한 쪽을 찾으시면 됩니다 !</li>
-            <li>음력 생일의 경우, 업데이트를 하면서 양력으로 바뀌는 경우가 있는데, 수정에서 음력 선택하시고 출생지를 다시 넣어주시면
-              정상적으로 뜹니다!
+            <li>기존에 묘운이 안맞는 부분이 있었습니다. 수정하였으나, 이미 저장된 데이터는 건드릴수가 없어서,
+              번거로우시겠지만, 기존명식 모두 삭제를 해주시고 사용하시기를 권장드립니다.😂
             </li>
+            <li>이 묘운 만세력은 테스트 단계이고, 만든 제가 개발자는 아닌지라 부족한 부분이 있습니다. 유의하시고 사용해주세요.</li>
+            <li>원국 명식의 경우, 팔자어때 앱과 교차확인 해가며 사용하시는 것을 추천드려요!</li>
             <li>새로 고침은 자주 해주시면 좋습니다. 🥰</li>
+            <li>만약 새로고침 했는데도, 명식이 계속 이상하다 싶으시면 아예 다른 환경(브라우저)에서 사용하시는 것을 권장 드립니다...:)</li>
             <li>명식 모두 삭제를 하실 경우, 브라우저 데이터가 삭제되어 팝업이 또 뜨게 됩니다 ! <br> 브라우저에서 보지 않기를 눌러주세요!
               다른 브라우저 사용 & 캐시만 비워지지 않으면 이 팝업은 또 뜨지 않습니다 !
             </li>
@@ -252,12 +253,12 @@
       }
 
       document.addEventListener('DOMContentLoaded', () => {
-        const modal       = document.getElementById('infoModal4');
+        const modal       = document.getElementById('infoModal5');
         const hideForever = document.getElementById('lognTimeX');  // ← 수정
         const closeBtn    = document.getElementById('closeX');
 
         // 1) 페이지 로드 시, 숨김 플래그 확인
-        const hidden = localStorage.getItem('iinfoModalHidden4');
+        const hidden = localStorage.getItem('infoModalHidden5');
         if (hidden === 'true') {
           modal.style.display = 'none';
           modal.style.zIndex = -1;
@@ -268,7 +269,7 @@
 
         // 2) “이 이후 브라우저에서 보지 않기” 클릭
         hideForever.addEventListener('click', () => {
-          localStorage.setItem('iinfoModalHidden4', 'true');
+          localStorage.setItem('infoModalHidden5', 'true');
           modal.style.display = 'none';
           modal.style.zIndex = -1;
         });
@@ -587,7 +588,7 @@
         <form class="input_wrap" id="inputWrap">
           <div class="input_group">
             <label for="inputName" style="position: relative;">명주이름
-              <span class="pharases ver" style="position: absolute; right: 0;">Ver.311</span>
+              <span class="pharases ver" style="position: absolute; right: 0;">Ver.315</span>
             </label>
             <input type="text" class="valueClear" id="inputName" maxlength="10" placeholder="10글자 이내로 이름 입력" />
           </div>
@@ -2146,7 +2147,7 @@
       />
       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-      <script type="module" src="./common.js?ver=202507170919"></script>
+      <script type="module" src="./common.js?ver=202507170924"></script>
       <!-- <script src="./calc.js"></script> -->
     </div>
 
