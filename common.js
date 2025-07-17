@@ -1546,7 +1546,7 @@ function migrateMyounData() {
   const list = JSON.parse(localStorage.getItem('myeongsikList')) || [];
 
   list.forEach(item => {
-    if (item.myounData) return;
+    //if (item.myounData) return;
     // ───────────────────────────────────────────────
     // 2) correctedDate, refDate를 문자열→Date로 복원
     const correctedDate = item.correctedDate
@@ -1598,8 +1598,6 @@ function migrateMyounData() {
 }
 
 
- 
-
 document.addEventListener("DOMContentLoaded", function () {
 
   localStorage.removeItem('correctedDate');
@@ -1611,7 +1609,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   migrateStoredRecords()
   migrateTenGods();
-  migrateMyounData();
+  //migrateMyounData();
 
   window.scrollTo(0, 0);
 
@@ -4832,6 +4830,8 @@ document.addEventListener("DOMContentLoaded", function () {
     getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
 
     let myowoonResult = getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
+
+    migrateMyounData();
 
     function updateMyowoonSection(myowoonResult) {
       
