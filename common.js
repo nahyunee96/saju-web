@@ -391,15 +391,49 @@ function getYearGanZhi(dateObj, year) {
   return sexagenaryCycle[yearIndex];
 }
 
-function getMonthGanZhi(dateObj, solarYear) {
-  const boundaries = getSolarTermBoundaries(solarYear);
-  const monthNumber = getMonthNumber(dateObj, boundaries);
-  const yearGanZhi = getYearGanZhi(dateObj, solarYear);
-  const yearStem = yearGanZhi.charAt(0), yearStemIndex = Cheongan.indexOf(yearStem) + 1;
-  const monthStemIndex = ((yearStemIndex * 2) + monthNumber - 1) % 10;
-  const monthStem = Cheongan[monthStemIndex], monthBranch = MONTH_ZHI[monthNumber - 1];
-  return monthStem + monthBranch;
+function getMonthGanZhi(dateObj) {
+  const year = dateObj.getFullYear();
+  const boundsCurr = getSolarTermBoundaries(year);
+
+  // 1) ’입춘‘ 경계를 찾을 때도, term 이 아니라 name 프로퍼티를 써야 합니다.
+  const lichunItem = boundsCurr.find(t => t.name === "입춘");
+  if (!lichunItem) {
+    throw new Error("입춘 경계 데이터를 찾을 수 없습니다.");
+  }
+  // ← .date() 가 아니라 .date (Date 객체)
+  const lichunDate = lichunItem.date;
+
+  // 2) 입춘 이전이면 전년으로
+  const calcYear = dateObj < lichunDate
+    ? year - 1
+    : year;
+
+  // 3) 그 해(getSolarTermBoundaries(calcYear))의 12개 절기(月建) 배열을 만들어
+  const allBounds = getSolarTermBoundaries(calcYear);
+  const startIdx = allBounds.findIndex(t => t.name === "입춘");
+  let monthTerms = allBounds.slice(startIdx, startIdx + 12);
+  if (monthTerms.length < 12) {
+    monthTerms = monthTerms.concat(
+      getSolarTermBoundaries(calcYear + 1)
+        .slice(0, 12 - monthTerms.length)
+    );
+  }
+
+  // 4) 월번호(1~12) 계산
+  let monthNumber = monthTerms.filter(mt => dateObj >= mt.date).length;
+  if (monthNumber === 0) monthNumber = 12;
+
+  // 5) 干 지수 공식 적용
+  const yearGZ = getYearGanZhi(dateObj, calcYear);
+  const yStem = yearGZ.charAt(0);
+  const yStemIdx = Cheongan.indexOf(yStem) + 1; // 1~10
+  const mStemIdx = ((yStemIdx * 2) + monthNumber - 1) % 10;
+
+  const mStem   = Cheongan[mStemIdx];
+  const mBranch = MONTH_ZHI[monthNumber - 1];
+  return mStem + mBranch;
 }
+
 
 const MONTH_ZHI = ["인", "묘", "진", "사", "오", "미", "신", "유", "술", "해", "자", "축"];
 const Cheongan = ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"];
