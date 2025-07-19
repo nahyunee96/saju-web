@@ -2800,7 +2800,9 @@ document.addEventListener("DOMContentLoaded", function () {
           console.warn("인덱스가 유효하지 않습니다.", myIndex, partnerIndex);
         }
         document.getElementById("woonVer1Change2").click();
-         updateEumYangClasses();
+        requestAnimationFrame(()=>{
+          updateEumYangClasses();
+        }, 10)
       });
      
     });
@@ -3450,6 +3452,9 @@ document.addEventListener("DOMContentLoaded", function () {
         this.classList.add("active");
         const index = this.getAttribute("data-index");
         updateDaewoonDetails(index);
+        requestAnimationFrame(()=>{
+          updateEumYangClasses();
+        }, 10)
       });
     });
 
@@ -3462,7 +3467,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (mowoonListElem) { mowoonListElem.style.display = "grid"; }
         document.querySelectorAll("#sewoonList li").forEach(e => e.classList.remove("active"));
         this.classList.add("active");
-        const year = parseInt(this.dataset.year, 10);
+        requestAnimationFrame(()=>{
+          updateEumYangClasses();
+        }, 10)
       });
     });
 
@@ -4253,6 +4260,10 @@ document.addEventListener("DOMContentLoaded", function () {
         // active
         document.querySelectorAll("#mowoonList li").forEach(e => e.classList.remove("active"));
         this.classList.add("active");
+
+        requestAnimationFrame(()=>{
+          updateEumYangClasses();
+        }, 10)
         
       });
     });
@@ -5882,7 +5893,9 @@ document.addEventListener("DOMContentLoaded", function () {
         clearHyphenElements(root);
       });
 
-      updateEumYangClasses();
+      requestAnimationFrame(()=>{
+          updateEumYangClasses();
+        }, 10)
     });
 
     document.getElementById("woonChangeBtn").addEventListener("click", function () {
@@ -5929,7 +5942,9 @@ document.addEventListener("DOMContentLoaded", function () {
         clearHyphenElements(root);
       });
 
-      updateEumYangClasses();
+      requestAnimationFrame(()=>{
+          updateEumYangClasses();
+        }, 10)
     });
 
     const pickerIds = [
