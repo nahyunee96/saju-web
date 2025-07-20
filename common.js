@@ -4368,33 +4368,8 @@ document.addEventListener("DOMContentLoaded", function () {
         hourPillar
       }) {
         
-      
-        function getFirstSijuChange(dt) {
-          const branch   = getHourBranchReturn(dt);
-          const startMap = {
-            子:23, 丑:1, 寅:3, 卯:5,
-            辰:7,  巳:9, 午:11, 未:13,
-            申:15, 酉:17, 戌:19, 亥:21
-          };
-          const h0 = startMap[branch];
-          const h1 = (h0 + 2) % 24;
-
-          // dt는 분 단위까지만 남기고 (초·밀리 0) 넘겨 주세요.
-          const base = new Date(dt);
-          base.setSeconds(0, 0);
-
-          const bnd = new Date(base);
-          if (dirMode === '순행') {
-            // 다음 기둥 끝나는 시각: h1:00
-            bnd.setHours(h1, 0, 0, 0);
-            if (bnd <= base) bnd.setDate(bnd.getDate() + 1);
-          } else {
-            // 이전 기둥 시작 시각: h0:00
-            bnd.setHours(h0, 0, 0, 0);
-            if (bnd >= base) bnd.setDate(bnd.getDate() - 1);
-          }
-          return bnd;
-        }
+        
+        
         
         const iljuTarget = {
           insi:   { 순행:'寅', 역행:'寅' },
@@ -4553,7 +4528,32 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        
+        function getFirstSijuChange(dt) {
+          const branch   = getHourBranchReturn(dt);
+          const startMap = {
+            子:23, 丑:1, 寅:3, 卯:5,
+            辰:7,  巳:9, 午:11, 未:13,
+            申:15, 酉:17, 戌:19, 亥:21
+          };
+          const h0 = startMap[branch];
+          const h1 = (h0 + 2) % 24;
+
+          // dt는 분 단위까지만 남기고 (초·밀리 0) 넘겨 주세요.
+          const base = new Date(dt);
+          base.setSeconds(0, 0);
+
+          const bnd = new Date(base);
+          if (dirMode === '순행') {
+            // 다음 기둥 끝나는 시각: h1:00
+            bnd.setHours(h1, 0, 0, 0);
+            if (bnd <= base) bnd.setDate(bnd.getDate() + 1);
+          } else {
+            // 이전 기둥 시작 시각: h0:00
+            bnd.setHours(h0, 0, 0, 0);
+            if (bnd >= base) bnd.setDate(bnd.getDate() - 1);
+          }
+          return bnd;
+        }
         
 
         // — 상수 정의
