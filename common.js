@@ -4354,8 +4354,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const yearPillar  = pillars[0] || "-";
       const monthPillar = pillars[1] || "-";
       const dayPillar   = pillars[2] || "-";
-      //const hourPillar  = pillars[3] || "-";
-      //console.log('hourPillar', hourPillar);
 
       const isYangStem = ["갑", "병", "무", "경", "임"].includes(yearPillar.charAt(0));
       const direction  = ((gender === '남' && isYangStem) || (gender === '여' && !isYangStem)) ? 1 : -1;
@@ -4590,15 +4588,6 @@ document.addEventListener("DOMContentLoaded", function () {
           );
         }
 
-        // 디버깅용 로그 추가
-        //console.log(`현재 시간: ${dtRaw.getHours()}:${dtRaw.getMinutes().toString().padStart(2, '0')}`);
-        //console.log(`경계 시간: ${firstBoundary.getHours()}:${firstBoundary.getMinutes().toString().padStart(2, '0')}`);
-        //console.log(`dirMode: ${dirMode}`);
-        //console.log(`시간 차이: ${Math.abs(dtRaw.getTime() - firstBoundary.getTime()) / ONE_MINUTE_MS}분`);
-
-        // debug
-        //console.log(`분 차이(정수화): ${minuteDiff}분`);  
-
         // 4) 그 분 비율을 10일(ms)로 매핑, 반올림
         const rawFirstMapMs = (minuteDiff / CYCLE_MIN) * TEN_DAYS_MS;
         const firstMapMs    = Math.round(rawFirstMapMs);
@@ -4606,8 +4595,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // 계산 확인용 로그
         const days = Math.floor(firstMapMs / (1000 * 60 * 60 * 24));
         const hours = Math.floor((firstMapMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        //console.log(`${minuteDiff}분 / ${CYCLE_MIN}분 => ${days}일 ${hours}시간 / 10일`);
-
+        
         // 5) periods[0] 만들기
         const periods = [];
         const start0 = new Date(dtRaw);
@@ -6926,7 +6914,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const curr = el.value.trim();
         if (curr !== originalBirthPlace) {
           fixedCorrectedDate = null;
-          // console.log('출생지 변경 → fixedCorrectedDate 초기화');
         }
       }
     })
