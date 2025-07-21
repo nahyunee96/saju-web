@@ -3452,6 +3452,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.classList.add("active");
         const index = this.getAttribute("data-index");
         updateDaewoonDetails(index);
+        
         requestAnimationFrame(()=>{
           updateEumYangClasses();
         }, 10)
@@ -3467,6 +3468,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (mowoonListElem) { mowoonListElem.style.display = "grid"; }
         document.querySelectorAll("#sewoonList li").forEach(e => e.classList.remove("active"));
         this.classList.add("active");
+        
         requestAnimationFrame(()=>{
           updateEumYangClasses();
         }, 10)
@@ -4099,6 +4101,8 @@ document.addEventListener("DOMContentLoaded", function () {
           appendTenGod("DwJj2", daewoonHidden[1], true);
           setText("DwJj3", daewoonHidden[2]);
           appendTenGod("DwJj3", daewoonHidden[2], true);
+          setText("DWb12ws", getTwelveUnseong(baseDayStem, selectedDaewoon.branch));
+          setText("DWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, selectedDaewoon.branch));
         }
         updateDaewoonHTML(selectedDaewoon, baseDayStem);
         
@@ -4241,8 +4245,8 @@ document.addEventListener("DOMContentLoaded", function () {
           
           setText("WwJj3", wolwoonHidden[2]);
           appendTenGod("WwJj3", wolwoonHidden[2], true);
-          setText("WWb12ws", getTwelveUnseong(baseDayStem, selectedWolwoon.ji));
-          setText("WWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, selectedWolwoon.ji));
+          setText("Wwb12ws", getTwelveUnseong(baseDayStem, selectedWolwoon.ji));
+          setText("Wwb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, selectedWolwoon.ji));
         }
 
         updateWolwoonHTML(selectedWolwoon);
@@ -4621,6 +4625,20 @@ document.addEventListener("DOMContentLoaded", function () {
             end:   new Date(prevEnd + TEN_DAYS_MS)
           });
         }
+
+        // 콘솔에 사용
+        function formatDateTime(date) {
+          if (!(date instanceof Date)) {
+            date = new Date(date);
+          }
+          const y = date.getFullYear();
+          const m = (date.getMonth() + 1).toString().padStart(2, "0");
+          const d = date.getDate().toString().padStart(2, "0");
+          const hh = date.getHours().toString().padStart(2, "0");
+          const mm = date.getMinutes().toString().padStart(2, "0");
+          return `${y}-${m}-${d} ${hh}:${mm}`;
+        }
+
 
         // 7) 콘솔에 찍어보기
         // console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
