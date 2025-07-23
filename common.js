@@ -179,18 +179,23 @@ function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
     return new Date(dateObj.getTime() - 30 * 60 * 1000);
   }
 
-  const rawOffset  = cityLon / 15;
-  const offsetHours = rawOffset >= 0
-    ? Math.ceil(rawOffset)
-    : Math.floor(rawOffset);
-  const baseLon    = offsetHours * 15;
-  const lonCorrMin = (cityLon - baseLon) * 4;
-  const eqTimeMin  = getEquationOfTime(dateObj);
+  // 1) 표준 자오선(15° 단위) 구해서 경도 오차(분 단위)
+  const stdLon = Math.round(cityLon / 15) * 15;
+  const lonCorrMin = (cityLon - stdLon) * 4;
 
+  // 2) 균시차(분 단위)
+  const eqTimeMin = getEquationOfTime(dateObj);
+
+  // 3) 경도 + 균시차 보정
   let corrected = new Date(
-    dateObj.getTime() 
-    + (lonCorrMin + eqTimeMin) * 60 * 1000
+    dateObj.getTime() + (lonCorrMin + eqTimeMin) * 60_000
   );
+
+  // 4) DST 보정: getSummerTimeInterval로 반환된 구간 안이면 1시간 차감
+  const iv = getSummerTimeInterval(corrected.getFullYear());
+  if (iv && corrected >= iv.start && corrected < iv.end) {
+    corrected = new Date(corrected.getTime() - 60 * 60_000);
+  }
 
   return corrected;
 }
