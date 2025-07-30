@@ -1659,8 +1659,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const todayWrapper = document.getElementById('todayWrapper');
   const backBtn = document.getElementById("backBtn");
   const ModifyBtn = document.getElementById("ModifyBtn");
+  const backBtnAS = document.getElementById("backBtnAS");
+  const asideVr = document.getElementById("aside");
 
   backBtn.addEventListener('click', ()=>{
+    inputWrap.style.display = 'block';
+    todayWrapper.style.display = 'none';
+    backBtn.style.display = 'none';
+    calculateBtn.style.display = 'block';
+    ModifyBtn.style.display = 'none';
+  });
+
+  backBtnAS.addEventListener('click', ()=>{
+    asideVr.style.display = 'none';
     inputWrap.style.display = 'block';
     todayWrapper.style.display = 'none';
     backBtn.style.display = 'none';
