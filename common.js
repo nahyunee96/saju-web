@@ -62,6 +62,7 @@ let cityLongitudes = {};
 const placeBtn  = document.getElementById('inputBirthPlace');
 const modal     = document.getElementById('mapModal');
 const closeMap  = document.getElementById('closeMap');
+const mapCloseBtn  = document.getElementById('mapCloseBtn');
 const searchBox = document.getElementById('searchBox');
 const suggList  = document.getElementById('suggestions');
 let map, marker, debounceTimer;
@@ -74,6 +75,13 @@ placeBtn.addEventListener('click', () => {
       'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
       { subdomains: 'abcd', attribution: '&copy; OSM &copy; CARTO' }
     ).addTo(map);
+    
+    setTimeout(() => map.invalidateSize(), 0); // 필수!
+  } else {
+    setTimeout(() => {
+      map.invalidateSize();
+      map.setView([37.5665, 126.9780], 11);
+    }, 0);
   }
   searchBox.focus();
 });
@@ -84,6 +92,12 @@ closeMap.addEventListener('click', () => {
     return;
   }
 
+  modal.style.display = 'none';
+  searchBox.value = '';
+  suggList.innerHTML = '';
+});
+
+mapCloseBtn.addEventListener('click', () => {
   modal.style.display = 'none';
   searchBox.value = '';
   suggList.innerHTML = '';
@@ -1582,6 +1596,51 @@ function migrateStoredRecords() {
 
 document.addEventListener("DOMContentLoaded", function () {
 
+  // 오늘의 간지
+  // ── 헬퍼: 주어진 접두사와 간지 문자열을 받아, 십신·간·지·藏干을 채워주는 함수 ──
+  function fillGz(stemPrefix, branchPrefix, gz, baseDayStem) {
+    const [stem, branch] = gz.split('');
+    const sInfo = stemMapping[stem];
+    const bInfo = branchMapping2[branch];
+
+    // 1) 십신
+    setText(`today${stemPrefix}10sin`, getTenGodForStem(stem, baseDayStem));
+
+    // 2) 간(干)
+    setText(`today${stemPrefix}Eumyang`, sInfo.eumYang);
+    setText(`today${stemPrefix}Hanja`, sInfo.hanja);
+    setText(`today${stemPrefix}Hanguel`, sInfo.hanguel);
+
+    // 3) 지(支)
+    setText(`today${branchPrefix}Eumyang`, bInfo.eumYang);
+    setText(`today${branchPrefix}Hanja`, bInfo.hanja);
+    setText(`today${branchPrefix}Hanguel`, bInfo.hanguel);
+
+    // ── 지장간(藏干) 채우기 ──
+    const hiddenArr = hiddenStemMapping[branch] || ["-", "-", "-"];
+    hiddenArr.forEach((hg, i) => {
+      const baseId    = `today${branchPrefix}Jj${i+1}`;      // ex. todayYbJj1
+      // 한자
+      setText(`${baseId}`, hg);
+      // appendTenGod(baseId, hg, true);
+    });
+  }
+
+  // (1) 오늘 날짜와, “일간” 기준 줄기(stem) 뽑기
+  const now         = new Date();
+  const dayGz       = getDayGanZhiRef(now);
+  const baseDayStemToday = splitPillar(dayGz).gan;
+
+  // (2) 4주를 한 번에 채우기
+  fillGz('Yt', 'Yb', getYearGanZhiRef(now),  baseDayStemToday);  // 연주
+  fillGz('Mt', 'Mb', getMonthGanZhiRef(now), baseDayStemToday);  // 월주
+  fillGz('Dt', 'Db', getDayGanZhiRef(now),   baseDayStemToday);  // 일주
+  fillGz('Ht', 'Hb', getHourGanZhiRef(now),  baseDayStemToday);  // 시주
+
+  // (3) 색상 클래스나 기타 후처리가 필요하면 여기에…
+  updateColorClasses();
+  updateEumYangClasses();
+
   localStorage.removeItem('correctedDate');
 
   const savedCorrectedDate = localStorage.getItem('correctedDate');
@@ -1596,6 +1655,18 @@ document.addEventListener("DOMContentLoaded", function () {
   window.scrollTo(0, 0);
 
   const calculateBtn = document.getElementById('calcBtn');
+  const inputWrap = document.getElementById('inputWrap');
+  const todayWrapper = document.getElementById('todayWrapper');
+  const backBtn = document.getElementById("backBtn");
+  const ModifyBtn = document.getElementById("ModifyBtn");
+
+  backBtn.addEventListener('click', ()=>{
+    inputWrap.style.display = 'block';
+    todayWrapper.style.display = 'none';
+    backBtn.style.display = 'none';
+    calculateBtn.style.display = 'block';
+    ModifyBtn.style.display = 'none';
+  });
 
   const exclude = ['db10sin', 'sb10sin', 'Mob10sin'];
   document.querySelectorAll('[id*="b10sin"]').forEach(el => {
@@ -2211,30 +2282,13 @@ document.addEventListener("DOMContentLoaded", function () {
       updateSaveBtn();
       
     }
-
-    // function resetHourButtons() {
-      
-    //   const colorZip = ["b_green", "b_red", "b_white", "b_black", "b_yellow"];
-    //   const allButtons = document.querySelectorAll("#hourList button");
-    //   const useJasiMode = document.getElementById('jasi').checked;
-    //   const timeLabels = useJasiMode ? Jiji : MONTH_ZHI;
-    //   const mapping = useJasiMode ? fixedDayMappingBasic : fixedDayMapping;
-    //   const sijuList = mapping[baseDayStem];
-    //   allButtons.forEach((btn, i) => {
-    //     btn.classList.remove("active", ...colorZip);
-    //     btn.innerHTML = `${timeLabels[i]}시 (${sijuList[i]})`;
-    //   });
-      
-    //   document.getElementById("bitthTimeX").checked = true;
-    // }
-    
-    const backBtn = document.getElementById("backBtn");
     
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
+
+        todayWrapper.style.display = "none";
+
         e.stopPropagation();
-        
-        backBtn.style.display = '';
         
         handleViewClick();
         
@@ -2243,11 +2297,14 @@ document.addEventListener("DOMContentLoaded", function () {
     
         loadCityLongitudes();
         const idx = parseInt(button.getAttribute("data-index"), 10);
-        currentDetailIndex = idx;
         const savedList = JSON.parse(localStorage.getItem("myeongsikList") || "[]");
         const item = savedList[idx];
         currentMyeongsik = item;
         if (!item) return;
+
+        const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+        latestMyeongsik    = list[idx];
+        currentDetailIndex = idx;
 
         restoreCurrentPlaceMapping(item);
         new Date(localStorage.getItem('correctedDate'));
@@ -2600,7 +2657,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateStemInfo("CMyoMt", p_myo_monthSplit, baseDayStem_copy);
       updateStemInfo("CMyoDt", isMyTimeUnknown || isPickerVer23 ? "-" : p_myo_daySplit, baseDayStem_copy);
       updateStemInfo("CMyoHt", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit, baseDayStem_copy);
-      updateBranchInfo("CMyoYb", baseYearBranch_copy, baseDayStem_copy);
+      updateBranchInfo("CMyoYb", p_myo_yearSplit.ji, baseDayStem_copy);
       updateBranchInfo("CMyoMb", p_myo_monthSplit.ji, baseDayStem_copy);
       updateBranchInfo("CMyoDb", isMyTimeUnknown || isPickerVer3 ? "-" : p_myo_daySplit.ji, baseDayStem_copy);
       updateBranchInfo("CMyoHb", isMyTimeUnknown || isPickerVer22 || isPickerVer23 ? "-" : p_myo_hourSplit.ji, baseDayStem_copy);
@@ -2742,13 +2799,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("coupleModeBtn").addEventListener("click", function() {
       isCoupleMode = true;
-       if (isCoupleMode) {
-         document.getElementById("aside").style.display = "block";
-         loadSavedMyeongsikList();
-       } else {
-         document.getElementById("aside").style.display = "block";
-         loadSavedMyeongsikList();
-      }
+      document.getElementById("aside").style.display = "block";
+      loadSavedMyeongsikList();
     });
 
     document.querySelectorAll(".couple_btn").forEach(function (button) {
@@ -2878,10 +2930,10 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("aside").style.display = "none";
     isCoupleMode = false;
   });
-  document.getElementById("backBtnAS").addEventListener("click", function () {
-    window.location.reload();
-    window.scrollTo(0, 0);
-  }); 
+  // document.getElementById("backBtnAS").addEventListener("click", function () {
+  //   window.location.reload();
+  //   window.scrollTo(0, 0);
+  // }); 
 
   document.getElementById("bitthTimeX").addEventListener("change", function () {
     const timeType = document.getElementById("timeType");
@@ -2891,7 +2943,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (this.checked) {
       timeType.style.display = "none";
-      birthPlaceTxt.style.display = "none";  
+      birthPlaceTxt.style.display = "block";  
     } else {
       timeType.style.display = "block";
       birthPlaceTxt.style.display = "none"; 
@@ -2930,7 +2982,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const setBtnCtrl = document.getElementById('setBtn'); 
 
-  document.getElementById("calcBtn").addEventListener("click", function () {
+  document.getElementById("calcBtn").addEventListener("click", function (event) {
+
+    backBtn.style.display = '';
 
     let refDate = toKoreanTime(new Date());
 
@@ -5091,12 +5145,39 @@ document.addEventListener("DOMContentLoaded", function () {
     
     document.querySelectorAll('.back_btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        window.location.reload();
+        //window.location.reload();
         document.getElementById("inputWrap").style.display = "block";
         document.getElementById("resultWrapper").style.display = "none";
         document.getElementById("aside").style.display = "none";
         isCoupleMode = false;
         window.scrollTo(0, 0);
+
+        
+
+        document.querySelectorAll('.valueClear').forEach(function(el) {
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.value = '';
+            el.disabled = false;
+          }
+        });
+
+        document.querySelectorAll('.chkValueClear').forEach(function(el) {
+          if (el.type === 'checkbox' || el.type === 'radio') {
+            el.checked = false;
+          }
+        });
+
+        document.querySelectorAll('.selectValueClear').forEach(function(el) {
+          if (el.tagName === 'SELECT') {
+            el.selectedIndex = 0;
+          }
+        });
+
+        document.getElementById('inputBirthPlace').value = '출생지 선택';
+        document.getElementById('inputBirthPlace').disabled = false;
+
+        
+        searchBox.focus();
       });
     });
 
@@ -6541,9 +6622,63 @@ document.addEventListener("DOMContentLoaded", function () {
     updateEumYangClasses();
 
     window.scrollTo(0, 0);
-    //document.getElementById('inputWrap').style.display = 'none';
-    //document.getElementById('resultWrapper').style.display = 'block';
-    //document.getElementById("saveBtn").style.display = "inline-block";
+
+    const isRealClick = event.isTrusted;
+  
+    if (isRealClick) {
+  
+      if (year < 1900 || year > 2099) { alert("연도는 1900년부터 2099년 사이로 입력하세요."); return; }
+      if (month < 1 || month > 12)     { alert("월은 1부터 12 사이의 숫자로 입력하세요."); return; }
+      if (day < 1 || day > 31)         { alert("일은 1부터 31 사이의 숫자로 입력하세요."); return; }
+      const testDate = new Date(year, month - 1, day);
+      if (testDate.getFullYear() !== year || (testDate.getMonth() + 1) !== month || testDate.getDate() !== day) {
+        alert("유효한 날짜를 입력하세요."); return;
+      }
+  
+      if (!isTimeUnknown) {
+        if (birthtimeStr.length !== 4 || isNaN(birthtimeStr)) {
+          alert("태어난 시간을 4자리 숫자 (HHMM) 형식으로 입력하세요."); return;
+        }
+        const hh = parseInt(birthtimeStr.substring(0, 2), 10);
+        const mm = parseInt(birthtimeStr.substring(2, 4), 10);
+        if (hh < 0 || hh > 23 || mm < 0 || mm > 59) {
+          alert("시각은 00부터 23 사이, 분은 00부터 59 사이로 입력하세요."); return;
+        }
+      }
+
+      if (!isPlaceUnknown) {
+        if (document.getElementById('inputBirthPlace').value === "" ||
+          document.getElementById('inputBirthPlace').value === "출생지선택") {
+          alert("출생지를 입력해주세요."); return;
+        }
+      }
+  
+      if (gender === "-") { 
+        alert("성별을 선택하세요."); return; 
+      }
+
+      let newData, list;
+  
+      newData = makeNewData();
+      latestMyeongsik = newData;
+      newData.isFavorite = document.getElementById('topPs').checked;
+    
+      let raw = localStorage.getItem("myeongsikList");
+      if (raw === null || raw === "undefined") raw = "[]";
+      list = JSON.parse(raw);
+  
+      list.push(newData);
+      currentDetailIndex = list.length - 1;
+      latestMyeongsik = list[currentDetailIndex];
+      console.log('Saved! currentDetailIndex=', currentDetailIndex);
+      localStorage.setItem("myeongsikList", JSON.stringify(list));
+      alert("명식이 저장되었습니다.");
+
+      document.getElementById("inputWrap").style.display     = "none";
+      document.getElementById("resultWrapper").style.display = "block";
+      //backBtn.style.display = "";
+      setBtnCtrl.style.display = "block";
+    }
     
   });
 
@@ -6590,7 +6725,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
   }
 
-  //const ModifyBtn = document.getElementById("ModifyBtn");
 
   function updateFourPillarsUI(data) {
     if (!(data.correctedDate instanceof Date)) {
@@ -6649,9 +6783,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener("click", function (event) {
     const modifyBtn = event.target.closest(".modify_btn");
-    
+
     if (!modifyBtn) return;
-    backBtn.style.display = 'none';
+    
+    todayWrapper.style.display = 'none'
+    calculateBtn.style.display = 'none';
+    ModifyBtn.style.display = 'block';
+
     loadCityLongitudes();
 
     const index = parseInt(modifyBtn.getAttribute("data-index"), 10);
@@ -6749,10 +6887,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const favCheckbox = document.getElementById('topPs');
 
-    
-    
     favCheckbox.checked = !!selected.isFavorite;
     currentModifyIndex = index;
+    currentDetailIndex = index;
     isModifyMode = true;
     originalDataSnapshot = JSON.stringify(selected);
   });
@@ -6792,7 +6929,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const savedBirthPlace = isPlaceUnknown ? "" : birthPlaceInput;
 
     correctedDate = fixedCorrectedDate;
-    localStorage.setItem('correctedDate', correctedDate.toISOString());
+    localStorage.setItem('correctedDate', correctedDate);
 
     const calendar = new KoreanLunarCalendar();
     if (monthType === "음력" || monthType === "음력(윤달)") {
@@ -6924,29 +7061,11 @@ document.addEventListener("DOMContentLoaded", function () {
     })
   );
 
-  function getHourGanZhi(dayGanZhiStr, hourParam) {
-    // 1) 시지 인덱스 결정
-    const hourIndex = typeof hourParam === 'number'
-      ? hourParam % 12
-      : getHourBranchIndex(hourParam);
-  
-    // 2) 일간 천간 인덱스
-    const dayStem = dayGanZhiStr.charAt(0);
-    const dayStemIndex = Cheongan.indexOf(dayStem);
-    if (dayStemIndex < 0) {
-      throw new Error(`Invalid day GanZhi: ${dayGanZhiStr}`);
-    }
-  
-    // 3) 시주의 천간 인덱스 = (일간 * 2 + 시지) mod 10
-    const hourStemIndex = (dayStemIndex * 2 + hourIndex) % 10;
-  
-    // 4) 간지 조합
-    return Cheongan[hourStemIndex] + Jiji[hourIndex];
-  }
+  document.getElementById("ModifyBtn").addEventListener("click", function(event) {
 
-  document.getElementById("calcBtn").addEventListener("click", function(event) {
-    const isRealClick = event.isTrusted;
-    let newData, list, isEdit;
+    calculateBtn.click();
+    
+    let newData, list;
   
     // 공통: newData 만들고 즐겨찾기 플래그 설정
     newData = makeNewData();
@@ -6957,192 +7076,192 @@ document.addEventListener("DOMContentLoaded", function () {
     let raw = localStorage.getItem("myeongsikList");
     if (raw === null || raw === "undefined") raw = "[]";
     list = JSON.parse(raw);
-    isEdit = typeof currentModifyIndex === "number";
-  
-    if (isRealClick) {
 
-      // ── 1) 저장/수정 로직 (실제 클릭일 때만) ──
-  
-      // 1-a) Validation
-      const birthdayStr   = document.getElementById("inputBirthday").value.trim();
-      const birthtimeStr  = document.getElementById("inputBirthtime").value.replace(/\s/g,"").trim();
-      const isTimeUnknown = document.getElementById("bitthTimeX").checked;
-      const gender        = document.getElementById("genderMan").checked
-                           ? "남"
-                           : (document.getElementById("genderWoman").checked ? "여" : "-");
-      const isPlaceUnknown= document.getElementById("bitthPlaceX").checked;
-      const birthPlaceIn  = document.getElementById("inputBirthPlace").value;
-      let usedBirthtime = isTimeUnknown ? null : birthtimeStr;
-  
-      if (birthdayStr.length < 8) { alert("생년월일을 YYYYMMDD 형식으로 입력하세요."); return; }
-      let year   = parseInt(birthdayStr.substring(0, 4), 10);
-      let month  = parseInt(birthdayStr.substring(4, 6), 10);
-      let day    = parseInt(birthdayStr.substring(6, 8), 10);
-      let hour = isTimeUnknown ? 4 : parseInt(usedBirthtime.substring(0, 2), 10);
-      let minute = isTimeUnknown ? 30 : parseInt(usedBirthtime.substring(2, 4), 10);
+    // 1-a) Validation
+    const birthdayStr   = document.getElementById("inputBirthday").value.trim();
+    const birthtimeStr  = document.getElementById("inputBirthtime").value.replace(/\s/g,"").trim();
+    const isTimeUnknown = document.getElementById("bitthTimeX").checked;
+    const gender        = document.getElementById("genderMan").checked
+                          ? "남"
+                          : (document.getElementById("genderWoman").checked ? "여" : "-");
+    const isPlaceUnknown= document.getElementById("bitthPlaceX").checked;
+    const birthPlaceIn  = document.getElementById("inputBirthPlace").value;
+    let usedBirthtime = isTimeUnknown ? null : birthtimeStr;
 
-     newData.year  = year;
-     newData.month = month;
-     newData.day   = day;
-  
-      if (year < 1900 || year > 2099) { alert("연도는 1900년부터 2099년 사이로 입력하세요."); return; }
-      if (month < 1 || month > 12)     { alert("월은 1부터 12 사이의 숫자로 입력하세요."); return; }
-      if (day < 1 || day > 31)         { alert("일은 1부터 31 사이의 숫자로 입력하세요."); return; }
-      const testDate = new Date(year, month - 1, day);
-      if (testDate.getFullYear() !== year || (testDate.getMonth() + 1) !== month || testDate.getDate() !== day) {
-        alert("유효한 날짜를 입력하세요."); return;
-      }
-  
-      if (!isTimeUnknown) {
-        if (birthtimeStr.length !== 4 || isNaN(birthtimeStr)) {
-          alert("태어난 시간을 4자리 숫자 (HHMM) 형식으로 입력하세요."); return;
-        }
-        const hh = parseInt(birthtimeStr.substring(0, 2), 10);
-        const mm = parseInt(birthtimeStr.substring(2, 4), 10);
-        if (hh < 0 || hh > 23 || mm < 0 || mm > 59) {
-          alert("시각은 00부터 23 사이, 분은 00부터 59 사이로 입력하세요."); return;
-        }
-      }
-  
-      if (gender === "-")    { alert("성별을 선택하세요."); return; }
-      if (!isPlaceUnknown)   {
-        if (birthPlaceIn === "-") { alert("출생지를 선택하세요."); return; }
-      }
-  
-      const monthType = document.getElementById("monthType").value;
-      const isLunar   = monthType === "음력" || monthType === "음력(윤달)";
-      const isLeap    = monthType === "음력(윤달)";
-      const calendar  = new KoreanLunarCalendar();
-      let workYear = year, workMonth = month, workDay = day;
-  
-      if (isLunar) {
-        const ok = calendar.setLunarDate(year, month, day, isLeap);
-        if (!ok) { console.error("음력 변환 실패"); return; }
-        const solar = calendar.getSolarCalendar();
-        workYear = solar.year;
-        workMonth = solar.month;
-        workDay = solar.day;
-      } else {
-        calendar.setSolarDate(year, month, day);
-      }
-  
-      const bjTimeTextEl = document.getElementById("bjTimeText");
-      const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
-      originalDate = new Date(workYear, workMonth - 1, workDay, hour, minute);
-  
-      fixedCorrectedDate = null;
-      const iv = getSummerTimeInterval(originalDate.getFullYear());
-      fixedCorrectedDate = adjustBirthDateWithLon(originalDate, newData.birthPlaceLongitude, newData.isPlaceUnknown);
-      if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
-        fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
-      }
-      correctedDate = fixedCorrectedDate;
-      localStorage.setItem('correctedDate', correctedDate.toISOString());
-  
-      if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
-        summerTimeBtn.style.display = 'inline-block';
-        bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
-      } else if (isPlaceUnknown && isTimeUnknown) {
-        summerTimeBtn.style.display = 'none';
-        bjTimeTextEl.innerHTML = `보정없음 : <b id="resbjTime">시간모름</b>`;
-      } else if (isPlaceUnknown) {
-        summerTimeBtn.style.display = 'none';
-        bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
-      } else {
-        summerTimeBtn.style.display = 'none';
-        bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
-      }
-  
-      const fullResult = getFourPillarsWithDaewoon(
-        correctedDate.getFullYear(),
-        correctedDate.getMonth() + 1,
-        correctedDate.getDate(),
-        hour, minute,
-        gender, correctedDate
-      );
-  
-      const parts = fullResult.split(", ");
-      const pillarsPart = parts[0] || "-";
-      const pillars = pillarsPart.split(" ");
-      const yearPillar  = pillars[0] || "-";
-      const monthPillar = pillars[1] || "-";
-      const dayPillar   = pillars[2] || "-";
-      const hourPillar  = pillars[3] || "-";
-  
-      const yearSplit  = splitPillar(yearPillar);
-      const monthSplit = splitPillar(monthPillar);
-      const daySplit   = splitPillar(dayPillar);
-      daySplitGlobal = daySplit;
-      let hourSplit  = !isTimeUnknown ? splitPillar(hourPillar) : "-";
-      hourSplitGlobal = hourSplit;
-  
-      baseDayStem = daySplit.gan;
-      baseDayBranch = dayPillar.charAt(1);
-      baseYearBranch = yearPillar.charAt(1);
+    if (birthdayStr.length < 8) { alert("생년월일을 YYYYMMDD 형식으로 입력하세요."); return; }
+    let year   = parseInt(birthdayStr.substring(0, 4), 10);
+    let month  = parseInt(birthdayStr.substring(4, 6), 10);
+    let day    = parseInt(birthdayStr.substring(6, 8), 10);
+    let hour = isTimeUnknown ? 4 : parseInt(usedBirthtime.substring(0, 2), 10);
+    let minute = isTimeUnknown ? 30 : parseInt(usedBirthtime.substring(2, 4), 10);
 
-      newData.yearPillar  = yearPillar;
-      newData.monthPillar = monthPillar;
-      newData.dayPillar   = dayPillar;
-      newData.hourPillar  = hourPillar;
+    newData.year  = year;
+    newData.month = month;
+    newData.day   = day;
   
-      setTimeout(() => {
-        function updateOriginalSetMapping(daySplit, hourSplit) {
-          if (manualOverride) return;
-          setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, hourSplit.ji));
-          setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsalDynamic(dayPillar, yearPillar, hourSplit.ji));
-          setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
-          setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, daySplit.ji));
-          setText("Mb12ws", getTwelveUnseong(baseDayStem, monthSplit.ji));
-          setText("Mb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, monthSplit.ji));
-          setText("Yb12ws", getTwelveUnseong(baseDayStem, baseYearBranch));
-          setText("Yb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, baseYearBranch));
-        }
-  
-        updateStemInfo("Yt", yearSplit, baseDayStem);
-        updateStemInfo("Mt", monthSplit, baseDayStem);
-        updateStemInfo("Dt", daySplit, baseDayStem);
-        updateStemInfo("Ht", isTimeUnknown ? "-" : hourSplit, baseDayStem);
-        updateBranchInfo("Yb", baseYearBranch, baseDayStem);
-        updateBranchInfo("Mb", monthSplit.ji, baseDayStem);
-        updateBranchInfo("Db", daySplit.ji, baseDayStem);
-        updateBranchInfo("Hb", isTimeUnknown ? "-" : hourSplit.ji, baseDayStem);
-        updateOriginalSetMapping(daySplit, hourSplit);
-        updateColorClasses();
-
-        const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
-        updateAllDaewoonItemsVr(daewoonData.list);
-        updateColorClasses();
-      });
-  
-      if (isEdit) {
-        if (!isModified && !confirm("수정된 부분이 없습니다. 이대로 저장하시겠습니까?")) return;
-        list[currentModifyIndex] = newData;
-        alert("명식이 수정되었습니다.");
-        document.getElementById("bitthTimeX").checked = false;
-        document.getElementById("inputBirthtime").disabled = false;
-        document.getElementById("inputBirthtime").value = newData.birthtime;
-      } else {
-
-        list.push(newData);
-        localStorage.setItem("myeongsikList", JSON.stringify(list));
-        alert("명식이 저장되었습니다.");
-      }
-
-      document.getElementById("inputWrap").style.display     = "none";
-      document.getElementById("resultWrapper").style.display = "block";
-      backBtn.style.display = "";
-      setBtnCtrl.style.display = "block";
+    if (year < 1900 || year > 2099) { alert("연도는 1900년부터 2099년 사이로 입력하세요."); return; }
+    if (month < 1 || month > 12)     { alert("월은 1부터 12 사이의 숫자로 입력하세요."); return; }
+    if (day < 1 || day > 31)         { alert("일은 1부터 31 사이의 숫자로 입력하세요."); return; }
+    const testDate = new Date(year, month - 1, day);
+    if (testDate.getFullYear() !== year || (testDate.getMonth() + 1) !== month || testDate.getDate() !== day) {
+      alert("유효한 날짜를 입력하세요."); return;
     }
+
+    if (!isTimeUnknown) {
+      if (birthtimeStr.length !== 4 || isNaN(birthtimeStr)) {
+        alert("태어난 시간을 4자리 숫자 (HHMM) 형식으로 입력하세요."); return;
+      }
+      const hh = parseInt(birthtimeStr.substring(0, 2), 10);
+      const mm = parseInt(birthtimeStr.substring(2, 4), 10);
+      if (hh < 0 || hh > 23 || mm < 0 || mm > 59) {
+        alert("시각은 00부터 23 사이, 분은 00부터 59 사이로 입력하세요."); return;
+      }
+    }
+
+    if (!isPlaceUnknown) {
+      if (document.getElementById('inputBirthPlace').value === "" ||
+        document.getElementById('inputBirthPlace').value === "출생지선택") {
+        alert("출생지를 입력해주세요."); return;
+      }
+    }
+
+    if (gender === "-")    { alert("성별을 선택하세요."); return; }
+
+    const monthType = document.getElementById("monthType").value;
+    const isLunar   = monthType === "음력" || monthType === "음력(윤달)";
+    const isLeap    = monthType === "음력(윤달)";
+    const calendar  = new KoreanLunarCalendar();
+    let workYear = year, workMonth = month, workDay = day;
+
+    if (isLunar) {
+      const ok = calendar.setLunarDate(year, month, day, isLeap);
+      if (!ok) { console.error("음력 변환 실패"); return; }
+      const solar = calendar.getSolarCalendar();
+      workYear = solar.year;
+      workMonth = solar.month;
+      workDay = solar.day;
+    } else {
+      calendar.setSolarDate(year, month, day);
+    }
+
+    const bjTimeTextEl = document.getElementById("bjTimeText");
+    const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
+    originalDate = new Date(workYear, workMonth - 1, workDay, hour, minute);
+
+    fixedCorrectedDate = null;
+    const iv = getSummerTimeInterval(originalDate.getFullYear());
+    fixedCorrectedDate = adjustBirthDateWithLon(originalDate, newData.birthPlaceLongitude, newData.isPlaceUnknown);
+    if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
+      fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
+    }
+    correctedDate = fixedCorrectedDate;
+    localStorage.setItem('correctedDate', correctedDate.toISOString());
+
+    if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
+      summerTimeBtn.style.display = 'inline-block';
+      bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+    } else if (isPlaceUnknown && isTimeUnknown) {
+      summerTimeBtn.style.display = 'none';
+      bjTimeTextEl.innerHTML = `보정없음 : <b id="resbjTime">시간모름</b>`;
+    } else if (isPlaceUnknown) {
+      summerTimeBtn.style.display = 'none';
+      bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+    } else {
+      summerTimeBtn.style.display = 'none';
+      bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+    }
+
+    const fullResult = getFourPillarsWithDaewoon(
+      correctedDate.getFullYear(),
+      correctedDate.getMonth() + 1,
+      correctedDate.getDate(),
+      hour, minute,
+      gender, correctedDate
+    );
+
+    const parts = fullResult.split(", ");
+    const pillarsPart = parts[0] || "-";
+    const pillars = pillarsPart.split(" ");
+    const yearPillar  = pillars[0] || "-";
+    const monthPillar = pillars[1] || "-";
+    const dayPillar   = pillars[2] || "-";
+    const hourPillar  = pillars[3] || "-";
+
+    const yearSplit  = splitPillar(yearPillar);
+    const monthSplit = splitPillar(monthPillar);
+    const daySplit   = splitPillar(dayPillar);
+    daySplitGlobal = daySplit;
+    let hourSplit  = !isTimeUnknown ? splitPillar(hourPillar) : "-";
+    hourSplitGlobal = hourSplit;
+
+    baseDayStem = daySplit.gan;
+    baseDayBranch = dayPillar.charAt(1);
+    baseYearBranch = yearPillar.charAt(1);
+
+    newData.yearPillar  = yearPillar;
+    newData.monthPillar = monthPillar;
+    newData.dayPillar   = dayPillar;
+    newData.hourPillar  = hourPillar;
+
+    setTimeout(() => {
+      function updateOriginalSetMapping(daySplit, hourSplit) {
+        if (manualOverride) return;
+        setText("Hb12ws", isTimeUnknown ? "-" : getTwelveUnseong(baseDayStem, hourSplit.ji));
+        setText("Hb12ss", isTimeUnknown ? "-" : getTwelveShinsalDynamic(dayPillar, yearPillar, hourSplit.ji));
+        setText("Db12ws", getTwelveUnseong(baseDayStem, daySplit.ji));
+        setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, daySplit.ji));
+        setText("Mb12ws", getTwelveUnseong(baseDayStem, monthSplit.ji));
+        setText("Mb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, monthSplit.ji));
+        setText("Yb12ws", getTwelveUnseong(baseDayStem, baseYearBranch));
+        setText("Yb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, baseYearBranch));
+      }
+
+      updateStemInfo("Yt", yearSplit, baseDayStem);
+      updateStemInfo("Mt", monthSplit, baseDayStem);
+      updateStemInfo("Dt", daySplit, baseDayStem);
+      updateStemInfo("Ht", isTimeUnknown ? "-" : hourSplit, baseDayStem);
+      updateBranchInfo("Yb", baseYearBranch, baseDayStem);
+      updateBranchInfo("Mb", monthSplit.ji, baseDayStem);
+      updateBranchInfo("Db", daySplit.ji, baseDayStem);
+      updateBranchInfo("Hb", isTimeUnknown ? "-" : hourSplit.ji, baseDayStem);
+      updateOriginalSetMapping(daySplit, hourSplit);
+      updateColorClasses();
+
+    });
+
+    
+    if (!isModified && !confirm("수정된 부분이 없습니다. 이대로 저장하시겠습니까?")) return;
+    list[currentModifyIndex] = newData;
+    alert("명식이 수정되었습니다.");
+    document.getElementById("bitthTimeX").checked = false;
+    document.getElementById("inputBirthtime").disabled = false;
+    document.getElementById("inputBirthtime").value = newData.birthtime;
+
+    document.getElementById("inputWrap").style.display     = "none";
+    document.getElementById("resultWrapper").style.display = "block";
+    //backBtn.style.display = "";
+    setBtnCtrl.style.display = "block";
+
+    const updatedData = makeNewData();
+    const listMs = JSON.parse(localStorage.getItem('myeongsikList')) || [];
+
+    // 1) 기존 인덱스 자리에 덮어쓰기
+    listMs[currentDetailIndex] = updatedData;
+    latestMyeongsik = updatedData;
   
-    localStorage.setItem("myeongsikList", JSON.stringify(list));
+    localStorage.setItem("myeongsikList", JSON.stringify(listMs));
     loadSavedMyeongsikList();
+
+    console.log('✏️ Updated! currentDetailIndex =', currentDetailIndex, updatedData);
+    
     updateSaveBtn();
     coupleModeBtnV.style.display = list.length >= 2 ? "" : "none";
     isModifyMode = false;
     currentModifyIndex = null;
     isModified = false;
-    newData = latestMyeongsik;
+    //newData = latestMyeongsik;
     updateEumYangClasses();
+    window.scrollTo(0, 0);
   });
   
   new Sortable(document.querySelector(".list_ul"), {
