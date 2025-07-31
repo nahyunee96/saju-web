@@ -359,6 +359,10 @@
     padding: 10px;
   }
 
+  .grid_box_1.today {
+    margin: auto;
+  }
+
   .grid_box_1 > li,
   .lucky_box .lucky .ganji {
     padding: 0 !important;
@@ -395,10 +399,7 @@
   }
 
   .w100 .grid_box_1 li .hanja_con {
-    width: 155px;
-    height: 155px;
-    justify-content: center;
-    font-size: 80px;
+    
   }
 
   .w50 .grid_box_1 li .hanja_con {
@@ -507,6 +508,14 @@
     background-color: transparent;
     color: #EED36C;
     padding: 0;
+  }
+  
+  .today_meongsik_wrapper {
+    margin: auto;
+  }
+  .today_meongsik_wrapper .woonkuk {
+    width: 57%;
+    margin: auto;
   }
 
   .jijanggan {
