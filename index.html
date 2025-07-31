@@ -822,10 +822,11 @@
         <div class="today_meongsik_wrapper w100" id="todayWrapper">
           <span class="pharases ver" style="position: absolute; right: 3%; transform: translateY(-90%);">Ver.330</span>
           <div class="woonkuk">
-            <p class="buga_title"><span>오늘의 간지</span></p>
+            <p class="buga_title"><span>오늘의 사주</span></p>
             <ul class="grid_box grid_box_1">
               <li class="siju_con">
                 <p class="label">시주</p>
+                <div id="todayHt10sin" class="ten_sin"></div>
                 <div class="hanja_con">
                   <p id="todayHtEumyang" class="eum_yang"></p>
                   <b id="todayHtHanja"></b>
@@ -834,6 +835,7 @@
               </li>
               <li>
                 <p class="label">일주</p>
+                <div id="todayDt10sin" class="ten_sin"></div>
                 <div class="hanja_con">
                   <p id="todayDtEumyang" class="eum_yang"></p>
                   <b id="todayDtHanja"></b>
@@ -842,6 +844,7 @@
               </li>
               <li>
                 <p class="label">월주</p>
+                <div id="todayMt10sin" class="ten_sin"></div>
                 <div class="hanja_con">
                   <p id="todayMtEumyang" class="eum_yang"></p>
                   <b id="todayMtHanja"></b>
@@ -850,6 +853,7 @@
               </li>
               <li>
                 <p class="label">연주</p>
+                <div id="todayYt10sin" class="ten_sin"></div>
                 <div class="hanja_con">
                   <p id="todayYtEumyang" class="eum_yang"></p>
                   <b id="todayYtHanja"></b>
@@ -863,10 +867,10 @@
                   <b id="todayHbHanja"></b>
                   <p id="todayHbHanguel" class="hanguel"></p>
                 </div>
-                <ul class="jijanggan flex" id="todayHbJj">
-                  <li id="todayHbJj1"></li>
-                  <li id="todayHbJj2"></li>
-                  <li id="todayHbJj3"></li>
+                <ul class="jijanggan" id="todayHbJj">
+                  <li id="todayHbJj1"><span class="hidden_stem"></span><span id="todayHbJj1_10sin" class="ten_sin_small"></span></li>
+                  <li id="todayHbJj2"><span class="hidden_stem"></span><span id="todayHbJj2_10sin" class="ten_sin_small"></span></li>
+                  <li id="todayHbJj3"><span class="hidden_stem"></span><span id="todayHbJj3_10sin" class="ten_sin_small"></span></li>
                 </ul>
               </li>
               <li class="">
@@ -875,10 +879,10 @@
                   <b id="todayDbHanja"></b>
                   <p id="todayDbHanguel" class="hanguel"></p>
                 </div>
-                <ul class="jijanggan flex" id="todayDbJj">
-                  <li id="todayDbJj1"></li>
-                  <li id="todayDbJj2"></li>
-                  <li id="todayDbJj3"></li>
+                <ul class="jijanggan" id="todayDbJj">
+                  <li id="todayDbJj1"><span class="hidden_stem"></span><span id="todayDbJj1_10sin" class="ten_sin_small"></span></li>
+                  <li id="todayDbJj2"><span class="hidden_stem"></span><span id="todayDbJj2_10sin" class="ten_sin_small"></span></li>
+                  <li id="todayDbJj3"><span class="hidden_stem"></span><span id="todayDbJj3_10sin" class="ten_sin_small"></span></li>
                 </ul>
               </li>
               <li class="">
@@ -887,10 +891,10 @@
                   <b id="todayMbHanja"></b>
                   <p id="todayMbHanguel" class="hanguel"></p>
                 </div>
-                <ul class="jijanggan flex" id="todayMbJj">
-                  <li id="todayMbJj1"></li>
-                  <li id="todayMbJj2"></li>
-                  <li id="todayMbJj3"></li>
+                <ul class="jijanggan" id="todayMbJj">
+                  <li id="todayMbJj1"><span class="hidden_stem"></span><span id="todayMbJj1_10sin" class="ten_sin_small"></span></li>
+                  <li id="todayMbJj2"><span class="hidden_stem"></span><span id="todayMbJj2_10sin" class="ten_sin_small"></span></li>
+                  <li id="todayMbJj3"><span class="hidden_stem"></span><span id="todayMbJj3_10sin" class="ten_sin_small"></span></li>
                 </ul>
               </li>
               <li class="">
@@ -899,10 +903,10 @@
                   <b id="todayYbHanja"></b>
                   <p id="todayYbHanguel" class="hanguel"></p>
                 </div>
-                <ul class="jijanggan flex" id="todayYbJj">
-                  <li id="todayYbJj1"></li>
-                  <li id="todayYbJj2"></li>
-                  <li id="todayYbJj3"></li>
+                <ul class="jijanggan" id="todayYbJj">
+                  <li id="todayYbJj1"><span class="hidden_stem"></span><span id="todayYbJj1_10sin" class="ten_sin_small"></span></li>
+                  <li id="todayYbJj2"><span class="hidden_stem"></span><span id="todayYbJj2_10sin" class="ten_sin_small"></span></li>
+                  <li id="todayYbJj3"><span class="hidden_stem"></span><span id="todayYbJj3_10sin" class="ten_sin_small"></span></li>
                 </ul>
               </li>
             </ul>
@@ -911,7 +915,10 @@
                 <input type="datetime-local" class="date_time_input" id="dateTimeInput">
                 <!--<button class="black_btn" id="dateChangeBtn">날짜바꾸기</button>-->
               </div>
-              <div class="flex"><label for="timeNone" class="timeNone"><input type="checkbox" id="timeNone">시간 없애기</label></div>
+              <div class="flex">
+                <label for="timeNone" class="timeNone"><input type="checkbox" id="timeNone">시간 없애기</label> &nbsp;&nbsp;&nbsp;
+                <label for="jjNone" class="timeNone"><input type="checkbox" id="jjNone">지장간 정기만 보이기</label>
+              </div>
             </div>
           </div>
         </div>
@@ -2271,7 +2278,7 @@
       />
       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-      <script type="module" src="./common.js?ver=202507301345"></script>
+      <script type="module" src="./common.js?ver=202507311503"></script>
       <!-- <script src="./calc.js"></script> -->
     </div>
 

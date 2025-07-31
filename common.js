@@ -1616,14 +1616,40 @@ document.addEventListener("DOMContentLoaded", function () {
     setText(`today${branchPrefix}Hanja`, bInfo.hanja);
     setText(`today${branchPrefix}Hanguel`, bInfo.hanguel);
 
-    // ── 지장간(藏干) 채우기 ──
+    function appendTenGod2(id, value, isStem = true, baseDayStem) {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      let tenGod;
+      if (value === '-' || value === '(-)') {
+        tenGod = '없음';
+      } else {
+        tenGod = isStem
+          ? getTenGodForStem(value, baseDayStem)
+          : getTenGodForBranch(value, baseDayStem);
+      }
+
+      el.innerHTML = '';
+      el.append(document.createTextNode(value));
+
+      const span = document.createElement('span');
+      span.className = 'ten-god';
+      span.textContent = ` (${tenGod})`;
+      el.append(span);
+    }
+
+
+    // ── 지장간(藏干) 채우기 ──             
     const hiddenArr = hiddenStemMapping[branch] || ["-", "-", "-"];
     hiddenArr.forEach((hg, i) => {
-      const baseId    = `today${branchPrefix}Jj${i+1}`;      // ex. todayYbJj1
-      // 한자
-      setText(`${baseId}`, hg);
-      // appendTenGod(baseId, hg, true);
+      const baseId = `today${branchPrefix}Jj${i + 1}`;
+      if (hg !== "-") {
+        appendTenGod2(baseId, hg, true, baseDayStem);
+      } else {
+        document.getElementById(baseId).textContent = "-";
+      }
     });
+
   }
 
   // (1) 오늘 날짜와, “일간” 기준 줄기(stem) 뽑기
@@ -1684,6 +1710,23 @@ document.addEventListener("DOMContentLoaded", function () {
     fillGz('Ht', 'Hb', getHourGanZhiRef(now), baseDayStem);
     updateColorClasses();
   }
+
+  document.getElementById('jjNone').addEventListener('change', function () {
+    const showOnlyLast = this.checked;
+
+    // 지지 접두어 목록 (시·일·월·연)
+    const jjPrefixes = ['Hb', 'Db', 'Mb', 'Yb'];
+
+    jjPrefixes.forEach(prefix => {
+      for (let i = 1; i <= 3; i++) {
+        const el = document.getElementById(`today${prefix}Jj${i}`);
+        if (!el) continue;
+
+        // i === 3이면 정기 → 보이고, 아니면 토글
+        el.style.display = (showOnlyLast && i !== 3) ? 'none' : '';
+      }
+    });
+  });
 
   updateColorClasses();
   updateEumYangClasses();
