@@ -1687,7 +1687,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(
       '#todayHtEumyang, #todayHtHanja, #todayHtHanguel,' +
       '#todayHbEumyang, #todayHbHanja, #todayHbHanguel,' +
-      '#todayHbJj1, #todayHbJj2, #todayHbJj3'
+      '#todayHbJj1, #todayHbJj2, #todayHbJj3, #todayHt10sin'
     ).forEach(el => {
       el.textContent = '-';
       // b_red, b_blue 등 필요한 클래스 이름만 넣으시면 됩니다.
