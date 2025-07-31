@@ -6185,27 +6185,34 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function validatePicker(picker) {
       const selectedDate = new Date(picker.value);
+      //console.log(`👉 validating: ${picker.id}, 입력값: ${picker.value}, 비교값: ${correctedDate.toISOString()}`);
+
       if (selectedDate <= correctedDate) {
-        alert('생일(보정시 + 1분) 전 시간은 계산할 수 없습니다.');
+        alert(`⚠️ ${picker.id}: 생일(보정시 + 1분) 전 시간은 계산할 수 없습니다.`);
+        
         const now = new Date();
         const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
           .toISOString()
           .slice(0, 16);
-    
+
+        console.log(`→ ${picker.id} 를 ${localNow}로 초기화합니다`);
         picker.value = localNow;
         return false;
       }
       return true;
     }
     
-    ['woonChangeBtn', 'woonChangeBtn2'].forEach(btnId => {
-      const btn = document.getElementById(btnId);
-      if (!btn) return;
     
-      btn.addEventListener('click', () => {
+    ['woonChangeBtn', 'woonChangeBtn2'].forEach(btnId => {
+      const woonChangeBtn = document.getElementById(btnId);
+      if (!woonChangeBtn) return;
+    
+      woonChangeBtn.addEventListener('click', () => {
         pickerIds.forEach(pickerId => {
           const picker = document.getElementById(pickerId);
-          if (picker) validatePicker(picker);
+          if (picker && picker.type === 'datetime-local') {
+            validatePicker(picker);
+          }
         });
       });
     });
@@ -6667,7 +6674,11 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("MyoYb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, yp[1]));
       setText("MyoMb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, mp[1]));
       setText("MyoDb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, dp[1]));
-      setText("MyoHb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, hp[1]));
+      if (isTimeUnknown || !hp || !hp[1]) {
+        setText("MyoHb12ss", "-");
+      } else {
+        setText("MyoHb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, hp[1]) || "-");
+      }
       const kstDate = toKoreanTime(refDate);
       const adjustedDate = new Date(kstDate.getTime());
       const dayGanZhi = getDayGanZhi(adjustedDate);
