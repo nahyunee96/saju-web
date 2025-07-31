@@ -1635,11 +1635,78 @@ document.addEventListener("DOMContentLoaded", function () {
   fillGz('Yt', 'Yb', getYearGanZhiRef(now),  baseDayStemToday);  // 연주
   fillGz('Mt', 'Mb', getMonthGanZhiRef(now), baseDayStemToday);  // 월주
   fillGz('Dt', 'Db', getDayGanZhiRef(now),   baseDayStemToday);  // 일주
-  fillGz('Ht', 'Hb', getHourGanZhiRef(now),  baseDayStemToday);  // 시주
+  fillGz('Ht', 'Hb', getHourGanZhiRef(now),  baseDayStemToday);  // 
+  
+  function updateTodayGanZhi() {
+  const dtInput = document.getElementById('dateTimeInput').value;
+  const isNone  = document.getElementById('timeNone').checked;
+
+  // (A) 입력값이 있으면 그걸, 없으면 지금(now)을 사용
+  const now = dtInput 
+    ? new Date(dtInput) 
+    : new Date();
+
+  // 1) 일간(日干)을 뽑아서 나머지 기준으로 사용
+  const dayGz = getDayGanZhiRef(now);
+  const baseDayStem = splitPillar(dayGz).gan;
+
+  // 2) 연·월·일주는 무조건 채워 주기
+  fillGz('Yt', 'Yb', getYearGanZhiRef(now),  baseDayStem);  // 연주
+  fillGz('Mt', 'Mb', getMonthGanZhiRef(now), baseDayStem);  // 월주
+  fillGz('Dt', 'Db', getDayGanZhiRef(now),   baseDayStem);  // 일주
+
+  // 3) 시주는 timeNone 체크 여부로 분기
+  if (isNone) {
+    // (3-1) 텍스트를 "-" 로, 배경색 클래스(.b_red 등)를 일괄 제거
+    document.querySelectorAll(
+      '#todayHtEumyang, #todayHtHanja, #todayHtHanguel,' +
+      '#todayHbEumyang, #todayHbHanja, #todayHbHanguel,' +
+      '#todayHbJj1, #todayHbJj2, #todayHbJj3'
+    ).forEach(el => {
+      el.textContent = '-';
+      // b_red, b_blue 등 필요한 클래스 이름만 넣으시면 됩니다.
+      el.classList.remove('b_red','b_blue','b_green');
+    });
+
+    function clearAllColorClasses() {
+      const classesToRemove = [
+        "b_green","b_red","b_white","b_black","b_yellow","active"
+      ];
+      document.querySelectorAll('.siju_con .hanja_con, .siju_con p').forEach(el => {
+        el.classList.remove(...classesToRemove);
+      });
+    }
+    setTimeout(()=>{
+      clearAllColorClasses();
+    }, 0)
+  } else {
+    // (3-2) 체크 해제 시엔 다시 채워 주기
+    fillGz('Ht', 'Hb', getHourGanZhiRef(now), baseDayStem);
+    updateColorClasses();
+  }
+
+  updateColorClasses();
+  updateEumYangClasses();
+}
+
+  /*const dateChangeBtn = document.getElementById('dateChangeBtn');
+  dateChangeBtn.addEventListener('click', e => {
+    e.preventDefault();       // 혹시 form 안에 있다면 제출 방지
+    updateTodayGanZhi();      // 버튼 누르면 간지 재계산
+  });*/
+
+  // 2) (기존) 날짜 입력, 시간없애기 체크박스 변경에도 갱신
+  document.getElementById('dateTimeInput')
+    .addEventListener('change', updateTodayGanZhi);
+  document.getElementById('timeNone')
+    .addEventListener('change', updateTodayGanZhi);
 
   // (3) 색상 클래스나 기타 후처리가 필요하면 여기에…
   updateColorClasses();
   updateEumYangClasses();
+
+  // 3) 초기에 한 번 실행
+  updateTodayGanZhi();  
 
   localStorage.removeItem('correctedDate');
 

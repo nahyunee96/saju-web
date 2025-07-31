@@ -1292,6 +1292,39 @@
   .b_white { background-color: #a5a5a5 !important; color: #fff;}
   .b_black { background-color: #252525 !important; color: #fff;}
 
+  .date_time_input_wrap {
+    text-align: center;
+  }
+
+  .date_time_input_wrap .flex {
+    display: flex;
+    align-items: center;  
+    justify-content: center;
+    width: 100%;
+  }
+
+  .date_time_input_wrap .flex button {
+    height: 40px;
+    padding: 0;
+    width: 20%;
+    border-radius: 0px;
+  }
+
+  .date_time_input {
+    width: 100%;
+    height: 40px;
+    border: none;
+    padding: 0 10px;
+  }
+
+  .timeNone {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    text-align: center;
+    color: #fff;
+  }
+
   /* 모바일 대응 */
   @media screen and (max-width:991px){
 
