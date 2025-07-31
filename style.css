@@ -1559,6 +1559,14 @@
       padding: 1.6vw 0 0.8vw;
     }
 
+    .info_wrapper {
+      transform: scale(120%);
+    }
+
+    .today_meongsik_wrapper .ver {
+      right: 10% !important;
+    }
+
     .grid_box_1 li .hanja_con {
       /* width: 12vw; */
       /*height: 10.8vw;*/
