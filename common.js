@@ -2504,9 +2504,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
 
         fixedCorrectedDate = null;
-        //const originalMS = new Date(item.year, item.month - 1, item.day, item.hour, item.minute);
+        const originalMS = new Date(item.year, item.month - 1, item.day, item.hour, item.minute);
         const iv = getSummerTimeInterval(item.year);
-        fixedCorrectedDate = adjustBirthDateWithLon(originalDate, item.birthPlaceLongitude, item.isPlaceUnknown);
+        fixedCorrectedDate = adjustBirthDateWithLon(originalMS, item.birthPlaceLongitude, item.isPlaceUnknown);
         if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
           fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
         }

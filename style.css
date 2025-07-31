@@ -395,7 +395,10 @@
   }
 
   .w100 .grid_box_1 li .hanja_con {
-    /* width: 156px; */
+    width: 155px;
+    height: 155px;
+    justify-content: center;
+    font-size: 80px;
   }
 
   .w50 .grid_box_1 li .hanja_con {
@@ -1566,6 +1569,8 @@
 
     .w100 .grid_box_1 li .hanja_con {
       width: 22.8vw;
+      height: 22.8vw;
+      font-size: 16vw;
     }
 
     .w50 .grid_box_1 li .hanja_con {
