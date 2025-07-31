@@ -188,7 +188,8 @@ function parseBirthAsUTC(Y, M, D, h, m) {
   return new Date(Date.UTC(Y, M - 1, D, h, m));
 }
 
-function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
+function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown) {
+  
   if (isPlaceUnknown || cityLon == null) {
     return new Date(dateObj.getTime() - 30 * 60 * 1000);
   }
@@ -2382,7 +2383,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fixedCorrectedDate = null;
         //const originalMS = new Date(item.year, item.month - 1, item.day, item.hour, item.minute);
         const iv = getSummerTimeInterval(item.year);
-        fixedCorrectedDate = adjustBirthDateWithLon(originalDate, item.birthPlaceLongitude, item.isPlaceUnknown);
+        fixedCorrectedDate = originalDate;
         if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
           fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
         }
