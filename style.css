@@ -1559,13 +1559,9 @@
       padding: 1.6vw 0 0.8vw;
     }
 
-    .info_wrapper {
-      
-    }
-
-    .today_meongsik_wrapper {
+    /* .today_meongsik_wrapper {
       transform: scale(120%);
-    }
+    } */
 
     .today_meongsik_wrapper .ver {
       right: 10% !important;
