@@ -1560,6 +1560,10 @@
     }
 
     .info_wrapper {
+      
+    }
+
+    .today_meongsik_wrapper {
       transform: scale(120%);
     }
 
