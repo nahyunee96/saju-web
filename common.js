@@ -59,6 +59,8 @@ let isSummerOn = false;
 
 let cityLongitudes = {};
 
+let selectedLon = null;
+
 const placeBtn  = document.getElementById('inputBirthPlace');
 const modal     = document.getElementById('mapModal');
 const closeMap  = document.getElementById('closeMap');
@@ -168,6 +170,7 @@ suggList.addEventListener('click', e => {
   placeBtn.textContent = name;
   suggList.innerHTML  = '';
   placeBtn.dataset.lon = lon;
+  selectedLon = parseFloat(placeBtn.dataset.lon);
 });
 
 function loadCityLongitudes() {
@@ -354,44 +357,118 @@ function getJDFromDate(dateObj) {
   return calendarGregorianToJD(y, m, d);
 }
 
-function findSolarTermDate(year, solarDegree) {
-  const target = solarDegree % 360, jd0 = calendarGregorianToJD(year, 1, 1);
-  const L0 = getSunLongitude(jd0), dailyMotion = 0.9856;
-  let delta = target - L0; if (delta < 0) delta += 360;
-  let jd = jd0 + delta / dailyMotion, iteration = 0, maxIter = 100, precision = 0.001;
+// 1) findSolarTermDate: regionLon 추가
+function findSolarTermDate(year, solarDegree, regionLon = 135) {
+  const target = solarDegree % 360,
+        jd0    = calendarGregorianToJD(year, 1, 1),
+        L0     = getSunLongitude(jd0),
+        dailyMotion = 0.9856;
+  let delta = target - L0;
+  if (delta < 0) delta += 360;
+
+  let jd = jd0 + delta / dailyMotion,
+      iteration = 0, maxIter = 100, precision = 0.001;
+
   while (iteration < maxIter) {
-    let L = getSunLongitude(jd), diff = target - L;
-    if (diff > 180) diff -= 360; if (diff < -180) diff += 360;
+    const L = getSunLongitude(jd);
+    let diff = target - L;
+    if (diff > 180)  diff -= 360;
+    if (diff < -180) diff += 360;
     if (Math.abs(diff) < precision) break;
-    jd += diff / dailyMotion; iteration++;
+    jd += diff / dailyMotion;
+    iteration++;
   }
-  const [y, m, dFrac] = jdToCalendarGregorian(jd), d = Math.floor(dFrac), frac = dFrac - d;
-  const hh = Math.floor(frac * 24), mm = Math.floor((frac * 24 - hh) * 60);
-  const dateUTC = new Date(Date.UTC(y, m - 1, d, hh, mm));
-  return new Date(dateUTC.getTime() + 9 * 3600 * 1000);
+
+  const [y, m, dFrac] = jdToCalendarGregorian(jd),
+        d    = Math.floor(dFrac),
+        frac = dFrac - d,
+        hh   = Math.floor(frac * 24),
+        mm   = Math.floor((frac * 24 - hh) * 60),
+        dateUTC = new Date(Date.UTC(y, m - 1, d, hh, mm));
+
+  // 경도/15시간 → ms
+  const tzMs = (regionLon / 15) * 3600 * 1000;
+  return new Date(dateUTC.getTime() + tzMs);
 }
 
-function getSolarTermBoundaries(solarYear) {
-  let boundaries = [
-    { solarDegree: 315, name: "입춘", date: findSolarTermDate(solarYear, 315) },
-    { solarDegree: 345, name: "경칩", date: findSolarTermDate(solarYear, 345) },
-    { solarDegree: 15,  name: "청명", date: findSolarTermDate(solarYear, 15) },
-    { solarDegree: 45,  name: "입하", date: findSolarTermDate(solarYear, 45) },
-    { solarDegree: 75,  name: "망종", date: findSolarTermDate(solarYear, 75) },
-    { solarDegree: 105, name: "소서", date: findSolarTermDate(solarYear, 105) },
-    { solarDegree: 135, name: "입추", date: findSolarTermDate(solarYear, 135) },
-    { solarDegree: 165, name: "백로", date: findSolarTermDate(solarYear, 165) },
-    { solarDegree: 195, name: "한로", date: findSolarTermDate(solarYear, 195) },
-    { solarDegree: 225, name: "입동", date: findSolarTermDate(solarYear, 225) },
-    { solarDegree: 255, name: "대설", date: findSolarTermDate(solarYear, 255) },
-    { solarDegree: 285, name: "소한", date: findSolarTermDate(solarYear + 1, 285) },
-    { name: "다음입춘", date: findSolarTermDate(solarYear + 1, 315) }
+const MONTH_ZHI = ["인", "묘", "진", "사", "오", "미", "신", "유", "술", "해", "자", "축"];
+const Cheongan = ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"];
+const Jiji = ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"];
+
+let solarTermCache       = new Map();
+let solarBoundariesCache = new Map();
+
+function clearSolarTermCache() {
+  solarTermCache.clear();
+  solarBoundariesCache.clear();
+  console.log('🗑️ 절기 캐시 삭제');
+}
+
+/* 1) 원본 백업 -------------------------- */
+const _findSolarTermDateRaw      = findSolarTermDate;
+const _getSolarTermBoundariesRaw = getSolarTermBoundaries;
+
+/* 2) 래퍼 정의 -------------------------- */
+function findSolarTermDateWithCache(year, deg, lon = 135) {
+  const key = `${year}-${deg}-${Math.round(lon * 10)}`;
+  if (solarTermCache.has(key)) {
+    return new Date(solarTermCache.get(key));          // 깊은 복사
+  }
+  const res = _findSolarTermDateRaw(year, deg, lon);   // ★ 원본 호출
+  solarTermCache.set(key, res);
+  return new Date(res);
+}
+
+function getSolarTermBoundariesWithCache(year, lon = 135) {
+  const key = `${year}-${Math.round(lon * 10)}`;
+  if (solarBoundariesCache.has(key)) {
+    return solarBoundariesCache
+      .get(key).map(t => ({ name: t.name, date: new Date(t.date) }));
+  }
+  const res = _getSolarTermBoundariesRaw(year, lon);   // ★ 원본 호출
+  solarBoundariesCache.set(
+    key, res.map(t => ({ name: t.name, date: t.date }))
+  );
+  return res.map(t => ({ name: t.name, date: new Date(t.date) }));
+}
+
+/* 3) 원본 이름에 래퍼를 할당 ----------- */
+findSolarTermDate      = findSolarTermDateWithCache;
+getSolarTermBoundaries = getSolarTermBoundariesWithCache;
+
+
+// 2) getSolarTermBoundaries: regionLon 추가
+function getSolarTermBoundaries(solarYear, regionLon = 135) {
+  const terms = [
+    { deg: 315, name: "입춘" }, { deg: 345, name: "경칩" },
+    { deg: 15,  name: "청명" }, { deg: 45,  name: "입하"   },
+    { deg: 75,  name: "망종" }, { deg: 105, name: "소서"   },
+    { deg: 135, name: "입추" }, { deg: 165, name: "백로"   },
+    { deg: 195, name: "한로" }, { deg: 225, name: "입동"   },
+    { deg: 255, name: "대설" }, { deg: 285, name: "소한"   },
   ];
-  boundaries.sort((a, b) => a.date - b.date);
-  const start = findSolarTermDate(solarYear, 315), end = findSolarTermDate(solarYear + 1, 315);
-  boundaries = boundaries.filter(term => term.date >= start && term.date < end);
-  const offset = 8.84 * 3600 * 1000;
-  return boundaries.map(term => ({ name: term.name, date: new Date(term.date.getTime() - offset) }));
+
+  // 다음입춘(년+1)
+  const next = { deg: 315, name: "다음입춘" };
+
+  // 올해/내년 절기 모두 계산
+  const arr = terms
+    .map(t => ({
+      name: t.name,
+      date: findSolarTermDate(solarYear, t.deg, regionLon)
+    }))
+    .concat([
+      { name: next.name, date: findSolarTermDate(solarYear+1, next.deg, regionLon) },
+      { name: "소한", date: findSolarTermDate(solarYear+1, 285, regionLon) }
+    ]);
+
+  // 입춘(올해) 부터 다음 입춘(내년) 직전까지 필터
+  const start = findSolarTermDate(solarYear, 315, regionLon),
+        end   = findSolarTermDate(solarYear+1, 315, regionLon);
+
+  return arr
+    .filter(t => t.date >= start && t.date < end)
+    .sort((a, b) => a.date - b.date);
 }
 
 function getMonthNumber(dateObj, boundaries) {
@@ -403,6 +480,16 @@ function getMonthNumber(dateObj, boundaries) {
   return 12;
 }
 
+
+const sexagenaryCycle = [
+  "갑자", "을축", "병인", "정묘", "무진", "기사", "경오", "신미", "임신", "계유",
+  "갑술", "을해", "병자", "정축", "무인", "기묘", "경진", "신사", "임오", "계미",
+  "갑신", "을유", "병술", "정해", "무자", "기축", "경인", "신묘", "임진", "계사",
+  "갑오", "을미", "병신", "정유", "무술", "기해", "경자", "신축", "임인", "계묘",
+  "갑진", "을사", "병오", "정미", "무신", "기유", "경술", "신해", "임자", "계축",
+  "갑인", "을묘", "병진", "정사", "무오", "기미", "경신", "신유", "임술", "계해"
+];
+
 function getYearGanZhi(dateObj, year) {
   const ipChun = findSolarTermDate(year, 315);
   const actualYear = (dateObj < ipChun) ? year - 1 : year;
@@ -410,53 +497,99 @@ function getYearGanZhi(dateObj, year) {
   return sexagenaryCycle[yearIndex];
 }
 
-function getMonthGanZhi(dateObj) {
-  const year = dateObj.getFullYear();
-  const boundsCurr = getSolarTermBoundaries(year);
 
-  // 1) ’입춘‘ 경계를 찾을 때도, term 이 아니라 name 프로퍼티를 써야 합니다.
-  const lichunItem = boundsCurr.find(t => t.name === "입춘");
-  if (!lichunItem) {
-    throw new Error("입춘 경계 데이터를 찾을 수 없습니다.");
+// 1) 문자열/숫자 → 현지 Date 로 변환하는 parseLocalDate (tzMeridian 적용)
+function parseLocalDate(input, regionLon) {
+  const s  = input.toString().padStart(12,'0'),
+        y  = +s.slice(0,4),  M = +s.slice(4,6),
+        d  = +s.slice(6,8),  h = +s.slice(8,10),
+        m  = +s.slice(10,12);
+  // regionLon/15시간 → ms
+  const tzMs   = (regionLon/15) * 3600 * 1000;
+  // Date.UTC 은 'input' 을 **UTC** 시각으로 해석하므로
+  // 실제 local 을 UTC 로 바꾸려면 –tzMs
+  const utcTs  = Date.UTC(y, M-1, d, h, m);
+  return new Date( utcTs - tzMs );
+}
+
+// 2) findSolarTermDate, getSolarTermBoundaries 는 그대로, 
+//    getSolarTermDate(year, degree, regionLon) 형태여야 함
+
+// 3) 월간지 계산 함수
+function getMonthGanZhi(dateInput, cityLon, forceTzMeridian = null) {
+  // --- 0) tzMeridian 결정 ---
+  const tzMeridian = forceTzMeridian !== null
+    ? forceTzMeridian
+    : Math.round(cityLon / 15) * 15;
+  //console.log("▶︎ tzMeridian (°E):", tzMeridian);
+
+  // --- 1) dateInput → 지역시 Date ---
+  let dateObj;
+  if (typeof dateInput === 'string' || typeof dateInput === 'number') {
+    dateObj = parseLocalDate(dateInput, tzMeridian);
+  } else if (dateInput instanceof Date) {
+    // 기존 Date → UTC components → parseLocalDate
+    const y = dateInput.getUTCFullYear(),
+          M = dateInput.getUTCMonth()+1,
+          d = dateInput.getUTCDate(),
+          h = dateInput.getUTCHours(),
+          m = dateInput.getUTCMinutes();
+    const s = String(y).padStart(4,'0')
+            +String(M).padStart(2,'0')
+            +String(d).padStart(2,'0')
+            +String(h).padStart(2,'0')
+            +String(m).padStart(2,'0');
+    dateObj = parseLocalDate(s, tzMeridian);
+  } else {
+    throw new Error('Invalid dateInput');
   }
-  // ← .date() 가 아니라 .date (Date 객체)
-  const lichunDate = lichunItem.date;
+  //console.log("▶︎ parsed dateObj:", dateObj.toISOString());
 
-  // 2) 입춘 이전이면 전년으로
-  const calcYear = dateObj < lichunDate
-    ? year - 1
-    : year;
+  // --- 2) 입춘 경계 계산 ---
+  const year  = dateObj.getFullYear();
+  const bounds = getSolarTermBoundaries(year, cityLon);
+  //console.log("▶︎ 모든 절기 경계 (년도:", year,"):");
+  //bounds.forEach(t => console.log(`   ${t.name.padEnd(6)} → ${t.date.toISOString()}`));
 
-  // 3) 그 해(getSolarTermBoundaries(calcYear))의 12개 절기(月建) 배열을 만들어
-  const allBounds = getSolarTermBoundaries(calcYear);
-  const startIdx = allBounds.findIndex(t => t.name === "입춘");
+  const lichun = bounds.find(t => t.name === '입춘');
+  if (!lichun) throw new Error('입춘 경계가 없습니다');
+  const calcYear = dateObj < lichun.date ? year - 1 : year;
+  //console.log("▶︎ calcYear:", calcYear, "(dateObj < 입춘 ? 이전년 기준)");
+
+  // --- 3) calcYear 의 12절기(月建)만 뽑기 ---
+  let allBounds = getSolarTermBoundaries(calcYear, cityLon);
+  const startIdx = allBounds.findIndex(t => t.name === '입춘');
   let monthTerms = allBounds.slice(startIdx, startIdx + 12);
   if (monthTerms.length < 12) {
     monthTerms = monthTerms.concat(
-      getSolarTermBoundaries(calcYear + 1)
+      getSolarTermBoundaries(calcYear+1, cityLon)
         .slice(0, 12 - monthTerms.length)
     );
   }
+  //console.log("▶︎ 월건(月建) 절기 경계:");
+  //monthTerms.forEach((t,i) => console.log(`   ${i+1}월: ${t.name} → ${t.date.toISOString()}`));
 
-  // 4) 월번호(1~12) 계산
-  let monthNumber = monthTerms.filter(mt => dateObj >= mt.date).length;
-  if (monthNumber === 0) monthNumber = 12;
+  // --- 4) 월번호 계산 ---
+  const monthNumber = monthTerms.filter(t => dateObj >= t.date).length || 12;
+  //console.log("▶︎ monthNumber:", monthNumber);
 
-  // 5) 干 지수 공식 적용
-  const yearGZ = getYearGanZhi(dateObj, calcYear);
-  const yStem = yearGZ.charAt(0);
-  const yStemIdx = Cheongan.indexOf(yStem) + 1; // 1~10
-  const mStemIdx = ((yStemIdx * 2) + monthNumber - 1) % 10;
+  // --- 5) 간지 공식 & 최종 월간지 ---
+  const yearGZ   = getYearGanZhi(dateObj, calcYear);
+  const yStem    = yearGZ.charAt(0);
+  const yIdx     = Cheongan.indexOf(yStem) + 1;
+  const mStemIdx = ((yIdx * 2) + monthNumber - 1) % 10;
+  const mStem    = Cheongan[mStemIdx];
+  const mBranch  = MONTH_ZHI[monthNumber - 1];
+  const monthGZ  = mStem + mBranch;
+  //console.log("▶︎ yearGZ:", yearGZ, "→ monthGZ:", monthGZ);
 
-  const mStem   = Cheongan[mStemIdx];
-  const mBranch = MONTH_ZHI[monthNumber - 1];
-  return mStem + mBranch;
+  return monthGZ;
 }
 
 
-const MONTH_ZHI = ["인", "묘", "진", "사", "오", "미", "신", "유", "술", "해", "자", "축"];
-const Cheongan = ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"];
-const Jiji = ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"];
+
+console.log( getMonthGanZhi(new Date(2009, 7, 7, 5, 18), -155) ); // 하와이 → 임신월
+console.log( getMonthGanZhi(new Date(2009, 7, 7, 5, 18), 127.03) ); // 서울 → 신미월
 
 function getDayGanZhi(dateObj) {
   const y = dateObj.getFullYear();
@@ -534,14 +667,7 @@ function splitPillar(Set) {
   return (Set && Set.length >= 2) ? { gan: Set.charAt(0), ji: Set.charAt(1) } : { gan: "-", ji: "-" };
 }
 
-const sexagenaryCycle = [
-  "갑자", "을축", "병인", "정묘", "무진", "기사", "경오", "신미", "임신", "계유",
-  "갑술", "을해", "병자", "정축", "무인", "기묘", "경진", "신사", "임오", "계미",
-  "갑신", "을유", "병술", "정해", "무자", "기축", "경인", "신묘", "임진", "계사",
-  "갑오", "을미", "병신", "정유", "무술", "기해", "경자", "신축", "임인", "계묘",
-  "갑진", "을사", "병오", "정미", "무신", "기유", "경술", "신해", "임자", "계축",
-  "갑인", "을묘", "병진", "정사", "무오", "기미", "경신", "신유", "임술", "계해"
-];
+
 
 const stemMapping = {
   "갑": { hanja: "甲", hanguel: "갑목", hanguelShort: "갑", eumYang: "양" },
@@ -704,7 +830,7 @@ function computeCustomMonthPillar(correctedDate, gender) {
   const isForward  = (gender === "남" && isYang) || (gender === "여" && !isYang);
 
   let year       = correctedDate.getFullYear();
-  let terms      = getSolarTermBoundaries(year);
+  let terms      = getSolarTermBoundaries(year, selectedLon);
   let pointer    = isForward
     ? terms.findIndex(t => correctedDate < t.date)
     : terms.slice().reverse().findIndex(t => correctedDate >= t.date);
@@ -716,7 +842,7 @@ function computeCustomMonthPillar(correctedDate, gender) {
 
   const sDates = terms.map(t => t.date);
   const mPillars = [];
-  mPillars[0] = getMonthGanZhi(correctedDate, correctedDate.getFullYear());
+  mPillars[0] = getMonthGanZhi(correctedDate, selectedLon);
 
   for (let i = 1; i < sDates.length; i++) {
     const dt  = sDates[i];
@@ -744,17 +870,17 @@ function computeCustomMonthPillar(correctedDate, gender) {
 function getDaewoonData(gender, originalDate, correctedDate) {
   const inputYear = correctedDate.getFullYear();
 
-  const ipChunForSet = findSolarTermDate(inputYear, 315);
+  const ipChunForSet = findSolarTermDate(inputYear, 315, selectedLon);
   const effectiveYearForSet = (originalDate < ipChunForSet)
     ? inputYear - 1
     : inputYear;
 
   const yearPillar  = getYearGanZhi(correctedDate, effectiveYearForSet);
-  const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
+  const monthPillar = getMonthGanZhi(correctedDate, selectedLon);
   const isYang    = ['갑','병','무','경','임'].includes(yearPillar.charAt(0));
   const isForward = (gender === '남' && isYang) || (gender === '여' && !isYang);
 
-  const collectTerms = y => getSolarTermBoundaries(y).map(t => t.date);
+  const collectTerms = y => getSolarTermBoundaries(y, selectedLon).map(t => t.date);
   const allDates = [
     ...collectTerms(inputYear - 1),
     ...collectTerms(inputYear),
@@ -854,7 +980,7 @@ function getEffectiveYearForSet(dateObj) {
   if (!(dateObj instanceof Date)) {
     dateObj = new Date(dateObj);
   }
-  const ipChun = findSolarTermDate(dateObj, 315);
+  const ipChun = findSolarTermDate(dateObj, 31, selectedLon);
   const year = dateObj.getFullYear();
 
   if (dateObj < ipChun) {
@@ -864,7 +990,7 @@ function getEffectiveYearForSet(dateObj) {
   }
 }
 
-function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate) {
+function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate, selectedLon) {
 	originalDate = new Date(year, month - 1, day, hour, minute);
   const effectiveYearForSet = getEffectiveYearForSet(correctedDate);
 	const nominalBirthDate = new Date(year, month - 1, day);
@@ -933,7 +1059,8 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   const hourPillar = hourStem + Jiji[hourBranchIndex];
 
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
-  const monthPillar = getMonthGanZhi(correctedDate, effectiveYearForSet);
+  console.log('selectedLon', selectedLon);
+  const monthPillar = getMonthGanZhi(correctedDate, selectedLon);
 
   if (isJasi && correctedDate.getHours() >= 23 || isJasi && (correctedDate.getHours() < 3)){
     if (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) {
@@ -1180,7 +1307,7 @@ function getGanZhiIndex(gz) { return sexagenaryCycle.indexOf(gz); }
 function getGanZhiFromIndex(i) { const mod = ((i % 60) + 60) % 60; return sexagenaryCycle[mod]; }
 function getYearGanZhiForSewoon(year) {
   let refDate = new Date(year, 3, 1);
-  let ipChun = findSolarTermDate(year, 315);
+  let ipChun = findSolarTermDate(year, 315, selectedLon);
   let effectiveYear = (refDate >= ipChun) ? year : (year - 1);
   let index = ((effectiveYear - 4) % 60 + 60) % 60;
   return sexagenaryCycle[index];
@@ -1393,14 +1520,14 @@ function migrateTenGods() {
         : originalDate;
 
       p.yearPillar  = getYearGanZhi(corrDate);
-      p.monthPillar = getMonthGanZhi(corrDate);
+      p.monthPillar = getMonthGanZhi(corrDate, selectedLon);
       p.dayPillar   = getDayGanZhi(corrDate);
       p.hourPillar  = getHourGanZhi(corrDate);
 
       // 3-c) 음력 입력자만, "원래 음력 기준" 기둥도 별도 저장
       if (p.isLunar) {
         p.lunarYearPillar  = getYearGanZhi(originalDate);
-        p.lunarMonthPillar = getMonthGanZhi(originalDate);
+        p.lunarMonthPillar = getMonthGanZhi(originalDate, selectedLon);
         p.lunarDayPillar   = getDayGanZhi(originalDate);
         p.lunarHourPillar  = getHourGanZhi(originalDate);
       }
@@ -1424,7 +1551,7 @@ function toGz(idx) {
 
 function getYearGanZhiRef(dateObj) {
   const solarYear = dateObj.getFullYear();
-  const ipChun    = getSolarTermBoundaries(solarYear, 315)[0].date;   // 입춘 날짜
+  const ipChun    = findSolarTermDate(solarYear, 315);   // 입춘 날짜
 
   const ganZhiYear = (dateObj < ipChun) ? solarYear - 1 : solarYear;
 
@@ -1434,7 +1561,7 @@ function getYearGanZhiRef(dateObj) {
 }
 
 function getMonthGanZhiRef(dateObj) {
-  const boundaries = getSolarTermBoundaries(dateObj.getFullYear());        
+  const boundaries = getSolarTermBoundaries(dateObj.getFullYear(), 127);        
   const monthNo    = getMonthNumber(dateObj, boundaries);
 
   const yearIdx     = Cheongan.indexOf(getYearGanZhi(dateObj, dateObj.getFullYear())[0]);
@@ -2004,7 +2131,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const displayMinute = isTimeUnknown ? "-" : birthtimeRaw.substring(2, 4);
     const displayBirthtimeFormatted = `${displayHour}${displayMinute}`;
   
-    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate);
+    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate, selectedLon);
     const pillarsPart = computedResult.split(", ")[0]; 
     const pillars = pillarsPart.split(" ");
     const yearPillar = pillars[0] || "";
@@ -2271,7 +2398,7 @@ document.addEventListener("DOMContentLoaded", function () {
         cal.setLunarDate(item.year, item.month, item.day, false);
         const dateL = new Date(item.year, item.month - 1, item.day, 4, 0);
         yearPillar  = getYearGanZhi(dateL, dateL.getFullYear());
-        monthPillar = getMonthGanZhi(dateL, dateL.getFullYear());
+        monthPillar = getMonthGanZhi(dateL, selectedLon);
         dayPillar   = getDayGanZhi(dateL);
         hourPillar = '-';
       } else {
@@ -2534,7 +2661,7 @@ document.addEventListener("DOMContentLoaded", function () {
           cal.setLunarDate(item.year, item.month, item.day, false);
           const dateL = new Date(item.year, item.month - 1, item.day, 4, 0);
           yearPillar  = getYearGanZhi(dateL, dateL.getFullYear());
-          monthPillar = getMonthGanZhi(dateL, dateL.getFullYear());
+          monthPillar = getMonthGanZhi(dateL, selectedLon);
           dayPillar = getDayGanZhi(dateL);
           hourPillar = '-';
 
@@ -3119,6 +3246,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("calcBtn").addEventListener("click", function (event) {
 
+    clearSolarTermCache();
+
     backBtn.style.display = '';
 
     let refDate = toKoreanTime(new Date());
@@ -3256,12 +3385,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // ③ placeBtn.dataset.lon 이 없을 때를 대비한 fallback
     const placeName    = placeBtn.value;
     const storedMap    = JSON.parse(localStorage.getItem('cityLongitudes') || '{}');
-    let selectedLon    = parseFloat(placeBtn.dataset.lon);
-    if (isNaN(selectedLon)) {
-      // 저장된 명식에는 dataset.lon 이 없으므로 cityLongitudes 맵에서 꺼내 쓰기
-      selectedLon = storedMap[placeName] 
-                ?? storedMap[placeName.split(' ')[0]];
-    }
+    // if (isNaN(selectedLon)) {
+    //   // 저장된 명식에는 dataset.lon 이 없으므로 cityLongitudes 맵에서 꺼내 쓰기
+    //   selectedLon = storedMap[placeName] 
+    //             ?? storedMap[placeName.split(' ')[0]];
+    // }
 
     // ④ 보정시 계산
     fixedCorrectedDate = adjustBirthDateWithLon(
@@ -3361,7 +3489,7 @@ document.addEventListener("DOMContentLoaded", function () {
       correctedDate.getFullYear(),
       correctedDate.getMonth() + 1,
       correctedDate.getDate(),
-      hour, minute, gender, correctedDate
+      hour, minute, gender, correctedDate, selectedLon
     );
 
     const parts = fullResult.split(", ");
@@ -3451,7 +3579,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateCurrentDaewoon(refDate, offset = 0) {
 
-      const ipChunThisYear = findSolarTermDate(refDate.getFullYear(), 315);
+      const ipChunThisYear = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
       const effectiveYear  = (refDate > ipChunThisYear)
                             ? refDate.getFullYear()
                             : refDate.getFullYear() - 1;
@@ -3542,7 +3670,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const todayObj = toKoreanTime(new Date());
 
     let currentDaewoonIndex = 0;
-    const ipChunThisYear = findSolarTermDate(refDate.getFullYear(), 315);
+    const ipChunThisYear = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
     const effectiveYear  = (refDate > ipChunThisYear)
                             ? refDate.getFullYear()
                             : refDate.getFullYear() - 1;
@@ -3562,7 +3690,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function updateCurrentSewoon(refDate) {
-      const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
+      const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
       //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
       const effectiveYear = (refDate > ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
       const sewoonIndex = ((effectiveYear - 4) % 60 + 60) % 60;
@@ -3609,7 +3737,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("WSWb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, sewoonSplit.ji));
     }
     function updateCurrentSewoonCalendar(refDate) {
-      const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
+      const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
       //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
       const effectiveYear = (refDate > ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
       const sewoonIndex = ((effectiveYear - 4) % 60 + 60) % 60;
@@ -3689,7 +3817,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let daewoonIndex = activeDaewoonLi ? parseInt(activeDaewoonLi.getAttribute("data-index"), 10) : 1;
 
     function updateSewoonItem(refDate) {
-      const ipChun      = findSolarTermDate(refDate.getFullYear(), 315);
+      const ipChun      = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
       const displayYear = refDate > ipChun
                         ? refDate.getFullYear()
                         : refDate.getFullYear() - 1;
@@ -3791,7 +3919,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     populateSewoonYearAttributes();
 
-    const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
+    const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
     const todayYear = (refDate > ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
     //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
     const displayYear = (todayObj < ipChun) ? todayYear - 1 : todayYear;
@@ -3835,7 +3963,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateMonthlyData(refDateYear, today) {
-      const ipChun = findSolarTermDate(todayObj.getFullYear(), 315);
+      const ipChun = findSolarTermDate(todayObj.getFullYear(), 315, selectedLon);
       const dayPillarText = document.getElementById("DtHanguel").innerText;
       baseDayStem = dayPillarText ? dayPillarText.charAt(0) : "-";
       const effectiveYear = (today >= ipChun) ? refDateYear : refDateYear - 1;
@@ -3863,7 +3991,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   
     function updateMonthlyWoon(computedYear, currentMonthIndex, baseDayStem) {
-      const boundaries = getSolarTermBoundaries(computedYear);
+      const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
       const cycleStartDate = boundaries[0].date;
       const dayPillarText = document.getElementById("DtHanguel").innerText;
@@ -3894,7 +4022,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateMonthlyWoonTop(computedYear, currentMonthIndex, baseDayStem) {
-      const boundaries = getSolarTermBoundaries(computedYear);
+      const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
       const cycleStartDate = boundaries[0].date;
       const dayPillarText = document.getElementById("DtHanguel").innerText;
@@ -3927,9 +4055,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateMonthlyWoonByToday(refDate) {
-      const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
+      const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
       const computedYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
-      const boundaries = getSolarTermBoundaries(computedYear);
+      const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
       let currentMonthIndex = 0;
       for (let i = 0; i < boundaries.length - 1; i++) {
@@ -3947,10 +4075,10 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMonthlyWoonByToday(refDate);
 
     function updateMonthlyWoonByTodayTop(refDate) {
-      const ipChun = findSolarTermDate(refDate.getFullYear(), 315);
+      const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
       //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
       const computedYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
-      const boundaries = getSolarTermBoundaries(computedYear);
+      const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
       let currentMonthIndex = 0;
       for (let i = 0; i < boundaries.length - 1; i++) {
@@ -4006,7 +4134,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
 
     const currentSolarYear = (todayObj < ipChun) ? todayObj.getFullYear() - 1 : todayObj.getFullYear();
-    let boundariesArr = getSolarTermBoundaries(currentSolarYear);
+    let boundariesArr = getSolarTermBoundaries(currentSolarYear, selectedLon);
     let currentTerm = boundariesArr.find((term, idx) => {
       let next = boundariesArr[idx + 1] || { date: new Date(term.date.getTime() + 30 * 24 * 60 * 60 * 1000) };
       return todayObj >= term.date && todayObj < next.date;
@@ -4017,14 +4145,14 @@ document.addEventListener("DOMContentLoaded", function () {
       if (currentIndex > 0) {
         prevTermName = boundaries[currentIndex - 1].name;
       } else {
-        let prevBoundaries = getSolarTermBoundaries(solarYear - 1);
+        let prevBoundaries = getSolarTermBoundaries(solarYear - 1, selectedLon);
         if (!Array.isArray(prevBoundaries)) prevBoundaries = Array.from(prevBoundaries);
         prevTermName = prevBoundaries[prevBoundaries.length - 1].name;
       }
       if (currentIndex < boundaries.length - 1) {
         nextTermName = boundaries[currentIndex + 1].name;
       } else {
-        let nextBoundaries = getSolarTermBoundaries(solarYear + 1);
+        let nextBoundaries = getSolarTermBoundaries(solarYear + 1, selectedLon);
         if (!Array.isArray(nextBoundaries)) nextBoundaries = Array.from(nextBoundaries);
         nextTermName = nextBoundaries[0].name;
       }
@@ -4169,10 +4297,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyFortuneCalendar(solarTermName, computedYear, newIndexOpt) {
       const today = toKoreanTime(new Date());
       const solarYear = computedYear || (function () {
-        const ipChun = findSolarTermDate(today.getFullYear(), 315);
+        const ipChun = findSolarTermDate(today.getFullYear(), 315, selectedLon);
         return (today < ipChun) ? today.getFullYear() - 1 : today.getFullYear();
       })();
-      let boundaries = getSolarTermBoundaries(solarYear);
+      let boundaries = getSolarTermBoundaries(solarYear, selectedLon);
       if (!Array.isArray(boundaries)) {
         boundaries = Array.from(boundaries);
       }
@@ -4190,7 +4318,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (currentIndex + 1 < boundaries.length) {
         nextTerm = boundaries[currentIndex + 1];
       } else {
-        let nextBoundaries = getSolarTermBoundaries(solarYear + 1);
+        let nextBoundaries = getSolarTermBoundaries(solarYear + 1, selectedLon);
         if (!Array.isArray(nextBoundaries)) {
           nextBoundaries = Array.from(nextBoundaries);
         }
@@ -4303,7 +4431,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateColorClasses();
 
         const computedYear = globalState.sewoonStartYear;
-        const boundariesForSewoon = getSolarTermBoundaries(computedYear);
+        const boundariesForSewoon = getSolarTermBoundaries(computedYear, selectedLon);
         const targetSolarTerm = boundariesForSewoon[0].name;
         updateMonthlyFortuneCalendar(targetSolarTerm, computedYear);
         document.querySelectorAll("#mowoonList li").forEach(li => li.classList.remove("active"));
@@ -4374,7 +4502,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateColorClasses();
         
         // 월운(운) 업데이트: 세운 연도에 따른 태양력 경계선 등 계산
-        const boundariesForSewoon = getSolarTermBoundaries(computedYear);
+        const boundariesForSewoon = getSolarTermBoundaries(computedYear, selectedLon);
         const targetSolarTerm = boundariesForSewoon[0].name;
         updateMonthlyFortuneCalendar(targetSolarTerm, computedYear);
         document.querySelectorAll("#mowoonList li").forEach(li => li.classList.remove("active"));
@@ -4449,7 +4577,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const termName = li.getAttribute("data-solar-term") || "";
         const computedYear = globalState.computedYear || (function(){
           const today = toKoreanTime(new Date());
-          const ipChun = findSolarTermDate(today.getFullYear(), 315);
+          const ipChun = findSolarTermDate(today.getFullYear(), 315, selectedLon);
           return (today < ipChun) ? today.getFullYear() - 1 : today.getFullYear();
         })();
         globalState.activeMonth = parseInt(li.getAttribute("data-index3"), 10);
@@ -4539,7 +4667,8 @@ document.addEventListener("DOMContentLoaded", function () {
         birthDate.getHours(),   
         birthDate.getMinutes(),
         gender,
-        birthDate
+        birthDate,
+        selectedLon
       );
 
       const parts = fullResult.split(", ");
@@ -4630,7 +4759,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const yPillars = [ yearPillar ];
         let year = correctedDate.getFullYear();
 
-        let allTerms = getSolarTermBoundaries(year)
+        let allTerms = getSolarTermBoundaries(year, selectedLon)
           .sort((a, b) => a.date - b.date);
 
         let pointer;
@@ -4638,7 +4767,7 @@ document.addEventListener("DOMContentLoaded", function () {
           pointer = allTerms.findIndex(t => t.date >= correctedDate);
           if (pointer < 0) {
             year++;
-            allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
+            allTerms = getSolarTermBoundaries(year, selectedLon).sort((a,b) => a.date - b.date);
             pointer = 0;
           }
         } else {  
@@ -4646,7 +4775,7 @@ document.addEventListener("DOMContentLoaded", function () {
           pointer = pastTerms.length - 1;
           if (pointer < 0) {
             year--;
-            allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
+            allTerms = getSolarTermBoundaries(year, selectedLon).sort((a,b) => a.date - b.date);
             pointer = allTerms.length - 1;
           }
         }
@@ -4684,20 +4813,20 @@ document.addEventListener("DOMContentLoaded", function () {
           const hit = (dirMode === '순행') ? (dt >= term.date) : (dt <= term.date);
 
           if (hit) {
-            mPillars[i] = getMonthGanZhi(dt, year);
+            mPillars[i] = getMonthGanZhi(dt, selectedLon);
 
             if (dirMode === '순행') {
               pointer++;
               if (pointer >= allTerms.length) {
                 year++;
-                allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
+                allTerms = getSolarTermBoundaries(year, selectedLon).sort((a,b) => a.date - b.date);
                 pointer = 0;
               }
             } else {
               pointer--;
               if (pointer < 0) {
                 year--;
-                allTerms = getSolarTermBoundaries(year).sort((a,b) => a.date - b.date);
+                allTerms = getSolarTermBoundaries(year, selectedLon).sort((a,b) => a.date - b.date);
                 pointer = allTerms.length - 1;
               }
             }
@@ -5473,7 +5602,7 @@ document.addEventListener("DOMContentLoaded", function () {
         correctedDate.getMonth() + 1,
         correctedDate.getDate(),
         hour, minute,
-        gender, correctedDate
+        gender, correctedDate, selectedLon
       );
       
       // fullResult에서 각 기둥 분리
@@ -5506,9 +5635,9 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function getMonthlyWoonParameters() {
       const today = toKoreanTime(new Date());
-      const ipchun = findSolarTermDate(today.getFullYear(), 315);
+      const ipchun = findSolarTermDate(today.getFullYear(), 315, selectedLon);
       const solarYear = (today < ipchun) ? today.getFullYear() - 1 : today.getFullYear();
-      const boundaries = getSolarTermBoundaries(solarYear);
+      const boundaries = getSolarTermBoundaries(solarYear, selectedLon);
       let currentIndex = 0;
       for (let i = 0; i < boundaries.length - 1; i++) {
         if (today >= boundaries[i].date && today < boundaries[i + 1].date) {
@@ -5599,16 +5728,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
       function findNearestSolarTerm(correctedDate, mode = "순행") {
         const year = correctedDate.getFullYear();
-        let terms = getSolarTermBoundaries(year);
+        let terms = getSolarTermBoundaries(year, selectedLon);
       
         if (mode === "순행") {
           const next = terms.find(t => t.date > correctedDate);
           if (next) return next;
-          return getSolarTermBoundaries(year + 1)[0];
+          return getSolarTermBoundaries(year + 1, selectedLon)[0];
         } else {
           const prev = [...terms].reverse().find(t => t.date <= correctedDate);
           if (prev) return prev;
-          const lastPrevYear = getSolarTermBoundaries(year - 1);
+          const lastPrevYear = getSolarTermBoundaries(year - 1, selectedLon);
           return lastPrevYear[lastPrevYear.length - 1];
         }
       }
@@ -6406,11 +6535,11 @@ document.addEventListener("DOMContentLoaded", function () {
               const placeName    = placeBtn.value;
               const storedMap    = JSON.parse(localStorage.getItem('cityLongitudes') || '{}');
               let selectedLon    = parseFloat(placeBtn.dataset.lon);
-              if (isNaN(selectedLon)) {
-                // 저장된 명식에는 dataset.lon 이 없으므로 cityLongitudes 맵에서 꺼내 쓰기
-                selectedLon = storedMap[placeName] 
-                          ?? storedMap[placeName.split(' ')[0]];
-              }
+              // if (isNaN(selectedLon)) {
+              //   // 저장된 명식에는 dataset.lon 이 없으므로 cityLongitudes 맵에서 꺼내 쓰기
+              //   selectedLon = storedMap[placeName] 
+              //             ?? storedMap[placeName.split(' ')[0]];
+              // }
               const corr = adjustBirthDateWithLon(orig, selectedLon, isPlaceUnknown);
               correctedDate = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
               document.getElementById("inputBirthtime").value = timeMap[lbl];
@@ -6515,12 +6644,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const hr   = parseInt(bt.slice(0,2),10);
       const mi   = parseInt(bt.slice(2),10);
       const orig = new Date(birthYear, birthMonth - 1, birthDay, hr, mi);
-      let selectedLon    = parseFloat(placeBtn.dataset.lon);
-      if (isNaN(selectedLon)) {
-        // 저장된 명식에는 dataset.lon 이 없으므로 cityLongitudes 맵에서 꺼내 쓰기
-        selectedLon = storedMap[placeName] 
-                  ?? storedMap[placeName.split(' ')[0]];
-      }
+      // let selectedLon    = parseFloat(placeBtn.dataset.lon);
+      // if (isNaN(selectedLon)) {
+      //   // 저장된 명식에는 dataset.lon 이 없으므로 cityLongitudes 맵에서 꺼내 쓰기
+      //   selectedLon = storedMap[placeName] 
+      //             ?? storedMap[placeName.split(' ')[0]];
+      // }
       const corr = adjustBirthDateWithLon(orig, selectedLon, isPlaceUnknown);
       const newCorrected = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
       const split = splitPillar(manualSiju);
@@ -6886,7 +7015,8 @@ document.addEventListener("DOMContentLoaded", function () {
       data.hour,
       data.minute,
       data.gender,
-      cd
+      cd,
+      selectedLon
     );
 
     const parts      = fullResult.split(", ");
@@ -7038,6 +7168,7 @@ document.addEventListener("DOMContentLoaded", function () {
     currentDetailIndex = index;
     isModifyMode = true;
     originalDataSnapshot = JSON.stringify(selected);
+    selectedLon = selected.birthPlaceLongitude;
   });
   
   let isModifyMode = false;
@@ -7108,7 +7239,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate);
+    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate, selectedLon);
     const pillarsPart = computedResult.split(", ")[0];
     const pillars = pillarsPart.split(" ");
 
@@ -7209,6 +7340,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("ModifyBtn").addEventListener("click", function(event) {
 
+    clearSolarTermCache();
+
     calculateBtn.click();
     
     let newData, list;
@@ -7231,7 +7364,6 @@ document.addEventListener("DOMContentLoaded", function () {
                           ? "남"
                           : (document.getElementById("genderWoman").checked ? "여" : "-");
     const isPlaceUnknown= document.getElementById("bitthPlaceX").checked;
-    const birthPlaceIn  = document.getElementById("inputBirthPlace").value;
     let usedBirthtime = isTimeUnknown ? null : birthtimeStr;
 
     if (birthdayStr.length < 8) { alert("생년월일을 YYYYMMDD 형식으로 입력하세요."); return; }
@@ -7317,12 +7449,14 @@ document.addEventListener("DOMContentLoaded", function () {
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
     }
 
+    
+
     const fullResult = getFourPillarsWithDaewoon(
       correctedDate.getFullYear(),
       correctedDate.getMonth() + 1,
       correctedDate.getDate(),
       hour, minute,
-      gender, correctedDate
+      gender, correctedDate, selectedLon
     );
 
     const parts = fullResult.split(", ");
@@ -7408,6 +7542,10 @@ document.addEventListener("DOMContentLoaded", function () {
     //newData = latestMyeongsik;
     updateEumYangClasses();
     window.scrollTo(0, 0);
+
+    setTimeout(()=>{
+      woonChangeBtn.click();
+    }, 100);
   });
   
   new Sortable(document.querySelector(".list_ul"), {
