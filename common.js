@@ -588,8 +588,8 @@ function getMonthGanZhi(dateInput, cityLon, forceTzMeridian = null) {
 
 
 
-console.log( getMonthGanZhi(new Date(2009, 7, 7, 5, 18), -155) ); // 하와이 → 임신월
-console.log( getMonthGanZhi(new Date(2009, 7, 7, 5, 18), 127.03) ); // 서울 → 신미월
+//console.log( getMonthGanZhi(new Date(2009, 7, 7, 5, 18), -155) ); // 하와이 → 임신월
+//console.log( getMonthGanZhi(new Date(2009, 7, 7, 5, 18), 127.03) ); // 서울 → 신미월
 
 function getDayGanZhi(dateObj) {
   const y = dateObj.getFullYear();
@@ -1059,7 +1059,7 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   const hourPillar = hourStem + Jiji[hourBranchIndex];
 
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
-  console.log('selectedLon', selectedLon);
+  //console.log('selectedLon', selectedLon);
   const monthPillar = getMonthGanZhi(correctedDate, selectedLon);
 
   if (isJasi && correctedDate.getHours() >= 23 || isJasi && (correctedDate.getHours() < 3)){
@@ -2567,6 +2567,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const list = JSON.parse(localStorage.getItem("myeongsikList")) || [];
         latestMyeongsik    = list[idx];
         currentDetailIndex = idx;
+
+        selectedLon = item.birthPlaceLongitude;
 
         restoreCurrentPlaceMapping(item);
         new Date(localStorage.getItem('correctedDate'));
