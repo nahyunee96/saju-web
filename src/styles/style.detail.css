@@ -1,0 +1,62 @@
+
+ /* style.detail.css */
+
+/* animation */
+.siju_con {
+  transition: opacity 0.15s ease-in-out;
+}
+
+/* aside */
+.drag_btn_zone,
+.drag_btn_zone2 {
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+/* 운성, 신살 숨기기 */
+.hide-12 .ilwoon_10woonseong,
+.hide-12 .ilwoon_10sinsal,
+.hide-12 [id*="b12"],
+.hide-12 [id*="DwW"],
+.hide-12 [id*="Ds"],
+.hide-12 [id*="SwW"],
+.hide-12 [id*="Ss"],
+.hide-12 [id*="MwW"],
+.hide-12 [id*="Ms"] {
+  display: none !important;
+}
+
+.pharases {
+  padding: 0px 20px;
+  font-size: 14px;
+  color: #E6BF28;
+  margin-bottom: 5px;
+}
+
+.pharases_dl {
+  padding: 20px;
+  text-align: center;
+}
+
+.info_wrapper .pharases {
+  padding: 10px 0 0;
+}
+
+.hour_list_wrap .pharases {
+  padding-top: 0;
+  margin-bottom: 10px;
+}
+
+.black_btn {
+  padding: 10px 50px;
+  background-color: #EED36C;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: #353535;
+  border-radius: 4px;
+}
+
+li > div.last-visible {
+  margin-bottom: 0 !important;
+}

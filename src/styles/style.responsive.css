@@ -1,0 +1,756 @@
+/* style.resposive.css */
+
+@media screen and (max-width:991px) {
+
+  #mapModal .Rel {
+    width: 90%;
+  }
+
+  #searchBox,
+  #closeMap,
+  #mapCloseBtn,
+  #suggestions {
+    font-size: 3.2vw;
+  }
+
+  #searchBox {
+    width: calc(100% - 65px);
+    height: 8vw;
+    border-radius: 0px;
+  }
+
+  #closeMap {
+    width: 16vw;
+    padding: 0;
+    height: 8vw;
+  }
+
+  #mapCloseBtn {
+    width: auto;
+    height: 6.2vw;
+    top: -6.2vw;
+    padding: 0 4vw;
+    right: 0;
+  }
+
+  #infoModal5 .title {
+    font-size:4.4vw;
+    padding: 2.4vw;
+  }
+
+  #infoModal5 .title b {
+    font-size: 3.6vw;
+  }
+
+  #infoModal5 .content {
+    padding: 2vw;
+    font-size: 3.6vw;
+  }
+
+  #infoModal5 .content li {
+    margin-bottom: 1.2vw;
+  }
+
+  #infoModal5 .btn_box button {
+    padding: 1.2vw 2vw;
+    font-size: 3.2vw;
+  }
+
+  .set_modal .close_btn
+  .input_me_group_set_modal .close_btn {
+    top: -10.4vw;
+    width: 8vw;
+    height: 8vw;
+    font-size: 8vw;
+  }
+
+  .input_me_group_set_ul > li {
+    font-size: 3.2vw;
+  }
+
+  .input_me_group_set_ul > li button {
+    padding: 0 3.2vw;
+    font-size: 2.8vw;
+  }
+
+  .set_modal li.title {
+    font-size: 4vw;
+  }
+
+  .set_modal li.content > label {
+    font-size: 3.6vw;
+  }
+
+  .wongook_lucky {
+    gap: 4vw;
+  }
+
+  .mb10 {
+    margin-bottom: 2vw;
+  }
+
+  .mt20,
+  .mt100 {
+    margin-top: 4vw;
+  }
+
+  .info_wrapper {
+    max-width: 100%; 
+    padding: 2.624vw; 
+    border-radius: 0;
+  }
+  .input_group {
+    margin-bottom: 2.4vw;
+  }
+
+  .input_group > label {
+    font-size: 3.244vw; 
+    margin-bottom: 1.2vw;
+  }
+
+  .input_group > label span {
+    font-size:2.844vw; 
+  }
+
+  .input_group input[type='text'],
+  .input_group input[type='tel'],
+  .input_group input[type='time'],
+  .input_group select,
+  .input_group .map {
+    height: 8.4vw;
+    line-height: 8.4vw;
+    font-size:3.244vw; 
+    padding:0 3.242vw;
+  }
+  .radio_box span input[type='radio']+label {
+    padding:2.44vw; 
+    font-size:3.244vw;
+  }
+
+  .input_group .flex_input2 button {
+    width: 17%;
+    padding: 0 2.44vw;
+    font-size: 3.244vw;
+    height: 8.4vw;
+  }
+
+  .label_line input[type='checkbox'] {
+    width: 3.2vw;
+    height: 3.2vw;
+    margin-right: 1.2vw;
+  }
+
+  .label_line input[type='checkbox']::before {
+    font-size: 2.4vw;
+  }
+
+  .label_line label {
+    font-size: 3.2vw;
+  }
+
+  .btn_box.mt20 {
+    margin-top: 2vw;
+  }
+
+  .btn_box.mt {
+    margin-top:5.224vw;
+  }
+
+  .btn_box button {
+    padding:0vw 8.448vw; 
+    font-size:3.228vw;
+    gap: 2vw;
+  }
+
+  .btn_box.mt100 button {
+    padding:0vw 16.448vw; 
+    font-size: 3.2vw;
+  }
+
+  .btn_box.flex_3 button {
+    padding:0vw 4.048vw; 
+  }
+
+  .btn_box button#calcBtn,
+  .btn_box button#ModifyBtn  {
+    height: 10vw;
+  }
+
+  .btn_box.mb40 {
+    margin-bottom: 4vw;
+  }
+  
+  .black_btn {
+    padding: 0 10vw;
+    height: 6.2vw;
+    font-size: 3.228vw;
+  }
+
+  .hour_list button.black_btn {
+    height: 8vw;  
+  }
+  
+  .detailViewBtn,
+  .modify_btn,
+  .back_btn,
+  .search_btn {
+    padding: 0 2vw;
+  }
+
+  .info_box {
+    padding-bottom:2vw;
+  }
+
+  .info_box .name_gender {
+    font-size:3.244vw;
+    margin-bottom: 1.2vw;
+  }
+
+  .info_box .birthday_info {
+    font-size:2.844vw;
+  }
+
+  .s12_ctrl_box .black_btn {
+    font-size: 3.2vw;
+    height: 8vw;
+  }
+
+  .s12_ctrl_box {
+    padding: 3.2vw 0 0.8vw;
+  }
+
+  .s12_ctrl_zone_type {
+    padding: 1.2vw;
+  }
+  
+  .woonkuk {
+    width: 58%;
+  }
+
+  .lucky_wrap {
+    width: 42%;
+  }
+  
+  .lucky_wrap .lucky_box {
+    gap: 0.8vw;
+    padding: 0;
+  }
+
+  .grid_box_1 {
+    padding: 0;
+  }
+
+  .lucky_box .lucky .ganji,
+  .grid_box_1 li .hanja_con, 
+  .ganji .hanja_con {
+    margin-bottom: 0;
+  }
+
+  .grid_box_1 li:nth-of-type(5) .hanja_con,
+  .grid_box_1 li:nth-of-type(6) .hanja_con,
+  .grid_box_1 li:nth-of-type(7) .hanja_con,
+  .grid_box_1 li:nth-of-type(8) .hanja_con {
+    margin-bottom: 1.2vw;
+  }
+
+  .ganji .hanja_con {
+    margin-bottom: 1vw;
+  }
+
+  .woon_container,
+  .aside .top_search_list,
+  .hour_list {
+    gap: 2vw;
+  }
+
+  .grid_box {
+    gap: 0.8vw;
+  }
+
+  .w100 .grid_box {
+    gap: 1.2vw;
+  }
+
+  .grid_box_10 {
+    gap: 0.3vw;
+  }
+
+  .grid_box > li {
+    font-size: 2.824vw;
+  }
+
+  .grid_box.grid_box_8 {
+    padding: 0;
+  }
+
+  .grid_box.grid_box_8 > li {
+    font-size: 2.024vw;
+  }
+
+  .grid_box > li,
+  .lucky_box .lucky .ganji {
+    padding: 1.24vw;
+  }
+
+  .grid_box_1 li .hanja_con,
+  .ganji .hanja_con {
+    display: flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+    font-size: 10vw;
+    padding: 1.6vw 0 0.8vw;
+    min-height: 10.8vw;
+  }
+
+  .today_meongsik_wrapper .ver {
+    right: 10% !important;
+  }
+
+  .grid_box_1 li .hanja_con {
+    /* width: 12vw; */
+    /*height: 10.8vw;*/
+  }
+
+  .no_wolwoon .grid_box_1 li .hanja_con {
+    /* width: 14.2vw; */
+  }
+
+  .ganji .hanja_con {
+    /* width: 12vw; */
+    /*height: 10.8vw;*/
+  }
+
+  .no_wolwoon .ganji .hanja_con {
+    width: 14.2vw;
+  }
+
+  .w100 .grid_box_1 li .hanja_con {
+    height: 13.6vw;
+    font-size: 9.2vw;
+  }
+
+  .w50 .grid_box_1 li .hanja_con {
+    /* width: 10.4vw; */
+    /*height: 9.6vw;*/
+  }
+
+  .grid_box_1.grid_box_8 li .hanja_con {
+    width: 10.8vw;
+    font-size:5.848vw;
+  }
+
+  .grid_box_1 li p.hanguel,
+  .ganji p.hanguel  {
+    margin-bottom: 0.8vw;
+    font-size: 3vw;
+    line-height: 100%;
+  }
+
+  .grid_box_1 li p,
+  .ganji p {
+    padding: 1vw 0.8vw;
+    margin-bottom: 1.2vw;
+  }
+
+  .grid_box_1 li p.eum_yang, 
+  .ganji p.eum_yang,
+  .wongook_lucky .grid_box_1 li p.eum_yang {
+    padding: 0;
+    margin-bottom: 0;
+    font-size: 2.4vw;
+  }
+
+  .grid_box_1 li p.eum_yang, 
+  .ganji p.eum_yang {
+    width: 4vw;
+    height: 4vw;
+  }
+
+  .grid_box_1 li .hanja_con b,
+  .ganji .hanja_con b {
+    line-height: 90%;
+  }
+
+  .no_hanguel .grid_box_1 li .hanja_con b,
+  .no_hanguel .ganji .hanja_con b {
+    margin: 0.8vw 0;
+  }
+
+  .w50 .grid_box_1 li .hanja_con,
+  .w50 .ganji .hanja_con {
+    font-size:6.4vw;
+  }
+
+  .grid_box_1 li .ten_sin,
+  .ganji .ten_sin,
+  .grid_box_1 li .woon_seong,
+  .ganji .woon_seong,
+  .grid_box_1 li .sin_sal,
+  .ganji .sin_sal,
+  .w50 .grid_box_8 li p.label,
+  .fortune_section .w.dage,
+  .grid_box_1 li p, 
+  .ganji p,
+  .grid_box_1 li p.ten_sin, 
+  .ganji p.ten_sin,
+  .fortune_section .w {
+    font-size: 3.2vw;
+  }
+
+
+  .w50 .grid_box_1 {
+    gap: 1vw;
+  }
+
+  .w50 .grid_box_1 li p, .w50 .ganji p {
+    font-size: 3.2vw;
+    margin-bottom: 0.4vw;
+  }
+
+  .w50 .grid_box_8 li p {
+    font-size: 2.4vw;
+  }
+
+  .jijanggan {
+    gap: .8vw;
+    padding: 1vw;
+    margin: 0 0 1vw;
+  }
+
+  .jijanggan li {
+    margin-bottom: 0.4vw;
+  }
+
+  .jijanggan li,
+  .w50 .jijanggan li {
+    font-size: 2.4vw;
+  }
+
+  .w100 .jijanggan li {
+    font-size: 2.8vw;
+  }
+
+  .no_wolwoon .jijanggan li,
+  .no_wolwoon .w50 .jijanggan li {
+    font-size: 2.8vw;
+  }
+
+  .w50 .jijanggan li {
+    font-size: 2vw;
+  }
+  
+  .buga_title {
+    margin: 0;
+  }
+
+  .buga_title span {
+    font-size: 3.2vw;
+    padding: 1vw 2vw;
+  }
+
+  .ganji_w {
+    width: 100%;
+    padding: 1.52vw 0;
+    text-align: center;
+    font-size: 4.8vw;
+    font-weight: 700;
+    background-color: #fff;
+    border-radius: 2px;
+    margin-bottom: 0.4vw;
+  }
+
+  .grid_box_1 li .ten_sin,
+  .ganji .ten_sin,
+  .fortune_section .w[class*="dt10sin"],
+  .fortune_section .w[class*="st10sin"],
+  .fortune_section .w[class*="0sin"] {
+    margin-bottom: 0.4vw;
+  }
+
+  .container {
+    padding: 12vw 0;
+  }
+
+  .container .header {
+    height: 12vw;
+  }
+
+  .header .flex_btn_2 button {
+    padding: 0 2vw;
+  }
+
+  .aside .head {
+    height: 12vw;
+    padding: 4vw;
+  }
+
+  .aside .close_btn,
+  .delete_btn {
+    top: 4vw;
+    right: 4vw;
+    width: 8vw;
+    height: 8vw;
+    font-size: 8vw;
+    padding: 0px;
+  }
+
+  .aside .close_btn span,
+  .delete_btn span {
+    height: 8vw;
+    vertical-align: top;
+    margin-top: 0;
+  }
+
+  .aside .top_search_list > select {
+    height: 6.2vw;
+    padding: 0 2vw;
+    font-size: 3.2vw;
+  }
+
+  .aside .search_form {
+    gap: 2vw;
+    width: calc(85% - 4vw);
+  }
+
+  .aside .search_form select {
+    width: calc(20% - 2vw);
+    height: 6.2vw;
+    padding: 0 2vw;
+    font-size: 3.2vw;
+  }
+
+  .aside .search_form input {
+    width: calc(60% - 2vw);
+    height: 6.2vw;
+    font-size: 3.2vw;
+    padding: 0 2.4vw;
+  }
+
+  .aside .search_form button {
+    width: calc(20% - 2vw);
+  }
+
+  .type_sv {
+    font-size: 3.2vw;
+  }
+
+  .type_sv_wrap.info_type {
+    right: 2vw;
+    gap: 2vw;
+  }
+
+  .aside .list_ul_wrap {
+    height: calc(100dvh - 29.2vw);
+    height: calc(calc(var(--vh, 1vh) * 100) - 29.2vw);
+    padding-bottom: 4vw;
+  }
+
+  .aside .list_ul {
+    padding: 4vw;
+    padding-top: 0;
+  }
+
+  .aside .list_ul > li {
+    padding: 3.6vw 0;
+    font-size: 3.2vw;
+  }
+
+  .aside .list_ul > li .btn_zone {
+    gap: 2vw;
+    margin-left: 2vw;
+  }
+
+  .aside .list_ul > li .info_btn_zone .drag_btn_zone,
+  .drag_btn_zone2 {
+    height: 6.4vw;
+    margin-right: 2.8vw;
+  }
+
+  .aside .list_ul > li .info_btn_zone .drag_btn_zone .line,
+  .drag_btn_zone2 .line {
+    width: 6.4vw;
+    height: 1.2vw;
+    background-color: #EED36C;
+    margin-bottom: 1.2vw;
+  }
+
+  .pharases {
+    padding: 0 4vw;
+    font-size: 3.2vw;
+    margin-bottom: 1.2vw;
+  }
+
+  .info_wrapper .pharases {
+    padding: 2vw 0 0;
+  }
+
+  .hour_list_wrap .pharases {
+    padding: 0;
+    margin-bottom: 1.2vw;
+  }
+
+  .grid_box_12 {
+    gap: .2vw;
+  }
+
+  .grid_box_12.fortune_section .w {
+    font-size: 2.62vw;
+  }
+
+  .grid_box_12 .ganji_w {
+    font-size: 4vw;
+    padding: 1.52vw 0vw;
+  }
+
+  .ilju_calender {
+    margin-top: 4vw;
+    padding: 2.2vw;
+  }
+
+  .ilju_calender .calender_title {
+    padding-bottom: 2.4vw;
+    margin-bottom: 2.4vw;
+    font-size: 2.4vw;
+  }
+  
+  .ilju_calender .cal_btn {
+    padding: 1.2vw 2.4vw;
+    font-size: 2.4vw;
+  }
+
+  .ilju_calender .calender_title .curr_title {
+    padding-top: 1.2vw;
+  }
+
+  .calander_table th{
+    padding: 1.2vw;
+    font-size: 2.4vw;
+  }
+
+  .calander_table td {
+    padding: 0.8vw;
+    font-size: 2vw;
+  }
+
+
+  .calander_table .ilwoon li {
+    margin-bottom: 0.4vw;
+  }
+
+  .calander_table .ilwoon li.ilwoonday {
+    font-size: 2vw;
+  }
+
+  .calander_table .ilwoon li span {
+    width: 5.2vw;
+  }
+
+  .calander_table .ilwoon li.ilwoon_ganji_cheongan span,
+  .calander_table .ilwoon li.ilwoon_ganji_jiji span {
+    width: 6.2vw;
+    border-radius: 1.2vw;
+    font-size: 3.6vw;
+  }
+
+  .cal_area {
+    margin-top: 8vw;
+    text-align: center;
+  }
+
+  .cal_area input {
+    width: 100%;
+    height: 10.8vw;
+    line-height: 10.8vw;
+    color: #353535;
+    background-color: #fff;
+    padding: 0 2.4vw;
+    font-size: 3.6vw;
+  }
+
+  .check_option.fixed {
+    top: 16vw;
+  }
+
+  .radio_wrap span{
+    margin: 0 0.8vw;
+  }
+
+  .radio_wrap input[type='radio'],
+  .radio_wrap input[type='checkbox'] {
+    width: 2.4vw;
+    height: 2.4vw;
+    margin-right: 1.2vw;
+  }
+
+  .radio_wrap input[type='radio']::before,
+  .radio_wrap input[type='checkbox']::before {
+    width: 1.6vw;
+    height: 1.6vw;
+  }
+
+  .radio_wrap label {
+    font-size: 2.8vw;
+  }
+
+  .footer {
+    padding: 2vw 1.2vw;
+    font-size: 2.4vw;
+  }
+
+  .explan {
+    padding: 4vw;
+    margin-top: 8vw;
+    font-size: 3.2vw;
+  }
+
+  .explan .pharases {
+    margin-bottom: 4vw;
+    font-size: 4vw;
+  }
+
+  .explan li {
+    margin-bottom: 4vw;
+  }
+
+  .explan .pillar_title {
+    font-size: 4.4vw;
+  }
+
+  .couple_mode_wrap .btn_box,
+  .cal_area#calArea2,
+  .pharases_dl {
+    padding: 4vw;
+  }
+
+
+  .current_ganzhi {
+    font-size: 3.2vw;
+  }
+
+  .couple_mode_wrap .scroll_y {
+    height: calc(100dvh - 16vw);
+    height: calc(calc(var(--vh, 1vh) * 100) - 16vw);
+  }
+
+  .couple_mode_wrap .inner {
+    padding: 2vw;
+  }
+
+  .couple_mode_wrap .inner,
+  .couple_mode_wrap .grid_box {
+    gap: 0.8vw;
+  }
+
+  .couple_mode_wrap .w50 .grid_box_1 li .hanja_con {
+    width: 11vw;
+  }
+
+  .grid_box_1 li .hanja_con b.eum,
+  .ganji .hanja_con b.eum,
+  .calander_table .ilwoon li.ilwoon_ganji_cheongan span.eum,
+  .calander_table .ilwoon li.ilwoon_ganji_jiji span.eum,
+  .ganji_w.eum {
+    font-weight: 200;
+  } 
+}

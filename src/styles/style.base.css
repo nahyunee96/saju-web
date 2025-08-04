@@ -1,0 +1,70 @@
+* {
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  font-family: "Noto Sans KR", sans-serif; 
+}
+
+body, html {
+  min-width: 320px;
+}
+
+body {
+  background-color: #011627;
+}
+
+ol, ul { list-style: none; }
+
+input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input:disabled,
+select:disabled {
+  background-color: #B3B9BE !important;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: none; /* 기본 드롭다운 아이콘 제거 */
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 5px;
+}
+
+.mt0 {
+  margin-top: 0;
+}
+
+.mb10 {
+  margin-bottom: 10px;
+}
+
+.mt20 {
+  margin-top: 20px;
+}
+
+.mt100 {
+  margin-top: 40px;
+}
+
+.red { color: #E40101 !important; }
+.green { color: #008E00 !important; }
+.yellow { color: #E6BF28 !important; }
+.white { color: #a5a5a5 !important; }
+.black { color: #252525 !important; }
+
+.b_red { background-color: #E40101 !important; color: #fff; }
+.b_green { background-color: #008E00 !important; color: #fff;}
+.b_yellow { background-color: #E6BF28 !important; color: #fff;}
+.b_white { background-color: #a5a5a5 !important; color: #fff;}
+.b_black { background-color: #252525 !important; color: #fff;}
