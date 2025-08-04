@@ -138,13 +138,16 @@
   .input_group {
     margin-bottom: 20px;
   }
+
   .input_group.group_ect {
     display: none;
   }
+
   .input_group .flex_input {
     display: flex;
     justify-content: space-between;
   }
+
   .input_group .flex_input input[type='tel'] {
     width: 60%;
   }
@@ -163,19 +166,23 @@
     padding: 0;
     font-size: 20px;
   }
+
   .input_group:last-child {
     margin-bottom: 0;
   }
+
   .input_group > label {
     font-size: 20px; 
     display: block; 
     margin-bottom: 5px; 
     color: #fff;
   }
+
   .input_group>label span {
     font-size:14px; 
     color: #EED36C;
   }
+
   .input_group input[type='text'],
   .input_group input[type='tel'],
   .input_group input[type='time'],
@@ -207,9 +214,11 @@
     display: flex; 
     gap: 10px;
   }
+
   .radio_box span { 
     flex: 1; 
   }
+
   .radio_box span input[type='radio'] + label {
     display: flex; 
     justify-content: center; 
@@ -223,9 +232,11 @@
     color: #353535; 
     cursor: pointer;
   }
+
   .radio_box span input[type='radio']:checked + label {
     background-color: #EED36C; 
   }
+
   .radio_box input[type='radio'] {
     display: none;
   }
@@ -1046,10 +1057,6 @@
     background-color: transparent;
   }
 
-  /* .s12_ctrl_con {
-    display: none;
-  } */
-
   .s12_ctrl_zone_type {
     padding: 8px;
     flex-direction: row;
@@ -1262,7 +1269,7 @@
 
   .couple_mode_wrap .scroll_y {
     width: 100%;
-    height: calc(100dvh - 80px)
+    height: calc(100dvh - 80px);
     height: calc(calc(var(--vh, 1vh) * 100) - 80px);
     overflow-y: auto;
   }
