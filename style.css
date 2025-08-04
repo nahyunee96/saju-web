@@ -5,6 +5,7 @@
     box-sizing: border-box; 
     font-family: "Noto Sans KR", sans-serif; 
   }
+  
   body, html {
     min-width: 320px;
   }
@@ -45,8 +46,7 @@
   .drag_btn_zone,
   .drag_btn_zone2 {
     -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    touch-action: none; /* 드래그 반응 빠르게 */
+    touch-action: none;
   }
 
   .siju_con {
@@ -373,10 +373,13 @@
   .ganji .hanja_con {
     position: relative;
     width: 100%;
+    min-height: 84px;
+    justify-content: center;
     background-color: #fff;
     text-align: center;
     font-size: 52px; 
     border-radius: 4px;
+    
   }
 
   .grid_box_1 li:nth-of-type(5) .hanja_con,
@@ -393,6 +396,7 @@
   .grid_box_1 li .hanja_con {
     /* width: 84px; */
     /*height: 90px;*/
+    
   }
 
   .no_wolwoon .grid_box_1 li .hanja_con {
@@ -1559,24 +1563,22 @@
       align-items: center;
       font-size: 10vw;
       padding: 1.6vw 0 0.8vw;
+      min-height: 10.8vw;
     }
 
     .today_meongsik_wrapper .ver {
       right: 10% !important;
     }
 
-    .grid_box_1 li .hanja_con {
+    .grid_box_1 li .hanja_con,
+    .ganji .hanja_con {
       /* width: 12vw; */
       /*height: 10.8vw;*/
+
     }
 
     .no_wolwoon .grid_box_1 li .hanja_con {
       /* width: 14.2vw; */
-    }
-  
-    .ganji .hanja_con {
-      /* width: 12vw; */
-      /*height: 10.8vw;*/
     }
 
     .no_wolwoon .ganji .hanja_con {
