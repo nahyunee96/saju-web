@@ -911,7 +911,7 @@ function getDaewoonData(gender, originalDate, correctedDate) {
     }
   }
   
-  const baseYears = Math.floor(baseDecimal);
+  let baseYears = Math.floor(baseDecimal);
   const baseMonths = Math.floor((baseDecimal - baseYears) * 12);
   
   const stemChars = Cheongan;
@@ -921,7 +921,12 @@ function getDaewoonData(gender, originalDate, correctedDate) {
   
   const list = [];
   for (let i = 0; i < 10; i++) {
+    if (baseYears < 1) {
+      baseYears = 1;
+    }
+    
     const ageOffset = baseYears + i * 10;
+    
     
     // 절기 경계선 상황에서는 첫 번째 대운이 현재 월주 자체
     const step = isBoundaryCase ? i : i + 1;
@@ -7610,7 +7615,7 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("myeongsikList", JSON.stringify(listMs));
     loadSavedMyeongsikList();
 
-    console.log('✏️ Updated! currentDetailIndex =', currentDetailIndex, updatedData);
+    //console.log('✏️ Updated! currentDetailIndex =', currentDetailIndex, updatedData);
     
     updateSaveBtn();
     coupleModeBtnV.style.display = list.length >= 2 ? "" : "none";
