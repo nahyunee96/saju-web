@@ -471,33 +471,6 @@ function getSolarTermBoundaries(solarYear, regionLon = 135) {
     .sort((a, b) => a.date - b.date);
 }
 
-function getMonthNumber(dateObj, boundaries) {
-  for (let i = 0; i < boundaries.length - 1; i++) {
-    if (dateObj >= boundaries[i].date && dateObj < boundaries[i + 1].date) {
-      return i + 1;
-    }
-  }
-  return 12;
-}
-
-
-const sexagenaryCycle = [
-  "갑자", "을축", "병인", "정묘", "무진", "기사", "경오", "신미", "임신", "계유",
-  "갑술", "을해", "병자", "정축", "무인", "기묘", "경진", "신사", "임오", "계미",
-  "갑신", "을유", "병술", "정해", "무자", "기축", "경인", "신묘", "임진", "계사",
-  "갑오", "을미", "병신", "정유", "무술", "기해", "경자", "신축", "임인", "계묘",
-  "갑진", "을사", "병오", "정미", "무신", "기유", "경술", "신해", "임자", "계축",
-  "갑인", "을묘", "병진", "정사", "무오", "기미", "경신", "신유", "임술", "계해"
-];
-
-function getYearGanZhi(dateObj, year) {
-  const ipChun = findSolarTermDate(year, 315);
-  const actualYear = (dateObj < ipChun) ? year - 1 : year;
-  const yearIndex = ((actualYear - 4) % 60 + 60) % 60;
-  return sexagenaryCycle[yearIndex];
-}
-
-
 // 1) 문자열/숫자 → 현지 Date 로 변환하는 parseLocalDate (tzMeridian 적용)
 function parseLocalDate(input, regionLon) {
   const s  = input.toString().padStart(12,'0'),
@@ -512,8 +485,32 @@ function parseLocalDate(input, regionLon) {
   return new Date( utcTs - tzMs );
 }
 
-// 2) findSolarTermDate, getSolarTermBoundaries 는 그대로, 
-//    getSolarTermDate(year, degree, regionLon) 형태여야 함
+const sexagenaryCycle = [
+  "갑자", "을축", "병인", "정묘", "무진", "기사", "경오", "신미", "임신", "계유",
+  "갑술", "을해", "병자", "정축", "무인", "기묘", "경진", "신사", "임오", "계미",
+  "갑신", "을유", "병술", "정해", "무자", "기축", "경인", "신묘", "임진", "계사",
+  "갑오", "을미", "병신", "정유", "무술", "기해", "경자", "신축", "임인", "계묘",
+  "갑진", "을사", "병오", "정미", "무신", "기유", "경술", "신해", "임자", "계축",
+  "갑인", "을묘", "병진", "정사", "무오", "기미", "경신", "신유", "임술", "계해"
+];
+
+
+
+function getYearGanZhi(dateObj, year) {
+  const ipChun = findSolarTermDate(year, 315);
+  const actualYear = (dateObj < ipChun) ? year - 1 : year;
+  const yearIndex = ((actualYear - 4) % 60 + 60) % 60;
+  return sexagenaryCycle[yearIndex];
+}
+
+function getMonthNumber(dateObj, boundaries) {
+  for (let i = 0; i < boundaries.length - 1; i++) {
+    if (dateObj >= boundaries[i].date && dateObj < boundaries[i + 1].date) {
+      return i + 1;
+    }
+  }
+  return 12;
+}
 
 // 3) 월간지 계산 함수
 function getMonthGanZhi(dateInput, cityLon, forceTzMeridian = null) {
@@ -586,11 +583,6 @@ function getMonthGanZhi(dateInput, cityLon, forceTzMeridian = null) {
   return monthGZ;
 }
 
-
-
-//console.log( getMonthGanZhi(new Date(2009, 7, 7, 5, 18), -155) ); // 하와이 → 임신월
-//console.log( getMonthGanZhi(new Date(2009, 7, 7, 5, 18), 127.03) ); // 서울 → 신미월
-
 function getDayGanZhi(dateObj) {
   const y = dateObj.getFullYear();
   const m = dateObj.getMonth() + 1;
@@ -602,7 +594,6 @@ function getDayGanZhi(dateObj) {
   const index = Math.floor(jd) + 50;
 
   return sexagenaryCycle[index % 60];
-  
 }
 
 const fixedDayMapping = {
@@ -867,19 +858,27 @@ function computeCustomMonthPillar(correctedDate, gender) {
   return mPillars[pointer];
 }
 
-function getDaewoonData(gender, originalDate, correctedDate) {
-  const inputYear = correctedDate.getFullYear();
+function getDaewoonData(gender, originalDate, correctedDate, selectedLon) {
+  // 1) 보정 전·후 월주 계산 (경도 보정 없이 vs 보정 적용)
+  const originalMonthPillar  = getMonthGanZhi(originalDate, 0);
+  const correctedMonthPillar = getMonthGanZhi(correctedDate, selectedLon);
+  const changedMonthPillar   = originalMonthPillar !== correctedMonthPillar;
 
+  // 2) 연도와 입춘 시각
+  const inputYear    = correctedDate.getFullYear();
   const ipChunForSet = findSolarTermDate(inputYear, 315, selectedLon);
+
+  // 3) 대운 개시 연도 결정
   const effectiveYearForSet = (originalDate < ipChunForSet)
     ? inputYear - 1
     : inputYear;
 
-  const yearPillar  = getYearGanZhi(correctedDate, effectiveYearForSet);
-  const monthPillar = getMonthGanZhi(correctedDate, selectedLon);
-  const isYang    = ['갑','병','무','경','임'].includes(yearPillar.charAt(0));
-  const isForward = (gender === '남' && isYang) || (gender === '여' && !isYang);
+  // 4) 연간 천간 & 순행 여부
+  const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
+  const isYang     = ['갑','병','무','경','임'].includes(yearPillar.charAt(0));
+  const isForward  = (gender === '남' && isYang) || (gender === '여' && !isYang);
 
+  // 5) 절기 경계(前後 해) 모으기
   const collectTerms = y => getSolarTermBoundaries(y, selectedLon).map(t => t.date);
   const allDates = [
     ...collectTerms(inputYear - 1),
@@ -887,6 +886,7 @@ function getDaewoonData(gender, originalDate, correctedDate) {
     ...collectTerms(inputYear + 1)
   ].sort((a, b) => a - b);
 
+  // 6) 다음/이전 경계일 선택
   let boundaryDate;
   if (isForward) {
     boundaryDate = allDates.find(d => d > correctedDate) || allDates[0];
@@ -895,46 +895,56 @@ function getDaewoonData(gender, originalDate, correctedDate) {
     boundaryDate = past[past.length - 1] || allDates[allDates.length - 1];
   }
 
+  // 7) 대운 개시 나이(decimal) 계산
+  const oneDayMs    = 1000 * 60 * 60 * 24;
   const diffMs      = Math.abs(boundaryDate - correctedDate);
   const diffDays    = diffMs / oneDayMs;
   const baseDecimal = diffDays / 3;
-  const baseYears  = Math.floor(baseDecimal);
-  const baseMonths = Math.floor((baseDecimal - baseYears) * 12);
+  const baseYears   = Math.floor(baseDecimal);
+  const baseMonths  = Math.floor((baseDecimal - baseYears) * 12);
+
+  // 8) 월간(월주) 천간·지지 인덱스
   const stemChars        = Cheongan;
   const branchChars      = MONTH_ZHI;
-  const monthStemIndex   = stemChars.indexOf(monthPillar.charAt(0));
-  const monthBranchIndex = branchChars.indexOf(monthPillar.charAt(1));
-  const list = [];
+  const monthStemIndex   = stemChars.indexOf(correctedMonthPillar.charAt(0));
+  const monthBranchIndex = branchChars.indexOf(correctedMonthPillar.charAt(1));
 
+  // 9) 대운 리스트 생성 (월주 변경 여부에 따라 displayAge 분기)
+  const list = [];
   for (let i = 0; i < 10; i++) {
     const ageOffset = baseYears + i * 10;
-    const step      = i + 1;
-    const nextStem  = isForward
+    const displayAge = changedMonthPillar
+      ? (ageOffset - baseYears + 1) // 월주가 바뀐 경우: 순번(1,11,21…)
+      : ageOffset;                  // 그렇지 않으면 실제 나이(예: 9,19,29…)
+
+    const step     = i + 1;
+    const nextStem = isForward
       ? (monthStemIndex   + step) % 10
       : (monthStemIndex   - step + 10) % 10;
-    const nextBr    = isForward
+    const nextBr   = isForward
       ? (monthBranchIndex + step) % 12
       : (monthBranchIndex - step + 12) % 12;
 
     list.push({
-      age:    ageOffset,
+      age:    displayAge,
       stem:   stemChars[nextStem],
       branch: branchChars[nextBr]
     });
   }
 
   return {
-    baseYears,      
-    baseMonths,     
-    baseDecimal,    
-    list,           
-    dayStemRef:     getDayGanZhi(correctedDate).charAt(0)
+    baseYears,
+    baseMonths,
+    baseDecimal,
+    list,
+    dayStemRef: getDayGanZhi(correctedDate).charAt(0)
   };
 }
 
 
-function getDaewoonDataStr(gender, originalDate, correctedDate) {
-  const data = getDaewoonData(gender, originalDate, correctedDate);
+
+function getDaewoonDataStr(gender, originalDate, correctedDate, selectedLon, monthPillar) {
+  const data = getDaewoonData(gender, originalDate, correctedDate, selectedLon, monthPillar);
   const listStr = data.list.map(item => `${item.age}(${item.stem}${item.branch})`).join(", ");
   return `대운수 ${data.base}, 대운 나이 목록: ${listStr}`;
 }
@@ -1062,32 +1072,34 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   //console.log('selectedLon', selectedLon);
   const monthPillar = getMonthGanZhi(correctedDate, selectedLon);
 
+  console.log(monthPillar);
+
   if (isJasi && correctedDate.getHours() >= 23 || isJasi && (correctedDate.getHours() < 3)){
     if (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) {
       const daypillar = getDayGanZhi(nominalBirthDate);
-      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate, selectedLon, monthPillar)}`;
     } else {
       const daypillar = getDayGanZhi(nominalBirthDate2);
-      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate, selectedLon, monthPillar)}`;
     }
     
   } else if (isInsi && (correctedDate.getHours() < 3 || isInsi && correctedDate.getHours() >= 23)){
     if (hourBranchIndex === 0) {
       if (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) {
         const daypillar = getDayGanZhi(nominalBirthDatePrev);
-        return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+        return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate, selectedLon, monthPillar)}`;
       } else {
         const daypillar = getDayGanZhi(nominalBirthDate);
-        return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+        return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate, selectedLon, monthPillar)}`;
       }
       
     } else {
       const daypillar = getDayGanZhi(nominalBirthDatePrev);
-      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate, selectedLon, monthPillar)}`;
     }
   } else {
     const daypillar = getDayGanZhi(nominalBirthDate);
-    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate, selectedLon, monthPillar)}`;
   }	
   
 }
@@ -1664,7 +1676,7 @@ function migrateAllProfiles() {
       const correctedDate = adjustBirthDate(originalDate, profile.birthPlace, profile.isPlaceUnknown);
 
       // ── 2) 새 대운 데이터 계산
-      const daewoonData = getDaewoonData(profile.gender, originalDate, correctedDate);
+      const daewoonData = getDaewoonData(profile.gender, originalDate, correctedDate, profile.birthPlaceLongitude, profile.monthPillar);
 
       // ── 3) 프로필 객체 업데이트
       profile.correctedDate = correctedDate.toISOString();
@@ -3577,7 +3589,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateOriginalSetMapping(daySplit, hourSplit);
     updateColorClasses();
 
-    const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
+    const daewoonData = getDaewoonData(gender, originalDate, correctedDate, selectedLon, monthPillar);
 
     function updateCurrentDaewoon(refDate, offset = 0) {
 
