@@ -860,24 +860,34 @@ function computeCustomMonthPillar(correctedDate, gender) {
 
 function getDaewoonData(gender, originalDate, correctedDate) {
   const inputYear = correctedDate.getFullYear();
-
   const ipChunForSet = findSolarTermDate(inputYear, 315, selectedLon);
   const effectiveYearForSet = (originalDate < ipChunForSet)
     ? inputYear - 1
     : inputYear;
-
-  const yearPillar  = getYearGanZhi(correctedDate, effectiveYearForSet);
-  const monthPillar = getMonthGanZhi(correctedDate, selectedLon);
-  const isYang    = ['갑','병','무','경','임'].includes(yearPillar.charAt(0));
+  
+  const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
+  
+  // 원래 경도(한국 기준 127.5)와 보정된 경도로 각각 월주 계산
+  const originalMonthPillar = getMonthGanZhi(correctedDate, 127.5); // 한국 기준
+  const correctedMonthPillar = getMonthGanZhi(correctedDate, selectedLon); // 보정된 경도
+  
+  // 절기 경계선 상황 감지 (월주가 다른 경우)
+  const isBoundaryCase = originalMonthPillar !== correctedMonthPillar;
+  
+  // 실제 계산에 사용할 월주 결정
+  // 절기가 넘어간 경우, 항상 원래 월주(한국 기준)를 사용
+  const monthPillar = isBoundaryCase ? originalMonthPillar : correctedMonthPillar;
+  
+  const isYang = ['갑','병','무','경','임'].includes(yearPillar.charAt(0));
   const isForward = (gender === '남' && isYang) || (gender === '여' && !isYang);
-
+  
   const collectTerms = y => getSolarTermBoundaries(y, selectedLon).map(t => t.date);
   const allDates = [
     ...collectTerms(inputYear - 1),
     ...collectTerms(inputYear),
     ...collectTerms(inputYear + 1)
   ].sort((a, b) => a - b);
-
+  
   let boundaryDate;
   if (isForward) {
     boundaryDate = allDates.find(d => d > correctedDate) || allDates[0];
@@ -885,43 +895,65 @@ function getDaewoonData(gender, originalDate, correctedDate) {
     const past = allDates.filter(d => d < correctedDate);
     boundaryDate = past[past.length - 1] || allDates[allDates.length - 1];
   }
-
-  const diffMs      = Math.abs(boundaryDate - correctedDate);
-  const diffDays    = diffMs / oneDayMs;
-  const baseDecimal = diffDays / 3;
-  const baseYears  = Math.floor(baseDecimal);
+  
+  const diffMs = Math.abs(boundaryDate - correctedDate);
+  const diffDays = diffMs / oneDayMs;
+  let baseDecimal = diffDays / 3;
+  
+  // 절기 경계선 상황에서 대운수 조정
+  if (isBoundaryCase) {
+    // 역행이면서 절기가 넘어간 경우, 대운수를 매우 작게 조정
+    if (!isForward) {
+      baseDecimal = 1 / 12; // 약 1개월 정도로 설정
+    } else {
+      // 순행인 경우도 비슷하게 조정 (절기 직전이므로)
+      baseDecimal = Math.min(baseDecimal, 1 / 12);
+    }
+  }
+  
+  const baseYears = Math.floor(baseDecimal);
   const baseMonths = Math.floor((baseDecimal - baseYears) * 12);
-  const stemChars        = Cheongan;
-  const branchChars      = MONTH_ZHI;
-  const monthStemIndex   = stemChars.indexOf(monthPillar.charAt(0));
+  
+  const stemChars = Cheongan;
+  const branchChars = MONTH_ZHI;
+  const monthStemIndex = stemChars.indexOf(monthPillar.charAt(0));
   const monthBranchIndex = branchChars.indexOf(monthPillar.charAt(1));
+  
   const list = [];
-
   for (let i = 0; i < 10; i++) {
     const ageOffset = baseYears + i * 10;
-    const step      = i + 1;
-    const nextStem  = isForward
-      ? (monthStemIndex   + step) % 10
-      : (monthStemIndex   - step + 10) % 10;
-    const nextBr    = isForward
+    
+    // 절기 경계선 상황에서는 첫 번째 대운이 현재 월주 자체
+    const step = isBoundaryCase ? i : i + 1;
+    
+    const nextStem = isForward
+      ? (monthStemIndex + step) % 10
+      : (monthStemIndex - step + 10) % 10;
+    const nextBr = isForward
       ? (monthBranchIndex + step) % 12
       : (monthBranchIndex - step + 12) % 12;
-
+      
     list.push({
-      age:    ageOffset,
-      stem:   stemChars[nextStem],
+      age: ageOffset,
+      stem: stemChars[nextStem],
       branch: branchChars[nextBr]
     });
   }
-
+  
   return {
-    baseYears,      
-    baseMonths,     
-    baseDecimal,    
-    list,           
-    dayStemRef:     getDayGanZhi(correctedDate).charAt(0)
+    baseYears,
+    baseMonths,
+    baseDecimal,
+    list,
+    dayStemRef: getDayGanZhi(correctedDate).charAt(0),
+    // 디버깅용 추가 정보
+    isBoundaryCase,
+    originalMonthPillar,
+    correctedMonthPillar,
+    finalMonthPillar: monthPillar
   };
 }
+
 
 
 function getDaewoonDataStr(gender, originalDate, correctedDate) {
@@ -1910,6 +1942,8 @@ document.addEventListener("DOMContentLoaded", function () {
     backBtn.style.display = 'none';
     calculateBtn.style.display = 'block';
     ModifyBtn.style.display = 'none';
+    newBtn.classList.remove("active");
+    newBtn.innerText = "묘운력(운 전체) 상세보기";
   });
 
   backBtnAS.addEventListener('click', ()=>{
@@ -1919,6 +1953,8 @@ document.addEventListener("DOMContentLoaded", function () {
     backBtn.style.display = 'none';
     calculateBtn.style.display = 'block';
     ModifyBtn.style.display = 'none';
+    newBtn.classList.remove("active");
+    newBtn.innerText = "묘운력(운 전체) 상세보기";
   });
 
   const exclude = ['db10sin', 'sb10sin', 'Mob10sin'];
@@ -3239,7 +3275,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("calcBtn").addEventListener("click", function (event) {
 
-    clearSolarTermCache();
+    //clearSolarTermCache();
 
     backBtn.style.display = '';
 
@@ -4747,8 +4783,18 @@ document.addEventListener("DOMContentLoaded", function () {
             iPillars[i] = iPillars[i - 1];
           }
         }
+
+        const originalMonthPillar = getMonthGanZhi(originalDate, 127.5); // 한국 기준 (임신)
+        const correctedMonthPillar = getMonthGanZhi(correctedDate, selectedLon); // 보정된 경도 (신미)
         
-        const mPillars = [ monthPillar ];
+        
+        // 절기 경계선 상황 감지 (월주가 다른 경우)
+        const isBoundaryCase = originalMonthPillar !== correctedMonthPillar;
+        
+        // 묘운 시작은 항상 원래 월주(한국 기준)로 시작
+        const startingMonthPillar = isBoundaryCase ? correctedMonthPillar : originalMonthPillar;
+        
+        const mPillars = [ startingMonthPillar ]; // 처음에는 원래 월주(임신) 사용
         const yPillars = [ yearPillar ];
         let year = correctedDate.getFullYear();
 
@@ -4800,51 +4846,81 @@ document.addEventListener("DOMContentLoaded", function () {
           "한로","입동","대설","소한"
         ];
 
+        // 0. 시작값
+        const startPillar = getMonthGanZhi(originalDate, selectedLon); // '임신'
+        let switched = false;
+        mPillars[0] = startPillar;
+        yPillars[0] = yearPillar;
+
+        // 절기 포인터 세팅
+        //year = correctedDate.getFullYear();
+        //allTerms = getSolarTermBoundaries(year, selectedLon).sort((a, b) => a.date - b.date);
+        //pointer = (dirMode === '순행')
+          //? allTerms.findIndex(t => t.date >= correctedDate)
+          //: allTerms.filter(t => t.date <= correctedDate).length - 1;
+
+      
+
+        // 1. 본격 루프
         for (let i = 1; i < sDates.length; i++) {
           const dt = sDates[i];
+          const corrP = getMonthGanZhi(dt, selectedLon);
+
+          // [A] 월주 전환 스위치
+          if (!switched && corrP !== startPillar) switched = true;
+          mPillars[i] = switched ? corrP : startPillar;
+          
+          if (pointer > 0 && !isBoundaryCase) {
+            year += (dirMode === '순행' ? 1 : -1);
+            allTerms = getSolarTermBoundaries(year, selectedLon).sort((a, b) => a.date - b.date);
+            pointer = (dirMode === '순행') ? 0 : allTerms.length - 1;
+          }
+
+          if (switched) {
+            //console.log('하와이');
+            year = correctedDate.getFullYear();
+            allTerms = getSolarTermBoundaries(year, selectedLon).sort((a, b) => a.date - b.date);
+            pointer = (dirMode === '순행')
+              ? allTerms.findIndex(t => t.date >= correctedDate)
+              : allTerms.filter(t => t.date <= correctedDate).length - 1;
+          }
+
+          // [B] 절기 포인터 이동 및 연주 계산
           const term = allTerms[pointer];
           const hit = (dirMode === '순행') ? (dt >= term.date) : (dt <= term.date);
 
-          if (hit) {
-            mPillars[i] = getMonthGanZhi(dt, selectedLon);
+          // 연주 처리
+          let prevY = yPillars[i - 1];
+          let prevM = mPillars[i - 1];
+          let newY = prevY;
 
-            if (dirMode === '순행') {
-              pointer++;
-              if (pointer >= allTerms.length) {
-                year++;
-                allTerms = getSolarTermBoundaries(year, selectedLon).sort((a,b) => a.date - b.date);
-                pointer = 0;
-              }
-            } else {
-              pointer--;
-              if (pointer < 0) {
-                year--;
-                allTerms = getSolarTermBoundaries(year, selectedLon).sort((a,b) => a.date - b.date);
-                pointer = allTerms.length - 1;
-              }
+          if (hit) {
+            // 절기 이동
+            pointer += (dirMode === '순행') ? 1 : -1;
+            if (pointer >= allTerms.length || pointer < 0) {
+              year += (dirMode === '순행' ? 1 : -1);
+              allTerms = getSolarTermBoundaries(year, selectedLon).sort((a, b) => a.date - b.date);
+              pointer = (dirMode === '순행') ? 0 : allTerms.length - 1;
             }
 
+            // 연주 변화 여부 판정
             const termName = allTerms[pointer].name;
             const princIdx = principals.indexOf(termName);
-
             const mb = monthZhiMap[basis][dirMode][princIdx];
-            const prevBranch = mPillars[i - 1].charAt(1);
-
-            let newY = yPillars[i - 1];
+            const prevBranch = prevM.charAt(1);
             const targetBranch = yeonjuTargetMap[basis][dirMode];
+
             if (mb === targetBranch && mb !== prevBranch) {
-              const idx = getGanZhiIndex(yPillars[i - 1]);
-              newY = dirMode === '순행'
+              const idx = getGanZhiIndex(prevY);
+              newY = (dirMode === '순행')
                 ? getGanZhiByIndex((idx + 1) % 60)
                 : getGanZhiByIndex((idx + 59) % 60);
             }
-            yPillars[i] = newY;
-
-          } else {
-            mPillars[i] = mPillars[i - 1];
-            yPillars[i] = yPillars[i - 1];
           }
+
+          yPillars[i] = newY;
         }
+
 
         function getFirstSijuChange(dt) {
           const branch   = getHourBranchReturn(dt);
@@ -4944,16 +5020,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        // 7) 콘솔에 찍어보기
-        // console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
-        // periods.forEach((p,i) => {
-        //   const dateCol  = formatDateTime(sDates[i]);
-        //   const periodSt = (i===0 ? start0 : p.start);
-        //   console.log(
-        //     `${sPillars[i]}\t${iPillars[i]}\t${mPillars[i]}\t${yPillars[i]}\t` +
-        //     `${dateCol}\t${formatDateTime(periodSt)} → ${formatDateTime(p.end)}`
-        //   );
-        // });
+        //7) 콘솔에 찍어보기
+        /*console.log('시주\t일주\t월주\t연주\t날짜\t\t\t적용기간(시작 → 끝)');
+        periods.forEach((p,i) => {
+          const dateCol  = formatDateTime(sDates[i]);
+          const periodSt = (i===0 ? start0 : p.start);
+          console.log(
+            `${sPillars[i]}\t${iPillars[i]}\t${mPillars[i]}\t${yPillars[i]}\t` +
+            `${dateCol}\t${formatDateTime(periodSt)} → ${formatDateTime(p.end)}`
+          );
+        });*/
 
 
         
@@ -5735,38 +5811,45 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
   
-      function getWoljuTimeDifference(correctedDate, mode = "순행") {
-        const term = findNearestSolarTerm(correctedDate, mode);
-        let woljuBase;
-        if (mode === "순행") {
-          woljuBase = (correctedDate < term.date)
-            ? term.date
-            : new Date(
-                correctedDate.getFullYear() + 1,
-                term.date.getMonth(), term.date.getDate(),
-                term.date.getHours(), term.date.getMinutes()
-              );
-        } else {
-          woljuBase = (correctedDate >= term.date)
-            ? term.date
-            : new Date(
-                correctedDate.getFullYear() - 1,
-                term.date.getMonth(), term.date.getDate(),
-                term.date.getHours(), term.date.getMinutes()
-              );
+      function getWoljuTimeDifference(
+        correctedDate,
+        selectedLon,
+        mode = "순행",
+        resMin = 30
+      ) {
+        const dir      = mode === "순행" ? +1 : -1;         // 탐색 방향
+        const stepMin  = resMin;                           // 최초 간격
+        const targetP  = getMonthGanZhi(correctedDate, selectedLon); // 지금 월주
+
+        /* ── 1단계: 거친 탐색 ───────────────────────────── */
+        let cursor = new Date(correctedDate.getTime());
+        while (true) {
+          cursor.setMinutes(cursor.getMinutes() + dir * stepMin);
+          if (getMonthGanZhi(cursor, selectedLon) !== targetP) break;
+
+          // 안전장치: 2년 넘게 못 찾으면 중단
+          if (Math.abs(cursor - correctedDate) > 2 * 365 * 24 * 60 * 60 * 1000) {
+            return "N/A";
+          }
         }
-      
-        const diffMs    = woljuBase - correctedDate;
-        const absMs     = Math.abs(diffMs);
-        const oneDayMs  = 24 * 60 * 60 * 1000;
-      
-        const diffDays  = Math.floor(absMs / oneDayMs);
-        const remMs     = absMs % oneDayMs;
-        const diffHrs   = Math.floor(remMs / (60 * 60 * 1000));
-        const remMs2    = remMs % (60 * 60 * 1000);
-        const diffMins  = Math.floor(remMs2 / (60 * 1000));
-      
-        return `${diffDays}일 ${diffHrs}시간 ${diffMins.toString().padStart(2, "0")}분`;
+
+        /* ── 2단계: 정밀 탐색 (1분 단위) ─────────────────── */
+        cursor.setMinutes(cursor.getMinutes() - dir * stepMin); // 직전 구간으로 롤백
+        while (true) {
+          cursor.setMinutes(cursor.getMinutes() + dir);         // 1분 전진
+          if (getMonthGanZhi(cursor, selectedLon) !== targetP) break;
+        }
+
+        /* ── 3단계: 차이 계산 ──────────────────────────── */
+        const diffMs   = cursor - correctedDate;
+        const absMs    = Math.abs(diffMs);
+        const oneDayMs = 24 * 60 * 60 * 1000;
+
+        const days = Math.floor(absMs / oneDayMs);
+        const hrs  = Math.floor((absMs % oneDayMs) / (60 * 60 * 1000));
+        const mins = Math.floor((absMs % (60 * 60 * 1000)) / (60 * 1000));
+
+        return `${days}일 ${hrs}시간 ${mins.toString().padStart(2, "0")}분`;
       }
       
     
@@ -5988,15 +6071,14 @@ document.addEventListener("DOMContentLoaded", function () {
           묘운 월주의 경우, 순행은 생일 기준으로,<br> 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.<br>
           이 명식은 <b>${myowoonResult.dirMode}</b>이므로, ${direction()} 절기의 까지의 기간을 산출합니다.<br>
           보정시에서 ${direction()} 절기의 기간까지 산출했을 때, <br>
-          <b>${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)}</b> 나오게 되며, <br>
-          ${getWoljuTimeDifference(correctedDate, myowoonResult.dirMode)} / 한달을 → <b>${monthStr}</b> / 10년으로 치환하여 구하게 됩니다.<br>
+          <b>${getWoljuTimeDifference(correctedDate, selectedLon, myowoonResult.dirMode)}</b> 나오게 되며, <br>
+          ${getWoljuTimeDifference(correctedDate, selectedLon, myowoonResult.dirMode)} / 한달을 → <b>${monthStr}</b> / 10년으로 치환하여 구하게 됩니다.<br>
           위에서 구한 년도가 몇년이냐에 따라 대운수가 정해지게 됩니다. <br>
           그 뒤에는 그 뒤의 다음(순행) 혹은 이전(역행) 절기의<br> 날짜와 시간을 보고 시간을 구하게 되는데,<br>
           순행은 절기가 지난 바로 다음절기, 역행은 절기가 지나기 바로 전절기를 보게 됩니다.<br>
           그것을 120년으로 확장하면, 약 10년이라는 시간뒤에 다음 월주가 변하는 것입니다.
         </li>
       `;
-      
       html += `
       <li>
         <div class="pillar_title"><strong>연주</strong></div>
@@ -7333,7 +7415,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("ModifyBtn").addEventListener("click", function(event) {
 
-    clearSolarTermCache();
+    //clearSolarTermCache();
 
     calculateBtn.click();
     
