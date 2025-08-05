@@ -1936,6 +1936,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const backBtnAS = document.getElementById("backBtnAS");
   const asideVr = document.getElementById("aside");
 
+  const btn = document.getElementById("myowoonMore");
+  const newBtn = btn.cloneNode(true);
+
   backBtn.addEventListener('click', ()=>{
     inputWrap.style.display = 'block';
     todayWrapper.style.display = 'none';
