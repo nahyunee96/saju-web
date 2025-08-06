@@ -5000,72 +5000,99 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         
-        function findFirstChange(pillarsArr) {
-          for (let i = 1; i < pillarsArr.length; i++) {
-            if (pillarsArr[i] !== pillarsArr[i - 1]) {
-              return periods[i].start;
-            }
-          }
-          return null;
-        }
+        // ------- 간지 전환 시점 계산 함수 -------
 
-        function findLastChange(pillarsArr, periods, refDate) {
-          let idx = periods.findIndex(({ start, end }) =>
-            refDate >= start && refDate < end
-          );
-          if (idx < 0) idx = periods.length - 1;
-          for (let i = idx; i > 0; i--) {
-            if (pillarsArr[i] !== pillarsArr[i - 1]) {
-              return periods[i].start;  // ← 여기서 end → start 로 변경
-            }
-          }
-          return null;
-        }
+/**
+ * pillarsArr: 각 구간별 간지 배열
+ * periods:    [{ start: Date, end: Date }, …]
+ * refDate:    기준 날짜
+ */
 
-        function findNextChangeStart(pillarsArr, periods, refDate) {
-          let idx = periods.findIndex(({ start, end }) =>
-            refDate >= start && refDate < end
-          );
-          if (idx < 0) idx = periods.length - 1;
-        
-          for (let i = idx + 1; i < periods.length; i++) {
-            if (pillarsArr[i] !== pillarsArr[i - 1]) {
-              return periods[i].start;
-            }
-          }
-          return null;
-        }
+function findFirstChange(pillarsArr, periods) {
+  const len = Math.min(pillarsArr.length, periods.length);
+  for (let i = 1; i < len; i++) {
+    if (pillarsArr[i] !== pillarsArr[i - 1]) {
+      return periods[i].start;
+    }
+  }
+  // 전환이 없으면 첫 구간 시작일 반환
+  return periods[0].start;
+}
 
-        const sijuFirstChangeDate = findFirstChange(sPillars);
-        const iljuFirstChangeDate = findFirstChange(iPillars);
-        const woljuFirstChangeDate  = findFirstChange(mPillars);
-        const yeonjuFirstChangeDate = findFirstChange(yPillars);
+function findLastChange(pillarsArr, periods, refDate) {
+  // 모든 시작 시점을 오름차순으로 정렬
+  const starts = periods.map(p => p.start.getTime()).sort((a, b) => a - b);
+  // refDate 보다 큰 첫 인덱스
+  let nextIdx = starts.findIndex(ts => ts > refDate.getTime());
+  let currIdx;
+  if (nextIdx === -1) {
+    // refDate가 마지막 이후
+    currIdx = periods.length - 1;
+  } else if (nextIdx > 0) {
+    // 중간 구간
+    currIdx = nextIdx - 1;
+  } else {
+    // 첫 구간 이전
+    currIdx = 0;
+  }
+  // backward로 전환 시점 탐색
+  for (let i = currIdx; i > 0; i--) {
+    if (pillarsArr[i] !== pillarsArr[i - 1]) {
+      return periods[i].start;
+    }
+  }
+  return periods[0].start;
+}
 
-        const sijuLastChangeDate = findLastChange(sPillars, periods, refDate);
-        const iljuLastChangeDate = findLastChange(iPillars, periods, refDate);
-        const woljuLastChangeDate  = findLastChange(mPillars, periods, refDate);
-        const yeonjuLastChangeDate = findLastChange(yPillars, periods, refDate);
+function findNextChangeStart(pillarsArr, periods, refDate) {
+  const starts = periods.map(p => p.start.getTime()).sort((a, b) => a - b);
+  // refDate 이후 첫 인덱스
+  let idx = starts.findIndex(ts => ts > refDate.getTime());
+  if (idx === -1) {
+    // refDate가 마지막 이후
+    idx = periods.length - 1;
+  }
+  // forward로 전환 시점 탐색
+  for (let i = idx; i < pillarsArr.length; i++) {
+    if (i > 0 && pillarsArr[i] !== pillarsArr[i - 1]) {
+      return periods[i].start;
+    }
+  }
+  return periods[periods.length - 1].start;
+}
 
-        const sijuLastChangeDateStart = findNextChangeStart(sPillars, periods, refDate);
-        const iljuLastChangeDateStart = findNextChangeStart(iPillars, periods, refDate);
-        const woljuLastChangeDateStart  = findNextChangeStart(mPillars, periods, refDate);
-        const yeonjuLastChangeDateStart = findNextChangeStart(yPillars, periods, refDate);
+// ------- 전환 시점 변수 할당 -------
+const sijuFirstChangeDate   = findFirstChange(sPillars, periods);
+const iljuFirstChangeDate   = findFirstChange(iPillars, periods);
+const woljuFirstChangeDate  = findFirstChange(mPillars, periods);
+const yeonjuFirstChangeDate = findFirstChange(yPillars, periods);
 
+const sijuLastChangeDate   = findLastChange(sPillars, periods, refDate);
+const iljuLastChangeDate   = findLastChange(iPillars, periods, refDate);
+const woljuLastChangeDate  = findLastChange(mPillars, periods, refDate);
+const yeonjuLastChangeDate = findLastChange(yPillars, periods, refDate);
 
-        // 1) findIndex 후 idx 보정
-        let idx = periods.findIndex(({ start, end }) =>
-          refDate >= start && refDate < end
-        );
-        // 미래(refDate가 마지막 end 이후)일 때
-        if (idx < 0) {
-          idx = periods.length - 1;
-        }
+const sijuLastChangeDateStart   = findNextChangeStart(sPillars, periods, refDate);
+const iljuLastChangeDateStart   = findNextChangeStart(iPillars, periods, refDate);
+const woljuLastChangeDateStart  = findNextChangeStart(mPillars, periods, refDate);
+const yeonjuLastChangeDateStart = findNextChangeStart(yPillars, periods, refDate);
 
-        // 2) 이제 idx는 항상 0 ≤ idx < periods.length
-        const sijuCurrentPillar   = sPillars[idx];
-        const iljuCurrentPillar   = iPillars[idx];
-        const woljuCurrentPillar  = mPillars[idx];
-        const yeonjuCurrentPillar = yPillars[idx];
+// ------- 현재 구간 인덱스 계산 및 현재 간지 할당 -------
+const startTimes = periods.map(p => p.start.getTime()).sort((a, b) => a - b);
+let currIdx = startTimes.findIndex(ts => ts > refDate.getTime());
+if (currIdx === -1) {
+  currIdx = periods.length - 1;
+} else if (currIdx > 0) {
+  currIdx -= 1;
+} else {
+  currIdx = 0;
+}
+
+const sijuCurrentPillar   = sPillars[currIdx];
+const iljuCurrentPillar   = iPillars[currIdx];
+const woljuCurrentPillar  = mPillars[currIdx];
+const yeonjuCurrentPillar = yPillars[currIdx];
+
 
 
         return {
@@ -6053,14 +6080,19 @@ document.addEventListener("DOMContentLoaded", function () {
         원국 연주 간지: <b>${yearPillar}</b><br>
         보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.yeonjuFirstChangeDate)}</b><br>
         보정 후 오늘까지 마지막으로 바뀐 시간: `;
-        if (myowoonResult.yeonjuLastChangeDate == null) {
+        const firstTs = myowoonResult.yeonjuFirstChangeDate.getTime();
+        const lastTs  = myowoonResult.yeonjuLastChangeDate.getTime();
+
+        if (firstTs !== lastTs) {
+          // 한 번도 바뀐 적이 없으므로 “변경없음” 분기
           html += `<b>변경없음</b><br>
-           다음간지 바뀌는 날짜 : <b>${formatByTimeKnown(myowoonResult.yeonjuFirstChangeDate)}</b><br>
-           최종 업데이트 이벤트 간지: <b>변경없음</b>
+            다음간지 바뀌는 날짜 : <b>${formatByTimeKnown(myowoonResult.yeonjuLastChangeDateStart)}</b><br>
+            최종 업데이트 이벤트 간지: <b>변경없음</b>
           `;
         } else {
-          html +=`<br><b>이미 한번 간지가 바뀌었기때문에 다음 시점이 없습니다.</b><br>
-          최종 업데이트 이벤트 간지: <b>${myowoonResult.yeonjuCurrentPillar}</b>
+          // 이미 한 번 이상 바뀐 경우
+          html += `<br><b>이미 한번 간지가 바뀌었기때문에 다음 시점이 없습니다.</b><br>
+            최종 업데이트 이벤트 간지: <b>${myowoonResult.yeonjuCurrentPillar}</b>
           `;
         }
         html +=`<br>
