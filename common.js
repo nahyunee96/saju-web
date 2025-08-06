@@ -3368,9 +3368,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     if (!isPlaceUnknown) {
-      if (birthPlaceInput === "-") {
-        alert("출생지를 선택하세요.");
-        return;
+      if (document.getElementById('inputBirthPlace').value === "" ||
+        document.getElementById('inputBirthPlace').value === "출생지선택") {
+        alert("출생지를 입력해주세요."); return;
       }
     }
 
@@ -4954,10 +4954,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // 4) 그 분 비율을 10일(ms)로 매핑, 반올림
         const rawFirstMapMs = (minuteDiff / CYCLE_MIN) * TEN_DAYS_MS;
         const firstMapMs    = Math.round(rawFirstMapMs);
-
-        // 계산 확인용 로그
-        const days = Math.floor(firstMapMs / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((firstMapMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         
         // 5) periods[0] 만들기
         const periods = [];
@@ -5056,14 +5052,21 @@ document.addEventListener("DOMContentLoaded", function () {
         const yeonjuLastChangeDateStart = findNextChangeStart(yPillars, periods, refDate);
 
 
-        const idx = periods.findIndex(({start, end}) =>
+        // 1) findIndex 후 idx 보정
+        let idx = periods.findIndex(({ start, end }) =>
           refDate >= start && refDate < end
         );
+        // 미래(refDate가 마지막 end 이후)일 때
+        if (idx < 0) {
+          idx = periods.length - 1;
+        }
 
-        const sijuCurrentPillar  = idx >= 0 ? sPillars[idx] : null;
-        const iljuCurrentPillar  = idx >= 0 ? iPillars[idx] : null;
-        const woljuCurrentPillar = idx >= 0 ? mPillars[idx] : null;
-        const yeonjuCurrentPillar= idx >= 0 ? yPillars[idx] : null;
+        // 2) 이제 idx는 항상 0 ≤ idx < periods.length
+        const sijuCurrentPillar   = sPillars[idx];
+        const iljuCurrentPillar   = iPillars[idx];
+        const woljuCurrentPillar  = mPillars[idx];
+        const yeonjuCurrentPillar = yPillars[idx];
+
 
         return {
           sijuCurrentPillar,    
@@ -5824,12 +5827,21 @@ document.addEventListener("DOMContentLoaded", function () {
         const mm = date.getMinutes().toString().padStart(2, "0");
         return `${y}-${m}-${d} ${hh}:${mm}`;
       }
+
+      const dateYMD = document.getElementById('inputBirthday').value.trim();
       
       function formatDateOnly(date) {
-        const y = date.getFullYear();
-        const m = (date.getMonth() + 1).toString().padStart(2, "0");
-        const d = date.getDate().toString().padStart(2, "0");
-        return `${y}.${m}.${d}`;
+        let d;
+        if (date instanceof Date && !isNaN(date.getTime())) {
+          d = date;
+        } else {
+          d = new Date(dateYMD);   // ← 여기서 기본값을 현재 시각으로 설정
+        }
+
+        const y = d.getFullYear();
+        const m = (d.getMonth() + 1).toString().padStart(2, "0");
+        const day = d.getDate().toString().padStart(2, "0");
+        return `${y}.${m}.${day}`;
       }
 
       function formatMonthOnly(date) {
@@ -6343,9 +6355,13 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
     
     function validatePicker(picker) {
-      const selectedDate = new Date(picker.value);
-      //console.log(`👉 validating: ${picker.id}, 입력값: ${picker.value}, 비교값: ${correctedDate.toISOString()}`);
+      // 1) 생일 피커가 아닐 때는 검증하지 않음
+      if (picker.id !== 'inputBirthDatetime') {
+        return true;
+      }
 
+      // 2) 실제 생일 검증 로직
+      const selectedDate = new Date(picker.value);
       if (selectedDate <= correctedDate) {
         alert(`⚠️ ${picker.id}: 생일(보정시 + 1분) 전 시간은 계산할 수 없습니다.`);
         
@@ -6360,12 +6376,11 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       return true;
     }
-    
-    
+
     ['woonChangeBtn', 'woonChangeBtn2'].forEach(btnId => {
       const woonChangeBtn = document.getElementById(btnId);
       if (!woonChangeBtn) return;
-    
+
       woonChangeBtn.addEventListener('click', () => {
         pickerIds.forEach(pickerId => {
           const picker = document.getElementById(pickerId);
@@ -6375,6 +6390,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       });
     });
+
 
     function getRadioBasedDate(baseDate) {
       let d = new Date(baseDate);
