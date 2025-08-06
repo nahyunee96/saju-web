@@ -3326,7 +3326,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let minute = isTimeUnknown ? 30 : parseInt(usedBirthtime.substring(2, 4), 10);
     let birthDate = new Date(year, month - 1, day, hour, minute);
 
-    /*if (birthdayStr.length < 8) {
+    if (birthdayStr.length < 8) {
       alert("생년월일을 YYYYMMDD 형식으로 입력하세요.");
       return;
     }
@@ -3372,7 +3372,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("출생지를 선택하세요.");
         return;
       }
-    }*/
+    }
 
     function updateTypeSpan(groupVal) {
       const typeSpan = document.getElementById('typeSV');
@@ -3450,7 +3450,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ⑥ 최종
     correctedDate = fixedCorrectedDate;
-    localStorage.setItem('correctedDate', correctedDate.toISOString());
+    localStorage.setItem('correctedDate', correctedDate);
 
     if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
       summerTimeBtn.style.display = 'inline-block';
@@ -7362,11 +7362,33 @@ document.addEventListener("DOMContentLoaded", function () {
       if (el.id === 'inputBirthPlace') {
         const curr = el.value.trim();
         if (curr !== originalBirthPlace) {
+          isModified = true;
           fixedCorrectedDate = null;
         }
       }
     })
   );
+
+
+  const bp = document.getElementById('inputBirthPlace');
+  const originalText = bp.textContent.trim();
+
+  // 변경 감시자 설정
+  const mo = new MutationObserver(() => {
+    const curr = bp.textContent.trim();
+    if (curr !== originalText) {
+      isModified = true;
+      fixedCorrectedDate = null;
+      mo.disconnect();  // 한 번 감지하면 충분하다면 옵저버 해제
+    }
+  });
+
+  // 버튼 내부 텍스트 변화(또는 속성 변화)를 감시
+  mo.observe(bp, {
+    characterData: true,
+    childList: true,
+    subtree: true
+  });
 
   document.getElementById("ModifyBtn").addEventListener("click", function(event) {
 
@@ -7538,7 +7560,6 @@ document.addEventListener("DOMContentLoaded", function () {
       updateColorClasses();
 
     });
-
     
     if (!isModified && !confirm("수정된 부분이 없습니다. 이대로 저장하시겠습니까?")) return;
     list[currentModifyIndex] = newData;
