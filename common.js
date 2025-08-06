@@ -2583,6 +2583,10 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".detailViewBtn").forEach(function (button) {
       button.addEventListener("click", function (e) {
 
+        const newBtn = btn.cloneNode(true);
+        newBtn.classList.remove("active");
+        newBtn.innerText = "묘운력(운 전체) 상세보기";
+
         todayWrapper.style.display = "none";
 
         e.stopPropagation();
@@ -4858,76 +4862,35 @@ document.addEventListener("DOMContentLoaded", function () {
         const startPillar = getMonthGanZhi(originalDate, selectedLon); // '임신'
         let switched = false;
         mPillars[0] = startPillar;
-        yPillars[0] = yearPillar;
+        yPillars[0] = yearPillar; // 초기 연주
 
-        // 절기 포인터 세팅
-        //year = correctedDate.getFullYear();
-        //allTerms = getSolarTermBoundaries(year, selectedLon).sort((a, b) => a.date - b.date);
-        //pointer = (dirMode === '순행')
-          //? allTerms.findIndex(t => t.date >= correctedDate)
-          //: allTerms.filter(t => t.date <= correctedDate).length - 1;
-
-      
-
-        // 1. 본격 루프
         for (let i = 1; i < sDates.length; i++) {
           const dt = sDates[i];
-          const corrP = getMonthGanZhi(dt, selectedLon);
+          const corrM = getMonthGanZhi(dt, selectedLon);
 
-          // [A] 월주 전환 스위치
-          if (!switched && corrP !== startPillar) switched = true;
-          mPillars[i] = switched ? corrP : startPillar;
-          
-          if (pointer > 0 && !isBoundaryCase) {
-            year += (dirMode === '순행' ? 1 : -1);
-            allTerms = getSolarTermBoundaries(year, selectedLon).sort((a, b) => a.date - b.date);
-            pointer = (dirMode === '순행') ? 0 : allTerms.length - 1;
+          // — [A] 월주 전환 감지
+          if (!switched && corrM !== startPillar) {
+            switched = true;
+          }
+          mPillars[i] = switched ? corrM : startPillar;
+
+          // — [B] 연주 계산 (입춘 기준)
+          // 1) 입춘 시각 구하기 (절기 코드 315°)
+          const lichun = findSolarTermDate(dt.getFullYear(), 315, selectedLon);
+
+          // 2) 입춘 전/후에 따라 기준 연도 결정
+          //    순행, 역행에 상관없이 입춘을 경계로 연도가 전년도/당해로 구분됩니다.
+          let effYear;
+          if (dt < lichun) {
+            effYear = dt.getFullYear() - 1;
+          } else {
+            effYear = dt.getFullYear();
           }
 
-          if (switched) {
-            //console.log('하와이');
-            year = correctedDate.getFullYear();
-            allTerms = getSolarTermBoundaries(year, selectedLon).sort((a, b) => a.date - b.date);
-            pointer = (dirMode === '순행')
-              ? allTerms.findIndex(t => t.date >= correctedDate)
-              : allTerms.filter(t => t.date <= correctedDate).length - 1;
-          }
-
-          // [B] 절기 포인터 이동 및 연주 계산
-          const term = allTerms[pointer];
-          const hit = (dirMode === '순행') ? (dt >= term.date) : (dt <= term.date);
-
-          // 연주 처리
-          let prevY = yPillars[i - 1];
-          let prevM = mPillars[i - 1];
-          let newY = prevY;
-
-          if (hit) {
-            // 절기 이동
-            pointer += (dirMode === '순행') ? 1 : -1;
-            if (pointer >= allTerms.length || pointer < 0) {
-              year += (dirMode === '순행' ? 1 : -1);
-              allTerms = getSolarTermBoundaries(year, selectedLon).sort((a, b) => a.date - b.date);
-              pointer = (dirMode === '순행') ? 0 : allTerms.length - 1;
-            }
-
-            // 연주 변화 여부 판정
-            const termName = allTerms[pointer].name;
-            const princIdx = principals.indexOf(termName);
-            const mb = monthZhiMap[basis][dirMode][princIdx];
-            const prevBranch = prevM.charAt(1);
-            const targetBranch = yeonjuTargetMap[basis][dirMode];
-
-            if (mb === targetBranch && mb !== prevBranch) {
-              const idx = getGanZhiIndex(prevY);
-              newY = (dirMode === '순행')
-                ? getGanZhiByIndex((idx + 1) % 60)
-                : getGanZhiByIndex((idx + 59) % 60);
-            }
-          }
-
-          yPillars[i] = newY;
+          // 3) 해당 연도/날짜로 연주 가져오기
+          yPillars[i] = getYearGanZhi(dt, effYear);
         }
+
 
 
         function getFirstSijuChange(dt) {
@@ -5803,21 +5766,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${hours}시간 ${minutes}분`;
       }
 
-      function findNearestSolarTerm(correctedDate, mode = "순행") {
-        const year = correctedDate.getFullYear();
-        let terms = getSolarTermBoundaries(year, selectedLon);
       
-        if (mode === "순행") {
-          const next = terms.find(t => t.date > correctedDate);
-          if (next) return next;
-          return getSolarTermBoundaries(year + 1, selectedLon)[0];
-        } else {
-          const prev = [...terms].reverse().find(t => t.date <= correctedDate);
-          if (prev) return prev;
-          const lastPrevYear = getSolarTermBoundaries(year - 1, selectedLon);
-          return lastPrevYear[lastPrevYear.length - 1];
-        }
-      }
   
       function getWoljuTimeDifference(
         correctedDate,
@@ -6064,7 +6013,6 @@ document.addEventListener("DOMContentLoaded", function () {
       html += `
         <li>
           <div class="pillar_title"><strong>월주</strong></div>
-          ${isTimeUnknown ? '(시간이 없어 계산이 정확하지 않습니다.)' : ''}<br>
           원국 월주 간지: <b>${monthPillar}</b><br>
           보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.woljuFirstChangeDate)}</b><br>
           보정 후 오늘까지 마지막으로 바뀐 시간: <b>
@@ -6090,7 +6038,6 @@ document.addEventListener("DOMContentLoaded", function () {
       html += `
       <li>
         <div class="pillar_title"><strong>연주</strong></div>
-        ${isTimeUnknown ? '(시간이 없어 계산이 정확하지 않습니다.)' : ''}<br>
         원국 연주 간지: <b>${yearPillar}</b><br>
         보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.yeonjuFirstChangeDate)}</b><br>
         보정 후 오늘까지 마지막으로 바뀐 시간: `;
