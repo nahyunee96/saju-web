@@ -388,12 +388,12 @@ function findSolarTermDate(year, solarDegree, regionLon = 135) {
 
   // 경도/15시간 → ms
   // ① 한국 범위(127°~135°)면 UTC+9 정시로 고정
-  if (selectedLon >= 127 && selectedLon <= 135) {
+  if (regionLon >= 127 && regionLon <= 135) {
     return new Date(dateUTC.getTime() - 9 * 3600 * 1000);
   }
 
   // ② 해외: 가장 가까운 15° × 1 h → 법정 표준시만 반영
-  const stdOffsetH = Math.round(selectedLon / 15);      // 예) −118.2° → −8
+  const stdOffsetH = Math.round(regionLon / 15);      // 예) −118.2° → −8
   return new Date(dateUTC.getTime() + stdOffsetH * 3600 * 1000);
 }
 
@@ -901,6 +901,12 @@ function getDaewoonData(gender, originalDate, correctedDate) {
     const past = allDates.filter(d => d < correctedDate);
     boundaryDate = past[past.length - 1] || allDates[allDates.length - 1];
   }
+
+  if (selectedLon >= 127 && selectedLon <= 135) {
+    // 18h = 18 * 3600 * 1000 ms
+    boundaryDate = new Date(boundaryDate.getTime() + 18 * 3600 * 1000);
+    //console.log("★★ daewoon hack boundaryDate:", boundaryDate.toISOString());
+  }
   
   const diffMs = Math.abs(boundaryDate - correctedDate);
   const diffDays = diffMs / oneDayMs;
@@ -908,6 +914,7 @@ function getDaewoonData(gender, originalDate, correctedDate) {
   
   // 절기 경계선 상황에서 대운수 조정
   if (isBoundaryCase) {
+    //console.log('콘솔테스트');
     // 역행이면서 절기가 넘어간 경우, 대운수를 매우 작게 조정
     if (!isForward) {
       baseDecimal = 1 / 12; // 약 1개월 정도로 설정
@@ -4807,7 +4814,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const isBoundaryCase = originalMonthPillar !== correctedMonthPillar;
         
         // 묘운 시작은 항상 원래 월주(한국 기준)로 시작
-        const startingMonthPillar = isBoundaryCase ? correctedMonthPillar : originalMonthPillar;
+        const startingMonthPillar = isBoundaryCase ? originalMonthPillar : correctedMonthPillar;
         
         const mPillars = [ startingMonthPillar ]; // 처음에는 원래 월주(임신) 사용
         const yPillars = [ yearPillar ];
@@ -4834,17 +4841,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        const yeonjuTargetMap = {
-          insi:   { 순행: "卯", 역행: "寅" },
-          jasi:   { 순행: "卯", 역행: "寅" },
-          yajasi: { 순행: "卯", 역행: "寅" }
-        };
-
-        const principals = [
-          "입춘","경칩","청명","입하",
-          "망종","소서","입추","백로",
-          "한로","입동","대설","소한"
-        ];
 
         // 시작값 설정
         const startPillar = getMonthGanZhi(originalDate, selectedLon);
