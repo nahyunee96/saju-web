@@ -387,8 +387,14 @@ function findSolarTermDate(year, solarDegree, regionLon = 135) {
         dateUTC = new Date(Date.UTC(y, m - 1, d, hh, mm));
 
   // 경도/15시간 → ms
-  const tzMs = (regionLon / 15) * 3600 * 1000;
-  return new Date(dateUTC.getTime() + tzMs);
+  // ① 한국 범위(127°~135°)면 UTC+9 정시로 고정
+  if (selectedLon >= 127 && selectedLon <= 135) {
+    return new Date(dateUTC.getTime() - 9 * 3600 * 1000);
+  }
+
+  // ② 해외: 가장 가까운 15° × 1 h → 법정 표준시만 반영
+  const stdOffsetH = Math.round(selectedLon / 15);      // 예) −118.2° → −8
+  return new Date(dateUTC.getTime() + stdOffsetH * 3600 * 1000);
 }
 
 const MONTH_ZHI = ["인", "묘", "진", "사", "오", "미", "신", "유", "술", "해", "자", "축"];
@@ -401,7 +407,7 @@ let solarBoundariesCache = new Map();
 function clearSolarTermCache() {
   solarTermCache.clear();
   solarBoundariesCache.clear();
-  console.log('🗑️ 절기 캐시 삭제');
+  //console.log('🗑️ 절기 캐시 삭제');
 }
 
 /* 1) 원본 백업 -------------------------- */
@@ -4734,9 +4740,6 @@ document.addEventListener("DOMContentLoaded", function () {
         hourPillar
       }) {
         
-        
-        
-        
         const iljuTarget = {
           insi:   { 순행:'寅', 역행:'寅' },
           jasi:   { 순행:'子', 역행:'子' },
@@ -4831,21 +4834,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        const monthZhiMap = {
-          insi: {
-            순행: ["寅","卯","辰","巳","午","未","申","酉","戌","亥","子","丑"],
-            역행: ["丑","子","亥","戌","酉","申","未","午","巳","辰","卯","寅"]
-          },
-          jasi: {
-            순행: ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],
-            역행: ["亥","戌","酉","申","未","午","巳","辰","卯","寅","丑","子"]
-          },
-          yajasi: {
-            순행: ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],
-            역행: ["亥","戌","酉","申","未","午","巳","辰","卯","寅","丑","子"]
-          }
-        };
-
         const yeonjuTargetMap = {
           insi:   { 순행: "卯", 역행: "寅" },
           jasi:   { 순행: "卯", 역행: "寅" },
@@ -4858,28 +4846,30 @@ document.addEventListener("DOMContentLoaded", function () {
           "한로","입동","대설","소한"
         ];
 
-        // 0. 시작값
-        const startPillar = getMonthGanZhi(originalDate, selectedLon); // '임신'
+        // 시작값 설정
+        const startPillar = getMonthGanZhi(originalDate, selectedLon);
         let switched = false;
         mPillars[0] = startPillar;
-        yPillars[0] = yearPillar; // 초기 연주
+        yPillars[0] = yearPillar;
 
+        // 각 날짜별 월주, 연주 계산
         for (let i = 1; i < sDates.length; i++) {
           const dt = sDates[i];
+          
+          // 월주 계산 - 거주지에 따른 절기 사용
           const corrM = getMonthGanZhi(dt, selectedLon);
 
-          // — [A] 월주 전환 감지
+          // 월주 전환 감지
           if (!switched && corrM !== startPillar) {
             switched = true;
           }
           mPillars[i] = switched ? corrM : startPillar;
 
-          // — [B] 연주 계산 (입춘 기준)
-          // 1) 입춘 시각 구하기 (절기 코드 315°)
+          // 연주 계산 (입춘 기준)
+          // 입춘 시각 구하기 - 거주지에 따른 절기 사용
           const lichun = findSolarTermDate(dt.getFullYear(), 315, selectedLon);
 
-          // 2) 입춘 전/후에 따라 기준 연도 결정
-          //    순행, 역행에 상관없이 입춘을 경계로 연도가 전년도/당해로 구분됩니다.
+          // 입춘 전/후에 따라 기준 연도 결정
           let effYear;
           if (dt < lichun) {
             effYear = dt.getFullYear() - 1;
@@ -4887,7 +4877,7 @@ document.addEventListener("DOMContentLoaded", function () {
             effYear = dt.getFullYear();
           }
 
-          // 3) 해당 연도/날짜로 연주 가져오기
+          // 해당 연도/날짜로 연주 가져오기
           yPillars[i] = getYearGanZhi(dt, effYear);
         }
 
@@ -7937,5 +7927,3 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     }
   });
 });
-
-
