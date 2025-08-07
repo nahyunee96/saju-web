@@ -3412,12 +3412,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    if (isTimeUnknown || isTimeUnknown && isPlaceUnknown) {
-      console.log('시간 없는 명식 저장');
-      setTimeout(()=>{
-        clearHyphenElements();
-      });
-    }
 
     function updateTypeSpan(groupVal) {
       const typeSpan = document.getElementById('typeSV');
@@ -6350,33 +6344,6 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       updateCalenderFunc(refDate);
       updateExplanDetail(myowoonResult, hourPillar);
       
-      function clearHyphenElements(rootEl) {
-        const root = typeof rootEl === 'string'
-          ? document.querySelector(rootEl)
-          : rootEl;
-        if (!root) return;
-      
-        const classesToRemove = [
-          "b_green","b_red","b_white","b_black","b_yellow","active"
-        ];
-      
-        root.querySelectorAll('li.siju_con4 .hanja_con > p')
-          .forEach(p => {
-            if (p.textContent.trim() === "-") {
-              const hanja = p.parentElement;
-              hanja.classList.remove(...classesToRemove);
-              p.classList.remove(...classesToRemove);
-            }
-          });
-      
-        root.querySelectorAll('li.siju_con4 > p')
-          .forEach(p => {
-            if (p.textContent.trim() === "-") {
-              p.classList.remove(...classesToRemove);
-            }
-          });
-      }
-      
       document.querySelectorAll('.siju_con4').forEach(root => {
         clearHyphenElements(root);
       });
@@ -6782,34 +6749,6 @@ const yeonjuCurrentPillar = yPillars[currIdx];
         }
         updateFunc(rawRefDate);
 
-        function clearHyphenElements(rootEl) {
-          const root = typeof rootEl === 'string'
-            ? document.querySelector(rootEl)
-            : rootEl;
-          if (!root) return;
-        
-          const classesToRemove = [
-            "b_green","b_red","b_white","b_black","b_yellow","active"
-          ];
-        
-          root.querySelectorAll('li.siju_con .hanja_con > p')
-            .forEach(p => {
-              if (p.textContent.trim() === "-") {
-                // 부모 .hanja_con 에서 클래스 제거
-                const hanja = p.parentElement;
-                hanja.classList.remove(...classesToRemove);
-                // p 자신도 제거
-                p.classList.remove(...classesToRemove);
-              }
-            });
-        
-          root.querySelectorAll('li.siju_con > p')
-            .forEach(p => {
-              if (p.textContent.trim() === "-") {
-                p.classList.remove(...classesToRemove);
-              }
-            });
-        }
 
         document.querySelectorAll('.siju_con').forEach(root => {
           clearHyphenElements(root);
@@ -7016,6 +6955,20 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       document.getElementById("resultWrapper").style.display = "block";
       //backBtn.style.display = "";
       setBtnCtrl.style.display = "block";
+    }
+
+    if (isTimeUnknown || isTimeUnknown && isPlaceUnknown) {
+      function clearAllColorClasses() {
+        const classesToRemove = [
+          "b_green","b_red","b_white","b_black","b_yellow","active"
+        ];
+        document.querySelectorAll('.siju_con .hanja_con, .siju_con p').forEach(el => {
+          el.classList.remove(...classesToRemove);
+        });
+      }
+      setTimeout(()=>{
+        clearAllColorClasses();
+      }, 100)
     }
     
   });
