@@ -1764,6 +1764,8 @@ function migrateStoredRecords() {
 
 document.addEventListener("DOMContentLoaded", function () {
 
+
+
   // 오늘의 간지
   // ── 헬퍼: 주어진 접두사와 간지 문자열을 받아, 십신·간·지·藏干을 채워주는 함수 ──
   function fillGz(stemPrefix, branchPrefix, gz, baseDayStem) {
@@ -1914,11 +1916,6 @@ document.addEventListener("DOMContentLoaded", function () {
   updateEumYangClasses();
 }
 
-  /*const dateChangeBtn = document.getElementById('dateChangeBtn');
-  dateChangeBtn.addEventListener('click', e => {
-    e.preventDefault();       // 혹시 form 안에 있다면 제출 방지
-    updateTodayGanZhi();      // 버튼 누르면 간지 재계산
-  });*/
 
   // 2) (기존) 날짜 입력, 시간없애기 체크박스 변경에도 갱신
   document.getElementById('dateTimeInput')
@@ -1932,6 +1929,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 3) 초기에 한 번 실행
   updateTodayGanZhi();  
+
+  function clearHyphenElements(rootEl) {
+    const root = typeof rootEl === 'string'
+      ? document.querySelector(rootEl)
+      : rootEl;
+    if (!root) return;
+  
+    const classesToRemove = [
+      "b_green","b_red","b_white","b_black","b_yellow","active"
+    ];
+  
+    // 1) hanja_con 내부 <p> (음양) 검사
+    root.querySelectorAll('li.siju_con3 .hanja_con > p')
+      .forEach(p => {
+        if (p.textContent.trim() === "-") {
+          const hanja = p.parentElement;
+          hanja.classList.remove(...classesToRemove);
+          p.classList.remove(...classesToRemove);
+        }
+      });
+  
+    root.querySelectorAll('li.siju_con3 > p')
+      .forEach(p => {
+        if (p.textContent.trim() === "-") {
+          p.classList.remove(...classesToRemove);
+        }
+      });
+  }
 
   localStorage.removeItem('correctedDate');
 
@@ -3387,6 +3412,13 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    if (isTimeUnknown) {
+      console.log('시간 없는 명식 저장');
+      setTimeout(()=>{
+        clearHyphenElements();
+      });
+    }
+
     function updateTypeSpan(groupVal) {
       const typeSpan = document.getElementById('typeSV');
       if (typeSpan) {
@@ -3435,15 +3467,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ② DST 구간
     const iv = getSummerTimeInterval(originalDate.getFullYear());
-
-    // ③ placeBtn.dataset.lon 이 없을 때를 대비한 fallback
-    const placeName    = placeBtn.value;
-    const storedMap    = JSON.parse(localStorage.getItem('cityLongitudes') || '{}');
-    // if (isNaN(selectedLon)) {
-    //   // 저장된 명식에는 dataset.lon 이 없으므로 cityLongitudes 맵에서 꺼내 쓰기
-    //   selectedLon = storedMap[placeName] 
-    //             ?? storedMap[placeName.split(' ')[0]];
-    // }
 
     // ④ 보정시 계산
     fixedCorrectedDate = adjustBirthDateWithLon(
@@ -6279,33 +6302,6 @@ const yeonjuCurrentPillar = yPillars[currIdx];
 
       updateOriginalAndMyowoonVr(refDate);
 
-      function clearHyphenElements(rootEl) {
-        const root = typeof rootEl === 'string'
-          ? document.querySelector(rootEl)
-          : rootEl;
-        if (!root) return;
-      
-        const classesToRemove = [
-          "b_green","b_red","b_white","b_black","b_yellow","active"
-        ];
-      
-        // 1) hanja_con 내부 <p> (음양) 검사
-        root.querySelectorAll('li.siju_con3 .hanja_con > p')
-          .forEach(p => {
-            if (p.textContent.trim() === "-") {
-              const hanja = p.parentElement;
-              hanja.classList.remove(...classesToRemove);
-              p.classList.remove(...classesToRemove);
-            }
-          });
-      
-        root.querySelectorAll('li.siju_con3 > p')
-          .forEach(p => {
-            if (p.textContent.trim() === "-") {
-              p.classList.remove(...classesToRemove);
-            }
-          });
-      }
       
       document.querySelectorAll('.siju_con3').forEach(root => {
         clearHyphenElements(root);
@@ -6427,22 +6423,36 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     function smoothUpdate(manualSiju) {
       const containers = document.querySelectorAll('.siju_con');
       if (!containers.length) return;
-    
-      containers.forEach(c => c.style.opacity = '0');
-    
+
+      let ended = 0;
       const onEnd = e => {
         if (e.propertyName !== 'opacity') return;
+        ended++;
+
+        // 실제로 트랜지션이 발생한 횟수(여기서는 2)만큼 기다리기
+        if (ended < /* 트랜지션 발생 엘리먼트 수 */2) return;
+
         containers.forEach(c => c.removeEventListener('transitionend', onEnd));
-    
+
         updateFortuneWithManualHour(manualSiju);
         updateFunc(refDate);
-    
-        setTimeout(() =>
+
+        requestAnimationFrame(() =>
           containers.forEach(c => c.style.opacity = '1')
         );
       };
-      containers[0].addEventListener('transitionend', onEnd);
+
+      containers.forEach(c => c.addEventListener('transitionend', onEnd));
+
+      requestAnimationFrame(() => {
+        containers.forEach(c => {
+          c.offsetWidth;
+          c.style.opacity = '0';
+        });
+      });
     }
+
+
     
     function parseTimeStr(tstr) {
       return {
@@ -6529,35 +6539,6 @@ const yeonjuCurrentPillar = yPillars[currIdx];
               updateMyowoonSection(resetResult);
               updateExplanDetail(resetResult, hourPillar);
               registerMyowoonMoreHandler(hourSplit = null);
-
-              function clearHyphenElements(rootEl) {
-                const root = typeof rootEl === 'string'
-                  ? document.querySelector(rootEl)
-                  : rootEl;
-                if (!root) return;
-              
-                const classesToRemove = [
-                  "b_green","b_red","b_white","b_black","b_yellow","active"
-                ];
-              
-                root.querySelectorAll('li.siju_con5 .hanja_con > p')
-                  .forEach(p => {
-                    if (p.textContent.trim() === "-") {
-                      // 부모 .hanja_con 에서 클래스 제거
-                      const hanja = p.parentElement;
-                      hanja.classList.remove(...classesToRemove);
-                      // p 자신도 제거
-                      p.classList.remove(...classesToRemove);
-                    }
-                  });
-              
-                root.querySelectorAll('li.siju_con5 > p')
-                  .forEach(p => {
-                    if (p.textContent.trim() === "-") {
-                      p.classList.remove(...classesToRemove);
-                    }
-                  });
-              }
               
               document.querySelectorAll('.siju_con5').forEach(root => {
                 clearHyphenElements(root);
@@ -6597,15 +6578,6 @@ const yeonjuCurrentPillar = yPillars[currIdx];
 
               const { hour, minute } = parseTimeStr(timeMap[lbl]);
               const orig = new Date(solarY, solarM - 1, solarD, hour, minute);
-              // ③ placeBtn.dataset.lon 이 없을 때를 대비한 fallback
-              const placeName    = placeBtn.value;
-              const storedMap    = JSON.parse(localStorage.getItem('cityLongitudes') || '{}');
-              let selectedLon    = parseFloat(placeBtn.dataset.lon);
-              // if (isNaN(selectedLon)) {
-              //   // 저장된 명식에는 dataset.lon 이 없으므로 cityLongitudes 맵에서 꺼내 쓰기
-              //   selectedLon = storedMap[placeName] 
-              //             ?? storedMap[placeName.split(' ')[0]];
-              // }
               const corr = adjustBirthDateWithLon(orig, selectedLon, isPlaceUnknown);
               correctedDate = (corr instanceof Date && !isNaN(corr.getTime())) ? corr : orig;
               document.getElementById("inputBirthtime").value = timeMap[lbl];

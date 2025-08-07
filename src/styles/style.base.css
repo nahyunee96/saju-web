@@ -63,8 +63,8 @@ select {
 .white { color: #a5a5a5 !important; }
 .black { color: #252525 !important; }
 
-.b_red { background-color: #E40101 !important; color: #fff; }
-.b_green { background-color: #008E00 !important; color: #fff;}
-.b_yellow { background-color: #E6BF28 !important; color: #fff;}
-.b_white { background-color: #a5a5a5 !important; color: #fff;}
-.b_black { background-color: #252525 !important; color: #fff;}
+.b_red { background-color: #E40101 !important; color: #fff !important; }
+.b_green { background-color: #008E00 !important; color: #fff!important; }
+.b_yellow { background-color: #E6BF28 !important; color: #fff!important; }
+.b_white { background-color: #a5a5a5 !important; color: #fff!important; }
+.b_black { background-color: #252525 !important; color: #fff!important; }
