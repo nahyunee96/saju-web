@@ -3912,8 +3912,16 @@ document.addEventListener("DOMContentLoaded", function () {
                                   + monthsOffset / 12;
         
         const startYear = Math.floor(sewoonStartDecimal);
+
+        function getSewoonStartYear(selectedLon) {
+            if (selectedLon >= 127 && selectedLon <= 135) {
+            return startYear;
+          } else {
+            return startYear - 1;
+          }
+        }
         
-        globalState.sewoonStartYear = startYear;
+        globalState.sewoonStartYear = getSewoonStartYear(selectedLon);
     
         const years = Array.from({ length: 10 }, (_, j) => startYear + j);
         const lastYear = years[years.length - 1];
@@ -4453,8 +4461,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!selectedDaewoon) return;
 
         const daewoonNum = selectedDaewoon.age; 
-        const sewoonStartYearDecimal = decimalBirthYear + daewoonNum;
-        globalState.sewoonStartYear = Math.floor(sewoonStartYearDecimal + 1);
+        const sewoonStartYearDecimal = Math.floor(decimalBirthYear + daewoonNum);
+
+        function getSewoonStartYear(selectedLon) {
+            if (selectedLon >= 127 && selectedLon <= 135) {
+            return sewoonStartYearDecimal + 1;
+          } else {
+            return sewoonStartYearDecimal - 1;
+          }
+        }
+        
+        globalState.sewoonStartYear = getSewoonStartYear(selectedLon);
         
         // 세운(운) 리스트 생성
         const sewoonList = [];
