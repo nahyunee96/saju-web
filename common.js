@@ -4054,7 +4054,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const yearStem = yearPillar.charAt(0);
       const yearStemIndex = Cheongan.indexOf(yearStem);
       const monthNumber = currentMonthIndex + 1;
-      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 4) % 10;
+      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 2) % 10;
       const monthStem = Cheongan[monthStemIndex];
       const monthBranch = MONTH_ZHI[monthNumber - 1];
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
@@ -4085,7 +4085,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const yearStem = yearPillar.charAt(0);
       const yearStemIndex = Cheongan.indexOf(yearStem);
       const monthNumber = currentMonthIndex + 1;
-      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 4) % 10;
+      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 2) % 10;
       const monthStem = Cheongan[monthStemIndex];
       const monthBranch = MONTH_ZHI[monthNumber - 1];
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
@@ -4108,7 +4108,8 @@ document.addEventListener("DOMContentLoaded", function () {
       updateColorClasses();
     }
 
-    function updateMonthlyWoonByToday(refDate) {
+    function updateMonthlyWoonByToday(refDate, selectedLon) {
+
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
       const computedYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
       const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
@@ -4126,9 +4127,10 @@ document.addEventListener("DOMContentLoaded", function () {
       updateMonthlyWoon(computedYear, currentMonthIndex, baseDayStem);
     }
     
-    updateMonthlyWoonByToday(refDate);
+    updateMonthlyWoonByToday(refDate, selectedLon);
 
-    function updateMonthlyWoonByTodayTop(refDate) {
+    function updateMonthlyWoonByTodayTop(refDate, selectedLon) {
+
       const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
       //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
       const computedYear = (refDate < ipChun) ? refDate.getFullYear() - 1 : refDate.getFullYear();
@@ -4147,7 +4149,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateMonthlyWoonTop(computedYear, currentMonthIndex, baseDayStem);
     }
 
-    updateMonthlyWoonByTodayTop(refDate);
+    updateMonthlyWoonByTodayTop(refDate, selectedLon);
     
     document.addEventListener("click", function (event) {
       if (globalState.isNavigating) return;
