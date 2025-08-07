@@ -3412,7 +3412,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    if (isTimeUnknown) {
+    if (isTimeUnknown || isTimeUnknown && isPlaceUnknown) {
       console.log('시간 없는 명식 저장');
       setTimeout(()=>{
         clearHyphenElements();
@@ -4181,6 +4181,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     updateMonthlyWoonByTodayTop(refDate, selectedLon);
+
+    const sewoonBox = document.querySelector(".lucky.sewoon");
+    if (sewoonBox) { sewoonBox.style.display = "grid"; }
+    const wolwoonBox = document.querySelector(".lucky.wolwoon");
+    const wongookLM = document.getElementById("wongookLM");
+    if (wolwoonBox && wongookLM && !wongookLM.classList.contains("no_wolwoon")) {
+      if (wolwoonBox) { wolwoonBox.style.display = "grid"; }
+    }
     
     document.addEventListener("click", function (event) {
       if (globalState.isNavigating) return;
