@@ -4044,8 +4044,8 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyData(refDateYear, today) {
       const ipChun = findSolarTermDate(todayObj.getFullYear(), 315, selectedLon);
       const effectiveYear = (today >= ipChun) ? refDateYear : refDateYear - 1;
-      const yearPillar = getYearGanZhi(new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate()), effectiveYear);
-      const yearStem = yearPillar.charAt(0);
+      const yearPillarStem = getYearGanZhi(new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate()), effectiveYear);
+      const yearStem = yearPillarStem.charAt(0);
       const yearStemIndex = Cheongan.indexOf(yearStem);
       for (let i = 0; i < 12; i++) {
         const monthNumber = i + 1;
@@ -4056,7 +4056,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const tenGodBranch = getTenGodForBranch(monthBranch, baseDayStem);
         const displayMonth = (monthNumber < 12) ? (monthNumber + 1) + "월" : "1월";
         const unseong = getTwelveUnseong(baseDayStem, monthBranch);
-        console.log(dayPillar, yearPillar);
         const shinsal = getTwelveShinsalDynamic(dayPillar, yearPillar, monthBranch);
         setText("MC_" + (i + 1), stemMapping[monthStem]?.hanja || "-");
         setText("MJ_" + (i + 1), branchMapping[monthBranch]?.hanja || "-");
@@ -4071,8 +4070,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyWoon(computedYear, currentMonthIndex, baseDayStem) {
       const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
-      const cycleStartDate = boundaries[0].date;
-      const yearPillar = getYearGanZhi(cycleStartDate, computedYear);
       const yearStem = yearPillar.charAt(0);
       const yearStemIndex = Cheongan.indexOf(yearStem);
       const monthNumber = currentMonthIndex + 1;
@@ -4082,6 +4079,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
       const tenGodBranch = getTenGodForBranch(monthBranch, baseDayStem);
       const unseong = getTwelveUnseong(baseDayStem, monthBranch);
+      console.log(dayPillar, yearPillar);
       const shinsal = getTwelveShinsalDynamic(dayPillar, yearPillar, monthBranch);
       setText("WMtHanja", stemMapping[monthStem]?.hanja || "-");
       setText("WMtHanguel", stemMapping[monthStem]?.hanguel || "-");
@@ -4100,8 +4098,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyWoonTop(computedYear, currentMonthIndex, baseDayStem) {
       const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
-      const cycleStartDate = boundaries[0].date;
-      const yearPillar = getYearGanZhi(cycleStartDate, computedYear);
       const yearStem = yearPillar.charAt(0);
       const yearStemIndex = Cheongan.indexOf(yearStem);
       const monthNumber = currentMonthIndex + 1;
