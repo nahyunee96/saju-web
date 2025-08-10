@@ -4042,12 +4042,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyData(refDateYear, today) {
       const ipChun = findSolarTermDate(todayObj.getFullYear(), 315, selectedLon);
       const effectiveYear = (today >= ipChun) ? refDateYear : refDateYear - 1;
-      const yearPillarStem = getYearGanZhi(new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate()), effectiveYear);
+      const yearPillarStem = getYearGanZhi(new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate()), effectiveYear);
       const yearStem = yearPillarStem.charAt(0);
       const yearStemIndex = Cheongan.indexOf(yearStem);
       for (let i = 0; i < 12; i++) {
         const monthNumber = i + 1;
-        const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 4) % 10;
+        const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 2) % 10;
         const monthStem = Cheongan[monthStemIndex];
         const monthBranch = MONTH_ZHI[monthNumber - 1];
         const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
@@ -4068,14 +4068,9 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyWoon(computedYear, currentMonthIndex, baseDayStem) {
       const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
-      const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
-      const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
-      const yearStem = getYearGanZhi(new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate()), effectiveYear);
-      const yearStemIndex = Cheongan.indexOf(yearStem);
-      const monthNumber = currentMonthIndex + 1;
-      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 6) % 10;
-      const monthStem = Cheongan[monthStemIndex];
-      const monthBranch = MONTH_ZHI[monthNumber - 1];
+      const monthlyPillar = getMonthGanZhiRef(refDate, baseDayStem);
+      const monthStem = monthlyPillar.charAt(0);
+      const monthBranch = monthlyPillar.charAt(1);
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
       const tenGodBranch = getTenGodForBranch(monthBranch, baseDayStem);
       const unseong = getTwelveUnseong(baseDayStem, monthBranch);
@@ -4097,14 +4092,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyWoonTop(computedYear, currentMonthIndex, baseDayStem) {
       const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
-      const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
-      const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
-      const yearStem = getYearGanZhi(new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate()), effectiveYear);
-      const yearStemIndex = Cheongan.indexOf(yearStem);
-      const monthNumber = currentMonthIndex + 1;
-      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 6) % 10;
-      const monthStem = Cheongan[monthStemIndex];
-      const monthBranch = MONTH_ZHI[monthNumber - 1];
+
+      const monthlyPillar = getMonthGanZhiRef(refDate, baseDayStem);
+      const monthStem = monthlyPillar.charAt(0);
+      const monthBranch = monthlyPillar.charAt(1);
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
       const tenGodBranch = getTenGodForBranch(monthBranch, baseDayStem);
       const unseong = getTwelveUnseong(baseDayStem, monthBranch);
