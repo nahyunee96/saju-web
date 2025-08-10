@@ -2726,6 +2726,9 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (isPlaceUnknown) {
           summerTimeBtn.style.display = 'none';
           bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+        } else if (isTimeUnknown) {
+          summerTimeBtn.style.display = 'none';
+          bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">시간모름</b>`;
         } else {
           summerTimeBtn.style.display = 'none';
           bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
@@ -3486,17 +3489,23 @@ document.addEventListener("DOMContentLoaded", function () {
       summerTimeBtn.style.display = 'none';
     }
 
-    if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
-      bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
-      isSummerOn = true;
+    if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
+      summerTimeBtn.style.display = 'inline-block';
+      bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+    } else if (isPlaceUnknown && isTimeUnknown) {
+      summerTimeBtn.style.display = 'none';
+      bjTimeTextEl.innerHTML = `보정없음 : <b id="resbjTime">시간모름</b>`;
     } else if (isPlaceUnknown) {
-      bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
+      summerTimeBtn.style.display = 'none';
+      bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+    } else if (isTimeUnknown) {
+      summerTimeBtn.style.display = 'none';
+      bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">시간모름</b>`;
     } else {
-      bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</b>`;
+      summerTimeBtn.style.display = 'none';
+      bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
     }
-    
 
-    
     summerTimeBtn.addEventListener('click', function () {
 
       //fixedCorrectedDate = null;
@@ -7419,6 +7428,9 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     } else if (isPlaceUnknown) {
       summerTimeBtn.style.display = 'none';
       bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
+    } else if (isTimeUnknown) {
+      summerTimeBtn.style.display = 'none';
+      bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">시간모름</b>`;
     } else {
       summerTimeBtn.style.display = 'none';
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
