@@ -6382,53 +6382,61 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       });
     });
 
+    function updateDayPillarByPrev(baseDate) {
+      const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+      d.setDate(d.getDate() - 1);
 
-    function getRadioBasedDate(baseDate) {
-      let d = new Date(baseDate);
-      if (document.getElementById("jasi").checked) {
-        d.setHours(23, 0, 0, 0);
-      } else if (document.getElementById("yajasi").checked) {
-        d.setHours(0, 0, 0, 0);
-      } else if (document.getElementById("insi").checked) {
-        d.setHours(3, 0, 0, 0);
+      const dayPillar = getDayGanZhi(d);
+      baseDayStem = dayPillar.charAt(0);
+      const split     = splitPillar(dayPillar);
+      updateStemInfo("Dt", split, split.gan);
+      updateBranchInfo("Db", split.ji, split.gan);
+      setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
+      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
+
+      
+    }
+
+    function updateDayPillarByCurr(baseDate) {
+      const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+
+      const dayPillar = getDayGanZhi(d);
+      baseDayStem = dayPillar.charAt(0);
+      const split     = splitPillar(dayPillar);
+      updateStemInfo("Dt", split, split.gan);
+      updateBranchInfo("Db", split.ji, split.gan);
+      setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
+      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
+    }
+
+    
+    function updateDayPillar(manualSiju) {
+      const cd = correctedDate instanceof Date && !isNaN(correctedDate.getTime())
+        ? correctedDate
+        : new Date(birthYear, birthMonth-1, birthDay);
+      const base = new Date(cd.getFullYear(), cd.getMonth(), cd.getDate());
+    
+      const branch = manualSiju.charAt(1);
+      const useInsi = document.getElementById('insi').checked;
+      if (["자","축"].includes(branch) && useInsi) {
+        base.setDate(base.getDate() - 1);
       }
-      return d;
+    
+      const dayPillar = getDayGanZhi(base);
+      const split     = splitPillar(dayPillar);
+      updateStemInfo("Dt", split, baseDayStem);
+      updateBranchInfo("Db", split.ji, baseDayStem);
+      setText("Db12ws", getTwelveUnseong(baseDayStem, split.ji));
+      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
     }
 
     function smoothUpdate(manualSiju) {
-      const containers = document.querySelectorAll('.siju_con');
-      if (!containers.length) return;
-
-      let ended = 0;
-      const onEnd = e => {
-        if (e.propertyName !== 'opacity') return;
-        ended++;
-
-        // 실제로 트랜지션이 발생한 횟수(여기서는 2)만큼 기다리기
-        if (ended < /* 트랜지션 발생 엘리먼트 수 */2) return;
-
-        containers.forEach(c => c.removeEventListener('transitionend', onEnd));
-
+      requestAnimationFrame(function(){
         updateFortuneWithManualHour(manualSiju);
         updateFunc(refDate);
-
-        requestAnimationFrame(() =>
-          containers.forEach(c => c.style.opacity = '1')
-        );
-      };
-
-      containers.forEach(c => c.addEventListener('transitionend', onEnd));
-
-      requestAnimationFrame(() => {
-        containers.forEach(c => {
-          c.offsetWidth;
-          c.style.opacity = '0';
-        });
-      });
+      }, 100);
     }
 
-
-    
     function parseTimeStr(tstr) {
       return {
         hour:   parseInt(tstr.slice(0,2), 10),  // "00"→0, "12"→12
@@ -6572,11 +6580,10 @@ const yeonjuCurrentPillar = yPillars[currIdx];
                 gender
               };
               const myResult = getMyounPillarsVr(myData2, refDate, selectTimeValue, hourPillar);
-              setTimeout(()=>{
-                updateMyowoonSection(myResult);
-                updateExplanDetail(myResult, siju);
-                registerMyowoonMoreHandler(hourSplit2)
-              }, 180);
+              updateMyowoonSection(myResult);
+              updateExplanDetail(myResult, siju);
+              registerMyowoonMoreHandler(hourSplit2);
+
               
               hourPillar = siju;
             }
@@ -6593,63 +6600,7 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     const birthMonth = month;
     const birthDay   = day;
 
-    function updateDayPillarByPrev(baseDate) {
-      const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
-      d.setDate(d.getDate() - 1);
-
-      const dayPillar = getDayGanZhi(d);
-      const split     = splitPillar(dayPillar);
-      updateStemInfo("Dt", split, split.gan);
-      updateBranchInfo("Db", split.ji, split.gan);
-      setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
-      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
-    }
-
-
-    function updateDayPillarByCurr(baseDate) {
-      const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
-
-      const dayPillar = getDayGanZhi(d);
-      const split     = splitPillar(dayPillar);
-
-      updateStemInfo("Dt", split, split.gan);
-      updateBranchInfo("Db", split.ji, split.gan);
-      setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
-      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
-    }
-
-    function updateDayPillarByNext(baseDate) {
-      const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
-      d.setDate(d.getDate() + 1);
-
-      const dayPillar = getDayGanZhi(d);
-      const split     = splitPillar(dayPillar);
-
-      updateStemInfo("Dt", split, split.gan);
-      updateBranchInfo("Db", split.ji, split.gan);
-      setText("Db12ws", getTwelveUnseong(split.gan, split.ji));
-      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
-    }
     
-    function updateDayPillar(manualSiju) {
-      const cd = correctedDate instanceof Date && !isNaN(correctedDate.getTime())
-        ? correctedDate
-        : new Date(birthYear, birthMonth-1, birthDay);
-      const base = new Date(cd.getFullYear(), cd.getMonth(), cd.getDate());
-    
-      const branch = manualSiju.charAt(1);
-      const useInsi = document.getElementById('insi').checked;
-      if (["자","축"].includes(branch) && useInsi) {
-        base.setDate(base.getDate() - 1);
-      }
-    
-      const dayPillar = getDayGanZhi(base);
-      const split     = splitPillar(dayPillar);
-      updateStemInfo("Dt", split, baseDayStem);
-      updateBranchInfo("Db", split.ji, baseDayStem);
-      setText("Db12ws", getTwelveUnseong(baseDayStem, split.ji));
-      setText("Db12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, split.ji));
-    }
     
     function updateFortuneWithManualHour(manualSiju) {
       manualOverride2 = true;
@@ -6674,13 +6625,13 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       const prevCorrectedDate = correctedDate;
       correctedDate = newCorrected;
       const branchName  = manualSiju.charAt(1);
-      requestAnimationFrame(() => {
-        if (branchName === "자" || branchName === "축") {
-          updateDayPillarByPrev(correctedDate); 
-        } else {
-          updateDayPillarByCurr(correctedDate);
-        }
-      });
+
+      if (branchName === "자" || branchName === "축") {
+        updateDayPillarByPrev(correctedDate); 
+      } else {
+        updateDayPillarByCurr(correctedDate);
+      }
+ 
       
       if (!manualOverride2) {
         updateDayPillar(currentHourPillar);
@@ -6724,9 +6675,8 @@ const yeonjuCurrentPillar = yPillars[currIdx];
           if ((isJasi && correctedDate.getHours() >= 23)
           && (yajasi && correctedDate.getHours() >= 0)
           && (isInsi && correctedDate.getHours() > 3)) {
-            requestAnimationFrame(()=>{
-              updateDayPillarByPrev(correctedDate);
-            });
+            updateDayPillarByPrev(correctedDate);
+
             radioFunc();
           }
         }
