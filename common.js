@@ -62,11 +62,11 @@ let cityLongitudes = {};
 let selectedLon = null;
 
 const placeBtn  = document.getElementById('inputBirthPlace');
-const modal     = document.getElementById('mapModal');
-const closeMap  = document.getElementById('closeMap');
-const mapCloseBtn  = document.getElementById('mapCloseBtn');
+const modal = document.getElementById('mapModal');
+const closeMap = document.getElementById('closeMap');
+const mapCloseBtn = document.getElementById('mapCloseBtn');
 const searchBox = document.getElementById('searchBox');
-const suggList  = document.getElementById('suggestions');
+const suggList = document.getElementById('suggestions');
 let map, marker, debounceTimer;
 
 placeBtn.addEventListener('click', () => {
@@ -1763,8 +1763,6 @@ function migrateStoredRecords() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-
-
 
   // 오늘의 간지
   // ── 헬퍼: 주어진 접두사와 간지 문자열을 받아, 십신·간·지·藏干을 채워주는 함수 ──
@@ -4070,16 +4068,17 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyWoon(computedYear, currentMonthIndex, baseDayStem) {
       const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
-      const yearStem = yearPillar.charAt(0);
+      const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
+      const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
+      const yearStem = getYearGanZhi(new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate()), effectiveYear);
       const yearStemIndex = Cheongan.indexOf(yearStem);
       const monthNumber = currentMonthIndex + 1;
-      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 2) % 10;
+      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 6) % 10;
       const monthStem = Cheongan[monthStemIndex];
       const monthBranch = MONTH_ZHI[monthNumber - 1];
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
       const tenGodBranch = getTenGodForBranch(monthBranch, baseDayStem);
       const unseong = getTwelveUnseong(baseDayStem, monthBranch);
-      console.log(dayPillar, yearPillar);
       const shinsal = getTwelveShinsalDynamic(dayPillar, yearPillar, monthBranch);
       setText("WMtHanja", stemMapping[monthStem]?.hanja || "-");
       setText("WMtHanguel", stemMapping[monthStem]?.hanguel || "-");
@@ -4098,10 +4097,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyWoonTop(computedYear, currentMonthIndex, baseDayStem) {
       const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
-      const yearStem = yearPillar.charAt(0);
+      const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
+      const effectiveYear = (refDate >= ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
+      const yearStem = getYearGanZhi(new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate()), effectiveYear);
       const yearStemIndex = Cheongan.indexOf(yearStem);
       const monthNumber = currentMonthIndex + 1;
-      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 2) % 10;
+      const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 6) % 10;
       const monthStem = Cheongan[monthStemIndex];
       const monthBranch = MONTH_ZHI[monthNumber - 1];
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
@@ -6961,6 +6962,10 @@ const yeonjuCurrentPillar = yPillars[currIdx];
         clearAllColorClasses();
       }, 100)
     }
+
+    setTimeout(()=>{
+      woonChangeBtn.click();
+    }, 100);
     
   });
 
