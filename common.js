@@ -660,11 +660,80 @@ function getHourStem(dayPillar, hourBranchIndex) {
     : Cheongan[(dayStemIndex * 2 + hourBranchIndex + 2) % 10];
 }
 
+function getHourBranchUsingArray(dateObj) {
+  if (!(dateObj instanceof Date)) {
+    dateObj = new Date(dateObj);
+  }
+  
+  let totalMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
+  
+  for (let i = 0; i < timeRanges.length; i++) {
+    const { branch, start, end } = timeRanges[i];
+    if (start < end) {
+      if (totalMinutes >= start && totalMinutes < end) {
+        return branch;
+      }
+    } else {
+      if (totalMinutes >= start || totalMinutes < end) {
+        return branch;
+      }
+    }
+  }
+  return null;
+}
+
 function splitPillar(Set) {
   return (Set && Set.length >= 2) ? { gan: Set.charAt(0), ji: Set.charAt(1) } : { gan: "-", ji: "-" };
 }
 
+function getHourGanZhi(dateObj, opts = {}) {
+  if (!(dateObj instanceof Date)) dateObj = new Date(dateObj);
+  const {
+    dayPillar,
+    dayGanZhiResolver,
+    zishiStartMinutes = 23 * 60,
+    useTimeRanges = false,
+    timeRanges,
+    adjustDayAt23 = true
+  } = opts;
 
+  // 1) 시지 인덱스/문자
+  let hourBranchIdx, hourBranchChar;
+  if (useTimeRanges) {
+    hourBranchChar = getHourBranchUsingArray(dateObj, timeRanges);
+    if (!hourBranchChar) throw new Error('getHourGanZhi: timeRanges 기반 시지 계산 실패');
+    hourBranchIdx = Jiji.indexOf(hourBranchChar);
+    if (hourBranchIdx < 0) throw new Error(`getHourGanZhi: 알 수 없는 지지 '${hourBranchChar}'`);
+  } else {
+    hourBranchIdx = getHourBranchIndex(dateObj, zishiStartMinutes);
+    hourBranchChar = Jiji[hourBranchIdx];
+  }
+
+  // 2) 일주(특히 일간) 확보
+  let resolvedDayPillar = dayPillar;
+  if (!resolvedDayPillar) {
+    // 23시 이후는 다음날 일간 사용(전통 옵션)
+    let baseForDay = dateObj;
+    if (adjustDayAt23 && dateObj.getHours() >= Math.floor(zishiStartMinutes / 60)) {
+      baseForDay = new Date(dateObj.getTime() + 24 * 60 * 60 * 1000);
+    }
+    const resolver =
+      (typeof dayGanZhiResolver === 'function' && dayGanZhiResolver)
+      || (typeof getDayGanZhiByDate === 'function' && getDayGanZhiByDate)
+      || (typeof getDayGanZhi === 'function' && getDayGanZhi);
+
+    if (!resolver) {
+      throw new Error('getHourGanZhi: 일주를 구할 resolver가 없음. opts.dayPillar를 넘겨줘.');
+    }
+    resolvedDayPillar = resolver(baseForDay); // 예: '갑자'
+  }
+
+  // 3) 시간 천간
+  const hourStemChar = getHourStem(resolvedDayPillar, hourBranchIdx);
+
+  // 4) 시주 조립
+  return hourStemChar + hourBranchChar;
+}
 
 const stemMapping = {
   "갑": { hanja: "甲", hanguel: "갑목", hanguelShort: "갑", eumYang: "양" },
@@ -995,28 +1064,6 @@ const timeRanges = [
   { branch: '해', hanja: '亥', start: 21 * 60, end: 23 * 60 }
 ];
 
-function getHourBranchUsingArray(dateObj) {
-  if (!(dateObj instanceof Date)) {
-    dateObj = new Date(dateObj);
-  }
-  
-  let totalMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
-  
-  for (let i = 0; i < timeRanges.length; i++) {
-    const { branch, start, end } = timeRanges[i];
-    if (start < end) {
-      if (totalMinutes >= start && totalMinutes < end) {
-        return branch;
-      }
-    } else {
-      if (totalMinutes >= start || totalMinutes < end) {
-        return branch;
-      }
-    }
-  }
-  return null;
-}
-
 function getEffectiveYearForSet(dateObj) {
   if (!(dateObj instanceof Date)) {
     dateObj = new Date(dateObj);
@@ -1103,29 +1150,20 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   //console.log('selectedLon', selectedLon);
   const monthPillar = getMonthGanZhi(correctedDate, selectedLon);
 
-  if (isJasi && correctedDate.getHours() >= 23 || isJasi && (correctedDate.getHours() < 3)){
-    if (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) {
+  if (isJasi && correctedDate.getHours() >= 23){
+    if (correctedDate.getHours() >= 0 || correctedDate.getHours() < 3) {
       const daypillar = getDayGanZhi(nominalBirthDate);
       return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+    } 
+  } else if (isInsi && correctedDate.getHours() < 3 || isInsi && correctedDate.getHours() >= 23) {
+    if (correctedDate.getHours() >= 0 || correctedDate.getHours() < 3) {
+      const daypillar = getDayGanZhi(nominalBirthDatePrev);
+      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
     } else {
-      const daypillar = getDayGanZhi(nominalBirthDate2);
+      const daypillar = getDayGanZhi(nominalBirthDate);
       return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
     }
     
-  } else if (isInsi && (correctedDate.getHours() < 3 || isInsi && correctedDate.getHours() >= 23)){
-    if (hourBranchIndex === 0) {
-      if (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3) {
-        const daypillar = getDayGanZhi(nominalBirthDatePrev);
-        return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-      } else {
-        const daypillar = getDayGanZhi(nominalBirthDate);
-        return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-      }
-      
-    } else {
-      const daypillar = getDayGanZhi(nominalBirthDatePrev);
-      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-    }
   } else {
     const daypillar = getDayGanZhi(nominalBirthDate);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
@@ -2480,6 +2518,23 @@ document.addEventListener("DOMContentLoaded", function () {
         hourPillar  = item.isTimeUnknown ? "-" : item.hourPillar;
       }
 
+      const itemGetHours = new Date(item.correctedDate).getHours();
+
+      if (itemGetHours >= 23) {
+        if (item.selectedTime2 === 'jasi') {
+          const dateL = new Date(item.year, item.month - 1, item.day, item.hour, item.minute);
+          const dateL2 = new Date(item.year, item.month - 1, item.day - 1, item.hour, item.minute);
+          dayPillar   = getDayGanZhi(dateL);
+          hourPillar  = getHourGanZhi(dateL2);
+        }
+        if (item.selectedTime2 === 'yajasi' || item.selectedTime2 === 'insi') {
+          
+          const dateL = new Date(item.year, item.month - 1, item.day - 1, item.hour, item.minute);
+          dayPillar   = getDayGanZhi(dateL);
+          hourPillar  = getHourGanZhi(dateL);
+        }
+      }
+
       const starState = item.isFavorite ? '★ ON' : '☆ OFF';
 
       li.innerHTML += `
@@ -3603,7 +3658,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!isTimeUnknown) {
         if (hourSplit.ji === "자" || hourSplit.ji === "축") {
           
-          checkOption.style.display = 'block';
+          //checkOption.style.display = 'block';
         } else {
           checkOption.style.display = 'none';
         }
@@ -5756,7 +5811,7 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     if (isTimeUnknown) {
       document.querySelector("#checkOption").style.display = "none";
     } else {
-      document.querySelector("#checkOption").style.display = "block"; // or "block" 등
+      //document.querySelector("#checkOption").style.display = "block"; // or "block" 등
     }
 
     function updateExplanDetail(myowoonResult, hourPillar) {
@@ -6219,6 +6274,7 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       let correctedRadio;
 
       const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
+      currentMyeongsik = savedList;
       const hasSaved = 
         typeof currentModifyIndex === "number" &&
         savedList[currentModifyIndex] !== undefined;
@@ -6661,55 +6717,65 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       renderSijuButtonsVr = renderSijuButtons();
     }
 
-    document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
-      radio.addEventListener("change", function() {
-        const selectedValue = this.value;
-        const calcRadio = document.querySelector('input[name="time2"][value="' + selectedValue + '"]');
-        if (calcRadio) {
-          calcRadio.checked = true;
-        }
+    // document.querySelectorAll('input[name="timeChk02"]').forEach(function(radio) {
+    //   radio.addEventListener("change", function() {
+    //     const selectedValue = this.value;
+    //     const calcRadio = document.querySelector('input[name="time2"][value="' + selectedValue + '"]');
+    //     if (calcRadio) {
+    //       calcRadio.checked = true;
+    //     }
 
-        const picker = isCoupleMode ? getCurrentPicker2() : getCurrentPicker();
-        const rawRefDate = (picker && picker.value) ? new Date(picker.value) : new Date();
+    //     const branchIndex = getHourBranchIndex(correctedDate);
+    //     const branchName = Jiji[branchIndex];
 
-        const branchIndex = getHourBranchIndex(correctedDate);
-        const branchName = Jiji[branchIndex];
+    //     if (branchName === "자" || branchName === "축") {
+    //       const yajasiElem = document.getElementById('yajasi');
+    //       const yajasi = yajasiElem && yajasiElem.checked;
+    //       const jasiElem = document.getElementById('jasi');
+    //       const isJasi = jasiElem && jasiElem.checked;
+    //       const insiElem = document.getElementById('insi');
+    //       const isInsi = insiElem && insiElem.checked;
 
-        if (branchName === "자" || branchName === "축") {
-          const yajasiElem = document.getElementById('yajasi');
-          const yajasi = yajasiElem && yajasiElem.checked;
-          const jasiElem = document.getElementById('jasi');
-          const isJasi = jasiElem && jasiElem.checked;
-          const insiElem = document.getElementById('insi');
-          const isInsi = insiElem && insiElem.checked;
+    //       if ((isJasi && correctedDate.getHours() >= 23) && (isJasi && correctedDate.getHours() < 24)
+    //       || (yajasi && correctedDate.getHours() >= 0)
+    //       || (isInsi && correctedDate.getHours() < 3)) {
+    //         updateDayPillarByPrev(correctedDate);
+    //         setTimeout(()=>{
+    //           console.log('baseDayStem22', baseDayStem)
+    //           updateFunc(refDate);
+    //         }, 100);
+    //         radioFunc();
+    //       } else {
+    //         updateDayPillarByCurr(correctedDate);
+    //         setTimeout(()=>{
+    //           console.log('baseDayStem23', baseDayStem)
+    //           updateFunc(refDate);
+    //         }, 100);
+    //       }
+    //     }
+    //     setTimeout(()=>{
+    //       updateFunc(refDate);
+    //     }, 100);
 
-          if ((isJasi && correctedDate.getHours() >= 23)
-          && (yajasi && correctedDate.getHours() >= 0)
-          && (isInsi && correctedDate.getHours() > 3)) {
-            updateDayPillarByPrev(correctedDate);
 
-            radioFunc();
-          }
-        }
-        updateFunc(rawRefDate);
+    //     document.querySelectorAll('.siju_con').forEach(root => {
+    //       clearHyphenElements(root);
+    //     });
 
+    //     //setTimeout(function(){
+    //       const newResult = getMyounPillars(myData, refDate, selectedValue, hourPillar);
+    //       updateExplanDetail(newResult, hourPillar);
+    //       updateMyowoonSection(newResult);
+    //     //});
+    //     if (globalState.originalTimeUnknown) {  
+    //       requestAnimationFrame(function(){
+    //         renderSijuButtons();
+    //       });
+    //     }
 
-        document.querySelectorAll('.siju_con').forEach(root => {
-          clearHyphenElements(root);
-        });
-
-        setTimeout(function(){
-          const newResult = getMyounPillars(myData, rawRefDate, selectedValue, hourPillar);
-          updateExplanDetail(newResult, hourPillar);
-          updateMyowoonSection(newResult);
-        });
-        if (globalState.originalTimeUnknown) {  
-          requestAnimationFrame(function(){
-            renderSijuButtons();
-          });
-        }
-      });
-    });    
+    //     updateEumYangClasses();
+    //   });
+    // });    
 
     document.getElementById("woonVer1Change").click();
     document.getElementById("woonChangeBtn").click();
@@ -7092,13 +7158,13 @@ const yeonjuCurrentPillar = yPillars[currIdx];
 
     if (selected.selectedTime2 === "jasi") {
       document.getElementById("jasi").checked = true;
-      document.getElementById("timeChk02_01").checked = true;
+      //document.getElementById("timeChk02_01").checked = true;
     } else if (selected.selectedTime2 === "yajasi") {
       document.getElementById("yajasi").checked = true;
-      document.getElementById("timeChk02_02").checked = true;
+      //document.getElementById("timeChk02_02").checked = true;
     } else if (selected.selectedTime2 === "insi") {
       document.getElementById("insi").checked = true;
-      document.getElementById("timeChk02_03").checked = true;
+      //document.getElementById("timeChk02_03").checked = true;
     }
 
     const monthTypeSel = document.getElementById("monthType");
