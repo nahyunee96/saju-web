@@ -69,7 +69,7 @@
     <div id="infoModal5">
       <div class="inner">
         <div class="title">
-          <span>!! 안내드립니다 !! <b>만세력 UPDATE 360 ver.</b></span>
+          <span>!! 안내드립니다 !! <b>만세력 UPDATE 378 ver.</b></span>
         </div>
         <div class="content">
           <ul class="infoContent">
@@ -155,7 +155,7 @@
         <button class="black_btn close_btn" id="setCloaseBtn"><span>&times;</span></button>
         <ul class="" >
           <li class="title">각종 설정</li>
-          <li class="content" id="checkOption">
+          <li class="content" id="checkOption" style="display: none;">
             <div class="radio_wrap">
               <ul class="check_option" >
                 <li class="time_chk02">
@@ -228,17 +228,17 @@
                   </span>
                 </div>
                 <span>
-                  <input type="checkbox" id="s12CtrlType03" checked/>
+                  <input type="checkbox" id="s12CtrlType03"/>
                   <label for="s12CtrlType03" >개화론 적용여부</label>
                 </span>
               </div>
               <div class="s12_ctrl_zone s12_ctrl_zone_type">
                 <span>
-                  <input type="radio" name="s12CtrlType2" id="s12CtrlType04"/>
+                  <input type="radio" name="s12CtrlType2" id="s12CtrlType04" checked/>
                   <label for="s12CtrlType04">십이신살 일지기준</label>
                 </span>
                 <span>
-                  <input type="radio" name="s12CtrlType2" id="s12CtrlType05" checked/>
+                  <input type="radio" name="s12CtrlType2" id="s12CtrlType05" />
                   <label for="s12CtrlType05" >십이신살 연지기준</label>
                 </span>
               </div>
@@ -529,7 +529,7 @@
         </div>
 
         <div class="today_meongsik_wrapper" id="todayWrapper">
-          <span class="pharases ver" style="position: absolute; right: 3%; transform: translateY(-100%);">Ver.360</span>
+          <span class="pharases ver" style="position: absolute; right: 3%; transform: translateY(-100%);">Ver.378</span>
           <div class="woonkuk">
             <p class="buga_title"><span>오늘의 사주</span></p>
             <ul class="grid_box grid_box_1 todaySaju">
@@ -1966,32 +1966,18 @@
         </div>
       </div>
       <!-- 1) Leaflet CSS/JS -->
-      <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-      />
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
       <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 
       <!-- 2) Leaflet-Geosearch CSS/Bundle -->
-      <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css"
-      />
+      <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css" />
       <script src="https://cdn.jsdelivr.net/npm/leaflet-geosearch@4.2.0/dist/bundle.min.js"></script>
-      <script
-        src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"
-      ></script>
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-      />
+      <script src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-      <script src="
-      https://cdn.jsdelivr.net/npm/chinese-date-formatter@1.0.7/index.min.js
-      "></script>
+      <script src=" https://cdn.jsdelivr.net/npm/chinese-date-formatter@1.0.7/index.min.js"></script>
       <script type="module" src="./common.js?new"></script>
-      <!-- <script src="./calc.js"></script> -->
     </div>
 
     <script>
