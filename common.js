@@ -2717,16 +2717,18 @@ document.addEventListener("DOMContentLoaded", function () {
         correctedDate = fixedCorrectedDate;
         localStorage.setItem('correctedDate', correctedDate.toISOString());
 
+        console.log(item.isTimeUnknown, item.isPlaceUnknown);
+
         if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
           summerTimeBtn.style.display = 'inline-block';
           bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
-        } else if (isPlaceUnknown && isTimeUnknown) {
+        } else if (item.isPlaceUnknown && item.isTimeUnknown) {
           summerTimeBtn.style.display = 'none';
           bjTimeTextEl.innerHTML = `보정없음 : <b id="resbjTime">시간모름</b>`;
-        } else if (isPlaceUnknown) {
+        } else if (item.isPlaceUnknown) {
           summerTimeBtn.style.display = 'none';
           bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
-        } else if (isTimeUnknown) {
+        } else if (item.isTimeUnknown) {
           summerTimeBtn.style.display = 'none';
           bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">시간모름</b>`;
         } else {
