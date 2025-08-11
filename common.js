@@ -215,8 +215,6 @@ function adjustBirthDateWithLon(dateObj, cityLon, isPlaceUnknown = false) {
   );
 }
 
-
-
 function getSummerTimeInterval(year) {
   let interval = null;
   switch (year) {
@@ -686,31 +684,18 @@ function splitPillar(Set) {
   return (Set && Set.length >= 2) ? { gan: Set.charAt(0), ji: Set.charAt(1) } : { gan: "-", ji: "-" };
 }
 
-function getHourGanZhi(dateObj, opts = {}) {
+function getHourGanZhi(dateObj) {
   if (!(dateObj instanceof Date)) dateObj = new Date(dateObj);
-  const {
-    dayPillar,
-    dayGanZhiResolver,
-    zishiStartMinutes = 23 * 60,
-    useTimeRanges = false,
-    timeRanges,
-    adjustDayAt23 = true
-  } = opts;
 
   // 1) 시지 인덱스/문자
   let hourBranchIdx, hourBranchChar;
-  if (useTimeRanges) {
-    hourBranchChar = getHourBranchUsingArray(dateObj, timeRanges);
-    if (!hourBranchChar) throw new Error('getHourGanZhi: timeRanges 기반 시지 계산 실패');
-    hourBranchIdx = Jiji.indexOf(hourBranchChar);
-    if (hourBranchIdx < 0) throw new Error(`getHourGanZhi: 알 수 없는 지지 '${hourBranchChar}'`);
-  } else {
-    hourBranchIdx = getHourBranchIndex(dateObj, zishiStartMinutes);
-    hourBranchChar = Jiji[hourBranchIdx];
-  }
+  hourBranchChar = getHourBranchUsingArray(dateObj, timeRanges);
+  hourBranchIdx = Jiji.indexOf(hourBranchChar);
+
+  const dayPillars = getDayGanZhi(dateObj);
 
   // 2) 일주(특히 일간) 확보
-  let resolvedDayPillar = dayPillar;
+  let resolvedDayPillar = dayPillars;
   if (!resolvedDayPillar) {
     // 23시 이후는 다음날 일간 사용(전통 옵션)
     let baseForDay = dateObj;
@@ -1082,8 +1067,11 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
 	originalDate = new Date(year, month - 1, day, hour, minute);
   const effectiveYearForSet = getEffectiveYearForSet(correctedDate);
 	const nominalBirthDate = new Date(year, month - 1, day);
-  const nominalBirthDate2 = new Date(year, month - 1, day + 1);
-	const nominalBirthDatePrev = new Date(year, month - 1, day - 1);
+	const nominalBirthDatePrev = new Date(year, month - 1, day - 1, hour, minute);
+  const nominalBirthDateNext = new Date(year, month - 1, day + 1, hour, minute);
+  const nominalBirthDateTime = adjustBirthDateWithLon(nominalBirthDate, selectedLon, isPlaceUnknown);
+  const nominalBirthDatePrevTime = adjustBirthDateWithLon(nominalBirthDatePrev, selectedLon, isPlaceUnknown);
+  const nominalBirthDateNextTime = adjustBirthDateWithLon(nominalBirthDateNext, selectedLon, isPlaceUnknown);
 	
 	const yajasiElem = document.getElementById('yajasi');
 	const yajasi = yajasiElem && yajasiElem.checked;
@@ -1117,57 +1105,46 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
   if (!(correctedDate instanceof Date)) {
     correctedDate = new Date(correctedDate);
   }
-  const solarTime = new Date(correctedDate.getTime() + 1 * 60000);
-  let hourDayPillar;
-  if (hourBranchIndex === 0) {
-    if (solarTime < boundaryDate) {
-      hourBranchIndex = 11;
-    } else {
-      hourDayPillar = getDayGanZhi(nominalBirthDate);
-    }
-  } else if(hourBranchIndex === 1) {
-    hourBranchIndex = 1;
-  }
 
-  if (hourBranchIndex === 0){
-    hourDayPillar = getDayGanZhi(nominalBirthDate);
-  } else {
-    hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-  }
+  //const hourPillar = hourStem + Jiji[hourBranchIndex];
 
-  if (hourBranchIndex === 0 && (yajasi && (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3)) 
-  || hourBranchIndex === 0 && (isJasi && (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3))
-  || hourBranchIndex === 0 && (isInsi && (correctedDate.getHours() >= 0 && correctedDate.getHours() < 3))){
-    hourDayPillar = getDayGanZhi(nominalBirthDatePrev);
-  } else if (hourBranchIndex === 0 && (yajasi && correctedDate.getHours() < 24) 
-  || hourBranchIndex === 0 && (isJasi && correctedDate.getHours() < 24)) {
-    hourDayPillar = getDayGanZhi(nominalBirthDate);
-  }
-  const hourStem = getHourStem(hourDayPillar, hourBranchIndex);
-  const hourPillar = hourStem + Jiji[hourBranchIndex];
-
+  let daypillar = getDayGanZhi(nominalBirthDate);
+  let hourPillar = getHourGanZhi(correctedDate);
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
-  //console.log('selectedLon', selectedLon);
   const monthPillar = getMonthGanZhi(correctedDate, selectedLon);
+  const correctedTime = new Date(correctedDate).getHours();
+  const originalTime = new Date(originalDate).getHours();
 
-  if (isJasi && correctedDate.getHours() >= 23){
-    if (correctedDate.getHours() >= 0 || correctedDate.getHours() < 3) {
-      const daypillar = getDayGanZhi(nominalBirthDate);
-      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-    } 
-  } else if (isInsi && correctedDate.getHours() < 3 || isInsi && correctedDate.getHours() >= 23) {
-    if (correctedDate.getHours() >= 0 || correctedDate.getHours() < 3) {
-      const daypillar = getDayGanZhi(nominalBirthDatePrev);
-      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-    } else {
-      const daypillar = getDayGanZhi(nominalBirthDate);
-      return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-    }
-    
-  } else {
-    const daypillar = getDayGanZhi(nominalBirthDate);
+
+  if (isJasi && (correctedTime >= 0 && correctedTime < 3)){
+    hourPillar = getHourGanZhi(nominalBirthDatePrevTime);
     return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  }	
+  } else if (yajasi && (correctedTime >= 0 && correctedTime < 3)) {
+    daypillar = getDayGanZhi(nominalBirthDatePrevTime);
+    hourPillar = getHourGanZhi(nominalBirthDatePrevTime);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  } else if (isInsi && (correctedTime >= 0 && correctedTime < 3)) {
+    daypillar = getDayGanZhi(nominalBirthDatePrevTime);
+    hourPillar = getHourGanZhi(nominalBirthDatePrevTime);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  } else if (yajasi && (correctedTime >= 23 && correctedTime < 24 && originalTime === 0)) {
+    hourPillar = getHourGanZhi(nominalBirthDateTime);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  } else if (isInsi && (correctedTime >= 23 && correctedTime < 24 && originalTime === 0)) {
+    hourPillar = getHourGanZhi(nominalBirthDateTime);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  } else if (isJasi && (correctedTime >= 23 && correctedTime < 24 && originalTime === 0)) {
+    daypillar = getDayGanZhi(nominalBirthDateNextTime);
+    hourPillar = getHourGanZhi(nominalBirthDateTime);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  } else if ((isJasi && (correctedTime >= 23 && correctedTime < 24)) || 
+            (yajasi && (correctedTime >= 23 && correctedTime < 24)) ||
+            (isInsi && (correctedTime >= 23 && correctedTime < 24))) {
+    hourPillar = getHourGanZhi(nominalBirthDatePrevTime);
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  } else {
+    return `${yearPillar} ${monthPillar} ${daypillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
+  }
   
 }
 
@@ -2217,142 +2194,6 @@ document.addEventListener("DOMContentLoaded", function () {
   saved.forEach(ensureGroupOption);
   updateMeGroupOption();
 
-  document.getElementById("saveBtn").addEventListener("click", function () {
-    const birthday = document.getElementById("inputBirthday").value.trim();
-    const birthtimeRaw = document.getElementById("inputBirthtime").value.trim();
-    isTimeUnknown = document.getElementById("bitthTimeX").checked;
-    isPlaceUnknown = document.getElementById("bitthPlaceX").checked;
-    const gender = document.getElementById("genderMan").checked ? "남" : "여";
-    const birthPlaceInput = document.getElementById("inputBirthPlace").value;
-    const name = document.getElementById("inputName").value.trim() || "이름없음";
-  
-    const year = parseInt(birthday.substring(0, 4), 10);
-    const month = parseInt(birthday.substring(4, 6), 10);
-    const day = parseInt(birthday.substring(6, 8), 10);
-    const hour = isTimeUnknown ? 4 : parseInt(birthtimeRaw.substring(0, 2), 10);
-    const minute = isTimeUnknown ? 30 : parseInt(birthtimeRaw.substring(2, 4), 10);
-
-    const monthType = document.getElementById('monthType').value.trim() || '양력';
-
-    const savedBirthPlace = isPlaceUnknown ? "기본출생지 : 서울" : birthPlaceInput;
-  
-    const displayHour = isTimeUnknown ? "-" : birthtimeRaw.substring(0, 2);
-    const displayMinute = isTimeUnknown ? "-" : birthtimeRaw.substring(2, 4);
-    const displayBirthtimeFormatted = `${displayHour}${displayMinute}`;
-  
-    const computedResult = getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, correctedDate, selectedLon);
-    const pillarsPart = computedResult.split(", ")[0]; 
-    const pillars = pillarsPart.split(" ");
-    const yearPillar = pillars[0] || "";
-    const monthPillar = pillars[1] || "";
-    const dayPillar = pillars[2] || "";
-    const hourPillar = isTimeUnknown ? "-" : (pillars[3] || "");
-  
-    function clearHourUI() {
-      document.getElementById("inputBirthtime").value = "";
-      updateStemInfo("Ht", { gan: "-", ji: "-" }, baseDayStem);
-      updateBranchInfo("Hb", "-", baseDayStem);
-      ["Hb12ws","Hb12ss"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = "-";
-      });
-    }
-
-    if (isTimeUnknown) {
-      const resbjTimeEl = document.getElementById('resbjTime');
-      resbjTimeEl.innerText = '보정시모름';
-      correctedDate = new Date(year, month - 1, day, false);
-      clearHourUI();
-    } 
-
-    function formatTime(date) {
-      if (!date) return "-";
-      const hours = date.getHours();
-      const minutes = date.getMinutes();
-      return `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes}`;
-    }
-
-    const age = correctedDate ? calculateAge(correctedDate) : "-";
-    const birthdayTime = correctedDate ? formatTime(correctedDate) : "?";
-
-    const selectedTime2 = document.querySelector('input[name="time2"]:checked').value || "";
-
-    let groupVal = document.getElementById('inputMeGroup').value;
-    ensureGroupOption(groupVal);
-    const customGroups = JSON.parse(localStorage.getItem('customGroups') || '[]');
-    if (!customGroups.includes(groupVal)) {
-      customGroups.push(groupVal);
-      localStorage.setItem('customGroups', JSON.stringify(customGroups));
-    }
-    
-    const newData = {
-      birthday: birthday,
-      monthType: monthType,
-      birthtime: displayBirthtimeFormatted,
-      year: year,
-      month: month,
-      day: day,
-      hour: hour,
-      minute: minute, 
-      gender: gender,
-      birthPlace: savedBirthPlace,
-      name: name,
-      result: computedResult,
-      yearPillar: yearPillar,
-      monthPillar: monthPillar,
-      dayPillar: dayPillar,
-      hourPillar: hourPillar,
-      age: age,
-      birthdayTime,
-      isTimeUnknown,
-      isPlaceUnknown,
-      selectedTime2,
-      group: groupVal,
-      createdAt: Date.now(),
-      isFavorite : false,
-      birthPlaceFull,
-      birthPlaceLongitude: cityLon,
-      correctedDate: correctedDate,
-    };
-
-    latestMyeongsik = newData;
-
-    // 저장 중복 검사
-    const raw = localStorage.getItem('myeongsikList');
-    const list = JSON.parse(raw === null || raw === 'undefined' ? '[]' : raw);
-
-    
-    const alreadySaved = list.some(function (item) {
-      return item.birthday === newData.birthday &&
-            item.birthtime === newData.birthtime &&
-            item.gender === newData.gender &&
-            item.birthPlace === newData.birthPlace &&
-            //item.name === newData.name &&
-            item.selectedTime2 === newData.selectedTime2;  
-    });
-    if (alreadySaved) {
-      const confirmSave = confirm("이미 같은 정보의 명식이 존재합니다. 한 번 더 저장하시겠습니까?");
-      if (!confirmSave) return;
-    }
-  
-    // 저장
-    // 이제 list는 항상 배열이므로 안전하게 조작
-    list.push(makeNewData());
-    localStorage.setItem('myeongsikList', JSON.stringify(list));
-    loadSavedMyeongsikList();
-    alert("저장이 성공적으로 완료 되었습니다.");
-
-    updateMeGroupOption(selectedVal = null);
-    updateSaveBtn();
-
-    const savedList = JSON.parse(localStorage.getItem("myeongsikList")) || [];
-    if (savedList.length >= 2) {
-      coupleModeBtnV.style.display = '';   
-    } else {
-      coupleModeBtnV.style.display = 'none'; 
-    }
-  });
-
   const inputMeGroupSel = document.getElementById('inputMeGroup');
   const groupEctWrap    = document.getElementById('groupEct');  // div.input_group.group_ect
   const inputMeGroupEct = document.getElementById('inputMeGroupEct');
@@ -2771,8 +2612,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         correctedDate = fixedCorrectedDate;
         localStorage.setItem('correctedDate', correctedDate.toISOString());
-
-        console.log(item.isTimeUnknown, item.isPlaceUnknown);
 
         if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
           summerTimeBtn.style.display = 'inline-block';
@@ -3638,6 +3477,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const yearSplit  = splitPillar(yearPillar);
     const monthSplit = splitPillar(monthPillar);
     const daySplit   = splitPillar(dayPillar);
+    
     daySplitGlobal = daySplit;
     let hourSplit  = isTimeUnknown ? null : splitPillar(hourPillar);
     hourSplitGlobal = hourSplit;
