@@ -717,7 +717,6 @@ function getHourGanZhi(dateObj, dayPillar) {
 
   // 3) 시간 천간
   const hourStemChar = getHourStem(dayPillar, hourBranchIndex);
-  console.log('hourStemChar', hourStemChar);
 
   // 4) 시주 조립
   return hourStemChar + hourBranch;
@@ -1113,7 +1112,6 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
 
   let dayPillar = getDayGanZhi(nominalBirthDate);
   let hourPillar = getHourGanZhi(correctedDate, dayPillar);
-  console.log(hourPillar);
   const yearPillar = getYearGanZhi(correctedDate, effectiveYearForSet);
   const monthPillar = getMonthGanZhi(correctedDate, selectedLon);
   const correctedTime = new Date(correctedDate).getHours();
@@ -1124,32 +1122,29 @@ function getFourPillarsWithDaewoon(year, month, day, hour, minute, gender, corre
     hourPillar = getHourGanZhi(nominalBirthDatePrevTime, dayPillar);
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } else if (yajasi && (correctedTime >= 0 && correctedTime < 3)) {
-    dayPillar = getDayGanZhi(nominalBirthDatePrevTime);
-    hourPillar = getHourGanZhi(nominalBirthDatePrevTime, dayPillar);
+    dayPillar = getDayGanZhi(nominalBirthDateTime);
+    const dayPillars = getDayGanZhi(nominalBirthDateTime);
+    //hourPillar = getHourGanZhi(nominalBirthDateTime, dayPillars);
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } else if (isInsi && (correctedTime >= 0 && correctedTime < 3)) {
     dayPillar = getDayGanZhi(nominalBirthDatePrevTime);
-    hourPillar = getHourGanZhi(nominalBirthDatePrevTime, dayPillar);
+    const dayPillars = getDayGanZhi(nominalBirthDateTime);
+    //hourPillar = getHourGanZhi(nominalBirthDateTime, dayPillars);
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } else if (yajasi && (correctedTime >= 23 && correctedTime < 24 && originalTime === 0)) {
-    hourPillar = getHourGanZhi(nominalBirthDateTime, dayPillar);
+    const dayPillars = getDayGanZhi(nominalBirthDateNextTime);
+    hourPillar = getHourGanZhi(nominalBirthDateNextTime, dayPillars);
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } else if (isInsi && (correctedTime >= 23 && correctedTime < 24 && originalTime === 0)) {
-    hourPillar = getHourGanZhi(nominalBirthDateTime, dayPillar);
-    //console.log('저긴가?');
+    const dayPillars = getDayGanZhi(nominalBirthDateNextTime);
+    hourPillar = getHourGanZhi(nominalBirthDateNextTime, dayPillars);
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } else if (isJasi && (correctedTime >= 23 && correctedTime < 24 && originalTime === 0)) {
     dayPillar = getDayGanZhi(nominalBirthDateNextTime);
     hourPillar = getHourGanZhi(nominalBirthDateTime, dayPillar);
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
-  } else if ((isJasi && (correctedTime >= 23 && correctedTime < 24)) || 
-            (yajasi && (correctedTime >= 23 && correctedTime < 24)) ||
-            (isInsi && (correctedTime >= 23 && correctedTime < 24))) {
-              //console.log('여긴가?');
-    hourPillar = getHourGanZhi(nominalBirthDatePrevTime, dayPillar);
-    return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   } else {
-    console.log('여기죠?');
+    
     return `${yearPillar} ${monthPillar} ${dayPillar} ${hourPillar}, ${getDaewoonDataStr(gender, originalDate, correctedDate)}`;
   }
   
@@ -2377,9 +2372,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         if (item.selectedTime2 === 'yajasi' || item.selectedTime2 === 'insi') {
           
-          const dateL = new Date(item.year, item.month - 1, item.day - 1, item.hour, item.minute);
-          dayPillar   = getDayGanZhi(dateL);
-          hourPillar  = getHourGanZhi(dateL, dayPillar);
+          const dateL2 = new Date(item.year, item.month - 1, item.day - 1, item.hour, item.minute);
+          const dateL0 = new Date(item.year, item.month - 1, item.day, item.hour, item.minute);
+          dayPillar   = getDayGanZhi(dateL2);
+          const dayPillars = getDayGanZhi(dateL0);
+          hourPillar = getHourGanZhi(dateL0, dayPillars);
         }
       }
 
