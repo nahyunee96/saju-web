@@ -61,6 +61,9 @@ let cityLongitudes = {};
 
 let selectedLon = null;
 
+window.__calcBusy = false;
+window.__openDetailProgram = false;
+
 const placeBtn  = document.getElementById('inputBirthPlace');
 const modal = document.getElementById('mapModal');
 const closeMap = document.getElementById('closeMap');
@@ -1363,6 +1366,7 @@ function getTenGodForBranch(receivingBranch, baseStem) {
 }
 function getGanZhiIndex(gz) { return sexagenaryCycle.indexOf(gz); }
 function getGanZhiFromIndex(i) { const mod = ((i % 60) + 60) % 60; return sexagenaryCycle[mod]; }
+
 function getYearGanZhiForSewoon(year) {
   let refDate = new Date(year, 3, 1);
   let ipChun = findSolarTermDate(year, 315, selectedLon);
@@ -1371,16 +1375,27 @@ function getYearGanZhiForSewoon(year) {
   return sexagenaryCycle[index];
 }
 
+// month: 1~12, 여기서 1=寅, 12=丑 (월운 기준 순서: 寅→卯→…→丑)
 function getMonthGanZhiForWolwoon(year, month) {
-  const yearGanZhi     = getYearGanZhiForSewoon(year);
-  const yearStem       = yearGanZhi.charAt(0);
-  const yearStemIndex  = Cheongan.indexOf(yearStem);
-  
-  const monthStemIndex = (yearStemIndex * 2 + month) % 10;
-  const monthBranchIndex = (month) % 12;
-  
-  return Cheongan[monthStemIndex] + Jiji[monthBranchIndex];
+  const yearGanZhi = getYearGanZhiForSewoon(year);
+  const yearStem   = yearGanZhi.charAt(0);
+  const yIdx       = Cheongan.indexOf(yearStem); // 0~9: 갑을병정무기경신임계
+  if (yIdx < 0) throw new Error('Invalid year stem');
+
+  // 寅월의 천간 인덱스(출발점)
+  // 갑/기→병(2), 을/경→무(4), 병/신→경(6), 정/임→임(8), 무/계→갑(0)
+  const tigerStemIdx  = ((yIdx % 5) * 2) % 10;
+
+  // 월운 m(1=寅)만큼 진행
+  const monthStemIdx  = (tigerStemIdx + ((month + 10) % 12)) % 10;
+
+  // 지지: Jiji가 [자,축,인,묘,진,사,오,미,신,유,술,해] 순이라면
+  // 寅을 1로 두기 위해 +1 오프셋
+  const monthBranchIdx = (month) % 12; // 1→2(寅), 12→1(丑)
+
+  return Cheongan[monthStemIdx] + Jiji[monthBranchIdx];
 }
+
 
 function updateColorClasses() {
   const bgColorClasses = ['b_green','b_red','b_yellow','b_white','b_black'];
@@ -2601,8 +2616,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const monthTypeSel = document.getElementById("monthType");
         monthTypeSel.value = item.monthType;
         monthTypeSel.dispatchEvent(new Event("change"));
-        
-        calculateBtn.click();
 
         const bjTimeTextEl = document.getElementById("bjTimeText");
         const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
@@ -2696,6 +2709,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     
         updateSaveBtn();
+        if (e.isTrusted && !window.__calcBusy && !window.__openDetailProgram) {
+          calculateBtn.click();
+        }
+        // 프로그램으로 상세열기 다음 회차부터는 계산 금지 해제
+        window.__openDetailProgram = false;
         document.getElementById("woonVer1Change").click();
         document.getElementById("woonChangeBtn").click();
         const sewoonBox = document.querySelector(".lucky.sewoon");
@@ -3120,10 +3138,11 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("inputWrap").style.display    = "none";
     document.getElementById("resultWrapper").style.display = "block";
   
-    const btn = document.querySelector(`.detailViewBtn[data-index="${currentDetailIndex}"]`);
-    if (btn) {
-      btn.click();
-    } 
+    //if (!isSynthetic && currentDetailIndex != null) {
+      const btn = document.querySelector(`.detailViewBtn[data-index="${currentDetailIndex}"]`);
+      window.__openDetailProgram = true;
+      if (btn) btn.click();
+    //}
   }
   
   // 뒤로 가기 버튼에 바인딩
@@ -3151,15 +3170,16 @@ document.addEventListener("DOMContentLoaded", function () {
         'li.siju_con3 .hanja_con, li.siju_con3 > p, li.siju_con3 p.woon_seong, li.siju_con3 p.sin_sal'
       ).forEach(el => el.classList.remove(...classesToRemove));
     }
-  
-    const btn = document.querySelector(`.detailViewBtn[data-index="${currentDetailIndex}"]`);
-    if (btn) {
-      btn.click();
+
+    //if (!isSynthetic && currentDetailIndex != null) {
+      const btn = document.querySelector(`.detailViewBtn[data-index="${currentDetailIndex}"]`);
+      window.__openDetailProgram = true;
+      if (btn) btn.click();
       setTimeout(() => {
         stripColorClasses('#people1');
         stripColorClasses('#people2');  
       }, 0);
-    }
+    //}
     
     updateEumYangClasses();
   });
@@ -3225,7 +3245,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const setBtnCtrl = document.getElementById('setBtn'); 
 
   document.getElementById("calcBtn").addEventListener("click", function (event) {
-
+    if (window.__calcBusy) { console.debug('[calc] skip: busy'); return; }
+    window.__calcBusy = true;
+    const isSynthetic = !event.isTrusted;
     //clearSolarTermCache();
 
     backBtn.style.display = '';
@@ -6828,6 +6850,8 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     setTimeout(()=>{
       woonChangeBtn.click();
     }, 100);
+
+    window.__calcBusy = false;
     
   });
 
@@ -7236,9 +7260,7 @@ const yeonjuCurrentPillar = yPillars[currIdx];
 
   document.getElementById("ModifyBtn").addEventListener("click", function(event) {
 
-    //clearSolarTermCache();
-
-    calculateBtn.click();
+    if (!window.__calcBusy) calculateBtn.click();
     
     let newData, list;
   
@@ -7320,35 +7342,34 @@ const yeonjuCurrentPillar = yPillars[currIdx];
 
     const bjTimeTextEl = document.getElementById("bjTimeText");
     const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
-    originalDate = new Date(workYear, workMonth - 1, workDay, hour, minute);
+    const originalD = new Date(workYear, workMonth - 1, workDay, hour, minute);
 
     fixedCorrectedDate = null;
     const iv = getSummerTimeInterval(originalDate.getFullYear());
-    fixedCorrectedDate = adjustBirthDateWithLon(originalDate, newData.birthPlaceLongitude, newData.isPlaceUnknown);
-    if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !isTimeUnknown) {
-      fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
+    fixedCorrectedDate = adjustBirthDateWithLon(originalD, newData.birthPlaceLongitude, newData.isPlaceUnknown);
+    console.log(fixedCorrectedDate);
+    if (iv && fixedCorrectedDate >= iv.start && fixedCorrectedDate < iv.end && !newData.isTimeUnknown) {
+      //fixedCorrectedDate = new Date(fixedCorrectedDate.getTime() - 3600000);
     }
     correctedDate = fixedCorrectedDate;
     localStorage.setItem('correctedDate', correctedDate.toISOString());
 
-    if (iv && correctedDate >= iv.start && correctedDate < iv.end && !isTimeUnknown) {
+    if (iv && correctedDate >= iv.start && correctedDate < iv.end && !newData.isTimeUnknown) {
       summerTimeBtn.style.display = 'inline-block';
       bjTimeTextEl.innerHTML = `썸머타임보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
-    } else if (isPlaceUnknown && isTimeUnknown) {
+    } else if (isPlaceUnknown && newData.isTimeUnknown) {
       summerTimeBtn.style.display = 'none';
       bjTimeTextEl.innerHTML = `보정없음 : <b id="resbjTime">시간모름</b>`;
     } else if (isPlaceUnknown) {
       summerTimeBtn.style.display = 'none';
       bjTimeTextEl.innerHTML = `기본보정 -30분 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
-    } else if (isTimeUnknown) {
+    } else if (newData.isTimeUnknown) {
       summerTimeBtn.style.display = 'none';
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">시간모름</b>`;
     } else {
       summerTimeBtn.style.display = 'none';
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
     }
-
-    
 
     const fullResult = getFourPillarsWithDaewoon(
       correctedDate.getFullYear(),
@@ -7724,15 +7745,5 @@ const yeonjuCurrentPillar = yPillars[currIdx];
   checkbox.addEventListener('change', () => {
     applyState(checkbox.checked);
     updateAllMargins();
-  });
-
-  Object.defineProperty(window, 'correctedDate', {
-    set(val) {
-      console.warn("⚠️ correctedDate 변경됨:", val.toISOString());
-      this._correctedDate = val;
-    },
-    get() {
-      return this._correctedDate;
-    }
   });
 });
