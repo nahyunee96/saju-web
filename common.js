@@ -1941,8 +1941,6 @@ document.addEventListener("DOMContentLoaded", function () {
     input.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
   }
 
-  input.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-
   updateColorClasses();
   updateEumYangClasses();
 }
