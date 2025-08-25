@@ -1931,14 +1931,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const input = document.getElementById('dateTimeInput');
   if (!input) return;
 
-  const today = new Date();
-
-  // YYYY-MM-DDTHH:MM 형태로 변환
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const hh = String(today.getHours()).padStart(2, '0');
-  const min = String(today.getMinutes()).padStart(2, '0');
+  if (!input.value) {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const hh = String(today.getHours()).padStart(2, '0');
+    const min = String(today.getMinutes()).padStart(2, '0');
+    input.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  }
 
   input.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 
