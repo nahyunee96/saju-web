@@ -98,7 +98,7 @@
 }
 
 /* 인포모달 */
-#infoModal5 {
+#infoModal6 {
   display: none;
   position: fixed;
   left: 50%;
@@ -110,7 +110,7 @@
   border: 2px solid #252525;
 }
 
-#infoModal5 .title {
+#infoModal6 .title {
   width: 100%;
   background-color: #252525;
   color: #fff;
@@ -118,32 +118,32 @@
   padding: 10px;
 }
 
-#infoModal5 .title b {
+#infoModal6 .title b {
   font-size: 14px;
   color: #ccc;
 }
 
-#infoModal5 .content {
+#infoModal6 .content {
   width: 100%;
   padding: 20px;
   background-color: #fff;
   color: #252525;
 }
 
-#infoModal5 .content li {
+#infoModal6 .content li {
   margin-bottom: 8px;
 }
 
-#infoModal5 .content li:last-child{
+#infoModal6 .content li:last-child{
   margin-bottom: 0;
 }
 
-#infoModal5 .btn_box {
+#infoModal6 .btn_box {
   background-color: #252525;
   padding: 10px;
 }
 
-#infoModal5 .btn_box button {
+#infoModal6 .btn_box button {
   padding: 4px 12px;
   font-size: 14px;
 }
