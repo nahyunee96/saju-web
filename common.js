@@ -398,6 +398,7 @@ function findSolarTermDate(year, solarDegree, regionLon = 135) {
   return new Date(dateUTC.getTime() + stdOffsetH * 3600 * 1000);
 }
 
+
 const MONTH_ZHI = ["인", "묘", "진", "사", "오", "미", "신", "유", "술", "해", "자", "축"];
 const Cheongan = ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"];
 const Jiji = ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"];
@@ -455,28 +456,31 @@ function getSolarTermBoundaries(solarYear, regionLon = 135) {
     { deg: 255, name: "대설" }, { deg: 285, name: "소한"   },
   ];
 
-  // 다음입춘(년+1)
   const next = { deg: 315, name: "다음입춘" };
 
-  // 올해/내년 절기 모두 계산
+  // UTC → KST (+9h 보정)
+  const toKST = (d) => new Date(d.getTime() + 10 * 60 * 1000);
+
   const arr = terms
     .map(t => ({
       name: t.name,
-      date: findSolarTermDate(solarYear, t.deg, regionLon)
+      date: toKST(findSolarTermDate(solarYear, t.deg, regionLon))
     }))
     .concat([
-      { name: next.name, date: findSolarTermDate(solarYear+1, next.deg, regionLon) },
-      { name: "소한", date: findSolarTermDate(solarYear+1, 285, regionLon) }
+      { name: next.name, date: toKST(findSolarTermDate(solarYear+1, next.deg, regionLon)) },
+      { name: "소한",   date: toKST(findSolarTermDate(solarYear+1, 285, regionLon)) }
     ]);
 
-  // 입춘(올해) 부터 다음 입춘(내년) 직전까지 필터
-  const start = findSolarTermDate(solarYear, 315, regionLon),
-        end   = findSolarTermDate(solarYear+1, 315, regionLon);
+  const start = toKST(findSolarTermDate(solarYear, 315, regionLon));
+  const end   = toKST(findSolarTermDate(solarYear+1, 315, regionLon));
+
+  console.log(toKST(findSolarTermDate(1991, 345, 127.5)));
 
   return arr
     .filter(t => t.date >= start && t.date < end)
     .sort((a, b) => a.date - b.date);
 }
+
 
 // 1) 문자열/숫자 → 현지 Date 로 변환하는 parseLocalDate (tzMeridian 적용)
 function parseLocalDate(input, regionLon) {
@@ -3244,10 +3248,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const setBtnCtrl = document.getElementById('setBtn'); 
 
   document.getElementById("calcBtn").addEventListener("click", function (event) {
-    if (window.__calcBusy) { console.debug('[calc] skip: busy'); return; }
-    window.__calcBusy = true;
-    const isSynthetic = !event.isTrusted;
-    //clearSolarTermCache();
+    event.preventDefault();
 
     backBtn.style.display = '';
 
