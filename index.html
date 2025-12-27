@@ -69,7 +69,7 @@
         <div id="map"></div>
       </div>
     </div>
-    <div id="infoModal6">
+    <!-- <div id="infoModal6">
       <div class="inner">
         <div class="title">
           <span>!! 안내드립니다 !! <b>만세력 UPDATE 378 ver.</b></span>
@@ -86,7 +86,7 @@
             </li>
           </ul>
         </div>
-      </div>
+      </div> -->
       <div class="btn_box">
         <button id="lognTimeX">이 이후 브라우저에서 보지 않기</button>
         <button id="closeX">닫기</button>
@@ -101,7 +101,7 @@
         }
       }
 
-      document.addEventListener('DOMContentLoaded', () => {
+      /*document.addEventListener('DOMContentLoaded', () => {
         const modal       = document.getElementById('infoModal6');
         const hideForever = document.getElementById('lognTimeX');  // ← 수정
         const closeBtn    = document.getElementById('closeX');
@@ -128,7 +128,7 @@
           modal.style.display = 'none';
           modal.style.zIndex = -1;
         });
-      });
+      });*/
     </script>
     <div class="container" id="container">
       <!-- 헤더 -->
@@ -637,15 +637,17 @@
             .guide_card { background: rgba(255,255,255,0.06); border-radius: 12px; padding: 12px; }
             .guide_card h3 { font-size: 14px; margin: 0 0 8px; }
             .guide_card ol, .guide_card ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.55; }
-            .guide_card p { font-size: 14px; color:burlywood;}
-            .guide_small { font-size: 12px; line-height: 1.6; opacity: .8; margin-top: 8px; }
+            .guide_card ul { margin-top: 10px; }
+            .guide_card p { font-size: 14px;}
+            .guide_card p.b { color:burlywood;}
+            .guide_card p.guide_small { font-size: 12px; line-height: 1.6; opacity: .8; margin-top: 8px; }
             .guide_footer { margin-top: 12px; }
             .guide_links { margin-top: 10px; font-size: 12px; opacity: .9; }
             .guide_link { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
             .dot { margin: 0 6px; opacity: .7; }
             @media (min-width: 768px) { .guide_grid { grid-template-columns: 1fr 1fr; } }
           </style>
-          <section class="main_guide" aria-label="화림만세력 안내">
+          <section class="main_guide" aria-label="묘운만세력 안내">
             <h2 class="guide_title">묘운만세력(묘운) · 오늘의 사주</h2>
 
             <p class="guide_desc">
@@ -656,7 +658,50 @@
             <div class="guide_grid" >
               <div class="guide_card" style="border: 2px solid orange;">
                 <h3>묘운과 인시일수론 소개</h3>
-                <p>본 서비스의 일부인 <b>인시일수론</b> 및 <b></b>묘운</b>은 <b><ins>현묘</ins></b>의 관법을 기반으로 제작되었습니다. </p>
+                <p class="b">본 서비스의 일부인 <b>인시일수론</b> 및 <b>묘운</b>은 <b><ins>현묘</ins></b>의 관법을 기반으로 제작되었습니다. </p>
+              </div>
+
+              <div class="guide_card">
+                <h3>사주·만세력 기본 용어</h3>
+                <p>
+                  사주는 태어난 시점의 <b>연·월·일·시</b>를 네 개의 기둥(四柱)으로 정리해 보는 전통적인 명리학 체계입니다.
+                  각 기둥은 <b>천간</b>과 <b>지지</b>로 구성되며, 지지 안에는 <b>지장간</b>(숨은 기운)이 포함됩니다.
+                  이 페이지의 표는 해당 구조를 한눈에 보기 쉽게 표시합니다.
+                </p>
+                <ul>
+                  <li><b>천간/지지</b>: 겉으로 드러난 기운(간)과 바탕이 되는 기운(지)</li>
+                  <li><b>지장간</b>: 지지 속에 들어 있는 숨은 기운(정기/중기/여기)</li>
+                  <li><b>십신</b>: 일간 기준으로 관계를 분류한 해석 도구(비견·겁재·식신 등)</li>
+                </ul>
+              </div>
+
+              <div class="guide_card">
+                <h3>시간 입력이 중요한 이유</h3>
+                <p>
+                  사주는 <b>시간(시주)</b>에 따라 해석 포인트가 달라질 수 있습니다.
+                  다만 시간이 불확실하면 오히려 오차가 커질 수 있어, 이 경우 <b>“시간 없애기”</b> 옵션으로
+                  시주를 제외한 흐름을 먼저 확인하는 것을 권합니다.
+                </p>
+                <p class="guide_small">
+                  ※ 입력 시간대는 사용자의 기기 설정(한국 표준시 등)에 따라 표시될 수 있으며,
+                  날짜 변경 시 결과가 달라질 수 있습니다.
+                </p>
+              </div>
+
+              <div class="guide_card">
+                <h3>묘운만세력은 무엇을 돕나요?</h3>
+                <p>
+                  묘운만세력은 ‘빠른 계산’에 초점을 둔 도구입니다.
+                  오늘의 사주 확인, 명식 저장/불러오기, 결과 표기(천간·지지·지장간·십신)를 통해
+                  기본 흐름을 빠르게 점검할 수 있도록 구성했습니다.
+                </p>
+                <p>
+                  또한 일부 해석 표기는 <b>인시일수론</b> 및 <b>묘운</b> 관점을 참고하여 정리되어 있으며,
+                  향후에는 <b>설명/용어/예시</b> 콘텐츠를 지속적으로 보강할 예정입니다.
+                </p>
+                <p class="guide_small">
+                  업데이트: 화면 우측 상단 Ver 표기를 기준으로 개선 내역이 반영됩니다.
+                </p>
               </div>
 
               <div class="guide_card">
@@ -683,20 +728,21 @@
                 </p>
               </div>
 
-              
-            </div>
-
-            <div class="guide_footer">
-              <p class="guide_small">
-                운영 안내: 서버/도메인/개발 비용을 위해 일부 화면에 광고가 노출될 수 있습니다.
-                광고는 콘텐츠가 있는 영역에 한해 표시되도록 구성하고 있습니다.
-              </p>
-
+              <div class="guide_card">
+                <h3>개발 노트 & 피드백 환영</h3>
+                <p>
+                  만세력은 날짜·시간 경계(자정/시각 기준)나 표시 방식(정기/중기/여기)처럼
+                  작은 차이가 결과 해석에 영향을 줄 수 있어, 계산 기준과 UI 표기를 꾸준히 정리하고 있습니다.
+                </p>
+                <p class="guide_small">
+                  운영 안내: 서버/도메인/개발 비용을 위해 일부 화면에 광고가 노출될 수 있습니다.
+                  광고는 콘텐츠가 있는 영역에 한해 표시되도록 구성하고 있습니다.
+                </p>
+              </div>
             </div>
           </section>
         </div>
         
-
         <!-- 결과 출력 -->
         <div class="result_wrapper" id="resultWrapper">
 
