@@ -2,6 +2,10 @@
 
 @media screen and (max-width:991px) {
 
+  .pc__ {
+    display: none;
+  }
+
   #mapModal .Rel {
     width: 90%;
   }
