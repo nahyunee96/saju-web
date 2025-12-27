@@ -441,6 +441,10 @@
   padding: 0;
 }
 
+.today_meongsik_wrapper {
+  padding-top: 80px;
+}
+
 .today_meongsik_wrapper .woonkuk {
   width: 57%;
   margin: auto;

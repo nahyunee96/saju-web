@@ -97,6 +97,7 @@
   .info_wrapper {
     max-width: 100%; 
     padding: 2.624vw; 
+    padding-top: 3.6vw;
     border-radius: 0;
   }
   .input_group {
@@ -301,6 +302,10 @@
     font-size: 10vw;
     padding: 1.6vw 0 0.8vw;
     min-height: 10.8vw;
+  }
+
+  .today_meongsik_wrapper {
+    padding-top: 40px;
   }
 
   .today_meongsik_wrapper .ver {
