@@ -131,6 +131,7 @@
       });*/
     </script>
     <div class="container" id="container">
+
       <!-- 헤더 -->
       <header class="header btn_box mt0">
         <div class="inner flex_btn_2">
@@ -527,6 +528,59 @@
           <ul class="input_me_group_set_ul" id="inputMeGroupSetUl"></ul>
         </div>
 
+        <style>
+        .site_nav {
+          background: #0b1220;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          margin-bottom: 20px;
+        }
+
+        .site_nav .inner {
+          max-width: 780px;
+          margin: 0 auto;
+          padding: 10px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .site_nav .logo {
+          font-weight: 700;
+          font-size: 15px;
+          color: #fff;
+          text-decoration: none;
+        }
+
+        .site_nav .nav_menu {
+          display: flex;
+          gap: 16px;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+
+        .site_nav .nav_menu a {
+          font-size: 13px;
+          color: rgba(255,255,255,0.85);
+          text-decoration: none;
+        }
+
+        .site_nav .nav_menu a:hover {
+          text-decoration: underline;
+        }
+      </style>
+      <!-- SEO / 구조용 네비게이션 (새로 추가) -->
+      <nav class="site_nav">
+        <div class="inner">
+          <a href="/" class="logo">묘운만세력</a>
+          <ul class="nav_menu">
+            <li><a href="/">오늘의 사주</a></li>
+            <li><a href="/column/insi-ilsu.html">명리 칼럼</a></li>
+            <li><a href="/guide/">이용 가이드</a></li>
+          </ul>
+        </div>
+      </nav>
+
         <div class="today_meongsik_wrapper" id="todayWrapper">
           <span class="pharases ver" style="position: absolute; right: 3%; transform: translateY(-100%);">Ver.378</span>
           <div class="woonkuk">
@@ -630,24 +684,18 @@
             </div>
           </div>
           <style>
-            .main_guide { margin: 26px auto 0; max-width: 720px; padding: 0 16px; color: #fff;}
-            .guide_title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-            .guide_desc { font-size: 13px; line-height: 1.6; opacity: .92; margin-bottom: 14px; }
-            .guide_grid { display: flex; flex-direction: column; gap: 10px;}
-            .guide_card { background: rgba(255,255,255,0.06); border-radius: 12px; padding: 12px; }
-            .guide_card h3 { font-size: 14px; margin: 0 0 8px; }
-            .guide_card ol, .guide_card ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.55; }
-            .guide_card ul { margin-top: 10px; }
-            .guide_card p { font-size: 14px;}
-            .guide_card p.b { color:burlywood;}
-            .guide_card p.guide_small { font-size: 12px; line-height: 1.6; opacity: .8; margin-top: 8px; }
-            .guide_footer { margin-top: 12px; }
-            .guide_links { margin-top: 10px; font-size: 12px; opacity: .9; }
-            .guide_link { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
-            .dot { margin: 0 6px; opacity: .7; }
-            @media (min-width: 768px) { .guide_grid { grid-template-columns: 1fr 1fr; } }
+            .main_intro { border: 2px solid orange; border-radius: 10px; padding: 20px;
+              margin: 26px auto 0; max-width: 720px; background-color: #fff;}
+
+            .guide_card {
+              border-bottom: 1px solid #999;
+              padding-bottom: 10px;
+              margin-bottom: 10px;
+            }
+
+            .main_intro a {color: orange; font-weight: bold;}
           </style>
-          <section class="main_guide" aria-label="묘운만세력 안내">
+          <!-- <section class="main_guide" aria-label="묘운만세력 안내">
             <h2 class="guide_title">묘운만세력(묘운) · 오늘의 사주</h2>
 
             <p class="guide_desc">
@@ -656,10 +704,7 @@
             </p>
 
             <div class="guide_grid" >
-              <div class="guide_card" style="border: 2px solid orange;">
-                <h3>묘운과 인시일수론 소개</h3>
-                <p class="b">본 서비스의 일부인 <b>인시일수론</b> 및 <b>묘운</b>은 <b><ins>현묘</ins></b>의 관법을 기반으로 제작되었습니다. </p>
-              </div>
+              
 
               <div class="guide_card">
                 <h3>사주·만세력 기본 용어</h3>
@@ -740,6 +785,28 @@
                 </p>
               </div>
             </div>
+          </section> -->
+          <section class="main_intro" aria-label="묘운만세력 소개">
+            <div class="guide_card">
+              <h2>묘운과 인시일수론의 출처</h2>
+              <p class="b">본 서비스의 일부인 <b>인시일수론</b> 및 <b>묘운</b>은 <b><ins>현묘</ins></b>의 관법을 기반으로 제작되었습니다. </p>
+            </div>
+            <h2>묘운만세력 · 오늘의 사주</h2>
+            <p>
+              묘운만세력은 날짜와 시간 기준으로 사주 명식을 빠르게 확인할 수 있는 만세력 도구입니다.
+              인시일수론과 묘운 관점을 일부 참고하여 계산 결과를 정리했습니다.
+            </p>
+
+            <ul class="main_links">
+              <li>
+                📘 <a href="/guide/">묘운만세력 이용 가이드</a>
+                <span>— 사용법과 계산 기준 안내</span>
+              </li>
+              <li>
+                📚 <a href="/column/insi-ilsu.html">인시일수론이란?</a>
+                <span>— 시간 경계 해석 관점 설명</span>
+              </li>
+            </ul>
           </section>
         </div>
         
@@ -1615,12 +1682,20 @@
               (adsbygoogle = window.adsbygoogle || []).push({});
           </script>
         </div>
-
+        <style>
+          .footer a {
+            text-decoration: none;
+            color: #fff;
+          }
+        </style>
         <!-- 푸터 -->
         <footer class="footer">
-          <p>
-            Copyright © 2025 Hwarim96. All rights reserved.
-          </p>
+          <nav style="margin-bottom: 10px;">
+            <a href="/privacy.html">개인정보 처리방침</a>
+            <span>|</span>
+            <a href="/terms.html">이용약관</a>
+          </nav>
+          <p>© 2025 묘운만세력. All rights reserved.</p>
         </footer>
       </div>
 
