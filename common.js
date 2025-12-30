@@ -3963,7 +3963,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (currentSewoonIndex < 0) currentSewoonIndex = 0;
     if (currentSewoonIndex > 9) currentSewoonIndex = 9;
     const computedSewoonYear = globalState.sewoonStartYear + currentSewoonIndex;
-    updateMonthlyData(computedSewoonYear, refDate);
+    updateMonthlyData(computedSewoonYear);
     const monthlyContainer = document.getElementById("walwoonArea");
     if (monthlyContainer) { monthlyContainer.style.display = "grid"; }
     updateColorClasses();
@@ -3976,20 +3976,17 @@ document.addEventListener("DOMContentLoaded", function () {
       updateListMapping(globalState.monthWoonList, "MwW", "Ms", baseDayStem, baseYearBranch);
     }
 
-    function updateMonthlyData(refDateYear, today) {
-      const ipChun = findSolarTermDate(todayObj.getFullYear(), 315, selectedLon);
-      const effectiveYear = (today >= ipChun) ? refDateYear : refDateYear - 1;
-      const yearPillarStem = getYearGanZhi(new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate()), effectiveYear);
-      const yearStem = yearPillarStem.charAt(0);
-      const yearStemIndex = Cheongan.indexOf(yearStem);
+    function updateMonthlyData(refDateYear) {
+      const monthOrder = [2,3,4,5,6,7,8,9,10,11,12,1];
       for (let i = 0; i < 12; i++) {
-        const monthNumber = i + 1;
-        const monthStemIndex = (((yearStemIndex * 2) + monthNumber - 1) + 2) % 10;
-        const monthStem = Cheongan[monthStemIndex];
-        const monthBranch = MONTH_ZHI[monthNumber - 1];
+        const monthNumber = monthOrder[i];
+        const monthGanZhi = getMonthGanZhiForWolwoon(refDateYear, monthNumber);
+        const splitMonth = splitPillar(monthGanZhi);
+        const monthStem = splitMonth.gan;
+        const monthBranch = splitMonth.ji;
         const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
         const tenGodBranch = getTenGodForBranch(monthBranch, baseDayStem);
-        const displayMonth = (monthNumber < 12) ? (monthNumber + 1) + "월" : "1월";
+        const displayMonth = monthNumber + "월";
         const unseong = getTwelveUnseong(baseDayStem, monthBranch);
         const shinsal = getTwelveShinsalDynamic(dayPillar, yearPillar, monthBranch);
         setText("MC_" + (i + 1), stemMapping[monthStem]?.hanja || "-");
@@ -4005,7 +4002,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateMonthlyWoon(computedYear, currentMonthIndex, baseDayStem) {
       const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
-      const monthlyPillar = getMonthGanZhiRef(refDate, baseDayStem);
+      const monthFromBoundary = boundaries[currentMonthIndex]
+        ? (boundaries[currentMonthIndex].date.getMonth() + 1)
+        : (currentMonthIndex + 1);
+      const monthIndex = Math.max(1, Math.min(12, monthFromBoundary));
+      const monthlyPillar = getMonthGanZhiForWolwoon(computedYear, monthIndex);
       const monthStem = monthlyPillar.charAt(0);
       const monthBranch = monthlyPillar.charAt(1);
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
@@ -4030,7 +4031,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const boundaries = getSolarTermBoundaries(computedYear, selectedLon);
       if (!boundaries || boundaries.length === 0) return;
 
-      const monthlyPillar = getMonthGanZhiRef(refDate, baseDayStem);
+      const monthFromBoundary = boundaries[currentMonthIndex]
+        ? (boundaries[currentMonthIndex].date.getMonth() + 1)
+        : (currentMonthIndex + 1);
+      const monthIndex = Math.max(1, Math.min(12, monthFromBoundary));
+      const monthlyPillar = getMonthGanZhiForWolwoon(computedYear, monthIndex);
       const monthStem = monthlyPillar.charAt(0);
       const monthBranch = monthlyPillar.charAt(1);
       const tenGodStem = getTenGodForStem(monthStem, baseDayStem);
@@ -4524,6 +4529,35 @@ document.addEventListener("DOMContentLoaded", function () {
         const targetSolarTerm = boundariesForSewoon[0].name;
         updateMonthlyFortuneCalendar(targetSolarTerm, computedYear);
         document.querySelectorAll("#mowoonList li").forEach(li => li.classList.remove("active"));
+
+        const defaultMonth = boundariesForSewoon[0]?.date
+          ? boundariesForSewoon[0].date.getMonth() + 1
+          : 1;
+        const defaultMonthLi = Array.from(document.querySelectorAll("#mowoonList li"))
+          .find(li => parseInt(li.getAttribute("data-index3"), 10) === defaultMonth);
+        if (defaultMonthLi) {
+          defaultMonthLi.classList.add("active");
+          globalState.activeMonth = defaultMonth;
+          const monthGanZhi = getMonthGanZhiForWolwoon(computedYear, defaultMonth);
+          const splitMonth  = splitPillar(monthGanZhi);
+          setText("WwtHanja", stemMapping[splitMonth.gan]?.hanja || "-");
+          setText("WwtHanguel", stemMapping[splitMonth.gan]?.hanguel || "-");
+          setText("WwtEumyang", stemMapping[splitMonth.gan]?.eumYang || "-");
+          setText("Wwt10sin", getTenGodForStem(splitMonth.gan, baseDayStem));
+          setText("WwbHanja", branchMapping[splitMonth.ji]?.hanja || "-");
+          setText("WwbHanguel", branchMapping[splitMonth.ji]?.hanguel || "-");
+          setText("WwbEumyang", branchMapping[splitMonth.ji]?.eumYang || "-");
+          setText("Wwb10sin", getTenGodForBranch(splitMonth.ji, baseDayStem));
+          const wolwoonHidden = hiddenStemMapping[splitMonth.ji] || ["-", "-", "-"];
+          setText("WwJj1", wolwoonHidden[0]);
+          appendTenGod("WwJj1", wolwoonHidden[0], true);
+          setText("WwJj2", wolwoonHidden[1]);
+          appendTenGod("WwJj2", wolwoonHidden[1], true);
+          setText("WwJj3", wolwoonHidden[2]);
+          appendTenGod("WwJj3", wolwoonHidden[2], true);
+          setText("Wwb12ws", getTwelveUnseong(baseDayStem, splitMonth.ji));
+          setText("Wwb12ss", getTwelveShinsalDynamic(dayPillar, yearPillar, splitMonth.ji));
+        }
       });
     });
     
