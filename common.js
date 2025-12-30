@@ -1388,7 +1388,8 @@ function getMonthGanZhiForWolwoon(year, month) {
 
   // 寅월의 천간 인덱스(출발점)
   // 갑/기→병(2), 을/경→무(4), 병/신→경(6), 정/임→임(8), 무/계→갑(0)
-  const tigerStemIdx  = ((yIdx % 5) * 2) % 10;
+  // Align tiger month stem with standard mapping (갑/기->병, 을/경->무, ...).
+  const tigerStemIdx  = ((yIdx % 5) * 2 + 2) % 10;
 
   // 월운 m(1=寅)만큼 진행
   const monthStemIdx  = (tigerStemIdx + ((month + 10) % 12)) % 10;
@@ -1643,7 +1644,7 @@ function getMonthGanZhiRef(dateObj) {
 
   const yearIdx     = Cheongan.indexOf(getYearGanZhi(dateObj, dateObj.getFullYear())[0]);
   const branchIdx   = (monthNo + 1) % 12;           // 立春(1)→寅(2)→branchIdx=2 … 4月(3)→진(4)
-  const stemIdx     = (yearIdx * 2 + branchIdx) % 10;
+  const stemIdx     = (yearIdx * 2 + monthNo + 1) % 10;
   const monthStem   = Cheongan[stemIdx];
   const monthBranch = Jiji[branchIdx];
   return monthStem + monthBranch;  // '경진'
@@ -3428,7 +3429,10 @@ document.addEventListener("DOMContentLoaded", function () {
       bjTimeTextEl.innerHTML = `보정시 : <b id="resbjTime">${correctedDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false})}</b>`;
     }
 
-    summerTimeBtn.addEventListener('click', function () {
+    if (!summerTimeBtn.dataset.summerHandlerAttached) {
+      summerTimeBtn.dataset.summerHandlerAttached = "1";
+      summerTimeBtn.addEventListener('click', function (event) {
+        event.stopPropagation();
 
       //fixedCorrectedDate = null;
 
@@ -3467,7 +3471,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       isSummerOn = !isSummerOn;
       updateEumYangClasses();
-    });
+      });
+    }
 
     
 
