@@ -2022,6 +2022,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const setEditMode = (isEdit) => {
     document.body.classList.toggle("edit_mode", isEdit);
   };
+  const setAddMode = (isAdd) => {
+    document.body.classList.toggle("add_mode", isAdd);
+  };
+  const syncAddMode = () => {
+    if (!inputWrap) return;
+    const isVisible = window.getComputedStyle(inputWrap).display !== "none";
+    setAddMode(isVisible);
+  };
+  syncAddMode();
+  if (inputWrap) {
+    const inputWrapObserver = new MutationObserver(syncAddMode);
+    inputWrapObserver.observe(inputWrap, { attributes: true, attributeFilter: ["style", "class"] });
+  }
 
   const btn = document.getElementById("myowoonMore");
   const newBtn = btn.cloneNode(true);
