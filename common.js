@@ -1,4 +1,4 @@
-let currentModifyIndex = null,
+﻿let currentModifyIndex = null,
     currentDetailIndex = null,
     currentMode,
     partnerIndex = null,
@@ -996,31 +996,38 @@ function getDaewoonData(gender, originalDate, correctedDate) {
   const monthBranchIndex = branchChars.indexOf(monthPillar.charAt(1));
   
   const list = [];
+  baseYears = Math.max(1, baseYears);
+
+  const zeroMonthPillar = isBoundaryCase ? correctedMonthPillar : monthPillar;
+  const zeroStemIndex = stemChars.indexOf(zeroMonthPillar.charAt(0));
+  const zeroBranchIndex = branchChars.indexOf(zeroMonthPillar.charAt(1));
+
+  list.push({
+    age: 0,
+    stem: stemChars[zeroStemIndex],
+    branch: branchChars[zeroBranchIndex]
+  });
+
   for (let i = 0; i < 10; i++) {
-    if (baseYears < 1) {
-      baseYears = 1;
-    }
-    
-    const ageOffset = baseYears + i * 10;
-    
-    
-    // 절기 경계선 상황에서는 첫 번째 대운이 현재 월주 자체
+    const ageOffset = isBoundaryCase
+      ? (i === 0 ? baseYears : i * 10)
+      : baseYears + i * 10;
     const step = isBoundaryCase ? i : i + 1;
-    
+
     const nextStem = isForward
       ? (monthStemIndex + step) % 10
       : (monthStemIndex - step + 10) % 10;
     const nextBr = isForward
       ? (monthBranchIndex + step) % 12
       : (monthBranchIndex - step + 12) % 12;
-      
+
     list.push({
       age: ageOffset,
       stem: stemChars[nextStem],
       branch: branchChars[nextBr]
     });
   }
-  
+
   return {
     baseYears,
     baseMonths,
@@ -2012,6 +2019,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const ModifyBtn = document.getElementById("ModifyBtn");
   const backBtnAS = document.getElementById("backBtnAS");
   const asideVr = document.getElementById("aside");
+  const setEditMode = (isEdit) => {
+    document.body.classList.toggle("edit_mode", isEdit);
+  };
 
   const btn = document.getElementById("myowoonMore");
   const newBtn = btn.cloneNode(true);
@@ -2022,6 +2032,7 @@ document.addEventListener("DOMContentLoaded", function () {
     backBtn.style.display = 'none';
     calculateBtn.style.display = 'block';
     ModifyBtn.style.display = 'none';
+    setEditMode(false);
     newBtn.classList.remove("active");
     newBtn.innerText = "묘운력(운 전체) 상세보기";
   });
@@ -2033,6 +2044,7 @@ document.addEventListener("DOMContentLoaded", function () {
     backBtn.style.display = 'none';
     calculateBtn.style.display = 'block';
     ModifyBtn.style.display = 'none';
+    setEditMode(false);
     newBtn.classList.remove("active");
     newBtn.innerText = "묘운력(운 전체) 상세보기";
   });
@@ -3591,11 +3603,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             : refDate.getFullYear() - 1;
 
       const birthYear = correctedDate.getFullYear();
-      const baseAge   = Math.floor(daewoonData.baseDecimal);
-
       let idx = 0;
       for (let i = 0; i < daewoonData.list.length; i++) {
-        const startYear = birthYear + baseAge + i*10;
+        const startYear = birthYear + Math.floor(daewoonData.list[i].age);
         if (startYear <= effectiveYear) {
           idx = i;
         }
@@ -3682,7 +3692,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             : refDate.getFullYear() - 1;
     if (daewoonData?.list) {
       for (let i = 0; i < daewoonData.list.length; i++) {
-        const startAge  = Math.floor(daewoonData.baseDecimal) + i * 10;
+        const startAge  = Math.floor(daewoonData.list[i].age);
         const startYear = correctedDate.getFullYear() + startAge;
         if (startYear <= effectiveYear) {
           currentDaewoonIndex = i;
@@ -3933,10 +3943,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     populateSewoonYearAttributes();
 
-    const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
-    const todayYear = (refDate > ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
+    const ipChun = findSolarTermDate(todayObj.getFullYear(), 315, selectedLon);
     //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
-    const displayYear = (todayObj < ipChun) ? todayYear - 1 : todayYear;
+    const displayYear = (todayObj < ipChun) ? todayObj.getFullYear() - 1 : todayObj.getFullYear();
     const sewoonLis = document.querySelectorAll("#sewoonList li");
     sewoonLis.forEach(li => {
       const dyearElem = li.querySelector(".dyear");
@@ -7002,6 +7011,7 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     todayWrapper.style.display = 'none'
     calculateBtn.style.display = 'none';
     ModifyBtn.style.display = 'block';
+    setEditMode(true);
 
     loadCityLongitudes();
 
@@ -7497,6 +7507,7 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     isModifyMode = false;
     currentModifyIndex = null;
     isModified = false;
+    setEditMode(false);
     //newData = latestMyeongsik;
     updateEumYangClasses();
     window.scrollTo(0, 0);

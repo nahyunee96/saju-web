@@ -1,4 +1,4 @@
-/* style.result.css */
+﻿/* style.result.css */
 
 .container {
   display: flex; 
@@ -236,6 +236,7 @@
 }
 
 .grid_box_10 li,
+.grid_box_11 li,
 .grid_box_12 li {
   padding: 0 !important;
 }
@@ -526,6 +527,7 @@
 }
 
 .grid_box_10,
+.grid_box_11,
 .grid_box_12 {
   display: grid;
 }
@@ -533,6 +535,11 @@
 .grid_box_10 {
   grid-template-columns: repeat(10, 1fr);
   gap: 5px; 
+}
+
+.grid_box_11 {
+  grid-template-columns: repeat(11, 1fr);
+  gap: 5px;
 }
 
 .grid_box_12 {
@@ -596,3 +603,4 @@
   background-color: transparent;
   color: #EED36C;
 }
+

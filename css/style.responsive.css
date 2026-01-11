@@ -1,4 +1,4 @@
-/* style.resposive.css */
+﻿/* style.resposive.css */
 
 @media screen and (max-width:991px) {
 
@@ -277,6 +277,10 @@
   }
 
   .grid_box_10 {
+    gap: 0.3vw;
+  }
+
+  .grid_box_11 {
     gap: 0.3vw;
   }
 
@@ -763,3 +767,4 @@
     font-weight: 200;
   } 
 }
+
