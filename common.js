@@ -3674,7 +3674,10 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("DwW" + idx, getTwelveUnseong(baseDayStem, finalBranch) || "-");
         setText("Ds" + idx, getTwelveShinsalDynamic(dayPillar, yearPillar, finalBranch) || "-");
         
-        const displayedDaewoonNum = Math.floor(item.age);
+        const isDecimalBase = daewoonData.isBoundaryCase && daewoonData.baseDecimal % 1 !== 0;
+        const displayedDaewoonNum = (i === 1 && isDecimalBase)
+          ? daewoonData.baseDecimal.toFixed(3)
+          : Math.floor(item.age);
         setText("Da" + idx, displayedDaewoonNum);
       }
     }
