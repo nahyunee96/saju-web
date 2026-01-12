@@ -4769,9 +4769,10 @@ document.addEventListener("DOMContentLoaded", function () {
       
       const { year, month, day, hour, minute, gender, correctedDate } = person;
 
-      birthDate = correctedDate
+      const baseCorrectedDate = correctedDate
         ? new Date(correctedDate)
         : new Date(year, month - 1, day, hour, minute);
+      birthDate = new Date(baseCorrectedDate);
       const basis = basisOverride
         || document.querySelector('input[name="time2"]:checked')?.value;
       const basisMap = { jasi: 23, yajasi: 0, insi: 3 };
@@ -4810,7 +4811,26 @@ document.addEventListener("DOMContentLoaded", function () {
         dayPillar,
         hourPillar
       }) {
-        
+        function getHourBranchForBasis(date, basisMode) {
+          if (basisMode === "yajasi") {
+            const shifted = new Date(date);
+            shifted.setHours(shifted.getHours() - 1);
+            return getHourBranchReturn(shifted);
+          }
+          return getHourBranchReturn(date);
+        }
+
+        function adjustDateForBasis(date, basisMode) {
+          const adjusted = new Date(date);
+          const hour = adjusted.getHours();
+          if (basisMode === "jasi") {
+            if (hour >= 23) adjusted.setDate(adjusted.getDate() + 1);
+          } else if (basisMode === "insi") {
+            if (hour < 3) adjusted.setDate(adjusted.getDate() - 1);
+          }
+          return adjusted;
+        }
+
         const iljuTarget = {
           insi:   { 순행:'寅', 역행:'寅' },
           jasi:   { 순행:'子', 역행:'子' },
@@ -4820,7 +4840,7 @@ document.addEventListener("DOMContentLoaded", function () {
         function getFirstIljuChange(dt) {
           const cursor = new Date(dt);
           cursor.setSeconds(0,0);
-          while (getHourBranchReturn(cursor) !== iljuTarget) {
+          while (getHourBranchForBasis(cursor, basis) !== iljuTarget) {
             cursor.setMinutes(cursor.getMinutes() + 1);
           }
           return cursor;
@@ -4856,7 +4876,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const iPillars = [ dayPillar ];
         for (let i = 1; i < sDates.length; i++) {
           // 현재 시지(branch) 확인
-          const branch = getHourBranchReturn(sDates[i]);
+          const branch = getHourBranchForBasis(sDates[i], basis);
           if (branch === iljuTarget) {
             // 지정된 시지에 도달했을 때만 60갑자 순환
             const idx    = getGanZhiIndex(iPillars[i - 1]);
@@ -4941,18 +4961,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // 연주 계산 (입춘 기준)
           // 입춘 시각 구하기 - 거주지에 따른 절기 사용
-          const lichun = findSolarTermDate(dt.getFullYear(), 315, selectedLon);
+          const basisDate = adjustDateForBasis(dt, basis);
+          const lichun = findSolarTermDate(basisDate.getFullYear(), 315, selectedLon);
 
           // 입춘 전/후에 따라 기준 연도 결정
           let effYear;
-          if (dt < lichun) {
-            effYear = dt.getFullYear() - 1;
+          if (basisDate < lichun) {
+            effYear = basisDate.getFullYear() - 1;
           } else {
-            effYear = dt.getFullYear();
+            effYear = basisDate.getFullYear();
           }
 
           // 해당 연도/날짜로 연주 가져오기
-          yPillars[i] = getYearGanZhi(dt, effYear);
+          yPillars[i] = getYearGanZhi(basisDate, effYear);
         }
 
 
@@ -5211,6 +5232,7 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       updateColorClasses();
     
       return {
+        baseCorrectedDate,
         sijuCurrentPillar, iljuCurrentPillar, woljuCurrentPillar, yeonjuCurrentPillar,
         sijuFirstChangeDate, iljuFirstChangeDate, woljuFirstChangeDate, yeonjuFirstChangeDate,
         getFirstSijuChange,
@@ -6024,18 +6046,22 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       const firstWoljuRaw = myowoonResult.woljuFirstChangeDate;
       const firstSijuDate = firstSijuRaw ? new Date(firstSijuRaw) : null;
       const firstWoljuDate = firstWoljuRaw ? new Date(firstWoljuRaw) : null;
+      const displayCorrectedDate = myowoonResult?.baseCorrectedDate
+        ? new Date(myowoonResult.baseCorrectedDate)
+        : new Date(correctedDate);
+
       const durationStr = firstSijuDate
-        ? formatDiffDaysHours(correctedDate, firstSijuDate)
+        ? formatDiffDaysHours(displayCorrectedDate, firstSijuDate)
         : '';
 
       const monthStr = firstWoljuDate
-        ? formatDiffDetailed(correctedDate, firstWoljuDate)
+        ? formatDiffDetailed(displayCorrectedDate, firstWoljuDate)
         : '';
 
       let html = "";
 
       html += `
-      <li>계산시각 : ${formatByTimeKnown(new Date(pickerValue))}<br>출생(보정)시각 : ${formatDateTime(correctedDate)}</li>
+      <li>계산시각 : ${formatByTimeKnown(new Date(pickerValue))}<br>출생(보정)시각 : ${formatDateTime(displayCorrectedDate)}</li>
       `;
     
       if (!isTimeUnknown) {
@@ -6074,9 +6100,9 @@ const yeonjuCurrentPillar = yPillars[currIdx];
                 최종 업데이트 이벤트 간지: <b>${myowoonResult.sijuCurrentPillar}</b><br>
                 방향: <b>${myowoonResult.dirMode}</b><br><br>
                 묘운 시주의 기간은 2시간을 10일로 치환합니다. <br>
-                예를 들어, 보정 시각이 <b>${formatDateTime(correctedDate)}</b>인 명식의 경우, <br>
+                예를 들어, 보정 시각이 <b>${formatDateTime(displayCorrectedDate)}</b>인 명식의 경우, <br>
                 <b>${myowoonResult.dirMode}</b> 방향으로 계산이 됩니다. <br>
-                간지가 바뀌기까지의 시간인, <b>${getSijuTimeDifference(correctedDate, myowoonResult.dirMode)} / 2시간</b>을<br>
+                간지가 바뀌기까지의 시간인, <b>${getSijuTimeDifference(displayCorrectedDate, myowoonResult.dirMode)} / 2시간</b>을<br>
                 실제 보정 시각과 처음 간지가 전환되는 사이의 차이는 <b>${durationStr} / 10일</b>일로 치환하고, <br>
                 보정 시각에서 첫번째 간지 변환일자는 <b>${formatByTimeKnown(myowoonResult.sijuFirstChangeDate)}</b>로 산출됩니다. <br>           
                 그 다음부터는 <b>10일</b>의 간격으로 <b>${myowoonResult.dirMode}</b>이 계속 진행됩니다. <br>
