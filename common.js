@@ -474,8 +474,6 @@ function getSolarTermBoundaries(solarYear, regionLon = 135) {
   const start = toKST(findSolarTermDate(solarYear, 315, regionLon));
   const end   = toKST(findSolarTermDate(solarYear+1, 315, regionLon));
 
-  console.log(toKST(findSolarTermDate(1991, 345, 127.5)));
-
   return arr
     .filter(t => t.date >= start && t.date < end)
     .sort((a, b) => a.date - b.date);
