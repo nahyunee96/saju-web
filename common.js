@@ -594,6 +594,44 @@ function getMonthGanZhi(dateInput, cityLon, forceTzMeridian = null) {
   return monthGZ;
 }
 
+function adjustWoljuBoundaryDate(dateObj, cityLon, mode) {
+  if (mode !== "역행") return dateObj;
+  const year = dateObj.getFullYear();
+  const bounds = getSolarTermBoundaries(year, cityLon).sort((a, b) => a.date - b.date);
+  let prev = null;
+  for (let i = 0; i < bounds.length; i++) {
+    if (bounds[i].date <= dateObj) prev = bounds[i];
+    else break;
+  }
+  if (!prev) {
+    const prevYearBounds = getSolarTermBoundaries(year - 1, cityLon).sort((a, b) => a.date - b.date);
+    prev = prevYearBounds[prevYearBounds.length - 1] || null;
+  }
+  if (!prev) return dateObj;
+  const boundaryHour = prev.date.getHours();
+  if (boundaryHour === 21 || boundaryHour === 22) {
+    return new Date(dateObj.getTime() + 2 * 60 * 60 * 1000);
+  }
+  return dateObj;
+}
+
+function isWoljuLateBoundary(dateObj, cityLon) {
+  const year = dateObj.getFullYear();
+  const bounds = getSolarTermBoundaries(year, cityLon).sort((a, b) => a.date - b.date);
+  let prev = null;
+  for (let i = 0; i < bounds.length; i++) {
+    if (bounds[i].date <= dateObj) prev = bounds[i];
+    else break;
+  }
+  if (!prev) {
+    const prevYearBounds = getSolarTermBoundaries(year - 1, cityLon).sort((a, b) => a.date - b.date);
+    prev = prevYearBounds[prevYearBounds.length - 1] || null;
+  }
+  if (!prev) return false;
+  const boundaryHour = prev.date.getHours();
+  return boundaryHour === 21 || boundaryHour === 22;
+}
+
 function getDayGanZhi(dateObj) {
   const y = dateObj.getFullYear();
   const m = dateObj.getMonth() + 1;
@@ -3859,7 +3897,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // 1) 소수점 연도로 변환
         const decimalBirthYear = getDecimalBirthYear(correctedDate);
         const idx          = daewoonIndex - 1;
-        const daewoonItem  = daewoonData.list[idx];
+        const sewoonBaseIndex = daewoonIndex === 1 ? 2 : daewoonIndex;
+        const daewoonItem  = daewoonData.list[sewoonBaseIndex - 1] || daewoonData.list[idx];
         const yearsOffset  = daewoonItem.age;        
         const monthsOffset = daewoonData.baseMonths;
         const sewoonStartDecimal = decimalBirthYear
@@ -4412,7 +4451,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedDaewoon = daewoonData.list[daewoonIndex - 1];
         if (!selectedDaewoon) return;
 
-        const daewoonNum = selectedDaewoon.age; 
+        const sewoonBaseIndex = daewoonIndex === 1 ? 2 : daewoonIndex;
+        const sewoonBaseDaewoon = daewoonData.list[sewoonBaseIndex - 1] || selectedDaewoon;
+        const daewoonNum = sewoonBaseDaewoon.age; 
         const sewoonStartYearDecimal = Math.floor(decimalBirthYear + daewoonNum);
 
         function getSewoonStartYear(selectedLon) {
@@ -4866,8 +4907,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         // 시작값 설정
-        const startPillar = getMonthGanZhi(originalDate, selectedLon);
+        const startPillar = getMonthGanZhi(
+          adjustWoljuBoundaryDate(originalDate, selectedLon, dirMode),
+          selectedLon
+        );
         let switched = false;
+        let woljuDelayUsed = false;
         mPillars[0] = startPillar;
         yPillars[0] = yearPillar;
 
@@ -4876,13 +4921,23 @@ document.addEventListener("DOMContentLoaded", function () {
           const dt = sDates[i];
           
           // 월주 계산 - 거주지에 따른 절기 사용
-          const corrM = getMonthGanZhi(dt, selectedLon);
+          const corrM = getMonthGanZhi(
+            adjustWoljuBoundaryDate(dt, selectedLon, dirMode),
+            selectedLon
+          );
 
           // 월주 전환 감지
           if (!switched && corrM !== startPillar) {
-            switched = true;
+            if (dirMode === '역행' && isWoljuLateBoundary(dt, selectedLon) && !woljuDelayUsed) {
+              woljuDelayUsed = true;
+              mPillars[i] = startPillar;
+            } else {
+              switched = true;
+              mPillars[i] = corrM;
+            }
+          } else {
+            mPillars[i] = switched ? corrM : startPillar;
           }
-          mPillars[i] = switched ? corrM : startPillar;
 
           // 연주 계산 (입춘 기준)
           // 입춘 시각 구하기 - 거주지에 따른 절기 사용
@@ -5815,13 +5870,16 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       ) {
         const dir      = mode === "순행" ? +1 : -1;         // 탐색 방향
         const stepMin  = resMin;                           // 최초 간격
-        const targetP  = getMonthGanZhi(correctedDate, selectedLon); // 지금 월주
+        const targetP  = getMonthGanZhi(
+          adjustWoljuBoundaryDate(correctedDate, selectedLon, mode),
+          selectedLon
+        ); // 지금 월주
 
         /* ── 1단계: 거친 탐색 ───────────────────────────── */
         let cursor = new Date(correctedDate.getTime());
         while (true) {
           cursor.setMinutes(cursor.getMinutes() + dir * stepMin);
-          if (getMonthGanZhi(cursor, selectedLon) !== targetP) break;
+          if (getMonthGanZhi(adjustWoljuBoundaryDate(cursor, selectedLon, mode), selectedLon) !== targetP) break;
 
           // 안전장치: 2년 넘게 못 찾으면 중단
           if (Math.abs(cursor - correctedDate) > 2 * 365 * 24 * 60 * 60 * 1000) {
@@ -5832,11 +5890,10 @@ const yeonjuCurrentPillar = yPillars[currIdx];
         /* ── 2단계: 정밀 탐색 (1분 단위) ─────────────────── */
         cursor.setMinutes(cursor.getMinutes() - dir * stepMin); // 직전 구간으로 롤백
         while (true) {
-          cursor.setMinutes(cursor.getMinutes() + dir);         // 1분 전진
-          if (getMonthGanZhi(cursor, selectedLon) !== targetP) break;
+          cursor.setMinutes(cursor.getMinutes() + dir);         // 1碟 瞪霞
+          if (getMonthGanZhi(adjustWoljuBoundaryDate(cursor, selectedLon, mode), selectedLon) !== targetP) break;
         }
 
-        /* ── 3단계: 차이 계산 ──────────────────────────── */
         const diffMs   = cursor - correctedDate;
         const absMs    = Math.abs(diffMs);
         const oneDayMs = 24 * 60 * 60 * 1000;
