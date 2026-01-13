@@ -151,7 +151,7 @@ body {
 @media (max-width: 480px) {
   
   .sub__ {
-    padding: 48px 16px 64px;
+    padding: 48px 16px 64px !important;
   }
 
   .sub__ h2 {
