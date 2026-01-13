@@ -426,7 +426,7 @@
 .today_meongsik_wrapper .today_saju {
   position: relative;
   flex-shrink: 0;
-  min-width: 375px;
+  width: min(375px, 100%);
 }
 
 .today_meongsik_wrapper .woonkuk {

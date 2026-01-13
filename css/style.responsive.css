@@ -128,8 +128,13 @@
     padding:0 3.242vw;
   }
   .radio_box span input[type='radio']+label {
-    padding:2.44vw; 
+    padding:0 2.44vw; 
+    height: 8vw;
     font-size:3.244vw;
+  }
+
+  .radio_box span:nth-child(2) input[type='radio']+label {
+    font-size:2.954vw;
   }
 
   .input_group .flex_input2 button {
@@ -194,6 +199,7 @@
   .back_btn,
   .search_btn {
     padding: 0 2vw;
+    height: 8vw;
   }
 
   .info_box {
@@ -319,9 +325,12 @@
     flex-direction: column;
   }
 
-  .today_meongsik_wrapper .woonkuk {
-    width: 57%;
+  .today_meongsik_wrapper .today_saju {
     margin: auto;
+  }
+
+  .today_meongsik_wrapper .woonkuk {
+    width: 100%;
   }
 
   .today_meongsik_wrapper .ver {
@@ -509,7 +518,7 @@
   }
 
   .aside .top_search_list > select {
-    height: 6.2vw;
+    height: 8vw;
     padding: 0 2vw;
     font-size: 3.2vw;
   }
@@ -521,14 +530,14 @@
 
   .aside .search_form select {
     width: calc(20% - 2vw);
-    height: 6.2vw;
+    height: 8vw;
     padding: 0 2vw;
     font-size: 3.2vw;
   }
 
   .aside .search_form input {
     width: calc(60% - 2vw);
-    height: 6.2vw;
+    height: 8vw;
     font-size: 3.2vw;
     padding: 0 2.4vw;
   }
