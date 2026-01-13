@@ -35,26 +35,15 @@
 
      <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-    <link rel="stylesheet" href="./css/style.base.css?new" />
-    <link rel="stylesheet" href="./css/style.layout.css?new" />
-    <link rel="stylesheet" href="./css/style.result.css?new" />
-    <link rel="stylesheet" href="./css/style.detail.css?new" />
-    <link rel="stylesheet" href="./css/style.modal.css?new" />
-    <link rel="stylesheet" href="./css/style.responsive.css?new" />
+    <link rel="stylesheet" href="./css/style.base.css" />
+    <link rel="stylesheet" href="./css/style.layout.css" />
+    <link rel="stylesheet" href="./css/style.result.css" />
+    <link rel="stylesheet" href="./css/style.detail.css" />
+    <link rel="stylesheet" href="./css/style.modal.css" />
+    <link rel="stylesheet" href="./css/style.main.css" />
+    <link rel="stylesheet" href="./css/style.responsive.css" />
 
-    <script>
-      // JS에서 1vh = 실제 창 높이의 1%로 계산
-      function setVhUnit() {
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-      }
-
-      // 초기 설정
-      setVhUnit();
-
-      // 창 크기 변경 시 다시 계산
-      window.addEventListener('resize', setVhUnit);
-    </script>
+    <script src="./js/index.head.js"></script>
   </head>
   <body id="app">
     <!-- 지도 모달 -->
@@ -69,85 +58,45 @@
         <div id="map"></div>
       </div>
     </div>
-    <!-- <div id="infoModal6">
-      <div class="inner">
-        <div class="title">
-          <span>!! 안내드립니다 !! <b>만세력 UPDATE 378 ver.</b></span>
-        </div>
-        <div class="content">
-          <ul class="infoContent">
-            <li style="color: red; font-weight:bold;">이 만세력은 2026.03.13일에 종료 예정입니다. 참고해주세요 !</li>
-            <li>이 묘운 만세력은 테스트 단계이고, 만든 제가 개발자는 아닌지라 부족한 부분이 있습니다. 유의하시고 사용해주세요.</li>
-            <li>원국 명식의 경우, 팔자어때 앱과 교차확인 해가며 사용하시는 것을 추천드려요!</li>
-            <li>새로 고침은 자주 해주시면 좋습니다. 🥰</li>
-            <li>만약 새로고침 했는데도, 명식이 계속 이상하다 싶으시면 아예 다른 환경(브라우저)에서 사용하시는 것을 권장 드립니다...:)</li>
-            <li>명식 모두 삭제를 하실 경우, 브라우저 데이터가 삭제되어 팝업이 또 뜨게 됩니다 ! <br> 브라우저에서 보지 않기를 눌러주세요!
-              다른 브라우저 사용 & 캐시만 비워지지 않으면 이 팝업은 또 뜨지 않습니다 !
-            </li>
-          </ul>
-        </div>
-      </div> -->
-      <div class="btn_box">
-        <button id="lognTimeX">이 이후 브라우저에서 보지 않기</button>
-        <button id="closeX">닫기</button>
-      </div>
-    </div>
-    <script>
-      function clearAllMyoStorage() {
-        if (confirm('모든 저장된 명식을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.\n또한 모든 설정이 초기화 됩니다.')) {
-          localStorage.clear();
-          alert('모든 로컬 스토리지 데이터가 삭제되었습니다. 페이지를 새로고침합니다.');
-          location.reload();
-        }
-      }
-
-      /*document.addEventListener('DOMContentLoaded', () => {
-        const modal       = document.getElementById('infoModal6');
-        const hideForever = document.getElementById('lognTimeX');  // ← 수정
-        const closeBtn    = document.getElementById('closeX');
-
-        // 1) 페이지 로드 시, 숨김 플래그 확인
-        const hidden = localStorage.getItem('infoModalHidden6');
-        if (hidden === 'true') {
-          modal.style.display = 'none';
-          modal.style.zIndex = -1;
-        } else {
-          modal.style.display = 'block';
-          modal.style.zIndex = 1005;
-        }
-
-        // 2) “이 이후 브라우저에서 보지 않기” 클릭
-        hideForever.addEventListener('click', () => {
-          localStorage.setItem('infoModalHidden6', 'true');
-          modal.style.display = 'none';
-          modal.style.zIndex = -1;
-        });
-
-        // 3) “닫기” 클릭 (이번 세션만 닫기)
-        closeBtn.addEventListener('click', () => {
-          modal.style.display = 'none';
-          modal.style.zIndex = -1;
-        });
-      });*/
-    </script>
+    
     <div class="container" id="container">
 
       <!-- 헤더 -->
       <header class="header btn_box mt0">
-        <div class="inner flex_btn_2">
-          <button id="backBtn" class="black_btn head_btn back_btn">
-            명식 추가하기 +
-          </button>
-          <button id="listViewBtn" class="black_btn head_btn">
-            명식리스트 열기
-          </button>
-          <button id="returnBtn" class="black_btn head_btn" style="display: none;">돌아가기</button>
-          <button id="saveBtn" class="black_btn head_btn" style="display: none;">
-            명식저장
-          </button>
-          <button id="setBtn" class="black_btn head_btn" style="display: none;">
-            ⚙️설정
-          </button>
+        <div class="inner">
+          <h1 class="logo"><a href="/" title="홈으로가기">묘운만세력</a></h1>
+
+          <ul class="ul_flex">
+            <li>
+              <button id="backBtn" class="black_btn head_btn back_btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                  stroke-linejoin="round" class="lucide lucide-user-plus-icon lucide-user-plus">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/>
+                    <line x1="22" x2="16" y1="11" y2="11"/>
+                    <!-- <span>명식추가</span> -->
+                </svg>
+              </button>
+            </li>
+            <li>
+              <button id="listViewBtn" class="black_btn head_btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-user-icon lucide-book-user">
+                <path d="M15 13a3 3 0 1 0-6 0"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/>
+                <circle cx="12" cy="8" r="2"/>
+              </svg>
+              <!-- <span>명식리스트</span> -->
+            </button>
+            </li>
+            <li>
+              <button id="setBtn" class="black_btn head_btn" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings">
+                  <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </li>
+          </ul>
         </div>
       </header>
 
@@ -257,138 +206,6 @@
         </ul>
       </div>
       
-      <script>
-        const setBtn    = document.getElementById('setBtn');
-        const setModal  = document.getElementById('setModal');
-        const setcloseBtn  = setModal.querySelector('.close_btn');
-
-        // 1) #setBtn 클릭 → 모달 열기
-        setBtn.addEventListener('click', () => {
-          setModal.style.display = 'block';
-        });
-
-        // 2) 모달 내 .close_btn 클릭 → 모달 닫기
-        setcloseBtn.addEventListener('click', () => {
-          setModal.style.display = 'none';
-        });
-      </script>
-      <script>
-        document.addEventListener("DOMContentLoaded", function () {
-          const jijangganCheckbox = document.getElementById("jijangganDisplay");
-          const hanguelCheckbox = document.getElementById("hanguelDisplay");
-      
-          const jijangganSuffixes = ["Jj1", "Jj2"];
-          const hanguelSuffix = "Hanguel";
-      
-          const jijangganKey = "showJijanggan";
-          const hanguelKey = "showHanguel";
-      
-          const body = document.body;
-      
-          // 공통: 특정 접미사로 끝나는 id 요소들 토글
-          function toggleBySuffix(suffixes, show) {
-            suffixes.forEach(suffix => {
-              document.querySelectorAll(`[id$="${suffix}"]`).forEach(el => {
-                el.style.display = show ? "block" : "none";
-              });
-            });
-          }
-      
-          // ── 1. 초기 상태 복원 ──
-          const savedJjState = localStorage.getItem(jijangganKey);
-          const jjShouldShow = savedJjState === null ? true : savedJjState === "true";
-          jijangganCheckbox.checked = jjShouldShow;
-          toggleBySuffix(jijangganSuffixes, jjShouldShow);
-      
-          const savedHgState = localStorage.getItem(hanguelKey);
-          const hgShouldShow = savedHgState === null ? true : savedHgState === "true";
-          hanguelCheckbox.checked = hgShouldShow;
-          toggleBySuffix([hanguelSuffix], hgShouldShow);
-          if (!hgShouldShow) {
-            body.classList.add("no_hanguel");
-          }
-      
-          // ── 2. 이벤트 리스너 설정 ──
-          jijangganCheckbox.addEventListener("change", function () {
-            const isChecked = jijangganCheckbox.checked;
-            toggleBySuffix(jijangganSuffixes, isChecked);
-            localStorage.setItem(jijangganKey, isChecked.toString());
-          });
-      
-          hanguelCheckbox.addEventListener("change", function () {
-            const isChecked = hanguelCheckbox.checked;
-            toggleBySuffix([hanguelSuffix], isChecked);
-            localStorage.setItem(hanguelKey, isChecked.toString());
-      
-            if (isChecked) {
-              body.classList.remove("no_hanguel");
-            } else {
-              body.classList.add("no_hanguel");
-            }
-          });
-        });
-      </script>      
-      <script>
-        document.addEventListener('DOMContentLoaded', () => {
-          const chk = document.getElementById('eumyangDisplay');
-          const elems = document.querySelectorAll('.eum_yang');
-        
-          // 1) 로컬스토리지에서 이전 상태 읽기
-          const saved = localStorage.getItem('eumyangDisplay');
-          if (saved !== null) {
-            chk.checked = (saved === 'true');
-          }
-        
-          // 2) 표시 토글 함수
-          function toggleEumYang() {
-            elems.forEach(el => {
-              el.style.display = chk.checked ? '' : 'none';
-            });
-          }
-        
-          // 3) 초기 적용
-          toggleEumYang();
-        
-          // 4) 체크박스 변경 시
-          chk.addEventListener('change', () => {
-            localStorage.setItem('eumyangDisplay', chk.checked);
-            toggleEumYang();
-          });
-        });
-      </script>
-      <script>
-        document.addEventListener("DOMContentLoaded", function () {
-        const checkbox = document.getElementById("wolwoonDisplay");
-        const targetBox = document.getElementById("wongookLM");
-        const wolwoonBox = document.querySelector(".lucky.wolwoon");
-        const storageKey = "showWolwoon";
-
-        // ✅ 상태 적용 함수
-        function toggleWolwoonDisplay(show) {
-          if (show) {
-            targetBox.classList.remove("no_wolwoon");
-            if (wolwoonBox) wolwoonBox.style.display = "block";
-          } else {
-            targetBox.classList.add("no_wolwoon");
-            if (wolwoonBox) wolwoonBox.style.display = "none";
-          }
-        }
-
-        // ✅ 초기화 (로컬스토리지 → 없으면 기본값 true)
-        const saved = localStorage.getItem(storageKey);
-        const shouldShow = saved === null ? true : saved === "true";
-        checkbox.checked = shouldShow;
-        toggleWolwoonDisplay(shouldShow);
-
-        // ✅ 변경 시 반영
-        checkbox.addEventListener("change", function () {
-          const show = this.checked;
-          localStorage.setItem(storageKey, show);
-          toggleWolwoonDisplay(show);
-        });
-      });
-
-      </script>
       <!-- 사이드바 -->
       <aside id="aside" class="aside">
         <div class="inner">
@@ -528,203 +345,121 @@
           <ul class="input_me_group_set_ul" id="inputMeGroupSetUl"></ul>
         </div>
 
-        <style>
-        .site_nav {
-          background: #0b1220;
-          border-bottom: 1px solid rgba(255,255,255,0.08);
-          margin-bottom: 20px;
-        }
-
-        .site_nav .inner {
-          max-width: 780px;
-          margin: 0 auto;
-          padding: 10px 16px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
-        .site_nav .logo {
-          font-weight: 700;
-          font-size: 15px;
-          color: #fff;
-          text-decoration: none;
-        }
-
-        .site_nav .nav_menu {
-          display: flex;
-          gap: 16px;
-          list-style: none;
-          margin: 0;
-          padding: 0;
-        }
-
-        .site_nav .nav_menu a {
-          font-size: 13px;
-          color: rgba(255,255,255,0.85);
-          text-decoration: none;
-        }
-
-        .site_nav .nav_menu a:hover {
-          text-decoration: underline;
-        }
-
-        body.edit_mode .site_nav {
-          display: none;
-        }
-
-        body.add_mode .site_nav {
-          display: none;
-        }
-      </style>
-      <!-- SEO / 구조용 네비게이션 (새로 추가) -->
-      <nav class="site_nav">
-        <div class="inner">
-          <a href="/" class="logo">묘운만세력</a>
-          <ul class="nav_menu">
-            <li><a href="/">오늘의 사주</a></li>
-            <li><a href="/column/insi-ilsu.html">명리 칼럼</a></li>
-            <li><a href="/guide/">이용 가이드</a></li>
+        <nav class="nav">
+          <ul class="" aria-label="블로그메뉴">
+            <li><a href="/">메인으로</a></li>
+            <li><a href="/blog/myoun.blog.html">묘운력</a></li>
+            <li><a href="/blog/saju.html">사주자료</a></li>
+            <li><a href="/blog/c_note.html">개발노트</a></li>
+            <li><a href="/blog/nh_head_inner.html">주인장머릿속</a></li>
           </ul>
-        </div>
-      </nav>
+        </nav>
 
         <div class="today_meongsik_wrapper" id="todayWrapper">
-          <span class="pharases ver" style="position: absolute; right: 3%; transform: translateY(-100%);">Ver.378</span>
-          <div class="woonkuk">
-            <p class="buga_title"><span>오늘의 사주</span></p>
-            <ul class="grid_box grid_box_1 todaySaju">
-              <li class="siju_con">
-                <p class="label">시주</p>
-                <div id="todayHt10sin" class="ten_sin"></div>
-                <div class="hanja_con">
-                  <p id="todayHtEumyang" class="eum_yang"></p>
-                  <b id="todayHtHanja"></b>
-                  <p id="todayHtHanguel" class="hanguel"></p>
+          <div class="main_intro" aria-label="묘운만세력 소개">
+            <div class="guide_card">
+              <h2>묘운과 인시일수론</h2>
+              <p class="b">본 서비스의 일부인 <b>인시일수론</b> 및 <b>묘운</b>은 <b><ins>현묘</ins></b>의 관법을 기반으로 제작되었습니다. </p>
+            </div>
+            <div class="guide_card"> 
+              <div class="link"><a href="https://yavares.tistory.com/" target="_blank">👉 <ins>현묘 블로그 : 안녕, 사주명리</ins></a> 📄</div>
+              <div class="link"><a href="https://5seasons.co.kr/" target="_blank">👉 <ins>현묘 제자들의 상담, 파이브 시즌스</ins></a> 📞</div>
+            </div>
+            <div class="guide_card">
+              <h3>인시일수론 간략소개</h3>
+              <p>인시일수론이란, 기존의 "하루는 자시에 시작"된다는 틀을 깬, <ins>현묘</ins>의 관법이다.</p>
+              <div class="link"><a href="https://yavares.tistory.com/1013" target="_blank">👉 <ins>현묘 블로그 : 인시일수론에 대해</ins></a> 📄</div>
+            </div>
+            <div class="guide_card">
+              <h3>묘운력 기본 개념</h3>
+              <p>묘운력이란, 기존 대운을 8자로 확장한 <ins>현묘</ins>의 관법이다.</p>
+              <p>기존에 보던 대운은, 대운8자의 월주이다.</p>
+              <p>제대로 운을 보려면 대운도 8자로 확장하여, 보아야 한다는 것이 <ins>현묘</ins>의 관법이다.</p>
+              <p>묘운력의 계산에 대한 자세한 내용은 밑의 링크를 확인하세요.</p>
+              <div class="link"><a href="/blog/myoun.blog.html" target="_blank">👉 <ins>묘운력 : 상세설명 보러가기</ins></a> 📄</div>
+            </div>
+          </div>
+          <div class="today_saju">
+            <span class="pharases ver" style="position: absolute; right: 3%; transform: translateY(-100%);">V.2</span>
+            <div class="woonkuk">
+              <p class="buga_title"><span>오늘의 사주</span></p>
+              <ul class="grid_box grid_box_1 todaySaju" id="todaySajuGrid"></ul>
+              <div class="date_time_input_wrap radio_wrap" id="inputTime">
+                <div class="flex">
+                  <input type="datetime-local" class="date_time_input" id="dateTimeInput">
+                  <!--<button class="black_btn" id="dateChangeBtn">날짜바꾸기</button>-->
                 </div>
-              </li>
-              <li>
-                <p class="label">일주</p>
-                <div id="todayDt10sin" class="ten_sin"></div>
-                <div class="hanja_con">
-                  <p id="todayDtEumyang" class="eum_yang"></p>
-                  <b id="todayDtHanja"></b>
-                  <p id="todayDtHanguel" class="hanguel"></p>
+                <div class="flex">
+                  <label for="timeNone" class="timeNone"><input type="checkbox" id="timeNone">시간 없애기</label> &nbsp;&nbsp;&nbsp;
+                  <label for="jjNone" class="timeNone"><input type="checkbox" id="jjNone">지장간 정기만 보이기</label>
                 </div>
-              </li>
-              <li>
-                <p class="label">월주</p>
-                <div id="todayMt10sin" class="ten_sin"></div>
-                <div class="hanja_con">
-                  <p id="todayMtEumyang" class="eum_yang"></p>
-                  <b id="todayMtHanja"></b>
-                  <p id="todayMtHanguel" class="hanguel"></p>
-                </div>
-              </li>
-              <li>
-                <p class="label">연주</p>
-                <div id="todayYt10sin" class="ten_sin"></div>
-                <div class="hanja_con">
-                  <p id="todayYtEumyang" class="eum_yang"></p>
-                  <b id="todayYtHanja"></b>
-                  <p id="todayYtHanguel" class="hanguel"></p>
-                </div>
-              </li>
-              <!-- =================지지시작 ==========================-->
-              <li class="siju_con">
-                <div class="hanja_con">
-                  <p id="todayHbEumyang" class="eum_yang"></p>
-                  <b id="todayHbHanja"></b>
-                  <p id="todayHbHanguel" class="hanguel"></p>
-                </div>
-                <ul class="jijanggan" id="todayHbJj">
-                  <li id="todayHbJj1"><span class="hidden_stem"></span><span id="todayHbJj1_10sin" class="ten_sin_small"></span></li>
-                  <li id="todayHbJj2"><span class="hidden_stem"></span><span id="todayHbJj2_10sin" class="ten_sin_small"></span></li>
-                  <li id="todayHbJj3"><span class="hidden_stem"></span><span id="todayHbJj3_10sin" class="ten_sin_small"></span></li>
-                </ul>
-              </li>
-              <li class="">
-                <div class="hanja_con">
-                  <p id="todayDbEumyang" class="eum_yang"></p>
-                  <b id="todayDbHanja"></b>
-                  <p id="todayDbHanguel" class="hanguel"></p>
-                </div>
-                <ul class="jijanggan" id="todayDbJj">
-                  <li id="todayDbJj1"><span class="hidden_stem"></span><span id="todayDbJj1_10sin" class="ten_sin_small"></span></li>
-                  <li id="todayDbJj2"><span class="hidden_stem"></span><span id="todayDbJj2_10sin" class="ten_sin_small"></span></li>
-                  <li id="todayDbJj3"><span class="hidden_stem"></span><span id="todayDbJj3_10sin" class="ten_sin_small"></span></li>
-                </ul>
-              </li>
-              <li class="">
-                <div class="hanja_con">
-                  <p id="todayMbEumyang" class="eum_yang"></p>
-                  <b id="todayMbHanja"></b>
-                  <p id="todayMbHanguel" class="hanguel"></p>
-                </div>
-                <ul class="jijanggan" id="todayMbJj">
-                  <li id="todayMbJj1"><span class="hidden_stem"></span><span id="todayMbJj1_10sin" class="ten_sin_small"></span></li>
-                  <li id="todayMbJj2"><span class="hidden_stem"></span><span id="todayMbJj2_10sin" class="ten_sin_small"></span></li>
-                  <li id="todayMbJj3"><span class="hidden_stem"></span><span id="todayMbJj3_10sin" class="ten_sin_small"></span></li>
-                </ul>
-              </li>
-              <li class="">
-                <div class="hanja_con">
-                  <p id="todayYbEumyang" class="eum_yang"></p>
-                  <b id="todayYbHanja"></b>
-                  <p id="todayYbHanguel" class="hanguel"></p>
-                </div>
-                <ul class="jijanggan" id="todayYbJj">
-                  <li id="todayYbJj1"><span class="hidden_stem"></span><span id="todayYbJj1_10sin" class="ten_sin_small"></span></li>
-                  <li id="todayYbJj2"><span class="hidden_stem"></span><span id="todayYbJj2_10sin" class="ten_sin_small"></span></li>
-                  <li id="todayYbJj3"><span class="hidden_stem"></span><span id="todayYbJj3_10sin" class="ten_sin_small"></span></li>
-                </ul>
-              </li>
-            </ul>
-            <div class="date_time_input_wrap radio_wrap" id="inputTime">
-              <div class="flex">
-                <input type="datetime-local" class="date_time_input" id="dateTimeInput">
-                <!--<button class="black_btn" id="dateChangeBtn">날짜바꾸기</button>-->
-              </div>
-              <div class="flex">
-                <label for="timeNone" class="timeNone"><input type="checkbox" id="timeNone">시간 없애기</label> &nbsp;&nbsp;&nbsp;
-                <label for="jjNone" class="timeNone"><input type="checkbox" id="jjNone">지장간 정기만 보이기</label>
               </div>
             </div>
           </div>
-          <style>
-            .main_intro { border: 2px solid orange; border-radius: 10px; padding: 20px;
-              margin: 26px auto 0; max-width: 720px; background-color: #fff;}
+        </div>
 
-            .guide_card {
-              border-bottom: 1px solid #999;
-              padding-bottom: 10px;
-              margin-bottom: 10px;
-            }
+        <div class="main_intro site_intro" aria-label="사이트 소개">
+          <div class="guide_card">
+            <h2>사이트 소개</h2>
+            <p>현묘의 제자가 만든, 현묘의 관법을 녹여낸 묘운 만세력</p>
+          </div>
+          
+          <ul class="guide_card text-xs">
+            <li>다음과 같은 기능을 사용 또는 확인할 수 있습니다.</li>
+            <li>Basic: <b>(개인 고유) 사주원국 · 대운 · 묘운 · 궁합모드 (전체) 세운 · 월운 · 일운</b></li>
+            <li>Detail: <b>피커로 상세 조정하여, 날짜마다 운 확인</b> 가능, 일운 달력 넘겨보기 가능</li>
+            <li>Set: <b>설정에서 음간의 굵기 · 간지 한글/한자 표시 · 지장간 전체표시 · 월운 상단표시 · 십이신살 기준 설정</b> 가능</li>
+            <li>Ect: <b>브라우저에 한해서 (LocalStorage), 명식 저장 · 수정 · 삭제 · 관리 가능</b></li>
+            <li><b class="r">※ 사이트 이용은 자유이나, 사주풀이 · 궁합풀이 · 운풀이 등은 모두 사용자에게 권한과 책임이 있습니다.</b></li>
+          </ul>
+        </div>
 
-            .main_intro a {color: orange; font-weight: bold;}
-          </style>
-          <section class="main_intro" aria-label="묘운만세력 소개">
-            <div class="guide_card">
-              <h2>묘운과 인시일수론의 출처</h2>
-              <p class="b">본 서비스의 일부인 <b>인시일수론</b> 및 <b>묘운</b>은 <b><ins>현묘</ins></b>의 관법을 기반으로 제작되었습니다. </p>
-            </div>
-            <h2>묘운만세력 · 오늘의 사주</h2>
-            <p>
-              묘운만세력은 날짜와 시간 기준으로 사주 명식을 빠르게 확인할 수 있는 만세력 도구입니다.
-              인시일수론과 묘운 관점을 일부 참고하여 계산 결과를 정리했습니다.
+        <div class="main_intro creator_intro" aria-label="제작자 소개">
+          <div class="guide_card">
+            <h2>제작자 소개</h2>
+            <p>이력</p>
+            <p>- 2017 ~ ing 웹 퍼블리셔(현: 웹 퍼블리싱 프리랜서)</p>
+            <p>- 2024년 9월 현묘 강의 5기 계유반 (전)반장 ~ 전문반까지 수료</p>
+            <p>- 2024년 4월경부터 독학을 시작. 2024년 9월경부터 유료 상담 시작</p>
+            <p>- 유/무료 상담 (지인포함) 건수 전부 포함 300건 이상</p>
+          </div>
+          <div class="guide_card">
+            <p>★ 이 사이트의 개요</p>
+            <p>- 현묘쌤의 수업을 듣고, 문득 묘운력이라는 것이 어떻게 작용을 하는지 궁금해서 사이트를 만들게 되었습니다.</p>
+            <p>- 처음에는 스스로의 호기심에 답해주기 위해, 만들었으나 많은 분들께서 이용하시면 더 좋다고 생각했습니다.</p>
+          </div>
+          <div class="guide_card">
+            <p>★ 이 사이트의 장점?</p>
+            <p>- 저는 웹 퍼블리셔 출신이라서 최대한 UI(User Interface - 사용자 점접), 
+              UX (User Exparance - 사용자 경험)에 신경을 많이 쓰고 만든 편입니다.
+              사이트를 이용하시기 편하도록 하였고, 디자인에도 신경을 많이 썼습니다.
+              사주의 경우 느낌 자체가 딱딱해 보일 수 있기 때문에, 소프트한 느낌을 넣으려고 신경을 많이 썼습니다.
+              사주 명식을 풀 때, 만세력이 예쁘면 보기 좋잖아요 😊
             </p>
+            <p>
+              - 공부 많이 했습니다. 제가 사주 공부한 시간이 다른 전문가분들에 비해, 길지는 않지만
+              대운수, 썸머타임, 경도에 의한 균시차 계산, 해외절기(절기) 등 공부를 꽤 깊이한 편입니다.
+              만세력을 만들 때, 정말 디테일한것까지 신경을 많이 썼습니다.
+            </p>
+          </div>
+           <div class="guide_card">
+            <p>★ 이 사이트의 특별함/독창성</p>
+            <p>- 아무래도 현묘쌤의 관법이 들어간 유일무이한 사이트, 라는 것이 이 사이트의 아이덴티티이지 않을까 싶네요 :)
+            </p>
+          </div>
+        </div>
 
-            <ul class="main_links">
-              <li>
-                📘 <a href="/guide/">묘운만세력 이용 가이드</a>
-                <span>— 사용법과 계산 기준 안내</span>
-              </li>
-              <li>
-                📚 <a href="/column/insi-ilsu.html">인시일수론이란?</a>
-                <span>— 시간 경계 해석 관점 설명</span>
-              </li>
-            </ul>
-          </section>
+        <div class="main_intro creator_intro" aria-label="계획 소개">
+          <div class="guide_card">
+            <h2>앞으로의 계획</h2>
+            <p>- 본래는 사이트를 닫을 예정이었어요. (공지도 올렸었구요.)<br>
+              기능 업데이트는 따로 없을 예정입니다. (신규사이트에 기능 업데이트 예정)<br>
+              앞으로는 이 사이트 만세력 기능은 유지하되, 유지/보수는 이어나갈 생각입니다.
+              <a href="mailto:unique950318@gmail.com">unique950318@gmail.com</a> 유지/보수건은 이쪽으로 메일 주시면 됩니다 !
+            </p>
+            <br>
+            <p>이 사이트는 앞으로 사주 자료등을 모으는 블로그로 운영예정입니다 :)</p>
+          </div>
         </div>
         
         <!-- 결과 출력 -->
@@ -741,11 +476,7 @@
                 data-full-width-responsive="true"></ins>
             
           </div>
-          <script>
-              (adsbygoogle = window.adsbygoogle || []).push({});
-          </script>
           
-
           <!-- 정보 출력 -->
           <div class="info_box">
             <div class="type_sv_wrap info_type" >
@@ -873,105 +604,7 @@
             <!-- 원국 출력 -->
             <div class="woonkuk">
               <p class="buga_title"><span>원국</span></p>
-              <ul class="grid_box grid_box_1">
-                <li class="siju_con">
-                  <p class="label">시주</p>
-                  <div id="Ht10sin" class="ten_sin"></div>
-                  <div class="hanja_con">
-                    <p id="HtEumyang" class="eum_yang"></p>
-                    <b id="HtHanja"></b>
-                    <p id="HtHanguel" class="hanguel"></p>
-                  </div>
-                </li>
-                <li>
-                  <p class="label">일주</p>
-                  <div id="Dt10sin" class="ten_sin"></div>
-                  <div class="hanja_con">
-                    <p id="DtEumyang" class="eum_yang"></p>
-                    <b id="DtHanja"></b>
-                    <p id="DtHanguel" class="hanguel"></p>
-                  </div>
-                </li>
-                <li>
-                  <p class="label">월주</p>
-                  <div id="Mt10sin" class="ten_sin"></div>
-                  <div class="hanja_con">
-                    <p id="MtEumyang" class="eum_yang"></p>
-                    <b id="MtHanja"></b>
-                    <p id="MtHanguel" class="hanguel"></p>
-                  </div>
-                </li>
-                <li>
-                  <p class="label">연주</p>
-                  <div id="Yt10sin" class="ten_sin"></div>
-                  <div class="hanja_con">
-                    <p id="YtEumyang" class="eum_yang"></p>
-                    <b id="YtHanja"></b>
-                    <p id="YtHanguel" class="hanguel"></p>
-                  </div>
-                </li>
-                <!-- =================지지시작 ==========================-->
-                <li class="siju_con">
-                  <div class="hanja_con">
-                    <p id="HbEumyang" class="eum_yang"></p>
-                    <b id="HbHanja"></b>
-                    <p id="HbHanguel" class="hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="HbJj">
-                    <li id="HbJj1"></li>
-                    <li id="HbJj2"></li>
-                    <li id="HbJj3"></li>
-                  </ul>
-                  <div id="Hb10sin" class="ten_sin"></div>
-                  <div id="Hb12ws" class="woon_seong"></div>
-                  <div id="Hb12ss" class="sin_sal"></div>
-                </li>
-                <li class="">
-                  <div class="hanja_con">
-                    <p id="DbEumyang" class="eum_yang"></p>
-                    <b id="DbHanja"></b>
-                    <p id="DbHanguel" class="hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="DbJj">
-                    <li id="DbJj1"></li>
-                    <li id="DbJj2"></li>
-                    <li id="DbJj3"></li>
-                  </ul>
-                  <div id="Db10sin" class="ten_sin"></div>
-                  <div id="Db12ws" class="woon_seong"></div>
-                  <div id="Db12ss" class="sin_sal"></div>
-                </li>
-                <li class="">
-                  <div class="hanja_con">
-                    <p id="MbEumyang" class="eum_yang"></p>
-                    <b id="MbHanja"></b>
-                    <p id="MbHanguel" class="hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="MbJj">
-                    <li id="MbJj1"></li>
-                    <li id="MbJj2"></li>
-                    <li id="MbJj3"></li>
-                  </ul>
-                  <div id="Mb10sin" class="ten_sin"></div>
-                  <div id="Mb12ws" class="woon_seong"></div>
-                  <div id="Mb12ss" class="sin_sal"></div>
-                </li>
-                <li class="">
-                  <div class="hanja_con">
-                    <p id="YbEumyang" class="eum_yang"></p>
-                    <b id="YbHanja"></b>
-                    <p id="YbHanguel" class="hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="YbJj">
-                    <li id="YbJj1"></li>
-                    <li id="YbJj2"></li>
-                    <li id="YbJj3"></li>
-                  </ul>
-                  <div id="Yb10sin" class="ten_sin"></div>
-                  <div id="Yb12ws" class="woon_seong"></div>
-                  <div id="Yb12ss" class="sin_sal"></div>
-                </li>
-              </ul>
+              <ul class="grid_box grid_box_1" id="wongookGrid"></ul>
             </div>
             
           </div>
@@ -988,208 +621,11 @@
           <div class="woon_container" id="woonContainer" style="display: none;">
             <div class="myowoon w50">
               <p class="buga_title"><span>묘운 (대운팔자)</span></p>
-              <ul class="grid_box grid_box_1">
-                <li class="siju_con_ siju_con4 siju_con5">
-                  <p class="label">시주</p>
-                  <div id="MyoHt10sin" class="ten_sin innerClear"></div>
-                  <div class="hanja_con">
-                    <p id="MyoHtEumyang" class="eum_yang innerClear"></p>
-                    <b id="MyoHtHanja" class="innerClear"></b>
-                    <p id="MyoHtHanguel" class="innerClear hanguel"></p>
-                  </div>
-                </li>
-                <li class="siju_con_ siju_con4 siju_con5">
-                  <p class="label">일주</p>
-                  <div id="MyoDt10sin" class="ten_sin innerClear"></div>
-                  <div class="hanja_con">
-                    <p id="MyoDtEumyang" class="eum_yang innerClear"></p>
-                    <b id="MyoDtHanja" class="innerClear"></b>
-                    <p id="MyoDtHanguel" class="innerClear hanguel"></p>
-                  </div>
-                </li>
-                <li>
-                  <p class="label">월주</p>
-                  <div id="MyoMt10sin" class="ten_sin innerClear"></div>
-                  <div class="hanja_con">
-                    <p id="MyoMtEumyang" class="eum_yang innerClear"></p>
-                    <b id="MyoMtHanja" class="innerClear"></b>
-                    <p id="MyoMtHanguel" class="innerClear hanguel"></p>
-                  </div>
-                </li>
-                <li>
-                  <p class="label">연주</p>
-                  <div id="MyoYt10sin" class="ten_sin innerClear"></div>
-                  <div class="hanja_con">
-                    <p id="MyoYtEumyang" class="eum_yang innerClear"></p>
-                    <b id="MyoYtHanja" class="innerClear"></b>
-                    <p id="MyoYtHanguel" class="innerClear hanguel"></p>
-                  </div>
-                </li>
-                <!-- =================지지시작 ==========================-->
-                <li class="siju_con_ siju_con4 siju_con5"> 
-                  <div class="hanja_con">
-                    <p id="MyoHbEumyang" class="eum_yang innerClear"></p>
-                    <b id="MyoHbHanja" class="innerClear"></b>
-                    <p id="MyoHbHanguel" class="innerClear hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="MyoHbJj">
-                    <li id="MyoHbJj1" class="innerClear"></li>
-                    <li id="MyoHbJj2" class="innerClear"></li>
-                    <li id="MyoHbJj3" class="innerClear"></li>
-                  </ul>
-                  <div id="MyoHb10sin" class="ten_sin innerClear"></div>
-                  <div id="MyoHb12ws" class="woon_seong innerClear"></div>
-                  <div id="MyoHb12ss" class="sin_sal innerClear"></div>
-                </li>
-                <li class="siju_con_ siju_con4 siju_con5">
-                  <div class="hanja_con">
-                    <p id="MyoDbEumyang" class="eum_yang innerClear"></p>
-                    <b id="MyoDbHanja" class="innerClear"></b>
-                    <p id="MyoDbHanguel" class="innerClear hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="MyoDbJj">
-                    <li id="MyoDbJj1" class="innerClear"></li>
-                    <li id="MyoDbJj2" class="innerClear"></li>
-                    <li id="MyoDbJj3" class="innerClear"></li>
-                  </ul>
-                  <div id="MyoDb10sin" class="ten_sin innerClear"></div>
-                  <div id="MyoDb12ws" class="woon_seong innerClear"></div>
-                  <div id="MyoDb12ss" class="sin_sal innerClear"></div>
-                </li>
-                <li>
-                  <div class="hanja_con">
-                    <p id="MyoMbEumyang" class="eum_yang innerClear"></p>
-                    <b id="MyoMbHanja" class="innerClear"></b>
-                    <p id="MyoMbHanguel" class="innerClear hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="MyoMbJj">
-                    <li id="MyoMbJj1" class="innerClear"></li>
-                    <li id="MyoMbJj2" class="innerClear"></li>
-                    <li id="MyoMbJj3" class="innerClear"></li>
-                  </ul>
-                  <div id="MyoMb10sin" class="ten_sin innerClear"></div>
-                  <div id="MyoMb12ws" class="woon_seong innerClear"></div>
-                  <div id="MyoMb12ss" class="sin_sal innerClear"></div>
-                </li>
-                <li>
-                  <div class="hanja_con">
-                    <p id="MyoYbEumyang" class="eum_yang innerClear"></p>
-                    <b id="MyoYbHanja" class="innerClear"></b>
-                    <p id="MyoYbHanguel" class="innerClear hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="MyoYbJj">
-                    <li id="MyoYbJj1" class="innerClear"></li>
-                    <li id="MyoYbJj2" class="innerClear"></li>
-                    <li id="MyoYbJj3" class="innerClear"></li>
-                  </ul>
-                  <div id="MyoYb10sin" class="ten_sin innerClear"></div>
-                  <div id="MyoYb12ws" class="woon_seong innerClear"></div>
-                  <div id="MyoYb12ss" class="sin_sal innerClear"></div>
-                </li>
-              </ul>
+              <ul class="grid_box grid_box_1" id="myowoonGrid"></ul>
             </div>
             <div class="woon_wrap w50" id="woonWrap">
               <p class="buga_title"><span>시운/일운/월운/연운(세운)</span></p>
-              <ul class="grid_box grid_box_1 reverse">
-                <li>
-                  <p class="label">세운</p>
-                  <div id="WSwt10sin" class="ten_sin innerClear"></div>
-                  <div class="hanja_con">
-                    <p id="WSwtEumyang" class="eum_yang innerClear"></p>
-                    <b id="WSwtHanja" class="innerClear"></b>
-                    <p id="WSwtHanguel" class="innerClear hanguel"></p>
-                  </div>
-                </li>
-                <li>
-                  <p class="label">월운</p>
-                  <div id="WMt10sin" class="ten_sin innerClear"></div>
-                  <div class="hanja_con">
-                    <p id="WMtEumyang" class="eum_yang innerClear"></p>
-                    <b id="WMtHanja" class="innerClear"></b>
-                    <p id="WMtHanguel" class="innerClear hanguel" ></p>
-                  </div>
-                </li>
-                <li class="siju_con4">
-                  <p class="label">일운</p>
-                  <div id="WDt10sin" class="ten_sin innerClear"></div>
-                  <div class="hanja_con">
-                    <p id="WDtEumyang" class="eum_yang innerClear"></p>
-                    <b id="WDtHanja" class="innerClear"></b>
-                    <p id="WDtHanguel" class="innerClear hanguel" ></p>
-                  </div>
-                </li>
-                <li class="siju_con4">
-                  <p class="label">시운</p>
-                  <div id="WTt10sin" class="ten_sin innerClear"></div>
-                  <div class="hanja_con">
-                    <p id="WTtEumyang" class="eum_yang innerClear"></p>
-                    <b id="WTtHanja" class="innerClear"></b>
-                    <p id="WTtHanguel" class="innerClear hanguel" ></p>
-                  </div>
-                </li>
-                <!-- =================지지시작 ==========================-->
-                <li>
-                  <div class="hanja_con">
-                    <p id="WSwbEumyang" class="eum_yang innerClear"></p>
-                    <b id="WSwbHanja" class="innerClear"></b>
-                    <p id="WSwbHanguel" class="hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="WSbJj">
-                    <li id="WSbJj1" class="innerClear"></li>
-                    <li id="WSbJj2" class="innerClear"></li>
-                    <li id="WSbJj3" class="innerClear"></li>
-                  </ul>
-                  <div id="WSb10sin" class="ten_sin innerClear"></div>
-                  <div id="WSWb12ws" class="woon_seong innerClear"></div>
-                  <div id="WSWb12ss" class="sin_sal innerClear"></div>
-                </li>
-                <li>
-                  <div class="hanja_con">
-                    <p id="WMbEumyang" class="eum_yang innerClear"></p>
-                    <b id="WMbHanja" class="innerClear"></b>
-                    <p id="WMbHanguel" class="hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="WMbJj">
-                    <li id="WMbJj1" class="innerClear"></li>
-                    <li id="WMbJj2" class="innerClear"></li>
-                    <li id="WMbJj3" class="innerClear"></li>
-                  </ul>
-                  <div id="WMb10sin" class="ten_sin innerClear"></div>
-                  <div id="WMb12ws" class="woon_seong innerClear"></div>
-                  <div id="WMb12ss" class="sin_sal innerClear"></div>
-                </li>
-                </li>
-                <li class="siju_con4">
-                  <div class="hanja_con">
-                    <p id="WDbEumyang" class="eum_yang innerClear"></p>
-                    <b id="WDbHanja" class="innerClear"></b>
-                    <p id="WDbHanguel" class="hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="WDbJj">
-                    <li id="WDbJj1" class="innerClear"></li>
-                    <li id="WDbJj2" class="innerClear"></li>
-                    <li id="WDbJj3" class="innerClear"></li>
-                  </ul>
-                  <div id="WDb10sin" class="ten_sin innerClear"></div>
-                  <div id="WDb12ws" class="woon_seong innerClear"></div>
-                  <div id="WDb12ss" class="sin_sal innerClear"></div>
-                </li>
-                <li class="siju_con4">
-                  <div class="hanja_con">
-                    <p id="WTbEumyang" class="eum_yang innerClear"></p>
-                    <b id="WTbHanja" class="innerClear"></b>
-                    <p id="WTbHanguel" class="hanguel"></p>
-                  </div>
-                  <ul class="jijanggan" id="WYbJj">
-                    <li id="WTbJj1" class="innerClear"></li>
-                    <li id="WTbJj2" class="innerClear"></li>
-                    <li id="WTbJj3" class="innerClear"></li>
-                  </ul>
-                  <div id="WTb10sin" class="ten_sin innerClear"></div>
-                  <div id="WTb12ws" class="woon_seong innerClear"></div>
-                  <div id="WTb12ss" class="sin_sal innerClear"></div>
-                </li>
-              </ul>
+              <ul class="grid_box grid_box_1 reverse" id="woonWrapGrid"></ul>
             </div>
           </div>
 
@@ -1236,116 +672,6 @@
             <div class="scroll_x">
               <!-- 대운리스트 -->
               <ul class="grid_box grid_box_11 fortune_section reverse" id="daewoonList">
-                <li id="daewoon_1" data-index="1" >
-                  <div class="dage w innerClear" id="Da1"></div>
-                  <div class="dt10sin1 w innerClear" id="dt10sin1"></div>
-                  <div class="ganji_w innerClear" id="DC_1"></div>
-                  <div class="ganji_w innerClear" id="DJ_1"></div>
-                  <div class="db10sin1 w innerClear" id="db10sin1"></div>
-                  <div class="dwoo1 w innerClear" id="DwW1"></div>
-                  <div class="dsin1 w innerClear" id="Ds1"></div>
-                  
-                </li>
-                <li id="daewoon_2" data-index="2" >
-                  <div class="dage w innerClear" id="Da2"></div>
-                  <div class="dt10sin2 w innerClear" id="dt10sin2"></div>
-                  <div class="ganji_w innerClear" id="DC_2"></div>
-                  <div class="ganji_w innerClear" id="DJ_2"></div>
-                  <div class="db10sin2 w innerClear" id="db10sin2"></div>
-                  <div class="dwoo2 w innerClear" id="DwW2"></div>
-                  <div class="dsin2 w innerClear" id="Ds2"></div>
-                  
-                </li>
-                <li id="daewoon_3" data-index="3" >
-                  <div class="dage w innerClear" id="Da3"></div>
-                  <div class="dt10sin3 w innerClear" id="dt10sin3"></div>
-                  <div class="ganji_w innerClear" id="DC_3"></div>
-                  <div class="ganji_w innerClear" id="DJ_3"></div>
-                  <div class="db10sin3 w innerClear" id="db10sin3"></div>
-                  <div class="dwoo3 w innerClear" id="DwW3"></div>
-                  <div class="dsin3 w innerClear" id="Ds3"></div>
-                  
-                </li>
-                <li id="daewoon_4" data-index="4" >
-                  <div class="dage w innerClear" id="Da4"></div>
-                  <div class="dt10sin4 w innerClear" id="dt10sin4"></div>
-                  <div class="ganji_w innerClear" id="DC_4"></div>
-                  <div class="ganji_w innerClear" id="DJ_4"></div>
-                  <div class="db10sin4 w innerClear" id="db10sin4"></div>
-                  <div class="dwoo4 w innerClear" id="DwW4"></div>
-                  <div class="dsin4 w innerClear" id="Ds4"></div>
-                  
-                </li>
-                <li id="daewoon_5" data-index="5" >
-                  <div class="dage w innerClear" id="Da5"></div>
-                  <div class="dt10sin3 w innerClear" id="dt10sin5"></div>
-                  <div class="ganji_w innerClear" id="DC_5"></div>
-                  <div class="ganji_w innerClear" id="DJ_5"></div>
-                  <div class="db10sin5 w innerClear" id="db10sin5"></div>
-                  <div class="dwoo5 w innerClear" id="DwW5"></div>
-                  <div class="dsin5 w innerClear" id="Ds5"></div>
-                  
-                </li>
-                <li id="daewoon_6" data-index="6" >
-                  <div class="dage w innerClear" id="Da6"></div>
-                  <div class="dt10sin3 w innerClear" id="dt10sin6"></div>
-                  <div class="ganji_w innerClear" id="DC_6"></div>
-                  <div class="ganji_w innerClear" id="DJ_6"></div>
-                  <div class="db10sin6 w innerClear" id="db10sin6"></div>
-                  <div class="dwoo6 w innerClear" id="DwW6"></div>
-                  <div class="dsin6 w innerClear" id="Ds6"></div>
-                  
-                </li>
-                <li id="daewoon_7" data-index="7" >
-                  <div class="dage w innerClear" id="Da7"></div>
-                  <div class="dt10sin3 w innerClear" id="dt10sin7"></div>
-                  <div class="ganji_w innerClear" id="DC_7"></div>
-                  <div class="ganji_w innerClear" id="DJ_7"></div>
-                  <div class="db10sin7 w innerClear" id="db10sin7"></div>
-                  <div class="dwoo7 w innerClear" id="DwW7"></div>
-                  <div class="dsin7 w innerClear" id="Ds7"></div>
-                  
-                </li>
-                <li id="daewoon_8" data-index="8" >
-                  <div class="dage w innerClear" id="Da8"></div>
-                  <div class="dt10sin3 w innerClear" id="dt10sin8"></div>
-                  <div class="ganji_w innerClear" id="DC_8"></div>
-                  <div class="ganji_w innerClear" id="DJ_8"></div>
-                  <div class="db10sin8 w innerClear" id="db10sin8"></div>
-                  <div class="dwoo8 w innerClear" id="DwW8"></div>
-                  <div class="dsin8 w innerClear" id="Ds8"></div>
-                  
-                </li>
-                <li id="daewoon_9" data-index="9" >
-                  <div class="dage w innerClear" id="Da9"></div>
-                  <div class="dt10sin3 w innerClear" id="dt10sin9"></div>
-                  <div class="ganji_w innerClear" id="DC_9"></div>
-                  <div class="ganji_w innerClear" id="DJ_9"></div>
-                  <div class="db10sin9 w innerClear" id="db10sin9"></div>
-                  <div class="dwoo9 w innerClear" id="DwW9"></div>
-                  <div class="dsin9 w innerClear" id="Ds9"></div>
-                  
-                </li>
-                <li id="daewoon_10" data-index="10" >
-                  <div class="dage w innerClear" id="Da10"></div>
-                  <div class="dt10sin3 w innerClear" id="dt10sin10"></div>
-                  <div class="ganji_w innerClear" id="DC_10"></div>
-                  <div class="ganji_w innerClear" id="DJ_10"></div>
-                  <div class="db10sin10 w innerClear" id="db10sin10"></div>
-                  <div class="dwoo10 w innerClear" id="DwW10"></div>
-                  <div class="dsin10 w innerClear" id="Ds10"></div>
-                  
-                </li>
-                <li id="daewoon_11" data-index="11" >
-                  <div class="dage w innerClear" id="Da11"></div>
-                  <div class="dt10sin3 w innerClear" id="dt10sin11"></div>
-                  <div class="ganji_w innerClear" id="DC_11"></div>
-                  <div class="ganji_w innerClear" id="DJ_11"></div>
-                  <div class="db10sin11 w innerClear" id="db10sin11"></div>
-                  <div class="dwoo11 w innerClear" id="DwW11"></div>
-                  <div class="dsin11 w innerClear" id="Ds11"></div>
-                  
-                </li>
               </ul>
             </div>
             <div class="sewoon_area">
@@ -1353,116 +679,6 @@
               <div class="scroll_x">
                 <!-- 세운리스트 -->
                 <ul class="grid_box grid_box_10 fortune_section reverse" id="sewoonList">
-                  <li id="Sewoon_1" data-index2="1" data-year="" id="sewoonStart">
-                    <div class="dyear w" id="Dy1"></div>
-                    <div class="syear w" id="Sy1"></div>
-                    <div class="st10sin1 w" id="st10sin1"></div>
-                    <div class="ganji_w" id="SC_1"></div>
-                    <div class="ganji_w" id="SJ_1"></div>
-                    <div class="sb10sin1 w" id="sb10sin1"></div>
-                    <div class="swoo1 w" id="SwW1"></div>
-                    <div class="ssin1 w" id="Ss1"></div>
-                    
-                  </li>
-                  <li id="Sewoon_2" data-index2="2" data-year="">
-                    <div class="dyear w" id="Dy2"></div>
-                    <div class="syear w" id="Sy2"></div>
-                    <div class="st10sin2 w" id="st10sin2"></div>
-                    <div class="ganji_w" id="SC_2"></div>
-                    <div class="ganji_w" id="SJ_2"></div>
-                    <div class="sb10sin2 w" id="sb10sin2"></div>
-                    <div class="swoo1 w" id="SwW2"></div>
-                    <div class="ssin1 w" id="Ss2"></div>
-                    
-                  </li>
-                  <li id="Sewoon_3" data-index2="3" data-year="">
-                    <div class="dyear w" id="Dy3"></div>
-                    <div class="syear w" id="Sy3"></div>
-                    <div class="st10sin3 w" id="st10sin3"></div>
-                    <div class="ganji_w" id="SC_3"></div>
-                    <div class="ganji_w" id="SJ_3"></div>
-                    <div class="sb10sin3 w" id="sb10sin3"></div>
-                    <div class="swoo1 w" id="SwW3"></div>
-                    <div class="ssin1 w" id="Ss3"></div>
-                    
-                  </li>
-                  <li id="Sewoon_4" data-index2="4" data-year="">
-                    <div class="dyear w" id="Dy4"></div>
-                    <div class="syear w" id="Sy4"></div>
-                    <div class="st10sin4 w" id="st10sin4"></div>
-                    <div class="ganji_w" id="SC_4"></div>
-                    <div class="ganji_w" id="SJ_4"></div>
-                    <div class="sb10sin4 w" id="sb10sin4"></div>
-                    <div class="swoo1 w" id="SwW4"></div>
-                    <div class="ssin1 w" id="Ss4"></div>
-                    
-                  </li>
-                  <li id="Sewoon_5" data-index2="5" data-year="">
-                    <div class="dyear w" id="Dy5"></div>
-                    <div class="syear w" id="Sy5"></div>
-                    <div class="st10sin5 w" id="st10sin5"></div>
-                    <div class="ganji_w" id="SC_5"></div>
-                    <div class="ganji_w" id="SJ_5"></div>
-                    <div class="sb10sin5 w" id="sb10sin5"></div>
-                    <div class="swoo1 w" id="SwW5"></div>
-                    <div class="ssin1 w" id="Ss5"></div>
-                    
-                  </li>
-                  <li id="Sewoon_6" data-index2="6" data-year="">
-                    <div class="dyear w" id="Dy6"></div>
-                    <div class="syear w" id="Sy6"></div>
-                    <div class="st10sin6 w" id="st10sin6"></div>
-                    <div class="ganji_w" id="SC_6"></div>
-                    <div class="ganji_w" id="SJ_6"></div>
-                    <div class="sb10sin6 w" id="sb10sin6"></div>
-                    <div class="swoo1 w" id="SwW6"></div>
-                    <div class="ssin1 w" id="Ss6"></div>
-                    
-                  </li>
-                  <li id="Sewoon_7" data-index2="7" data-year="">
-                    <div class="dyear w" id="Dy7"></div>
-                    <div class="syear w" id="Sy7"></div>
-                    <div class="st10sin7 w" id="st10sin7"></div>
-                    <div class="ganji_w" id="SC_7"></div>
-                    <div class="ganji_w" id="SJ_7"></div>
-                    <div class="sb10sin7 w" id="sb10sin7"></div>
-                    <div class="swoo1 w" id="SwW7"></div>
-                    <div class="ssin1 w" id="Ss7"></div>
-                    
-                  </li>
-                  <li id="Sewoon_8" data-index2="8" data-year="">
-                    <div class="dyear w" id="Dy8"></div>
-                    <div class="syear w" id="Sy8"></div>
-                    <div class="st10sin8 w" id="st10sin8"></div>
-                    <div class="ganji_w" id="SC_8"></div>
-                    <div class="ganji_w" id="SJ_8"></div>
-                    <div class="sb10sin8 w" id="sb10sin8"></div>
-                    <div class="swoo1 w" id="SwW8"></div>
-                    <div class="ssin1 w" id="Ss8"></div>
-                    
-                  </li>
-                  <li id="Sewoon_9" data-index2="9" data-year="">
-                    <div class="dyear w" id="Dy9"></div>
-                    <div class="syear w" id="Sy9"></div>
-                    <div class="st10sin9 w" id="st10sin9"></div>
-                    <div class="ganji_w" id="SC_9"></div>
-                    <div class="ganji_w" id="SJ_9"></div>
-                    <div class="sb10sin9 w" id="sb10sin9"></div>
-                    <div class="swoo1 w" id="SwW9"></div>
-                    <div class="ssin1 w" id="Ss9"></div>
-                    
-                  </li>
-                  <li id="Sewoon_10" data-index2="10" data-year="" id="sewoonEnd">
-                    <div class="dyear w" id="Dy10"></div>
-                    <div class="syear w" id="Sy10"></div>
-                    <div class="st10sin10 w" id="st10sin10"></div>
-                    <div class="ganji_w" id="SC_10"></div>
-                    <div class="ganji_w" id="SJ_10"></div>
-                    <div class="sb10sin10 w" id="sb10sin10"></div>
-                    <div class="swoo1 w" id="SwW10"></div>
-                    <div class="ssin1 w" id="Ss10"></div>
-                    
-                  </li>
                 </ul>
               </div>
             </div>
@@ -1471,126 +687,6 @@
               <div class="scroll_x">
                 <!-- 월운리스트 -->
                 <ul class="grid_box grid_box_12 fortune_section reverse" id="mowoonList">
-                  <li id="Mowoon_1" data-index3="2" data-solar-term="입춘">
-                    <div class="dmonth w" id="Dm1"></div>
-                    <div class="t10sin1 w" id="Mot10sin1"></div>
-                    <div class="ganji_w" id="MC_1"></div>
-                    <div class="ganji_w" id="MJ_1"></div>
-                    <div class="mb10sin1 w" id="Mob10sin1"></div>
-                    <div class="mwoo1 w" id="MwW1"></div>
-                    <div class="msin1 w" id="Ms1"></div>
-                    
-                  </li>
-                  <li id="Mowoon_2" data-index3="3" data-solar-term="경칩">
-                    <div class="dmonth w" id="Dm2"></div>
-                    <div class="mt20sin2 w" id="Mot10sin2"></div>
-                    <div class="ganji_w" id="MC_2"></div>
-                    <div class="ganji_w" id="MJ_2"></div>
-                    <div class="mb20sin2 w" id="Mob10sin2"></div>
-                    <div class="mwoo2 w" id="MwW2"></div>
-                    <div class="msin2 w" id="Ms2"></div>
-                    
-                  </li>
-                  <li id="Mowoon_3" data-index3="4" data-solar-term="청명">
-                    <div class="dmonth w" id="Dm3"></div>
-                    <div class="mt30sin3 w" id="Mot10sin3"></div>
-                    <div class="ganji_w" id="MC_3"></div>
-                    <div class="ganji_w" id="MJ_3"></div>
-                    <div class="mb30sin3 w" id="Mob10sin3"></div>
-                    <div class="mwoo3 w" id="MwW3"></div>
-                    <div class="msin3 w" id="Ms3"></div>
-                    
-                  </li>
-                  <li id="Mowoon_4" data-index3="5" data-solar-term="입하">
-                    <div class="dmonth w" id="Dm4"></div>
-                    <div class="mt40sin4 w" id="Mot10sin4"></div>
-                    <div class="ganji_w" id="MC_4"></div>
-                    <div class="ganji_w" id="MJ_4"></div>
-                    <div class="mb40sin4 w" id="Mob10sin4"></div>
-                    <div class="mwoo4 w" id="MwW4"></div>
-                    <div class="msin4 w" id="Ms4"></div>
-                    
-                  </li>
-                  <li id="Mowoon_5" data-index3="6" data-solar-term="망종">
-                    <div class="dmonth w" id="Dm5"></div>
-                    <div class="mt50sin5 w" id="Mot10sin5"></div>
-                    <div class="ganji_w" id="MC_5"></div>
-                    <div class="ganji_w" id="MJ_5"></div>
-                    <div class="mb50sin5 w" id="Mob10sin5"></div>
-                    <div class="mwoo5 w" id="MwW5"></div>
-                    <div class="msin5 w" id="Ms5"></div>
-                    
-                  </li>
-                  <li id="Mowoon_6" data-index3="7" data-solar-term="소서">
-                    <div class="dmonth w" id="Dm6"></div>
-                    <div class="mt60sin6 w" id="Mot10sin6"></div>
-                    <div class="ganji_w" id="MC_6"></div>
-                    <div class="ganji_w" id="MJ_6"></div>
-                    <div class="mb60sin6 w" id="Mob10sin6"></div>
-                    <div class="mwoo6 w" id="MwW6"></div>
-                    <div class="msin6 w" id="Ms6"></div>
-                    
-                  </li>
-                  <li id="Mowoon_7" data-index3="8" data-solar-term="입추">
-                    <div class="dmonth w" id="Dm7"></div>
-                    <div class="mt70sin7 w" id="Mot10sin7"></div>
-                    <div class="ganji_w" id="MC_7"></div>
-                    <div class="ganji_w" id="MJ_7"></div>
-                    <div class="mb70sin7 w" id="Mob10sin7"></div>
-                    <div class="mwoo7 w" id="MwW7"></div>
-                    <div class="msin7 w" id="Ms7"></div>
-                    
-                  </li>
-                  <li id="Mowoon_8" data-index3="9" data-solar-term="백로">
-                    <div class="dmonth w" id="Dm8"></div>
-                    <div class="mt80sin8 w" id="Mot10sin8"></div>
-                    <div class="ganji_w" id="MC_8"></div>
-                    <div class="ganji_w" id="MJ_8"></div>
-                    <div class="mb80sin8 w" id="Mob10sin8"></div>
-                    <div class="mwoo8 w" id="MwW8"></div>
-                    <div class="msin8 w" id="Ms8"></div>
-                    
-                  </li>
-                  <li id="Mowoon_9" data-index3="10" data-solar-term="한로">
-                    <div class="dmonth w" id="Dm9"></div>
-                    <div class="mt90sin9 w" id="Mot10sin9"></div>
-                    <div class="ganji_w" id="MC_9"></div>
-                    <div class="ganji_w" id="MJ_9"></div>
-                    <div class="mb90sin9 w" id="Mob10sin9"></div>
-                    <div class="mwoo9 w" id="MwW9"></div>
-                    <div class="msin9 w" id="Ms9"></div>
-                    
-                  </li>
-                  <li id="Mowoon_10" data-index3="11" data-solar-term="입동">
-                    <div class="dmonth w" id="Dm10"></div>
-                    <div class="mt100sin10 w" id="Mot10sin10"></div>
-                    <div class="ganji_w" id="MC_10"></div>
-                    <div class="ganji_w" id="MJ_10"></div>
-                    <div class="mb100sin10 w" id="Mob10sin10"></div>
-                    <div class="mwoo10 w" id="MwW10"></div>
-                    <div class="msin10 w" id="Ms10"></div>
-                    
-                  </li>
-                  <li id="Mowoon_11" data-index3="12" data-solar-term="대설">
-                    <div class="dmonth w" id="Dm11"></div>
-                    <div class="mt110sin11 w" id="Mot10sin11"></div>
-                    <div class="ganji_w" id="MC_11"></div>
-                    <div class="ganji_w" id="MJ_11"></div>
-                    <div class="mb110sin11 w" id="Mob10sin11"></div>
-                    <div class="mwoo11 w" id="MwW11"></div>
-                    <div class="msin11 w" id="Ms11"></div>
-                    
-                  </li>
-                  <li id="Mowoon_12" data-index3="1" data-solar-term="소한">
-                    <div class="dmonth w" id="Dm12"></div>
-                    <div class="mt120sin12 w" id="Mot10sin12"></div>
-                    <div class="ganji_w" id="MC_12"></div>
-                    <div class="ganji_w" id="MJ_12"></div>
-                    <div class="mb120sin12 w" id="Mob10sin12"></div>
-                    <div class="mwoo12 w" id="MwW12"></div>
-                    <div class="msin12 w" id="Ms12"></div>
-                    
-                  </li>
                 </ul>
               </div>
             </div>
@@ -1605,16 +701,8 @@
               data-ad-client="ca-pub-4729618898154189"
               data-ad-slot="3868873416"
               data-full-width-responsive="true"></ins>
-          <script>
-              (adsbygoogle = window.adsbygoogle || []).push({});
-          </script>
+          
         </div>
-        <style>
-          .footer a {
-            text-decoration: none;
-            color: #fff;
-          }
-        </style>
         <!-- 푸터 -->
         <footer class="footer">
           <nav style="margin-bottom: 10px;">
@@ -1626,17 +714,6 @@
         </footer>
       </div>
 
-      <script>
-        window.addEventListener('load', () => {
-          setTimeout(() => {
-            try {
-              (adsbygoogle = window.adsbygoogle || []).push({});
-            } catch (e) {
-              console.log(e);
-            }
-          }, 800); // 0.8초 후 실행
-        });
-      </script>
 
       <!-- 궁합모드 -->
       <div class="couple_mode_wrap">
@@ -1662,207 +739,11 @@
               <div class="wongook_lucky" >
                 <div class="woonkuk">
                   <p class="buga_title"><span>원국</span></p>
-                  <ul class="grid_box grid_box_1 grid_box_8">
-                    <li class="siju_con3">
-                      <p class="label">시주</p>
-                      <div id="CHt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CHtEumyang" class="eum_yang"></p>
-                        <b id="CHtHanja"></b>
-                        <p id="CHtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li class="siju_con3">
-                      <p class="label">일주</p>
-                      <div id="CDt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CDtEumyang" class="eum_yang"></p>
-                        <b id="CDtHanja"></b>
-                        <p id="CDtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li class="siju_con3">
-                      <p class="label">월주</p>
-                      <div id="CMt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CMtEumyang" class="eum_yang"></p>
-                        <b id="CMtHanja"></b>
-                        <p id="CMtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li class="siju_con3">
-                      <p class="label">연주</p>
-                      <div id="CYt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CYtEumyang" class="eum_yang"></p>
-                        <b id="CYtHanja"></b>
-                        <p id="CYtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <!-- =================지지시작 ==========================-->
-                    <li class="siju_con3">
-                      <div class="hanja_con">
-                        <p id="CHbEumyang" class="eum_yang"></p>
-                        <b id="CHbHanja"></b>
-                        <p id="CHbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CHbJj">
-                        <li id="CHbJj1"></li>
-                        <li id="CHbJj2"></li>
-                        <li id="CHbJj3"></li>
-                      </ul>
-                      <div id="CHb10sin" class="ten_sin"></div>
-                      <div id="CHb12ws" class="woon_seong"></div>
-                      <div id="CHb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CDbEumyang" class="eum_yang"></p>
-                        <b id="CDbHanja"></b>
-                        <p id="CDbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CDbJj">
-                        <li id="CDbJj1"></li>
-                        <li id="CDbJj2"></li>
-                        <li id="CDbJj3"></li>
-                      </ul>
-                      <div id="CDb10sin" class="ten_sin"></div>
-                      <div id="CDb12ws" class="woon_seong"></div>
-                      <div id="CDb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CMbEumyang" class="eum_yang"></p>
-                        <b id="CMbHanja"></b>
-                        <p id="CMbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CMbJj">
-                        <li id="CMbJj1"></li>
-                        <li id="CMbJj2"></li>
-                        <li id="CMbJj3"></li>
-                      </ul>
-                      <div id="CMb10sin" class="ten_sin"></div>
-                      <div id="CMb12ws" class="woon_seong"></div>
-                      <div id="CMb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CYbEumyang" class="eum_yang"></p>
-                        <b id="CYbHanja"></b>
-                        <p id="CYbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CYbJj">
-                        <li id="CYbJj1"></li>
-                        <li id="CYbJj2"></li>
-                        <li id="CYbJj3"></li>
-                      </ul>
-                      <div id="CYb10sin" class="ten_sin"></div>
-                      <div id="CYb12ws" class="woon_seong"></div>
-                      <div id="CYb12ss" class="sin_sal"></div>
-                    </li>
-                  </ul>
+                  <ul class="grid_box grid_box_1 grid_box_8" id="coupleMyGrid"></ul>
                 </div>
                 <div class="myowoon w50">
                   <p class="buga_title"><span>묘운 (대운팔자)</span></p>
-                  <ul class="grid_box grid_box_1 grid_box_8">
-                    <li class="siju_con3">
-                      <p class="label">시주</p>
-                      <div id="CMyoHt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CMyoHtEumyang" class="eum_yang"></p>
-                        <b id="CMyoHtHanja"></b>
-                        <p id="CMyoHtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li class="siju_con3">
-                      <p class="label">일주</p>
-                      <div id="CMyoDt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CMyoDtEumyang" class="eum_yang"></p>
-                        <b id="CMyoDtHanja"></b>
-                        <p id="CMyoDtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li>
-                      <p class="label">월주</p>
-                      <div id="CMyoMt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CMyoMtEumyang" class="eum_yang"></p>
-                        <b id="CMyoMtHanja"></b>
-                        <p id="CMyoMtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li>
-                      <p class="label">연주</p>
-                      <div id="CMyoYt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CMyoYtEumyang" class="eum_yang"></p>
-                        <b id="CMyoYtHanja"></b>
-                        <p id="CMyoYtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <!-- =================지지시작 ==========================-->
-                    <li class="siju_con3">
-                      <div class="hanja_con">
-                        <p id="CMyoHbEumyang" class="eum_yang"></p>
-                        <b id="CMyoHbHanja"></b>
-                        <p id="CMyoHbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CMyoHbJj">
-                        <li id="CMyoHbJj1"></li>
-                        <li id="CMyoHbJj2"></li>
-                        <li id="CMyoHbJj3"></li>
-                      </ul>
-                      <div id="CMyoHb10sin" class="ten_sin"></div>
-                      <div id="CMyoHb12ws" class="woon_seong"></div>
-                      <div id="CMyoHb12ss" class="sin_sal"></div>
-                    </li>
-                    <li class="siju_con3">
-                      <div class="hanja_con">
-                        <p id="CMyoDbEumyang" class="eum_yang"></p>
-                        <b id="CMyoDbHanja"></b>
-                        <p id="CMyoDbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CMyoDbJj">
-                        <li id="CMyoDbJj1"></li>
-                        <li id="CMyoDbJj2"></li>
-                        <li id="CMyoDbJj3"></li>
-                      </ul>
-                      <div id="CMyoDb10sin" class="ten_sin"></div>
-                      <div id="CMyoDb12ws" class="woon_seong"></div>
-                      <div id="CMyoDb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CMyoMbEumyang" class="eum_yang"></p>
-                        <b id="CMyoMbHanja"></b>
-                        <p id="CMyoMbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CMyoMbJj">
-                        <li id="CMyoMbJj1"></li>
-                        <li id="CMyoMbJj2"></li>
-                        <li id="CMyoMbJj3"></li>
-                      </ul>
-                      <div id="CMyoMb10sin" class="ten_sin"></div>
-                      <div id="CMyoMb12ws" class="woon_seong"></div>
-                      <div id="CMyoMb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CMyoYbEumyang" class="eum_yang"></p>
-                        <b id="CMyoYbHanja"></b>
-                        <p id="CMyoYbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CMyoYbJj">
-                        <li id="CMyoYbJj1"></li>
-                        <li id="CMyoYbJj2"></li>
-                        <li id="CMyoYbJj3"></li>
-                      </ul>
-                      <div id="CMyoYb10sin" class="ten_sin"></div>
-                      <div id="CMyoYb12ws" class="woon_seong"></div>
-                      <div id="CMyoYb12ss" class="sin_sal"></div>
-                    </li>
-                  </ul>
+                  <ul class="grid_box grid_box_1 grid_box_8" id="coupleMyMyoGrid"></ul>
                 </div>
               </div>
             </div>
@@ -1883,207 +764,11 @@
               <div class="wongook_lucky" >
                 <div class="woonkuk">
                   <p class="buga_title"><span>원국</span></p>
-                  <ul class="grid_box grid_box_1 grid_box_8">
-                    <li class="siju_con3">
-                      <p class="label">시주</p>
-                      <div id="CPHt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CPHtEumyang" class="eum_yang"></p>
-                        <b id="CPHtHanja"></b>
-                        <p id="CPHtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li class="siju_con3">
-                      <p class="label">일주</p>
-                      <div id="CPDt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CPDtEumyang" class="eum_yang"></p>
-                        <b id="CPDtHanja"></b>
-                        <p id="CPDtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li class="siju_con3">
-                      <p class="label">월주</p>
-                      <div id="CPMt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CPMtEumyang" class="eum_yang"></p>
-                        <b id="CPMtHanja"></b>
-                        <p id="CPMtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li class="siju_con3">
-                      <p class="label">연주</p>
-                      <div id="CPYt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CPYtEumyang" class="eum_yang"></p>
-                        <b id="CPYtHanja"></b>
-                        <p id="CPYtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <!-- =================지지시작 ==========================-->
-                    <li class="siju_con3">
-                      <div class="hanja_con">
-                        <p id="CPHbEumyang" class="eum_yang"></p>
-                        <b id="CPHbHanja"></b>
-                        <p id="CPHbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CPHbJj">
-                        <li id="CPHbJj1"></li>
-                        <li id="CPHbJj2"></li>
-                        <li id="CPHbJj3"></li>
-                      </ul>
-                      <div id="CPHb10sin" class="ten_sin"></div>
-                      <div id="CPHb12ws" class="woon_seong"></div>
-                      <div id="CPHb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CPDbEumyang" class="eum_yang"></p>
-                        <b id="CPDbHanja"></b>
-                        <p id="CPDbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CPDbJj">
-                        <li id="CPDbJj1"></li>
-                        <li id="CPDbJj2"></li>
-                        <li id="CPDbJj3"></li>
-                      </ul>
-                      <div id="CPDb10sin" class="ten_sin"></div>
-                      <div id="CPDb12ws" class="woon_seong"></div>
-                      <div id="CPDb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CPMbEumyang" class="eum_yang"></p>
-                        <b id="CPMbHanja"></b>
-                        <p id="CPMbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CPMbJj">
-                        <li id="CPMbJj1"></li>
-                        <li id="CPMbJj2"></li>
-                        <li id="CPMbJj3"></li>
-                      </ul>
-                      <div id="CPMb10sin" class="ten_sin"></div>
-                      <div id="CPMb12ws" class="woon_seong"></div>
-                      <div id="CPMb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CPYbEumyang" class="eum_yang"></p>
-                        <b id="CPYbHanja"></b>
-                        <p id="CPYbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CPYbJj">
-                        <li id="CPYbJj1"></li>
-                        <li id="CPYbJj2"></li>
-                        <li id="CPYbJj3"></li>
-                      </ul>
-                      <div id="CPYb10sin" class="ten_sin"></div>
-                      <div id="CPYb12ws" class="woon_seong"></div>
-                      <div id="CPYb12ss" class="sin_sal"></div>
-                    </li>
-                  </ul>
+                  <ul class="grid_box grid_box_1 grid_box_8" id="couplePartnerGrid"></ul>
                 </div>
                 <div class="myowoon w50">
                   <p class="buga_title"><span>묘운 (대운팔자)</span></p>
-                  <ul class="grid_box grid_box_1 grid_box_8">
-                    <li class="siju_con3">
-                      <p class="label">시주</p>
-                      <div id="CPMyoHt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CPMyoHtEumyang" class="eum_yang"></p>
-                        <b id="CPMyoHtHanja"></b>
-                        <p id="CPMyoHtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li class="siju_con3">
-                      <p class="label">일주</p>
-                      <div id="CPMyoDt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CPMyoDtEumyang" class="eum_yang"></p>
-                        <b id="CPMyoDtHanja"></b>
-                        <p id="CPMyoDtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li>
-                      <p class="label">월주</p>
-                      <div id="CPMyoMt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CPMyoMtEumyang" class="eum_yang"></p>
-                        <b id="CPMyoMtHanja"></b>
-                        <p id="CPMyoMtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <li>
-                      <p class="label">연주</p>
-                      <div id="CPMyoYt10sin" class="ten_sin"></div>
-                      <div class="hanja_con">
-                        <p id="CPMyoYtEumyang" class="eum_yang"></p>
-                        <b id="CPMyoYtHanja"></b>
-                        <p id="CPMyoYtHanguel" class="hanguel"></p>
-                      </div>
-                    </li>
-                    <!-- =================지지시작 ==========================-->
-                    <li class="siju_con3">
-                      <div class="hanja_con">
-                        <p id="CPMyoHbEumyang" class="eum_yang"></p>
-                        <b id="CPMyoHbHanja"></b>
-                        <p id="CPMyoHbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CPMyoHbJj">
-                        <li id="CPMyoHbJj1"></li>
-                        <li id="CPMyoHbJj2"></li>
-                        <li id="CPMyoHbJj3"></li>
-                      </ul>
-                      <div id="CPMyoHb10sin" class="ten_sin"></div>
-                      <div id="CPMyoHb12ws" class="woon_seong"></div>
-                      <div id="CPMyoHb12ss" class="sin_sal"></div>
-                    </li>
-                    <li class="siju_con3">
-                      <div class="hanja_con">
-                        <p id="CPMyoDbEumyang" class="eum_yang"></p>
-                        <b id="CPMyoDbHanja"></b>
-                        <p id="CPMyoDbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CPMyoDbJj">
-                        <li id="CPMyoDbJj1"></li>
-                        <li id="CPMyoDbJj2"></li>
-                        <li id="CPMyoDbJj3"></li>
-                      </ul>
-                      <div id="CPMyoDb10sin" class="ten_sin"></div>
-                      <div id="CPMyoDb12ws" class="woon_seong"></div>
-                      <div id="CPMyoDb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CPMyoMbEumyang" class="eum_yang"></p>
-                        <b id="CPMyoMbHanja"></b>
-                        <p id="CPMyoMbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CPMyoMbJj">
-                        <li id="CPMyoMbJj1"></li>
-                        <li id="CPMyoMbJj2"></li>
-                        <li id="CPMyoMbJj3"></li>
-                      </ul>
-                      <div id="CPMyoMb10sin" class="ten_sin"></div>
-                      <div id="CPMyoMb12ws" class="woon_seong"></div>
-                      <div id="CPMyoMb12ss" class="sin_sal"></div>
-                    </li>
-                    <li>
-                      <div class="hanja_con">
-                        <p id="CPMyoYbEumyang" class="eum_yang"></p>
-                        <b id="CPMyoYbHanja"></b>
-                        <p id="CPMyoYbHanguel" class="hanguel"></p>
-                      </div>
-                      <ul class="jijanggan" id="CPMyoYbJj">
-                        <li id="CPMyoYbJj1"></li>
-                        <li id="CPMyoYbJj2"></li>
-                        <li id="CPMyoYbJj3"></li>
-                      </ul>
-                      <div id="CPMyoYb10sin" class="ten_sin"></div>
-                      <div id="CPMyoYb12ws" class="woon_seong"></div>
-                      <div id="CPMyoYb12ss" class="sin_sal"></div>
-                    </li>
-                  </ul>
+                  <ul class="grid_box grid_box_1 grid_box_8" id="couplePartnerMyoGrid"></ul>
                 </div>
               </div>
             </div>
@@ -2127,40 +812,16 @@
       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
       <script src=" https://cdn.jsdelivr.net/npm/chinese-date-formatter@1.0.7/index.min.js"></script>
-      <script type="module" src="./common.js"></script>
-      <script type="module" src="./common.patched.js"></script>
+      <script src="./js/index.templates.js"></script>
+      <script src="./js/common.input.js"></script>
+      <script src="./js/calc/common.calc.js"></script>
+      <script src="./js/common.output.js"></script>
+      <script src="./js/common.storage.js"></script>
+      <script src="./js/common.storage-interface.js"></script>
+      <script src="./common.patched.js"></script>
+      <script src="./js/nav.notice.js"></script>
+      <script src="./js/index.inline.js"></script>
     </div>
-
-    <script>
-      const TIMEOUT_MS = 3 * 60 * 60 * 1000; // 1시간
-    
-      // 1. 페이지가 열릴 때 localStorage 기반 시간 체크
-      const now = Date.now();
-      const lastVisit = localStorage.getItem("lastVisitTime");
-    
-      if (lastVisit) {
-        const diff = now - Number(lastVisit);
-        if (diff > TIMEOUT_MS) {
-          location.reload();
-        }
-      }
-      localStorage.setItem("lastVisitTime", now);
-    
-      // 2. 페이지 열려있는 상태에서 일정 시간 후 새로고침
-      setTimeout(() => location.reload(), TIMEOUT_MS);
-    
-      // 3. 모바일 백그라운드 → 다시 보일 때 시간 차 체크
-      let hiddenTime = Date.now();
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "hidden") {
-          hiddenTime = Date.now();
-        } else if (document.visibilityState === "visible") {
-          const now = Date.now();
-          if (now - hiddenTime > TIMEOUT_MS) {
-            location.reload();
-          }
-        }
-      });
-    </script>
   </body>
 </html>
+

@@ -1,0 +1,80 @@
+@font-face {
+    font-family: 'NanumMyeongjoOldHangeul';
+    src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumMyeongjoYetHangul/NanumMyeongjo-YetHangul.eot);
+    src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumMyeongjoYetHangul/NanumMyeongjo-YetHangul.eot?#iefix) format("embedded-opentype"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumMyeongjoYetHangul/NanumMyeongjo-YetHangul.woff2) format("woff2"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumMyeongjoYetHangul/NanumMyeongjo-YetHangul.woff) format("woff"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumMyeongjoYetHangul/NanumMyeongjo-YetHangul.ttf) format("truetype");
+}
+
+.sub__ {
+  padding: 40px 0;
+  max-width: 688px;
+  margin: auto;
+  color: #fff;
+}
+
+.sub__ a {
+  color:#EED36C;
+}
+
+.sub__ h2 {
+  margin-bottom: 20px;
+  color:#EED36C;
+}
+
+.sub__ p {
+  margin-bottom: 10px;
+  font-size: 14px;
+  line-height: 180%;
+}
+
+.sub__ pre {
+  /* 1. 기본 여백 초기화 및 여유 공간 확보 */
+  margin: 0;
+  margin-bottom: 20px;
+  padding: 24px 12px;         /* 상하좌우 여백을 넉넉히 주면 훨씬 고급져요 */
+  box-sizing: border-box; 
+  
+  /* 2. 텍스트 가둠 (이미지처럼 삐져나오는 것 방지) */
+  white-space: pre-wrap;
+  word-break: keep-all;
+  max-width: 100%;
+
+  /* 3. 시각적 정렬 (가장 중요한 부분!) */
+  text-align: justify;    /* 양쪽 정렬로 끝 선을 깔끔하게 맞춤 */
+  line-height: 1.8;       /* 사주 풀이 글은 줄 간격이 넓어야 잘 읽힙니다 */
+  letter-spacing: -0.02em; /* 자간을 살짝 조여서 전문적인 느낌 추가 */
+
+  /* 4. 폰트 세팅 */
+  font-family: 'NanumMyeongjoOldHangeul', -apple-system, sans-serif; /* 굴림체 탈출! */
+  color: #e0e0e0;         /* 완전 흰색보다 살짝 탁한 회색이 눈이 덜 아파요 */
+  background-color: #0d1117; /* 배경색에 맞춘 어두운 톤 */
+  border-radius: 12px;    /* 모서리 곡률로 부드러운 이미지 생성 */
+}
+
+.table {
+  font-size: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.table th,
+.table td {
+  padding: 4px;
+  border: 1px solid #fff;
+  text-align: center;
+}
+
+.footer {
+  max-width: 700px; 
+  width: 100%; 
+  margin: auto;
+  padding: 20px 10px;
+  background-color: #011627; 
+  text-align: center;
+  color: #EED36C;
+  font-size: 12px;
+}
+
+.footer a {
+  text-decoration: none;
+  color: #fff;
+}

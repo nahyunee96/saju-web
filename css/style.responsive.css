@@ -184,12 +184,6 @@
   .btn_box.mb40 {
     margin-bottom: 4vw;
   }
-  
-  .black_btn {
-    padding: 0 10vw;
-    height: 6.2vw;
-    font-size: 3.228vw;
-  }
 
   .hour_list button.black_btn {
     height: 8vw;  
@@ -312,26 +306,30 @@
     min-height: 10.8vw;
   }
 
+  .nav ul {
+    padding: 8px 4px;
+  }
+
+  .nav ul li a {
+    font-size: 12px;
+    text-wrap: nowrap;
+  }
+
   .today_meongsik_wrapper {
-    padding-top: 40px;
+    flex-direction: column;
+  }
+
+  .today_meongsik_wrapper .woonkuk {
+    width: 57%;
+    margin: auto;
   }
 
   .today_meongsik_wrapper .ver {
     right: 10% !important;
   }
 
-  .grid_box_1 li .hanja_con {
-    /* width: 12vw; */
-    /*height: 10.8vw;*/
-  }
-
-  .no_wolwoon .grid_box_1 li .hanja_con {
-    /* width: 14.2vw; */
-  }
-
-  .ganji .hanja_con {
-    /* width: 12vw; */
-    /*height: 10.8vw;*/
+  .today_meongsik_wrapper .main_intro {
+    order: 2;
   }
 
   .no_wolwoon .ganji .hanja_con {
@@ -341,11 +339,6 @@
   .w100 .grid_box_1 li .hanja_con {
     height: 13.6vw;
     font-size: 9.2vw;
-  }
-
-  .w50 .grid_box_1 li .hanja_con {
-    /* width: 10.4vw; */
-    /*height: 9.6vw;*/
   }
 
   .grid_box_1.grid_box_8 li .hanja_con {
@@ -486,7 +479,7 @@
   }
 
   .container .header {
-    height: 12vw;
+    height: 60px;
   }
 
   .header .flex_btn_2 button {
