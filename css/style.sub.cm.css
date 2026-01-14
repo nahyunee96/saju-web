@@ -303,7 +303,7 @@ main{
 }
 
 /* 리스트(카드) */
-.note-list{
+.sub__ ul.note-list{
   list-style:none;
   margin: 0;
   padding: 0;
@@ -651,4 +651,75 @@ tbody tr:last-child td{ border-bottom:0; }
     line-height: 1.9;
   }
   .sub__ p { margin-bottom: 13px; }
+}
+
+/* ===== 하단 링크 이동 (이전글/다음글) ===== */
+.sub__ ul.link_move{
+  list-style: none;
+  margin: 24px 0 10px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.link_move li{
+  margin: 0;
+  padding: 0;
+}
+
+.link_move a{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 12px 14px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  box-shadow: 0 8px 18px rgba(10, 30, 55, 0.10);
+
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.86);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.link_move a.is-disabled{
+  pointer-events: none;
+  opacity: 0.45;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(10, 30, 55, 0.08);
+  box-shadow: none;
+}
+
+.link_move li:first-child a::before{
+  content: "←";
+  opacity: 0.7;
+}
+
+.link_move li:last-child a::after{
+  content: "→";
+  opacity: 0.7;
+}
+
+/* hover */
+@media (hover:hover) and (pointer:fine){
+  .link_move a{
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .link_move a:hover{
+    transform: translateY(8px);
+    border-color: rgba(10, 30, 55, 0.14);
+    box-shadow: 0 12px 26px rgba(10, 30, 55, 0.12);
+  }
+}
+
+/* 모바일: 세로로 */
+@media (max-width: 520px){
+  .link_move{
+    grid-template-columns: 1fr;
+  }
 }
