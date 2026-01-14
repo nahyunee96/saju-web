@@ -134,7 +134,6 @@ pre{
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(5, 20, 33, .72);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(10px);
   max-width: 1080px;
