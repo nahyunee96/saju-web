@@ -1,585 +1,654 @@
-/* =========================
-   FONT
-========================= */
-@font-face {
-  font-family: 'NanumMyeongjoOldHangeul';
-  src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumMyeongjoYetHangul/NanumMyeongjo-YetHangul.woff2) format("woff2"),
-       url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumMyeongjoYetHangul/NanumMyeongjo-YetHangul.woff) format("woff");
-  font-weight: normal;
-  font-style: normal;
+/* /css/style.base.css */
+:root{
+  --bg-0:#061827;
+  --bg-1:#04121e;
+  --panel:#0b2336;
+  --panel-2:#0e2a40;
+  --card:#0f2f47;
+  --line:rgba(255,255,255,.10);
+  --line-2:rgba(255,255,255,.16);
+
+  --text:#eaf2ff;
+  --muted:rgba(234,242,255,.72);
+  --muted-2:rgba(234,242,255,.56);
+
+  --brand:#4aa3ff;
+  --brand-2:#7fd1ff;
+  --gold:#d7b46a;
+
+  --radius:14px;
+  --radius-sm:10px;
+  --shadow:0 10px 28px rgba(0,0,0,.35);
+
+  --fs-1: clamp(24px, 2.1vw, 32px);
+  --fs-2: clamp(18px, 1.6vw, 22px);
+  --fs-3: 16px;
+  --fs-4: 14px;
+
+  --lh: 1.75;
 }
 
-/* =========================
-   GLOBAL
-========================= */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+/* ==============================
+   ✅ 배경 그라디언트 "구분선(끊김)" 해결
+   - 긴 컨텐츠에서도 배경이 1장으로 유지되게
+   - wrapper 배경이 겹쳐서 생기는 끊김도 같이 제거
+============================== */
+
+/* 페이지 바닥색(혹시 ::before가 렌더링 안 될 때 대비) */
+html {
+  background: #020b14;
+}
+
+/* body 배경은 비우고, 고정 레이어로만 처리 */
 body {
-  background: linear-gradient(180deg, #011627 0%, #021b33 100%);
-  color: #f5f5f5;
-}
-
-body, html {
- min-height: 100%;
-}
-
-/* =========================
-   ARTICLE WRAP
-========================= */
-.sub__ {
-  padding: 64px 20px 80px;
-  max-width: 720px;
-  margin: auto;
-  font-family: 'NanumMyeongjoOldHangeul', serif;
-  letter-spacing: -0.01em;
-}
-
-/* =========================
-   TITLE
-========================= */
-.sub__ h2 {
-  margin-bottom: 32px;
-  font-size: 26px;
-  font-weight: normal;
-  color: #EED36C;
-  text-align: center;
   position: relative;
-}
-
-.sub__ h2::after {
-  content: "";
-  display: block;
-  width: 80px;
-  height: 1px;
-  background: rgba(238, 211, 108, 0.6);
-  margin: 16px auto 0;
-}
-
-/* =========================
-   PARAGRAPH
-========================= */
-.sub__ p {
-  margin-bottom: 18px;
-  font-size: 14.5px;
-  line-height: 1.9;
-  color: #eaeaea;
-}
-
-.sub__ p ins {
-  color: #EED36C;
-  text-decoration: none;
-  font-style: normal;
-}
-
-/* 개인 의견 구간 */
-.sub__ b {
-  color: #EED36C;
-  font-weight: normal;
-}
-
-/* =========================
-   LINK
-========================= */
-.sub__ a {
-  color: #EED36C;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(238, 211, 108, 0.4);
-  padding-bottom: 2px;
-}
-
-.sub__ a:hover {
-  opacity: 0.85;
-}
-
-/* =========================
-   TABLE
-========================= */
-.table {
-  width: 100%;
-  margin: 28px 0 40px;
-  border-collapse: collapse;
-  font-size: 12.5px;
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(2px);
-}
-
-.table th {
-  background: rgba(238, 211, 108, 0.12);
-  color: #EED36C;
-  font-weight: normal;
-}
-
-.table th,
-.table td {
-  padding: 8px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  text-align: center;
-  line-height: 1.5;
-}
-
-.table tr:nth-child(even) td {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-/* 테이블 설명 문구 */
-.table + p {
-  font-size: 12px;
-  color: #bbb;
-  text-align: center;
-  margin-top: -20px;
-}
-
-/* =========================
-   FOOTER
-========================= */
-.footer {
-  max-width: 720px;
-  margin: 80px auto 0;
-  padding: 24px 16px;
-  text-align: center;
-  font-size: 12px;
-  color: #EED36C;
-  border-top: 1px solid rgba(238, 211, 108, 0.3);
-}
-
-.footer a {
+  min-height: 100dvh;
+  background: transparent !important;
+  isolation: isolate; /* z-index -1이 html 밑으로 꺼지는 거 방지 */
   color: #fff;
+}
+
+/* ✅ 고정 배경 레이어: 페이지 길이랑 무관하게 "한 장" */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  /* 여기 그라디언트는 네 사이트 톤에 맞춘 기본값.
+     색감만 조금씩 조정하면 됨 */
+  background:
+    radial-gradient(1200px 800px at 50% -10%, rgba(52, 122, 255, 0.18), rgba(0,0,0,0) 60%),
+    radial-gradient(900px 700px at 0% 90%, rgba(0, 200, 170, 0.10), rgba(0,0,0,0) 55%),
+    linear-gradient(180deg, #041b2b 0%, #031423 45%, #020b14 100%);
+
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  /* 크롬에서 미세한 밴딩/이음선 줄이는 용 */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* wrapper들이 배경을 따로 들고 있으면 "끊긴 것처럼" 보일 수 있어서 강제 투명 처리 */
+main,
+.container,
+.sub__,
+.tab-content,
+.tab-panel {
+  background: transparent !important;
+}
+
+
+a{
+  color: var(--brand-2);
   text-decoration: none;
 }
+a:hover{ text-decoration: underline; }
 
-.footer a:hover {
-  opacity: 0.8;
+img{ max-width: 100%; display:block; }
+
+hr{
+  border:0;
+  border-top:1px solid var(--line);
+  margin: 28px 0;
 }
 
-/* =========================
-   SAJU NOTE LIST
-========================= */
+small{ color: var(--muted); }
 
-.note-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: .95em;
+  background: rgba(255,255,255,.06);
+  padding: 2px 6px;
+  border-radius: 8px;
 }
 
-.note-item {
-  margin-bottom: 28px;
+pre{
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  overflow:auto;
 }
 
-.note-item a {
-  display: block;
-  padding: 20px 18px;
-  border: 1px solid rgba(238, 211, 108, 0.25);
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(2px);
-  transition: all 0.25s ease;
+::selection{
+  background: rgba(74,163,255,.28);
 }
 
-.note-item a:hover {
-  background: rgba(238, 211, 108, 0.05);
-  transform: translateY(-2px);
+/* /css/style.layout.css */
+
+/* 공통 컨테이너: 여기서 가운데 정렬/최대폭 잡아줌 */
+.container{
+  width: min(1080px, calc(100% - 40px));
+  margin: 0 auto;
 }
 
-.note-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 11.5px;
-  color: #bbb;
+/* 상단 네비가 nav.notice.js로 주입되는 구조라, 여기선 "깨지지 않게" 기본만 */
+.nav{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(5, 20, 33, .72);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+  max-width: 1080px;
 }
 
-.note-tag {
-  color: #EED36C;
-  border: 1px solid rgba(238, 211, 108, 0.4);
-  padding: 2px 8px;
-  font-size: 11px;
+/* 본문 기본 여백 */
+main{
+  padding: 26px 0 64px;
+  min-height: calc(100vh - 220px);
 }
 
-.note-title {
-  margin: 6px 0 8px;
-  font-size: 16px;
-  font-weight: normal;
-  color: #f5f5f5;
+.sub__{
+  padding: 18px 0 0;
 }
 
-.note-desc {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.7;
-  color: #d8d8d8;
+/* 푸터 */
+.footer{
+  border-top: 1px solid var(--line);
+  padding: 28px 0 40px;
+  color: var(--muted);
+  text-align:center;
+  font-size: var(--fs-4);
+  max-width: 1080px;
 }
 
-/* =========================
-   TAB NAV
-========================= */
+/* 유틸 */
+.hidden{ display:none !important; }
 
-.tab-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 32px;
+/* /css/style.sub.cm.css */
+
+/* 페이지 헤더 */
+.sub__ h2{
+  font-size: var(--fs-1);
+  letter-spacing: -.02em;
+  margin: 10px 0 10px;
 }
 
-.tab-btn {
-  background: transparent;
-  border: 1px solid rgba(238, 211, 108, 0.4);
-  color: #EED36C;
-  font-family: inherit;
+.page-lead{
+  color: var(--muted);
+  margin: 0 0 18px;
+  max-width: 72ch;
+}
+
+.meta-line{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color: var(--muted-2);
+  font-size: var(--fs-4);
+  margin-bottom: 18px;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
   font-size: 12px;
-  padding: 6px 12px;
-  cursor: pointer;
 }
 
-.tab-btn.active {
-  background: rgba(238, 211, 108, 0.15);
+/* 공통 카드/박스 */
+.panel{
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
-/* =========================
-   TAB PANEL
-========================= */
-
-.tab-panel {
-  display: none;
-}
-
-.tab-panel.active {
-  display: block;
-}
-
-/* =========================
-   NOTE LIST (재사용)
-========================= */
-
-.note-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.note-item {
-  margin-bottom: 20px;
-}
-
-.note-item a {
-  display: block;
+.box{
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   padding: 16px;
-  border: 1px solid rgba(238, 211, 108, 0.25);
-  background: rgba(255, 255, 255, 0.02);
 }
 
-.note-item time {
-  display: block;
-  margin-top: 6px;
-  font-size: 11px;
-  color: #aaa;
+.callout{
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--brand);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 18px 0;
 }
-
-/* =========================
-   공통 카드 컨테이너 (천간·지지·오행)
-========================= */
-.cheongan-cards,
-.jiji-cards,
-.ohaeng-cards {
-  margin: 48px 0;
+.callout h3{
+  margin:0 0 8px;
+  font-size: var(--fs-2);
 }
+.callout p{ margin: 0; color: var(--muted); }
 
-/* =========================
-   공통 카드
-========================= */
-.cheongan-card,
-.jiji-card,
-.ohaeng-card {
-  margin: 40px 0;
-  padding: 22px 24px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  backdrop-filter: blur(4px);
+.callout--source{ border-left-color: var(--gold); }
+.callout--tip{ border-left-color: var(--brand-2); }
+
+/* 목차 */
+.toc{
+  margin: 18px 0 26px;
 }
-
-/* hover 효과 (선택) */
-.cheongan-card:hover,
-.jiji-card:hover,
-.ohaeng-card:hover {
-  border-color: rgba(238, 211, 108, 0.25);
+.toc .box{
+  padding: 14px 16px;
 }
-
-/* =========================
-   카드 제목
-========================= */
-.cheongan-card h5,
-.jiji-card h5,
-.ohaeng-card h5 {
-  margin: 0 0 14px;
-  font-size: 18px;
-  font-weight: normal;
-  color: #EED36C;
-  border-bottom: 1px solid rgba(238, 211, 108, 0.3);
-  padding-bottom: 6px;
+.toc h3{
+  margin:0 0 10px;
+  font-size: 16px;
 }
-
-/* =========================
-   메타 정보
-========================= */
-.cheongan-card .meta,
-.jiji-card .meta,
-.ohaeng-card .meta {
-  font-size: 13.5px;
-  line-height: 1.8;
-  color: #ddd;
-  margin-bottom: 14px;
-}
-
-/* =========================
-   소제목 (# 설명)
-========================= */
-.cheongan-card .sub,
-.jiji-card .sub,
-.ohaeng-card .sub {
-  color: #EED36C;
-  font-size: 14px;
-  margin: 14px 0 6px;
-}
-
-/* =========================
-   본문 텍스트
-========================= */
-.cheongan-card p,
-.jiji-card p,
-.ohaeng-card p {
-  font-size: 13.5px;
-  line-height: 1.7;
-  color: #ddd;
-  margin: 6px 0;
-}
-
-/* =========================
-   WHO ARE YOU / 강조 박스
-========================= */
-.cheongan-card .who,
-.jiji-card .who,
-.ohaeng-card .who {
-  margin: 14px 0;
-  padding: 12px 14px;
-  background: rgba(238, 211, 108, 0.08);
-  border-left: 3px solid #EED36C;
-  font-size: 13.5px;
-  color: #eee;
-}
-
-/* =========================
-   리스트
-========================= */
-.cheongan-card ul,
-.jiji-card ul,
-.ohaeng-card ul {
-  margin: 8px 0 0;
+.toc ol{
+  margin: 0;
   padding-left: 18px;
+  color: var(--muted);
 }
+.toc a{ color: var(--brand-2); }
 
-.cheongan-card li,
-.jiji-card li,
-.ohaeng-card li {
-  font-size: 13.5px;
-  line-height: 1.7;
-  color: #ddd;
-  margin-bottom: 4px;
-}
-
-/* =========================
-   직업 / 하단 정보
-========================= */
-.cheongan-card .job,
-.jiji-card .job,
-.ohaeng-card .job {
+/* ---------- 탭(리스트 페이지) ---------- */
+.saju-tabs{
   margin-top: 14px;
-  font-size: 13.5px;
 }
 
-.cheongan-card .job span,
-.jiji-card .job span,
-.ohaeng-card .job span {
-  display: inline-block;
-  margin-top: 4px;
-  color: #EED36C;
-  font-size: 12.5px;
+.tab-nav{
+  display:flex;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.05);
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* =========================
-   지장간 설명 블록
-========================= */
-.jijanggan-note {
-  margin: 56px 0;
-  padding: 22px 24px;
-  background: rgba(255, 255, 255, 0.04);
-  border-left: 3px solid rgba(238, 211, 108, 0.8);
-  border-radius: 10px;
-  backdrop-filter: blur(2px);
-}
-
-/* 제목 */
-.jijanggan-note h3 {
-  margin: 0 0 14px;
-  font-size: 18px;
-  font-weight: normal;
-  color: #EED36C;
-  letter-spacing: -0.01em;
-}
-
-/* 리스트 */
-.jijanggan-note ul {
-  margin: 0 0 16px;
-  padding-left: 18px;
-}
-
-.jijanggan-note li {
+.tab-btn{
+  appearance:none;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  padding: 9px 12px;
+  border-radius: 999px;
   font-size: 14px;
-  line-height: 1.7;
-  color: #eaeaea;
-  margin-bottom: 6px;
+  cursor:pointer;
+  white-space: nowrap;
+  transition: transform .06s ease, background .12s ease, border-color .12s ease;
 }
 
-/* 본문 설명 */
-.jijanggan-note p {
+.tab-btn:hover{
+  background: rgba(255,255,255,.10);
+  text-decoration:none;
+}
+
+.tab-btn:active{
+  transform: translateY(1px);
+}
+
+.tab-btn.active{
+  background: rgba(74,163,255,.18);
+  border-color: rgba(74,163,255,.45);
+}
+
+/* 탭 패널: 기본은 숨기고 active만 보이게 */
+.tab-content{
+  padding-top: 14px;
+}
+.tab-panel{
+  display:none;
+}
+.tab-panel.active{
+  display:block;
+}
+
+/* 리스트(카드) */
+.note-list{
+  list-style:none;
   margin: 0;
-  font-size: 14px;
-  line-height: 1.8;
-  color: #ddd;
+  padding: 0;
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-/* =========================
-   지장간 설명 블록
-========================= */
-.jijanggan-box {
-  margin-top: 18px;
-  padding: 16px 18px;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px dashed rgba(238, 211, 108, 0.35);
-  border-radius: 10px;
+.note-item a{
+  display:block;
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  box-shadow: var(--shadow);
+  text-decoration:none;
 }
 
-/* 지장간 제목 */
-.jijanggan-box h6 {
+.note-item a:hover{
+  border-color: rgba(127,209,255,.45);
+  background: rgba(255,255,255,.08);
+}
+
+.note-title{
+  margin: 0 0 6px;
+  font-size: 16px;
+  letter-spacing: -.01em;
+  color: var(--text);
+}
+
+.note-desc{
   margin: 0 0 10px;
+  color: var(--muted);
   font-size: 14px;
-  font-weight: normal;
-  color: #EED36C;
 }
 
-/* 지장간 리스트 */
-.jijanggan-box ul {
-  margin: 0;
+.note-item time{
+  display:block;
+  color: var(--muted-2);
+  font-size: 12px;
+}
+
+/* ---------- 컨텐츠 페이지용(본문) ---------- */
+.article-body{
+  max-width: 78ch;
+}
+
+.article-body h3{
+  font-size: var(--fs-2);
+  margin: 26px 0 10px;
+}
+
+.article-body p{
+  margin: 10px 0;
+  color: var(--text);
+}
+
+.article-body .muted{
+  color: var(--muted);
+}
+
+.article-body ul,
+.article-body ol{
+  margin: 10px 0 10px;
   padding-left: 18px;
+  color: var(--muted);
+}
+.article-body li{ margin: 6px 0; }
+
+.grid-2{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
 }
 
-.jijanggan-box li {
-  font-size: 13.5px;
-  line-height: 1.7;
-  color: #ddd;
-  margin-bottom: 6px;
+.kv{
+  display:grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.06);
+}
+.kv .k{
+  color: var(--muted-2);
+  font-size: 13px;
+}
+.kv .v{
+  color: var(--text);
 }
 
-/* 번호 강조 */
-.jijanggan-box li b {
-  color: #EED36C;
-  font-weight: normal;
+/* 표 */
+.table-wrap{
+  margin: 14px 0 22px;
+  border-radius: var(--radius);
+  overflow:hidden;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.04);
 }
 
-/* 설명 문단 */
-.jijanggan-box p {
-  margin: 8px 0 0;
-  font-size: 13.5px;
-  line-height: 1.7;
-  color: #ddd;
-}
-
-/* =========================
-   PROLOG 공통
-========================= */
-
-.prolog {
-  margin-top: 40px;
-}
-
-/* 카드 */
-.prolog-card {
-  margin: 32px 0;
-  padding: 22px 26px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  backdrop-filter: blur(4px);
-}
-
-/* 제목 */
-.prolog-card h4 {
-  margin: 0 0 14px;
-  font-size: 18px;
-  font-weight: normal;
-  color: #EED36C;
-  border-bottom: 1px solid rgba(238, 211, 108, 0.3);
-  padding-bottom: 6px;
-}
-
-/* 본문 */
-.prolog-card p {
-  font-size: 14.5px;
-  line-height: 1.9;
-  color: #ddd;
-  margin: 0 0 14px;
-}
-
-/* 강조 문장 */
-.prolog-card p b {
-  color: #EED36C;
-  font-weight: normal;
-}
-
-/* 마무리 문단 */
-.prolog-end {
-  margin-top: 18px;
-  padding-left: 14px;
-  border-left: 3px solid rgba(238, 211, 108, 0.6);
-  color: #eee;
-}
-
-/* 마지막 감사 문구 */
-.prolog-footer {
-  margin-top: 48px;
-  padding: 24px 26px;
-  text-align: center;
+table{
+  width:100%;
+  border-collapse: collapse;
   font-size: 14px;
-  line-height: 2;
-  color: #ccc;
-  background: rgba(238, 211, 108, 0.05);
-  border-radius: 16px;
 }
 
-/* =========================
-   MOBILE
-========================= */
+thead th{
+  text-align:left;
+  padding: 12px 12px;
+  background: rgba(255,255,255,.06);
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+}
+
+tbody td{
+  padding: 12px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+tbody tr:last-child td{ border-bottom:0; }
+
+.caption{
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--muted-2);
+  border-top: 1px solid var(--line);
+  background: rgba(255,255,255,.03);
+}
+
+/* 이전/다음 */
+.pager{
+  display:flex;
+  gap: 10px;
+  margin-top: 26px;
+}
+.pager a{
+  flex:1;
+  text-align:center;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+}
+.pager a:hover{
+  border-color: rgba(127,209,255,.45);
+  background: rgba(255,255,255,.08);
+}
+
+/* page scope */
+/* ===== PROLOG (site-consistent) ===== */
+.container.sub__.prolog{
+  padding: 24px 0;
+  display: grid;
+  gap: 14px;
+}
+
+/* 기존 사이트 톤: 심플한 박스 */
+.prolog-card{
+  border-color: rgba(127, 209, 255, .45);
+  background: rgba(255, 255, 255, .08);
+  border-radius: 12px;              /* ✅ 사이트 공통 라운드와 비슷하게 */
+  padding: 20px 18px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05); /* ✅ 과하지 않게 */
+}
+
+/* 제목/본문도 “서브컨텐츠” 느낌으로 */
+.prolog-card h4{
+  margin: 0 0 10px;
+  font-size: 18px;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+  color: #fff;
+}
+
+.prolog-card p{
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+ color: var(--muted);
+  word-break: keep-all;
+}
+
+/* 강조는 튀지 않게, 살짝만 */
+.prolog-card b{
+  font-weight: 700;
+  color: #d7b46a;
+}
+
+/* 모바일 */
+@media (max-width: 480px){
+  .container.sub__.prolog{
+    padding: 18px 0;
+    gap: 12px;
+  }
+  .prolog-card{
+    padding: 18px 16px;
+    border-radius: 10px;
+  }
+  .prolog-card h4{ font-size: 16.5px; }
+  .prolog-card p{ font-size: 14px; }
+}
+
+
+/* /css/style.responsive.css */
+
+@media (max-width: 860px){
+  .note-list{
+    grid-template-columns: 1fr;
+  }
+  .grid-2{
+    grid-template-columns: 1fr;
+  }
+  .kv{
+    grid-template-columns: 1fr;
+  }
+  main{
+    padding: 18px 0 54px;
+  }
+}
+
+@media (max-width: 520px){
+  .container{
+    width: min(1080px, calc(100% - 26px));
+  }
+  .tab-nav{
+    padding: 8px;
+  }
+  .tab-btn{
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
+/* ==============================
+   ✅ 컨텐츠 가독성(문단 여백/줄간격/타이포) 개선
+   - 긴 글용 기본 리듬 세팅
+============================== */
+
+.sub__ {
+  /* 글 기본 크기/줄간격 */
+  font-size: 16px;
+  line-height: 1.85;
+
+  /* 글 색감이 너무 쨍하면 피곤해서 살짝 낮춤 */
+  color: rgba(240, 248, 255, 0.9);
+}
+
+/* 제목 리듬 */
+.sub__ h1,
+.sub__ h2,
+.sub__ h3,
+.sub__ h4 {
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px 0;
+}
+
+.sub__ h2 { margin-top: 18px; font-size: 26px; }
+.sub__ h3 { margin-top: 18px; font-size: 20px; }
+.sub__ h4 { margin-top: 16px; font-size: 17px; }
+
+/* ✅ 핵심: 문단/문장 블록 간격 */
+.sub__ p {
+  margin: 0 0 14px 0;
+}
+
+.sub__ p + p {
+  margin-top: 10px; /* 연속 문단은 살짝 더 띄움 */
+}
+
+/* 인용/설명 박스 같은 블록 */
+.sub__ blockquote {
+  margin: 18px 0;
+  padding: 14px 16px;
+  border-left: 3px solid rgba(80, 160, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+/* 리스트도 기본 여백을 줘야 읽기 쉬움 */
+.sub__ ul,
+.sub__ ol {
+  margin: 10px 0 16px 0;
+  padding-left: 20px;
+}
+
+.sub__ li {
+  margin: 8px 0;
+}
+
+/* 문단 사이 구분용 hr */
+.sub__ hr {
+  border: 0;
+  height: 1px;
+  margin: 22px 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.18), rgba(255,255,255,0));
+}
+
+/* 본문 안 강조/코드 */
+.sub__ strong { color: rgba(255, 255, 255, 0.95); }
+.sub__ em { color: rgba(255, 255, 255, 0.9); }
+
+.sub__ code {
+  padding: 0.12em 0.35em;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.10);
+  font-size: 0.95em;
+}
+
+/* 표 들어올 때도 기본값 */
+.sub__ table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 14px 0 18px 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.sub__ th,
+.sub__ td {
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  vertical-align: top;
+}
+
+.sub__ th {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.92);
+  font-weight: 700;
+}
+
+/* 모바일에서 글 너무 빽빽하면 더 힘들어서 살짝 조정 */
 @media (max-width: 480px) {
-  
   .sub__ {
-    padding: 48px 16px 64px !important;
-  }
-
-  .sub__ h2 {
-    font-size: 22px;
-  }
-
-  .sub__ p {
-    font-size: 14px;
-  }
-
-  .table {
-    font-size: 11.5px;
-  }
-
-  .note-title {
     font-size: 15px;
+    line-height: 1.9;
   }
-
-  .note-desc {
-    font-size: 12.5px;
-  }
+  .sub__ p { margin-bottom: 13px; }
 }
