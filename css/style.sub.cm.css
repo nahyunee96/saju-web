@@ -134,6 +134,7 @@ pre{
   position: sticky;
   top: 0;
   z-index: 50;
+  background: rgba(5, 20, 33, .72);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(10px);
   max-width: 1080px;
@@ -722,3 +723,1495 @@ tbody tr:last-child td{ border-bottom:0; }
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== YinYang Note ===== */
+.yinYang-note{
+  padding-top: 18px;
+  padding-bottom: 34px;
+}
+
+/* 헤더 */
+.note-head{
+  max-width: 980px;
+  margin: 0 auto 14px;
+  padding: 0 4px;
+}
+
+.note-kicker{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.88);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.note-title{
+  margin: 10px 0 6px;
+  color: rgba(255,255,255,0.92);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.note-lead{
+  margin: 0;
+  color: rgba(255,255,255,0.78);
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  max-width: 980px;
+}
+
+/* 카드 공통 */
+.yinYang-note .card{
+  max-width: 980px;
+  margin: 12px auto 0;
+  padding: 18px 18px;
+  border-radius: 16px;
+
+  background: rgba(10, 30, 55, 0.12);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+}
+
+/* 2열 그리드 */
+.yinYang-note .grid-2{
+  max-width: 980px;
+  margin: 12px auto 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.yinYang-note .grid-2 > .card{
+  margin: 0;
+  max-width: unset;
+}
+
+/* 타이틀 */
+.card-title{
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.sec-title{
+  margin: 0 0 10px;
+  font-size: 15.5px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.sub-title{
+  margin: 14px 0 6px;
+  font-size: 13.5px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.para{
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+
+/* 리스트 */
+.bullet{
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.9;
+  letter-spacing: -0.01em;
+}
+
+.bullet li{
+  margin: 6px 0;
+}
+
+/* 양/음 톤만 살짝 */
+.tone-yang{
+  position: relative;
+}
+.tone-yang::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 4px;
+  border-radius: 4px;
+  background: rgba(245, 196, 81, 0.55);
+}
+
+.tone-yin{
+  position: relative;
+}
+.tone-yin::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 4px;
+  border-radius: 4px;
+  background: rgba(70, 120, 255, 0.35);
+}
+
+/* 조언 콜아웃 */
+.callout{
+  margin-top: 14px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  background: rgba(10, 30, 55, 0.06);
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  position: relative;
+}
+
+.callout-title{
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  font-weight: 900;
+}
+
+.callout-line{
+  margin: 0 0 6px;
+  color: rgba(9, 18, 32, 0.78);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.callout-yang{
+  box-shadow: inset 0 0 0 999px rgba(245, 196, 81, 0.05);
+}
+
+.callout-yin{
+  box-shadow: inset 0 0 0 999px rgba(70, 120, 255, 0.05);
+}
+
+/* 칩(비교예시) */
+.chips{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip{
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(10, 30, 55, 0.06);
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+}
+
+/* 결론 박스 */
+.summary{
+  margin-top: 14px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  background: rgba(10, 30, 55, 0.08);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  font-weight: 800;
+  line-height: 1.75;
+}
+
+/* 도덕경 인용 */
+.quote{
+  margin-top: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(10, 30, 55, 0.18);
+  border: 1px dashed rgba(10, 30, 55, 0.18);
+}
+
+.quote p{
+  margin: 0 0 8px;
+  line-height: 1.8;
+}
+.quote p:last-child{ margin-bottom: 0; }
+
+/* 모바일 */
+@media (max-width: 720px){
+  .yinYang-note .grid-2{
+    grid-template-columns: 1fr;
+  }
+  .note-title{ font-size: 20px; }
+  .yinYang-note .card{ padding: 16px 14px; border-radius: 14px; }
+}
+
+/* ===== Five Elements Note ===== */
+.five-note{
+  padding-top: 18px;
+  padding-bottom: 34px;
+}
+
+/* 헤더 공통(너 이전 note랑 동일 톤) */
+.five-note .note-head{
+  max-width: 980px;
+  margin: 0 auto 14px;
+  padding: 0 4px;
+}
+
+.five-note .note-kicker{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.88);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.five-note .note-title{
+  margin: 10px 0 6px;
+  color: rgba(255,255,255,0.92);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.five-note .note-lead{
+  margin: 0;
+  color: rgba(255,255,255,0.78);
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  max-width: 980px;
+}
+
+/* 카드 */
+.five-note .card{
+  max-width: 980px;
+  margin: 12px auto 0;
+  padding: 18px 18px;
+  border-radius: 16px;
+  background: rgba(10, 30, 55, 0.12);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+}
+
+.five-note .sec-title{
+  margin: 0 0 10px;
+  font-size: 15.5px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.five-note .para{
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+
+
+.five-note .bullet{
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.9;
+  letter-spacing: -0.01em;
+}
+.five-note .bullet li{ margin: 6px 0; }
+
+.five-note .compact{ font-size: 13.5px; line-height: 1.85; }
+
+/* ===== 오행 5카드 그리드 ===== */
+.five-note .grid-5{
+  max-width: 980px;
+  margin: 12px auto 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.five-note .grid-5 .card{
+  margin: 0;
+  padding: 14px 14px;
+  border-radius: 14px;
+}
+
+/* 오행 카드 헤더 */
+.five-note .el-head{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.five-note .el-title{
+  margin: 0;
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+
+.five-note .el-tag{
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  background: rgba(10, 30, 55, 0.06);
+  border: 1px solid rgba(10, 30, 55, 0.10);
+}
+
+/* 오행 카드 왼쪽 바(톤만 살짝) */
+.five-note .el{
+  position: relative;
+  overflow: hidden;
+}
+
+.five-note .el::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 4px;
+  opacity: 0.9;
+}
+
+.five-note .el-wood::before{ background: rgba(70, 180, 120, 0.55); }
+.five-note .el-fire::before{ background: rgba(255, 120, 110, 0.45); }
+.five-note .el-earth::before{ background: rgba(200, 160, 90, 0.50); }
+.five-note .el-metal::before{ background: rgba(140, 160, 190, 0.50); }
+.five-note .el-water::before{ background: rgba(80, 140, 255, 0.40); }
+
+/* ===== 흐름(상생/상극) ===== */
+.five-note .flow{
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.five-note .flow li{
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  background: rgba(10, 30, 55, 0.05);
+}
+
+.five-note .flow-title{
+  font-weight: 950;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.five-note .flow-desc{
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.five-note .flow-sheng li{
+  box-shadow: inset 0 0 0 999px rgba(70, 180, 120, 0.04);
+}
+
+.five-note .flow-ke li{
+  box-shadow: inset 0 0 0 999px rgba(255, 120, 110, 0.03);
+}
+
+/* 요약 박스 */
+.five-note .summary{
+  margin-top: 14px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  background: rgba(10, 30, 55, 0.08);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  font-weight: 850;
+  line-height: 1.75;
+}
+
+/* 표 */
+.five-note .table-wrap{
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  background: rgba(10, 30, 55, 0.12);;
+}
+
+.five-note .mini-table{
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.five-note .mini-table th,
+.five-note .mini-table td{
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(10, 30, 55, 0.10);
+  text-align: left;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.five-note .mini-table thead th{
+  font-weight: 900;
+  background: rgba(10, 30, 55, 0.06);
+}
+
+.five-note .mini-table tbody tr:last-child td{
+  border-bottom: none;
+}
+
+/* 확장 해석 */
+.five-note .grid-2{
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.five-note .pill{
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  background: rgba(10, 30, 55, 0.05);
+}
+
+.five-note .pill-title{
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+/* 모바일 대응 */
+@media (max-width: 980px){
+  .five-note .grid-5{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px){
+  .five-note .grid-5{ grid-template-columns: 1fr; }
+  .five-note .grid-2{ grid-template-columns: 1fr; }
+  .five-note .card{ padding: 16px 14px; border-radius: 14px; }
+}
+
+/* ===== Heavenly Stems Note (갑~계) =====
+   사용 전제:
+   - 래퍼: <section class="container sub__ note stem-note">
+   - 카드: <article class="card stem is-wood"> ... </article>
+     (갑/을=wood, 병/정=fire, 무/기=earth, 경/신=metal, 임/계=water)
+====================================== */
+
+.stem-note{
+  padding-top: 18px;
+  padding-bottom: 34px;
+}
+
+/* ===== 헤더 ===== */
+.stem-note .note-head{
+  max-width: 1040px;
+  margin: 0 auto 14px;
+  padding: 0 4px;
+}
+
+.stem-note .note-kicker{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.88);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.stem-note .note-title{
+  margin: 10px 0 6px;
+  color: rgba(255,255,255,0.92);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.stem-note .note-lead{
+  margin: 0;
+  color: rgba(255,255,255,0.78);
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  max-width: 980px;
+}
+
+/* ===== 공통 카드 ===== */
+.stem-note .card{
+  max-width: 1040px;
+  margin: 12px auto 0;
+  padding: 18px 18px;
+  border-radius: 16px;
+  background: rgba(10, 30, 55, 0.12);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+  backdrop-filter: blur(4px);
+}
+
+.stem-note .sec-title{
+  margin: 0 0 10px;
+  font-size: 15.5px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.stem-note .para{
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+
+.stem-note .subtle{
+  color: rgba(255,255,255,0.70);
+}
+
+/* 리스트 */
+.stem-note .bullet{
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.9;
+  letter-spacing: -0.01em;
+}
+.stem-note .bullet li{ margin: 6px 0; }
+.stem-note .compact{ font-size: 13.5px; line-height: 1.85; }
+
+/* ===== 상단 네비(옵션) =====
+   <nav class="stem-nav">
+     <a class="chip is-wood" href="#甲">갑목</a> ...
+   </nav>
+*/
+.stem-note .stem-nav{
+  max-width: 1040px;
+  margin: 10px auto 0;
+  padding: 0 2px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stem-note .chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+  background: rgba(10, 30, 55, 0.08);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.stem-note .chip:hover{
+  transform: translateY(-1px);
+  background: rgba(10, 30, 55, 0.12);
+  border-color: rgba(10, 30, 55, 0.18);
+}
+
+/* ===== 10카드 그리드 =====
+   <div class="grid-10">
+     <article class="card stem is-wood">...</article>
+   </div>
+*/
+.stem-note .grid-10{
+  max-width: 1040px;
+  margin: 12px auto 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.stem-note .grid-10 .card{
+  margin: 0;
+  padding: 16px 16px;
+  border-radius: 16px;
+}
+
+/* ===== 천간 카드 내부 ===== */
+.stem-note .stem{
+  position: relative;
+  overflow: hidden;
+}
+
+/* 왼쪽 포인트 바 */
+.stem-note .stem::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 4px;
+  opacity: 0.92;
+}
+
+/* 우상단 아주 약한 그라데이션 */
+.stem-note .stem::after{
+  content:"";
+  position:absolute;
+  right: -40px;
+  top: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  opacity: 0.22;
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+
+/* 헤더 */
+.stem-note .stem-head{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-right: 2px;
+}
+
+.stem-note .stem-name{
+  margin: 0;
+  font-size: 16px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  color: rgba(255,255,255,0.92);
+}
+
+.stem-note .stem-meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.stem-note .badge{
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 850;
+  background: rgba(10, 30, 55, 0.06);
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  color: rgba(255,255,255,0.82);
+}
+
+/* 섹션 분리 */
+.stem-note .split{
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(10, 30, 55, 0.12);
+}
+
+.stem-note .mini-title{
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  color: rgba(255,255,255,0.90);
+}
+
+/* 질문/핵심 박스 */
+.stem-note .callout{
+  margin-top: 12px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  background: rgba(10, 30, 55, 0.07);
+  line-height: 1.75;
+  color: rgba(255,255,255,0.86);
+}
+.stem-note .callout b{ font-weight: 950; }
+
+/* 직업/관계 같은 줄글 정리용 */
+.stem-note .tag-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.stem-note .tag{
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  background: rgba(10, 30, 55, 0.06);
+  color: rgba(255,255,255,0.82);
+}
+
+/* ===== 오행 타입 컬러 ===== */
+.stem-note .is-wood::before{ background: rgba(70, 180, 120, 0.60); }
+.stem-note .is-fire::before{ background: rgba(255, 120, 110, 0.52); }
+.stem-note .is-earth::before{ background: rgba(200, 160, 90, 0.58); }
+.stem-note .is-metal::before{ background: rgba(140, 160, 190, 0.58); }
+.stem-note .is-water::before{ background: rgba(80, 140, 255, 0.48); }
+
+.stem-note .is-wood::after{ background: rgba(70, 180, 120, 0.55); }
+.stem-note .is-fire::after{ background: rgba(255, 120, 110, 0.55); }
+.stem-note .is-earth::after{ background: rgba(200, 160, 90, 0.55); }
+.stem-note .is-metal::after{ background: rgba(140, 160, 190, 0.55); }
+.stem-note .is-water::after{ background: rgba(80, 140, 255, 0.55); }
+
+/* 배지/칩도 오행별로 살짝만 */
+.stem-note .chip.is-wood,
+.stem-note .badge.is-wood,
+.stem-note .tag.is-wood{ box-shadow: inset 0 0 0 999px rgba(70, 180, 120, 0.05); }
+
+.stem-note .chip.is-fire,
+.stem-note .badge.is-fire,
+.stem-note .tag.is-fire{ box-shadow: inset 0 0 0 999px rgba(255, 120, 110, 0.04); }
+
+.stem-note .chip.is-earth,
+.stem-note .badge.is-earth,
+.stem-note .tag.is-earth{ box-shadow: inset 0 0 0 999px rgba(200, 160, 90, 0.04); }
+
+.stem-note .chip.is-metal,
+.stem-note .badge.is-metal,
+.stem-note .tag.is-metal{ box-shadow: inset 0 0 0 999px rgba(140, 160, 190, 0.04); }
+
+.stem-note .chip.is-water,
+.stem-note .badge.is-water,
+.stem-note .tag.is-water{ box-shadow: inset 0 0 0 999px rgba(80, 140, 255, 0.04); }
+
+/* ===== 비교 섹션(갑vs을 / 병vs정 등) =====
+   <article class="card compare">
+     <h3 class="sec-title">갑목 vs 을목</h3>
+     <div class="compare-grid">
+        <div class="compare-col is-wood">...</div>
+        <div class="compare-col is-wood">...</div>
+     </div>
+   </article>
+*/
+.stem-note .compare-grid{
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stem-note .compare-col{
+  position: relative;
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  background: rgba(10, 30, 55, 0.06);
+  overflow: hidden;
+}
+
+.stem-note .compare-col::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 4px;
+  opacity: 0.92;
+}
+
+.stem-note .compare-col.is-wood::before{ background: rgba(70, 180, 120, 0.60); }
+.stem-note .compare-col.is-fire::before{ background: rgba(255, 120, 110, 0.52); }
+.stem-note .compare-col.is-earth::before{ background: rgba(200, 160, 90, 0.58); }
+.stem-note .compare-col.is-metal::before{ background: rgba(140, 160, 190, 0.58); }
+.stem-note .compare-col.is-water::before{ background: rgba(80, 140, 255, 0.48); }
+
+.stem-note .compare-h{
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  color: rgba(255,255,255,0.92);
+}
+
+/* ===== 표(요약 표 같은거) ===== */
+.stem-note .table-wrap{
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  background: rgba(10, 30, 55, 0.12);
+}
+
+.stem-note .mini-table{
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.stem-note .mini-table th,
+.stem-note .mini-table td{
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(10, 30, 55, 0.10);
+  text-align: left;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.stem-note .mini-table thead th{
+  font-weight: 900;
+  background: rgba(10, 30, 55, 0.06);
+}
+
+.stem-note .mini-table tbody tr:last-child td{
+  border-bottom: none;
+}
+
+/* ===== 요약 박스 ===== */
+.stem-note .summary{
+  margin-top: 14px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  background: rgba(10, 30, 55, 0.08);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  font-weight: 850;
+  line-height: 1.75;
+  color: rgba(255,255,255,0.88);
+}
+
+/* ===== 모바일 대응 ===== */
+@media (max-width: 980px){
+  .stem-note .grid-10{ grid-template-columns: 1fr; }
+  .stem-note .compare-grid{ grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px){
+  .stem-note .card{ padding: 16px 14px; border-radius: 14px; }
+  .stem-note .stem-head{ flex-direction: column; align-items: flex-start; }
+  .stem-note .stem-meta{ justify-content: flex-start; }
+}
+
+/* ===== Jiji (12 Branches) Note ===== */
+.jiji-note{
+  padding-top: 18px;
+  padding-bottom: 34px;
+}
+
+/* 헤더 */
+.jiji-note .note-head{
+  max-width: 980px;
+  margin: 0 auto 14px;
+  padding: 0 4px;
+}
+.jiji-note .note-kicker{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.88);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.jiji-note .note-title{
+  margin: 10px 0 6px;
+  color: rgba(255,255,255,0.92);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.jiji-note .note-lead{
+  margin: 0;
+  color: rgba(255,255,255,0.78);
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  max-width: 980px;
+}
+
+/* 카드 공통 */
+.jiji-note .card{
+  max-width: 980px;
+  margin: 12px auto 0;
+  padding: 18px 18px;
+  border-radius: 16px;
+  background: rgba(10, 30, 55, 0.12);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+}
+.jiji-note .sec-title{
+  margin: 0 0 10px;
+  font-size: 15.5px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.jiji-note .para{
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+.jiji-note .subtle{ color: rgba(255,255,255,0.78); }
+
+/* 표 */
+.jiji-note .table-wrap{
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  background: rgba(10, 30, 55, 0.12);
+}
+.jiji-note .mini-table{
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+.jiji-note .mini-table th,
+.jiji-note .mini-table td{
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(10, 30, 55, 0.10);
+  text-align: left;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.jiji-note .mini-table thead th{
+  font-weight: 900;
+  background: rgba(10, 30, 55, 0.06);
+}
+.jiji-note .mini-table tbody tr:last-child td{ border-bottom: none; }
+
+.jiji-note .summary{
+  margin-top: 14px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  background: rgba(10, 30, 55, 0.08);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  font-weight: 850;
+  line-height: 1.75;
+}
+
+/* 빠른 이동 칩 */
+.jiji-note .jiji-nav{
+  max-width: 980px;
+  margin: 10px auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 2px;
+}
+.jiji-note .chip{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration: none;
+  border: 1px solid rgba(10, 30, 55, 0.14);
+  background: rgba(10, 30, 55, 0.06);
+  color: rgba(255,255,255,0.86);
+}
+.jiji-note .chip:hover{ filter: brightness(1.06); }
+
+/* 12카드 그리드 */
+.jiji-note .grid-12{
+  max-width: 980px;
+  margin: 12px auto 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.jiji-note .grid-12 .card{
+  margin: 0;
+  max-width: none;
+}
+
+/* 지지 카드 헤더 */
+.jiji-note .jiji-head{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.jiji-note .jiji-name{
+  margin: 0;
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+.jiji-note .jiji-meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.jiji-note .badge{
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 850;
+  background: rgba(10, 30, 55, 0.06);
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  color: rgba(255,255,255,0.84);
+}
+
+/* 좌측 컬러 바 */
+.jiji-note .jiji{
+  position: relative;
+  overflow: hidden;
+}
+.jiji-note .jiji::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 4px;
+  opacity: 0.9;
+}
+.jiji-note .is-wood::before{  background: rgba(70, 180, 120, 0.55); }
+.jiji-note .is-fire::before{  background: rgba(255, 120, 110, 0.45); }
+.jiji-note .is-earth::before{ background: rgba(200, 160, 90, 0.50); }
+.jiji-note .is-metal::before{ background: rgba(140, 160, 190, 0.50); }
+.jiji-note .is-water::before{ background: rgba(80, 140, 255, 0.40); }
+
+/* 뱃지/칩 오행 톤 */
+.jiji-note .badge.is-wood,
+.jiji-note .chip.is-wood{ box-shadow: inset 0 0 0 999px rgba(70,180,120,0.06); }
+
+.jiji-note .badge.is-fire,
+.jiji-note .chip.is-fire{ box-shadow: inset 0 0 0 999px rgba(255,120,110,0.06); }
+
+.jiji-note .badge.is-earth,
+.jiji-note .chip.is-earth{ box-shadow: inset 0 0 0 999px rgba(200,160,90,0.06); }
+
+.jiji-note .badge.is-metal,
+.jiji-note .chip.is-metal{ box-shadow: inset 0 0 0 999px rgba(140,160,190,0.06); }
+
+.jiji-note .badge.is-water,
+.jiji-note .chip.is-water{ box-shadow: inset 0 0 0 999px rgba(80,140,255,0.06); }
+
+/* 키-값 */
+.jiji-note .kv{
+  margin-top: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  background: rgba(10, 30, 55, 0.05);
+  padding: 12px 12px;
+}
+.jiji-note .kv-row{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(10, 30, 55, 0.08);
+}
+.jiji-note .kv-row:last-child{ border-bottom: none; }
+.jiji-note .kv .k{
+  font-weight: 900;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: -0.01em;
+}
+.jiji-note .kv .v{
+  color: rgba(255,255,255,0.78);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+/* 리스트/태그 */
+.jiji-note .bullet{
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.9;
+  letter-spacing: -0.01em;
+}
+.jiji-note .bullet li{ margin: 6px 0; }
+.jiji-note .compact{ font-size: 13.5px; line-height: 1.85; }
+
+.jiji-note .mini-title{
+  margin: 12px 0 8px;
+  font-size: 13.5px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+.jiji-note .tag-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.jiji-note .tag{
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  background: rgba(10, 30, 55, 0.06);
+  color: rgba(255,255,255,0.84);
+}
+.jiji-note .tag.is-wood{  box-shadow: inset 0 0 0 999px rgba(70,180,120,0.05); }
+.jiji-note .tag.is-fire{  box-shadow: inset 0 0 0 999px rgba(255,120,110,0.05); }
+.jiji-note .tag.is-earth{ box-shadow: inset 0 0 0 999px rgba(200,160,90,0.05); }
+.jiji-note .tag.is-metal{ box-shadow: inset 0 0 0 999px rgba(140,160,190,0.05); }
+.jiji-note .tag.is-water{ box-shadow: inset 0 0 0 999px rgba(80,140,255,0.05); }
+
+/* 콜아웃 */
+.jiji-note .callout{
+  margin-top: 12px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: rgba(10, 30, 55, 0.08);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  line-height: 1.75;
+}
+
+/* details 접기 */
+.jiji-note .fold{
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  background: rgba(10, 30, 55, 0.05);
+}
+.jiji-note .fold > summary{
+  cursor: pointer;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  list-style: none;
+}
+.jiji-note .fold > summary::-webkit-details-marker{ display: none; }
+.jiji-note .fold > summary::after{
+  content: "▾";
+  float: right;
+  opacity: 0.75;
+}
+.jiji-note .fold[open] > summary::after{ content: "▴"; }
+
+/* 반응형 */
+@media (max-width: 980px){
+  .jiji-note .grid-12{ grid-template-columns: 1fr; }
+  .jiji-note .kv-row{ grid-template-columns: 1fr; }
+}
+
+/* ===== Ten Gods Note ===== */
+.ten-note{
+  padding-top: 18px;
+  padding-bottom: 34px;
+}
+
+/* 헤더 톤(기존 note 계열 맞춤) */
+.ten-note .note-head{
+  max-width: 980px;
+  margin: 0 auto 14px;
+  padding: 0 4px;
+}
+.ten-note .note-kicker{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.88);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.ten-note .note-title{
+  margin: 10px 0 6px;
+  color: rgba(255,255,255,0.92);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.ten-note .note-lead{
+  margin: 0;
+  color: rgba(255,255,255,0.78);
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  max-width: 980px;
+}
+
+/* 카드 */
+.ten-note .card{
+  max-width: 980px;
+  margin: 12px auto 0;
+  padding: 18px 18px;
+  border-radius: 16px;
+  background: rgba(10, 30, 55, 0.12);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+}
+
+.ten-note .sec-title{
+  margin: 0 0 10px;
+  font-size: 15.5px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.ten-note .para{
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+.ten-note .subtle{ color: rgba(255,255,255,0.74); }
+
+/* ===== 비유 맵 ===== */
+.ten-note .map-grid{
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.ten-note .map-item{
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  background: rgba(10, 30, 55, 0.05);
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 10px;
+}
+.ten-note .map-item .k{
+  font-weight: 950;
+  opacity: 0.92;
+}
+.ten-note .map-item .v{
+  min-width: 0;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+/* ===== 목차 칩 ===== */
+.ten-note .chip-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ten-note .chip{
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 850;
+  color: rgba(255,255,255,0.88);
+  background: rgba(10,30,55,0.10);
+  border: 1px solid rgba(10,30,55,0.14);
+  text-decoration: none;
+}
+.ten-note .chip:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+}
+
+/* ===== 아코디언 ===== */
+.ten-note .acc{
+  padding: 0;          /* summary가 padding 담당 */
+  overflow: hidden;
+}
+.ten-note .acc-sum{
+  list-style: none;
+  cursor: pointer;
+  padding: 16px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ten-note details > summary::-webkit-details-marker{ display:none; }
+
+.ten-note .acc-left{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.ten-note .acc-titles{
+  min-width: 0;
+}
+.ten-note .acc-title{
+  margin: 0;
+  font-size: 16px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+.ten-note .acc-sub{
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.76);
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.ten-note .acc-cta{
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.84);
+}
+.ten-note details[open] .acc-cta{ opacity: 0.7; }
+
+.ten-note .acc-body{
+  padding: 0 16px 18px;
+}
+
+/* 배지 */
+.ten-note .badge{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(10,30,55,0.10);
+}
+.ten-note .b-blue{ box-shadow: inset 0 0 0 999px rgba(90,140,255,0.10); }
+.ten-note .b-red{ box-shadow: inset 0 0 0 999px rgba(255,120,110,0.10); }
+.ten-note .b-green{ box-shadow: inset 0 0 0 999px rgba(70,180,120,0.10); }
+.ten-note .b-violet{ box-shadow: inset 0 0 0 999px rgba(170,120,255,0.10); }
+.ten-note .b-amber{ box-shadow: inset 0 0 0 999px rgba(255,200,120,0.10); }
+.ten-note .b-amber2{ box-shadow: inset 0 0 0 999px rgba(255,200,120,0.07); }
+.ten-note .b-slate{ box-shadow: inset 0 0 0 999px rgba(140,160,190,0.10); }
+.ten-note .b-slate2{ box-shadow: inset 0 0 0 999px rgba(140,160,190,0.07); }
+.ten-note .b-cyan{ box-shadow: inset 0 0 0 999px rgba(80,220,255,0.10); }
+.ten-note .b-cyan2{ box-shadow: inset 0 0 0 999px rgba(80,220,255,0.07); }
+
+/* 키워드 칩 */
+.ten-note .chips{
+  margin: 8px 0 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ten-note .tag{
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+  background: rgba(10,30,55,0.08);
+  border: 1px solid rgba(10,30,55,0.12);
+  color: rgba(255,255,255,0.86);
+}
+
+/* KV */
+.ten-note .kv-list{
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+}
+.ten-note .kv{
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  background: rgba(10, 30, 55, 0.05);
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 10px;
+}
+.ten-note .kv .k{
+  font-weight: 950;
+  opacity: 0.92;
+}
+.ten-note .kv .v{
+  min-width: 0;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  font-size: 14px;
+}
+
+/* 리스트 */
+.ten-note .bullet{
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+}
+.ten-note .bullet li{ margin: 6px 0; }
+.ten-note .compact{ font-size: 13.5px; line-height: 1.75; }
+
+.ten-note .mini-title{
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+/* 2컬럼 */
+.ten-note .cols-2{
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ten-note .col{
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  background: rgba(10, 30, 55, 0.05);
+}
+
+/* 서브 카드 2개 */
+.ten-note .grid-2{
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ten-note .pill{
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  background: rgba(10, 30, 55, 0.05);
+}
+.ten-note .pill-title{
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+/* 모바일 */
+@media (max-width: 900px){
+  .ten-note .map-grid{ grid-template-columns: 1fr; }
+  .ten-note .cols-2{ grid-template-columns: 1fr; }
+  .ten-note .grid-2{ grid-template-columns: 1fr; }
+}
+@media (max-width: 520px){
+  .ten-note .card{ padding: 16px 14px; border-radius: 14px; }
+  .ten-note .kv{ grid-template-columns: 1fr; }
+  .ten-note .map-item{ grid-template-columns: 1fr; }
+}
+
+
