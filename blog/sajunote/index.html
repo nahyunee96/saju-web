@@ -9,6 +9,217 @@
   <link rel="stylesheet" href="/css/style.layout.css" />
   <link rel="stylesheet" href="/css/style.sub.cm.css" />
   <link rel="stylesheet" href="/css/style.responsive.css" />
+
+  <!-- ✅ 이 페이지 전용 스타일(탭 제거 + 리스트/카드 UI) -->
+  <style>
+    /* ===== Page: Saju 자료 리스트 ===== */
+    .saju-index-head{
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 10px 0 18px;
+    }
+    .saju-index-head .left{
+      min-width: 0;
+    }
+    .saju-index-title{
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin: 0 0 6px;
+    }
+    .saju-index-desc{
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      opacity: 0.78;
+      word-break: keep-all;
+    }
+
+    /* 검색(옵션) */
+    .saju-search{
+      flex: 0 0 auto;
+      width: min(360px, 100%);
+    }
+    .saju-search input{
+      width: 100%;
+      height: 44px;
+      border-radius: 14px;
+      padding: 0 14px;
+      border: 1px solid rgba(10, 30, 55, 0.12);
+      background: rgba(10, 30, 55, 0.04);
+      outline: none;
+      color: #fff;
+    }
+    .saju-search input:focus{
+      border-color: rgba(30, 90, 255, 0.35);
+      box-shadow: 0 0 0 3px rgba(30, 90, 255, 0.10);
+      background: rgba(10, 30, 55, 0.03);
+    }
+
+    /* 그리드 */
+    .saju-grid{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    /* 카테고리 카드 */
+    .saju-cat{
+      border-radius: 18px;
+      border: 1px solid rgba(10, 30, 55, 0.10);
+      background: rgba(255,255,255,0.02);
+      overflow: hidden;
+      transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+    }
+    .saju-cat:hover{
+      transform: translateY(-2px);
+      border-color: rgba(30, 90, 255, 0.20);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+    }
+
+    .saju-cat-head{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 14px 10px;
+    }
+    .saju-cat-title{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .saju-badge{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      border: 1px solid rgba(10,30,55,0.12);
+      background: rgba(10,30,55,0.05);
+      flex: 0 0 auto;
+    }
+    .saju-cat-title h3{
+      margin: 0;
+      font-size: 15px;
+      font-weight: 950;
+      letter-spacing: -0.02em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .saju-cat-meta{
+      font-size: 12px;
+      opacity: 0.7;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .saju-cat-body{
+      padding: 0 14px 14px;
+    }
+    .saju-cat-desc{
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.65;
+      opacity: 0.78;
+      word-break: keep-all;
+    }
+
+    /* 노트 리스트 */
+    .note-list{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+    .note-item a{
+      display: block;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(10,30,55,0.10);
+      background: rgba(10,30,55,0.03);
+      text-decoration: none;
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .note-item a:hover{
+      transform: translateY(-1px);
+      border-color: rgba(30, 90, 255, 0.20);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.07);
+    }
+    .note-title{
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+    .note-desc{
+      margin: 0 0 8px;
+      font-size: 13px;
+      line-height: 1.6;
+      opacity: 0.78;
+      word-break: keep-all;
+    }
+    .note-item time{
+      font-size: 12px;
+      opacity: 0.62;
+    }
+
+    /* “바로가기” 버튼 */
+    .saju-go{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(10,30,55,0.10);
+      background: rgba(255,255,255,0.02);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 900;
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .saju-go:hover{
+      transform: translateY(-1px);
+      border-color: rgba(30, 90, 255, 0.20);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.07);
+    }
+    .saju-go .arrow{
+      opacity: 0.7;
+    }
+
+    /* 배지 컬러 변주(색 지정 없이도 구분은 됨: box-shadow만) */
+    .b-yy{ box-shadow: inset 0 0 0 999px rgba(90,140,255,0.10); }
+    .b-fe{ box-shadow: inset 0 0 0 999px rgba(70,180,120,0.10); }
+    .b-ch{ box-shadow: inset 0 0 0 999px rgba(255,200,120,0.10); }
+    .b-jj{ box-shadow: inset 0 0 0 999px rgba(170,120,255,0.10); }
+    .b-ss{ box-shadow: inset 0 0 0 999px rgba(80,220,255,0.10); }
+
+    /* 반응형 */
+    @media (max-width: 840px){
+      .saju-index-head{
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .saju-search{
+        width: 100%;
+      }
+      .saju-grid{
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
 <nav class="nav" id="header"></nav>
@@ -17,152 +228,174 @@
   <article class="container sub__">
     <h2>사주 자료</h2>
 
-    <div class="saju-tabs" data-tabs>
-      <!-- 탭 -->
-      <div class="tab-nav" role="tablist" aria-label="사주 자료 탭">
-        <button type="button" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-yin-yang" data-tab="yin-yang">음양</button>
-        <button type="button" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-five-elements" data-tab="five-elements">오행</button>
-        <button type="button" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-cheongan" data-tab="cheongan">천간</button>
-        <button type="button" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-jiji" data-tab="jiji">지지</button>
-        <button type="button" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-sipsin" data-tab="sipsin">십신</button>
-        <!-- <button type="button" class="tab-btn" data-tab="etc">기타</button> -->
+    <!-- ✅ 탭 대신: 헤더 + 검색 + 카드 리스트 -->
+    <div class="saju-index-head">
+      <div class="left">
+        <h3 class="saju-index-title">기초 개념 노트 모음</h3>
+        <p class="saju-index-desc">음양/오행/천간/지지/십신</p>
       </div>
 
-      <!-- 탭 콘텐츠 -->
-      <div class="tab-content">
-        <!-- 음양 -->
-        <section id="panel-yin-yang" class="tab-panel active" role="tabpanel" data-panel="yin-yang">
+      <!-- 검색은 선택(원하면 JS까지 붙여줄게). 일단 UI만 -->
+      <div class="saju-search">
+        <label class="blind" for="sajuSearch">검색</label>
+        <input id="sajuSearch" type="search" placeholder="검색 (예: 오행, 십신, 천간...)" autocomplete="off" />
+      </div>
+    </div>
+
+    <section class="saju-grid" aria-label="사주 자료 카테고리 목록">
+      <!-- 음양 -->
+      <article class="saju-cat" data-cat="음양">
+        <header class="saju-cat-head">
+          <div class="saju-cat-title">
+            <span class="saju-badge b-yy">음양</span>
+            <h3>음양(陰陽)</h3>
+          </div>
+          <div class="saju-cat-meta">1개</div>
+        </header>
+        <div class="saju-cat-body">
+          <p class="saju-cat-desc">기본 개념·활용법. 전반적인 해석 프레임의 뼈대.</p>
           <ul class="note-list">
             <li class="note-item">
               <a href="./eumyang">
-                <h3 class="note-title">음양의 기본 개념 정리</h3>
+                <h4 class="note-title">음양의 기본 개념 정리</h4>
                 <p class="note-desc">음양의 개념과 활용법에 대해 다룹니다.</p>
                 <time>2026.01.14</time>
               </a>
             </li>
           </ul>
-        </section>
+          <a class="saju-go" href="./eumyang"><span>음양 폴더로</span><span class="arrow">→</span></a>
+        </div>
+      </article>
 
-        <!-- 오행 -->
-        <section id="panel-five-elements" class="tab-panel" role="tabpanel" data-panel="five-elements">
+      <!-- 오행 -->
+      <article class="saju-cat" data-cat="오행">
+        <header class="saju-cat-head">
+          <div class="saju-cat-title">
+            <span class="saju-badge b-fe">오행</span>
+            <h3>오행(五行)</h3>
+          </div>
+          <div class="saju-cat-meta">1개</div>
+        </header>
+        <div class="saju-cat-body">
+          <p class="saju-cat-desc">목·화·토·금·수의 순환과 상생상극을 정리.</p>
           <ul class="note-list">
             <li class="note-item">
               <a href="./fiveElements">
-                <h3 class="note-title">오행의 기본 개념 정리</h3>
+                <h4 class="note-title">오행의 기본 개념 정리</h4>
                 <p class="note-desc">오행의 개념과 활용법에 대해 다룹니다.</p>
                 <time>2026.01.14</time>
               </a>
             </li>
           </ul>
-        </section>
+          <a class="saju-go" href="./fiveElements"><span>오행 폴더로</span><span class="arrow">→</span></a>
+        </div>
+      </article>
 
-        <!-- 천간 -->
-        <section id="panel-cheongan" class="tab-panel" role="tabpanel" data-panel="cheongan">
+      <!-- 천간 -->
+      <article class="saju-cat" data-cat="천간">
+        <header class="saju-cat-head">
+          <div class="saju-cat-title">
+            <span class="saju-badge b-ch">천간</span>
+            <h3>천간(天干)</h3>
+          </div>
+          <div class="saju-cat-meta">1개</div>
+        </header>
+        <div class="saju-cat-body">
+          <p class="saju-cat-desc">갑을병정… 10천간 성격과 해석 포인트.</p>
           <ul class="note-list">
             <li class="note-item">
               <a href="./cheongan">
-                <h3 class="note-title">천간의 기본 개념 정리</h3>
+                <h4 class="note-title">천간의 기본 개념 정리</h4>
                 <p class="note-desc">천간의 개념과 활용법에 대해 다룹니다.</p>
                 <time>2026.01.14</time>
               </a>
             </li>
-            
           </ul>
-        </section>
+          <a class="saju-go" href="./cheongan"><span>천간 폴더로</span><span class="arrow">→</span></a>
+        </div>
+      </article>
 
-        <!-- 지지 -->
-        <section id="panel-jiji" class="tab-panel" role="tabpanel" data-panel="jiji">
+      <!-- 지지 -->
+      <article class="saju-cat" data-cat="지지">
+        <header class="saju-cat-head">
+          <div class="saju-cat-title">
+            <span class="saju-badge b-jj">지지</span>
+            <h3>지지(地支)</h3>
+          </div>
+          <div class="saju-cat-meta">1개</div>
+        </header>
+        <div class="saju-cat-body">
+          <p class="saju-cat-desc">자축인묘… 12지지 성격과 해석 포인트.</p>
           <ul class="note-list">
             <li class="note-item">
               <a href="./jiji">
-                <h3 class="note-title">지지의 기본 개념 정리</h3>
+                <h4 class="note-title">지지의 기본 개념 정리</h4>
                 <p class="note-desc">지지의 개념과 활용법에 대해 다룹니다.</p>
                 <time>2026.01.14</time>
               </a>
             </li>
           </ul>
-        </section>
+          <a class="saju-go" href="./jiji"><span>지지 폴더로</span><span class="arrow">→</span></a>
+        </div>
+      </article>
 
-        <!-- 십신 -->
-        <section id="panel-sipsin" class="tab-panel" role="tabpanel" data-panel="sipsin">
+      <!-- 십신 -->
+      <article class="saju-cat" data-cat="십신">
+        <header class="saju-cat-head">
+          <div class="saju-cat-title">
+            <span class="saju-badge b-ss">십신</span>
+            <h3>십신(十神)</h3>
+          </div>
+          <div class="saju-cat-meta">1개</div>
+        </header>
+        <div class="saju-cat-body">
+          <p class="saju-cat-desc">비·식·재·관·인, 해석에서 가장 자주 쓰는 프레임.</p>
           <ul class="note-list">
             <li class="note-item">
               <a href="./sipsin">
-                <h3 class="note-title">십신의 기본 개념 정리</h3>
+                <h4 class="note-title">십신의 기본 개념 정리</h4>
                 <p class="note-desc">십신의 개념과 활용법에 대해 다룹니다.</p>
                 <time>2026.01.14</time>
               </a>
             </li>
           </ul>
-        </section>
-
-        <!-- 기타 예시 (필요하면 탭 버튼도 열고 쓰기) -->
-        <!--
-        <section id="panel-etc" class="tab-panel" role="tabpanel" data-panel="etc">
-          <ul class="note-list">
-            <li class="note-item">
-              <a href="#">
-                <h3 class="note-title">개인 메모</h3>
-                <p class="note-desc">정형화되지 않은 기록</p>
-                <time>2025.11.20</time>
-              </a>
-            </li>
-          </ul>
-        </section>
-        -->
-      </div>
-    </div>
+          <a class="saju-go" href="./sipsin"><span>십신 폴더로</span><span class="arrow">→</span></a>
+        </div>
+      </article>
+    </section>
   </article>
 </main>
 
 <footer class="footer" id="footer"></footer>
 
 <script src="/js/nav.notice.js"></script>
+
+<!-- ✅ 검색(간단 버전): 카드/노트 제목/설명에 포함되면 보여주기 -->
 <script>
   (function () {
-    const root = document.querySelector("[data-tabs]");
-    if (!root) return;
+    const input = document.getElementById("sajuSearch");
+    if (!input) return;
 
-    const btns = Array.from(root.querySelectorAll(".tab-btn"));
-    const panels = Array.from(root.querySelectorAll(".tab-panel"));
+    const cards = Array.from(document.querySelectorAll(".saju-cat"));
 
-    function setActive(tabId, { pushHash = true } = {}) {
-      btns.forEach((b) => {
-        const isActive = b.dataset.tab === tabId;
-        b.classList.toggle("active", isActive);
-        b.setAttribute("aria-selected", String(isActive));
-      });
+    function normalize(s) {
+      return (s || "").toLowerCase().replace(/\s+/g, " ").trim();
+    }
 
-      panels.forEach((p) => {
-        const isActive = p.dataset.panel === tabId;
-        p.classList.toggle("active", isActive);
-      });
-
-      if (pushHash) {
-        history.replaceState(null, "", "#" + tabId);
+    function apply() {
+      const q = normalize(input.value);
+      if (!q) {
+        cards.forEach((c) => (c.style.display = ""));
+        return;
       }
+
+      cards.forEach((card) => {
+        const text = normalize(card.innerText);
+        card.style.display = text.includes(q) ? "" : "none";
+      });
     }
 
-    // 클릭은 root 내부에서만(다른 페이지 요소랑 충돌 방지)
-    root.addEventListener("click", (e) => {
-      const btn = e.target.closest(".tab-btn");
-      if (!btn || !root.contains(btn)) return;
-      const tabId = btn.dataset.tab;
-      if (!tabId) return;
-      setActive(tabId);
-    });
-
-    // 해시(#five-elements)로 진입했으면 그거 활성화
-    const hash = (location.hash || "").replace("#", "").trim();
-    const hasTab = hash && btns.some((b) => b.dataset.tab === hash);
-
-    if (hasTab) {
-      setActive(hash, { pushHash: false });
-    } else {
-      // 기본은 첫 탭
-      const first = btns[0]?.dataset.tab;
-      if (first) setActive(first, { pushHash: false });
-    }
+    input.addEventListener("input", apply);
   })();
 </script>
 </body>
