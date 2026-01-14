@@ -1,0 +1,585 @@
+/* =========================
+   FONT
+========================= */
+@font-face {
+  font-family: 'NanumMyeongjoOldHangeul';
+  src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumMyeongjoYetHangul/NanumMyeongjo-YetHangul.woff2) format("woff2"),
+       url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumMyeongjoYetHangul/NanumMyeongjo-YetHangul.woff) format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* =========================
+   GLOBAL
+========================= */
+body {
+  background: linear-gradient(180deg, #011627 0%, #021b33 100%);
+  color: #f5f5f5;
+}
+
+body, html {
+ min-height: 100%;
+}
+
+/* =========================
+   ARTICLE WRAP
+========================= */
+.sub__ {
+  padding: 64px 20px 80px;
+  max-width: 720px;
+  margin: auto;
+  font-family: 'NanumMyeongjoOldHangeul', serif;
+  letter-spacing: -0.01em;
+}
+
+/* =========================
+   TITLE
+========================= */
+.sub__ h2 {
+  margin-bottom: 32px;
+  font-size: 26px;
+  font-weight: normal;
+  color: #EED36C;
+  text-align: center;
+  position: relative;
+}
+
+.sub__ h2::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 1px;
+  background: rgba(238, 211, 108, 0.6);
+  margin: 16px auto 0;
+}
+
+/* =========================
+   PARAGRAPH
+========================= */
+.sub__ p {
+  margin-bottom: 18px;
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #eaeaea;
+}
+
+.sub__ p ins {
+  color: #EED36C;
+  text-decoration: none;
+  font-style: normal;
+}
+
+/* 개인 의견 구간 */
+.sub__ b {
+  color: #EED36C;
+  font-weight: normal;
+}
+
+/* =========================
+   LINK
+========================= */
+.sub__ a {
+  color: #EED36C;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(238, 211, 108, 0.4);
+  padding-bottom: 2px;
+}
+
+.sub__ a:hover {
+  opacity: 0.85;
+}
+
+/* =========================
+   TABLE
+========================= */
+.table {
+  width: 100%;
+  margin: 28px 0 40px;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(2px);
+}
+
+.table th {
+  background: rgba(238, 211, 108, 0.12);
+  color: #EED36C;
+  font-weight: normal;
+}
+
+.table th,
+.table td {
+  padding: 8px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.table tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* 테이블 설명 문구 */
+.table + p {
+  font-size: 12px;
+  color: #bbb;
+  text-align: center;
+  margin-top: -20px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer {
+  max-width: 720px;
+  margin: 80px auto 0;
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: #EED36C;
+  border-top: 1px solid rgba(238, 211, 108, 0.3);
+}
+
+.footer a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  opacity: 0.8;
+}
+
+/* =========================
+   SAJU NOTE LIST
+========================= */
+
+.note-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-item {
+  margin-bottom: 28px;
+}
+
+.note-item a {
+  display: block;
+  padding: 20px 18px;
+  border: 1px solid rgba(238, 211, 108, 0.25);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(2px);
+  transition: all 0.25s ease;
+}
+
+.note-item a:hover {
+  background: rgba(238, 211, 108, 0.05);
+  transform: translateY(-2px);
+}
+
+.note-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 11.5px;
+  color: #bbb;
+}
+
+.note-tag {
+  color: #EED36C;
+  border: 1px solid rgba(238, 211, 108, 0.4);
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.note-title {
+  margin: 6px 0 8px;
+  font-size: 16px;
+  font-weight: normal;
+  color: #f5f5f5;
+}
+
+.note-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #d8d8d8;
+}
+
+/* =========================
+   TAB NAV
+========================= */
+
+.tab-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid rgba(238, 211, 108, 0.4);
+  color: #EED36C;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: rgba(238, 211, 108, 0.15);
+}
+
+/* =========================
+   TAB PANEL
+========================= */
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+/* =========================
+   NOTE LIST (재사용)
+========================= */
+
+.note-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-item {
+  margin-bottom: 20px;
+}
+
+.note-item a {
+  display: block;
+  padding: 16px;
+  border: 1px solid rgba(238, 211, 108, 0.25);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.note-item time {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #aaa;
+}
+
+/* =========================
+   공통 카드 컨테이너 (천간·지지·오행)
+========================= */
+.cheongan-cards,
+.jiji-cards,
+.ohaeng-cards {
+  margin: 48px 0;
+}
+
+/* =========================
+   공통 카드
+========================= */
+.cheongan-card,
+.jiji-card,
+.ohaeng-card {
+  margin: 40px 0;
+  padding: 22px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  backdrop-filter: blur(4px);
+}
+
+/* hover 효과 (선택) */
+.cheongan-card:hover,
+.jiji-card:hover,
+.ohaeng-card:hover {
+  border-color: rgba(238, 211, 108, 0.25);
+}
+
+/* =========================
+   카드 제목
+========================= */
+.cheongan-card h5,
+.jiji-card h5,
+.ohaeng-card h5 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: normal;
+  color: #EED36C;
+  border-bottom: 1px solid rgba(238, 211, 108, 0.3);
+  padding-bottom: 6px;
+}
+
+/* =========================
+   메타 정보
+========================= */
+.cheongan-card .meta,
+.jiji-card .meta,
+.ohaeng-card .meta {
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #ddd;
+  margin-bottom: 14px;
+}
+
+/* =========================
+   소제목 (# 설명)
+========================= */
+.cheongan-card .sub,
+.jiji-card .sub,
+.ohaeng-card .sub {
+  color: #EED36C;
+  font-size: 14px;
+  margin: 14px 0 6px;
+}
+
+/* =========================
+   본문 텍스트
+========================= */
+.cheongan-card p,
+.jiji-card p,
+.ohaeng-card p {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #ddd;
+  margin: 6px 0;
+}
+
+/* =========================
+   WHO ARE YOU / 강조 박스
+========================= */
+.cheongan-card .who,
+.jiji-card .who,
+.ohaeng-card .who {
+  margin: 14px 0;
+  padding: 12px 14px;
+  background: rgba(238, 211, 108, 0.08);
+  border-left: 3px solid #EED36C;
+  font-size: 13.5px;
+  color: #eee;
+}
+
+/* =========================
+   리스트
+========================= */
+.cheongan-card ul,
+.jiji-card ul,
+.ohaeng-card ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.cheongan-card li,
+.jiji-card li,
+.ohaeng-card li {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #ddd;
+  margin-bottom: 4px;
+}
+
+/* =========================
+   직업 / 하단 정보
+========================= */
+.cheongan-card .job,
+.jiji-card .job,
+.ohaeng-card .job {
+  margin-top: 14px;
+  font-size: 13.5px;
+}
+
+.cheongan-card .job span,
+.jiji-card .job span,
+.ohaeng-card .job span {
+  display: inline-block;
+  margin-top: 4px;
+  color: #EED36C;
+  font-size: 12.5px;
+}
+
+/* =========================
+   지장간 설명 블록
+========================= */
+.jijanggan-note {
+  margin: 56px 0;
+  padding: 22px 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid rgba(238, 211, 108, 0.8);
+  border-radius: 10px;
+  backdrop-filter: blur(2px);
+}
+
+/* 제목 */
+.jijanggan-note h3 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: normal;
+  color: #EED36C;
+  letter-spacing: -0.01em;
+}
+
+/* 리스트 */
+.jijanggan-note ul {
+  margin: 0 0 16px;
+  padding-left: 18px;
+}
+
+.jijanggan-note li {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #eaeaea;
+  margin-bottom: 6px;
+}
+
+/* 본문 설명 */
+.jijanggan-note p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #ddd;
+}
+
+/* =========================
+   지장간 설명 블록
+========================= */
+.jijanggan-box {
+  margin-top: 18px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px dashed rgba(238, 211, 108, 0.35);
+  border-radius: 10px;
+}
+
+/* 지장간 제목 */
+.jijanggan-box h6 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: normal;
+  color: #EED36C;
+}
+
+/* 지장간 리스트 */
+.jijanggan-box ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.jijanggan-box li {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #ddd;
+  margin-bottom: 6px;
+}
+
+/* 번호 강조 */
+.jijanggan-box li b {
+  color: #EED36C;
+  font-weight: normal;
+}
+
+/* 설명 문단 */
+.jijanggan-box p {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #ddd;
+}
+
+/* =========================
+   PROLOG 공통
+========================= */
+
+.prolog {
+  margin-top: 40px;
+}
+
+/* 카드 */
+.prolog-card {
+  margin: 32px 0;
+  padding: 22px 26px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(4px);
+}
+
+/* 제목 */
+.prolog-card h4 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: normal;
+  color: #EED36C;
+  border-bottom: 1px solid rgba(238, 211, 108, 0.3);
+  padding-bottom: 6px;
+}
+
+/* 본문 */
+.prolog-card p {
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #ddd;
+  margin: 0 0 14px;
+}
+
+/* 강조 문장 */
+.prolog-card p b {
+  color: #EED36C;
+  font-weight: normal;
+}
+
+/* 마무리 문단 */
+.prolog-end {
+  margin-top: 18px;
+  padding-left: 14px;
+  border-left: 3px solid rgba(238, 211, 108, 0.6);
+  color: #eee;
+}
+
+/* 마지막 감사 문구 */
+.prolog-footer {
+  margin-top: 48px;
+  padding: 24px 26px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 2;
+  color: #ccc;
+  background: rgba(238, 211, 108, 0.05);
+  border-radius: 16px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 480px) {
+  
+  .sub__ {
+    padding: 48px 16px 64px !important;
+  }
+
+  .sub__ h2 {
+    font-size: 22px;
+  }
+
+  .sub__ p {
+    font-size: 14px;
+  }
+
+  .table {
+    font-size: 11.5px;
+  }
+
+  .note-title {
+    font-size: 15px;
+  }
+
+  .note-desc {
+    font-size: 12.5px;
+  }
+}

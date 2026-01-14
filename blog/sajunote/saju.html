@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta  name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>묘운만세력 사주자료</title>
+  <meta name="description" content="묘운만세력 사주자료" />
+  <link rel="stylesheet" href="/css/style.base.css" />
+  <link rel="stylesheet" href="/css/style.layout.css" />
+  <link rel="stylesheet" href="/css/style.sub.cm.css" />
+  <link rel="stylesheet" href="/css/style.responsive.css" />
+</head>
+<body>
+<nav class="nav" id="header"></nav>
+<main>
+  <article class="container sub__">
+    <h2>사주 자료</h2>
+
+    <div class="saju-tabs" data-tabs>
+      <!-- 탭 -->
+      <div class="tab-nav" role="tablist">
+        <button class="tab-btn active" data-tab="yin-yang">음양</button>
+        <button class="tab-btn" data-tab="five-elements">오행</button>
+        <button class="tab-btn" data-tab="cheongan">천간</button>
+        <button class="tab-btn" data-tab="jiji">지지</button>
+        <!-- <button class="tab-btn" data-tab="ganji">간지</button>
+        <button class="tab-btn" data-tab="rooting">통근·투출</button>
+        <button class="tab-btn" data-tab="relations">형충회합</button>
+        <button class="tab-btn" data-tab="positions">자리의 의미</button>
+        <button class="tab-btn" data-tab="twelve-life">십이운성</button>
+        <button class="tab-btn" data-tab="twelve-stars">십이신살</button>
+        <button class="tab-btn" data-tab="shinsal">신살론</button>
+        <button class="tab-btn" data-tab="napeum">납음오행</button>
+        <button class="tab-btn" data-tab="etc">기타</button> -->
+      </div>
+
+      <!-- 탭 콘텐츠 -->
+      <div class="tab-content">
+
+        <!-- 음양 -->
+        <section class="tab-panel active" data-panel="yin-yang">
+          <ul class="note-list">
+            <li class="note-item">
+              <a href="./eumyang/content01.html">
+                <h3 class="note-title">음양의 기본 개념 정리</h3>
+                <p class="note-desc">음양의 개념과 활용법에 대해 다룹니다.</p>
+                <time>2026.01.14</time>
+              </a>
+            </li>
+            
+          </ul>
+        </section>
+
+        <!-- 오행 -->
+        <section class="tab-panel" data-panel="five-elements">
+          <ul class="note-list">
+            <li class="note-item">
+              <a href="./fiveElements/content01.html">
+                <h3 class="note-title">오행의 기본 개념 정리</h3>
+                <p class="note-desc">오행의 개념과 활용법에 대해 다룹니다.</p>
+                <time>2026.01.14</time>
+              </a>
+            </li>
+          </ul>
+        </section>
+        <section class="tab-panel" data-panel="five-elements">
+          <ul class="note-list">
+            <li class="note-item">
+              <a href="./fiveElements/content02.html">
+                <h3 class="note-title">오행의 상생상극 정리</h3>
+                <p class="note-desc">오행의 상생상극에 대해 다룹니다.</p>
+                <time>2026.01.14</time>
+              </a>
+            </li>
+          </ul>
+        </section>
+
+        <!-- 천간 -->
+        <section class="tab-panel" data-panel="cheongan">
+          <ul class="note-list">
+            <li class="note-item">
+              <a href="./cheongan/content01.html">
+                <h3 class="note-title">천간의 개관</h3>
+                <p class="note-desc">천간의 개관을 다룹니다.</p>
+                <time>2026.01.14</time>
+              </a>
+            </li>
+          </ul>
+        </section>
+        <section class="tab-panel" data-panel="cheongan">
+          <ul class="note-list">
+            <li class="note-item">
+              <a href="./cheongan/content02.html">
+                <h3 class="note-title">천간</h3>
+                <p class="note-desc">천간의 내용을 심화적으로 다룹니다.</p>
+                <time>2026.01.14</time>
+              </a>
+            </li>
+          </ul>
+        </section>
+
+        <!-- 지지 -->
+        <section class="tab-panel" data-panel="jiji">
+          <ul class="note-list">
+            <li class="note-item">
+              <a href="./jiji/content01.html">
+                <h3 class="note-title">지지의 개관</h3>
+                <p class="note-desc">지지의 개관에 대해 다룹니다.</p>
+                <time>2026.01.14</time>
+              </a>
+            </li>
+          </ul>
+        </section>
+        <section class="tab-panel" data-panel="jiji">
+          <ul class="note-list">
+            <li class="note-item">
+              <a href="./jiji/content02.html">
+                <h3 class="note-title">지지</h3>
+                <p class="note-desc">지지의 심화에 대해 다룹니다.</p>
+                <time>2026.01.14</time>
+              </a>
+            </li>
+          </ul>
+        </section>
+
+        <!-- 나머지는 동일 패턴 -->
+        <section class="tab-panel" data-panel="etc">
+          <ul class="note-list">
+            <li class="note-item">
+              <a href="#">
+                <h3 class="note-title">개인 메모</h3>
+                <p class="note-desc">정형화되지 않은 기록</p>
+                <time>2025.11.20</time>
+              </a>
+            </li>
+          </ul>
+        </section>
+
+      </div>
+    </div>
+  </article>
+
+</main>
+<!-- 푸터 -->
+<footer class="footer" id="footer"></footer>
+<script src="/js/nav.notice.js"></script>
+<script>
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tab-btn");
+    if (!btn) return;
+
+    const tabId = btn.dataset.tab;
+
+    document.querySelectorAll(".tab-btn").forEach(b =>
+      b.classList.toggle("active", b === btn)
+    );
+
+    document.querySelectorAll(".tab-panel").forEach(panel =>
+      panel.classList.toggle("active", panel.dataset.panel === tabId)
+    );
+  });
+</script>
+</body>
+</html>
