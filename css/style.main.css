@@ -45,13 +45,14 @@ body.edit_mode .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: min(375px, 100%);
   gap: 12px;
   padding: 10px 14px;
-  margin-bottom: 16px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(10, 30, 55, 0.12);
   color: #1a1a1a;
+  word-break: keep-all;
 }
 
 .home-banner p {
@@ -71,6 +72,44 @@ body.edit_mode .nav {
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
+}
+
+.home-note {
+  width: 100%;
+  width: min(375px, 100%);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(10, 30, 55, 0.12);
+  color: #1a1a1a;
+  word-break: keep-all;
+}
+
+.home-note__title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.home-note p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.home-note__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  font-size: 12px;
+}
+
+.home-note__links a {
+  color: #0a1e37;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(10, 30, 55, 0.35);
 }
 
 @media (max-width: 520px) {
