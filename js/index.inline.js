@@ -137,6 +137,27 @@
       });
     }
 
+    const ganzhiWhiteCheckbox = document.getElementById('ganzhiWhiteDisplay');
+    const ganzhiWhiteKey = 'ganzhiWhiteDisplay';
+    if (ganzhiWhiteCheckbox) {
+      const saved = localStorage.getItem(ganzhiWhiteKey);
+      const shouldEnable = saved === 'true';
+      ganzhiWhiteCheckbox.checked = shouldEnable;
+      if (shouldEnable) {
+        body.classList.add('ganzhi_white');
+      }
+
+      ganzhiWhiteCheckbox.addEventListener('change', () => {
+        const enable = ganzhiWhiteCheckbox.checked;
+        localStorage.setItem(ganzhiWhiteKey, enable);
+        if (enable) {
+          body.classList.add('ganzhi_white');
+        } else {
+          body.classList.remove('ganzhi_white');
+        }
+      });
+    }
+
     pushAllAds();
   });
 
@@ -175,4 +196,3 @@
     }
   });
 })();
-

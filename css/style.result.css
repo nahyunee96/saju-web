@@ -589,3 +589,38 @@
   color: #EED36C;
 }
 
+body.ganzhi_white .grid_box_1 li .hanja_con,
+body.ganzhi_white .ganji .hanja_con,
+body.ganzhi_white .ganji_w,
+body.ganzhi_white .fortune_section .w {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+body.ganzhi_white .grid_box_1 li .hanja_con b,
+body.ganzhi_white .ganji .hanja_con b,
+body.ganzhi_white .grid_box_1 li p,
+body.ganzhi_white .ganji p,
+body.ganzhi_white .grid_box_1 li .ten_sin,
+body.ganzhi_white .ganji .ten_sin,
+body.ganzhi_white .grid_box_1 li .woon_seong,
+body.ganzhi_white .ganji .woon_seong,
+body.ganzhi_white .grid_box_1 li .sin_sal,
+body.ganzhi_white .ganji .sin_sal,
+body.ganzhi_white .fortune_section .w,
+body.ganzhi_white .fortune_section .dage {
+  color: #000 !important;
+}
+
+body.ganzhi_white .calander_table .ilwoon li.ilwoon_ganji_cheongan span,
+body.ganzhi_white .calander_table .ilwoon li.ilwoon_ganji_jiji span {
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 1px solid #000;
+}
+
+body.ganzhi_white .current_ganzhi,
+body.ganzhi_white .current_ganzhi b {
+  color: #000 !important;
+}
+
