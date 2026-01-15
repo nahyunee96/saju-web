@@ -134,8 +134,6 @@ pre{
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(5, 20, 33, .72);
-  border-bottom: 1px solid var(--line);
   backdrop-filter: blur(10px);
   max-width: 1080px;
 }
@@ -2215,4 +2213,402 @@ tbody tr:last-child td{ border-bottom:0; }
   .ten-note .map-item{ grid-template-columns: 1fr; }
 }
 
+/* =========================
+   합-충 노트 (hapchung-note)
+   ========================= */
+.hapchung-note{
+  padding-top: 18px;
+  padding-bottom: 34px;
 
+  /* 토큰 */
+  --panel: rgba(10, 30, 55, 0.12);
+  --panel2: rgba(10, 30, 55, 0.08);
+  --stroke: rgba(10, 30, 55, 0.12);
+  --stroke2: rgba(10, 30, 55, 0.18);
+  --shadow: 0 16px 40px rgba(0,0,0,0.18);
+
+  --text: rgba(255,255,255,0.90);
+  --text2: rgba(255,255,255,0.78);
+  --muted: rgba(255,255,255,0.70);
+
+  --hap: rgba(70, 180, 120, 0.62);
+  --chung: rgba(255, 120, 110, 0.56);
+  --jiji: rgba(80, 140, 255, 0.50);
+  --stem: rgba(140, 160, 190, 0.58);
+  --amhap: rgba(170, 120, 255, 0.48);
+  --sub: rgba(200, 160, 90, 0.56);
+}
+
+/* ===== 헤더 ===== */
+.hapchung-note .note-head{
+  max-width: 1040px;
+  margin: 0 auto 14px;
+  padding: 0 4px;
+}
+.hapchung-note .note-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.88);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.hapchung-note .note-title{
+  margin: 10px 0 6px;
+  color: var(--text);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.hapchung-note .note-lead{
+  margin: 0;
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  max-width: 980px;
+}
+
+/* ===== 빠른 이동 ===== */
+.hapchung-note .note-nav{
+  max-width: 1040px;
+  margin: 10px auto 0;
+  padding: 0 2px;
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+}
+.hapchung-note .chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding: 7px 10px;
+  border-radius:999px;
+  font-size: 12px;
+  font-weight: 900;
+  background: rgba(10, 30, 55, 0.08);
+  border: 1px solid var(--stroke);
+  color: rgba(255,255,255,0.86);
+  text-decoration:none;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.hapchung-note .chip:hover{
+  transform: translateY(-1px);
+  background: rgba(10, 30, 55, 0.12);
+  border-color: var(--stroke2);
+}
+
+/* 칩 포인트 */
+.hapchung-note .chip.is-hap{ box-shadow: inset 0 0 0 999px rgba(70,180,120,0.06); }
+.hapchung-note .chip.is-chung{ box-shadow: inset 0 0 0 999px rgba(255,120,110,0.06); }
+.hapchung-note .chip.is-jiji{ box-shadow: inset 0 0 0 999px rgba(80,140,255,0.05); }
+.hapchung-note .chip.is-stem{ box-shadow: inset 0 0 0 999px rgba(140,160,190,0.06); }
+.hapchung-note .chip.is-amhap{ box-shadow: inset 0 0 0 999px rgba(170,120,255,0.05); }
+.hapchung-note .chip.is-guide,
+.hapchung-note .chip.is-sub{ box-shadow: inset 0 0 0 999px rgba(200,160,90,0.05); }
+
+/* ===== 공통 카드 ===== */
+.hapchung-note .card{
+  max-width: 1040px;
+  margin: 12px auto 0;
+  padding: 18px 18px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(4px);
+}
+.hapchung-note .sec-title{
+  margin: 0 0 10px;
+  font-size: 15.5px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.hapchung-note .para{
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  color: var(--text2);
+}
+.hapchung-note .subtle{ color: var(--muted); }
+
+/* 리스트 */
+.hapchung-note .bullet{
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.9;
+  letter-spacing: -0.01em;
+  color: var(--text2);
+}
+.hapchung-note .bullet li{ margin: 6px 0; }
+.hapchung-note .compact{ font-size: 13.5px; line-height: 1.85; }
+
+/* ===== 인용/강조 ===== */
+.hapchung-note .quote{
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(10, 30, 55, 0.07);
+}
+.hapchung-note .quote b{
+  display:block;
+  font-weight: 950;
+  color: rgba(255,255,255,0.92);
+}
+.hapchung-note .quote p{
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+/* ===== 배지 ===== */
+.hapchung-note .badge{
+  display:inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 900;
+  background: rgba(10, 30, 55, 0.06);
+  border: 1px solid rgba(10, 30, 55, 0.10);
+  color: rgba(255,255,255,0.86);
+}
+.hapchung-note .badge.is-hap{ box-shadow: inset 0 0 0 999px rgba(70,180,120,0.06); }
+.hapchung-note .badge.is-chung{ box-shadow: inset 0 0 0 999px rgba(255,120,110,0.06); }
+
+/* ===== 콜아웃 ===== */
+.hapchung-note .callout{
+  margin-top: 12px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(10, 30, 55, 0.07);
+  line-height: 1.75;
+  color: rgba(255,255,255,0.86);
+}
+.hapchung-note .callout b{ font-weight: 950; }
+.hapchung-note .callout.warn{
+  border-color: rgba(255,120,110,0.22);
+  box-shadow: inset 0 0 0 999px rgba(255,120,110,0.035);
+}
+.hapchung-note .callout.subtlebox{
+  border-color: rgba(255,255,255,0.10);
+  background: rgba(10, 30, 55, 0.05);
+}
+
+/* ===== 레이아웃 유틸 ===== */
+.hapchung-note .two-col{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.hapchung-note .three-col{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+.hapchung-note .grid-2{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* 카드처럼 보이는 작은 박스 */
+.hapchung-note .cardish{
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(10, 30, 55, 0.06);
+  overflow:hidden;
+  position:relative;
+}
+.hapchung-note .cardish::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 4px;
+  opacity: .92;
+}
+.hapchung-note .cardish.is-hap::before{ background: var(--hap); }
+.hapchung-note .cardish.is-chung::before{ background: var(--chung); }
+.hapchung-note .cardish.is-jiji::before{ background: var(--jiji); }
+.hapchung-note .cardish.is-stem::before{ background: var(--stem); }
+
+/* ===== 타임라인 ===== */
+.hapchung-note .timeline{
+  margin-top: 14px;
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.hapchung-note .t-item{
+  flex: 1 1 240px;
+  display:flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(10, 30, 55, 0.06);
+  position:relative;
+  overflow:hidden;
+}
+.hapchung-note .t-item::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width: 4px;
+  opacity:.92;
+}
+.hapchung-note .t-item.is-hap::before{ background: var(--hap); }
+.hapchung-note .t-item.is-chung::before{ background: var(--chung); }
+.hapchung-note .t-item.is-sub::before{ background: var(--sub); }
+
+.hapchung-note .t-badge{
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display:grid;
+  place-items:center;
+  font-weight: 950;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.92);
+}
+.hapchung-note .t-body{
+  display:flex;
+  flex-direction: column;
+  gap: 2px;
+  color: rgba(255,255,255,0.90);
+}
+.hapchung-note .t-body span{
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.hapchung-note .t-arrow{
+  color: rgba(255,255,255,0.55);
+  font-weight: 950;
+}
+
+/* ===== 가이드 그리드 ===== */
+.hapchung-note .guide-grid{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.hapchung-note .guide{
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(10, 30, 55, 0.06);
+}
+.hapchung-note .guide-head{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.hapchung-note .guide h4{
+  margin: 0;
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  color: rgba(255,255,255,0.92);
+}
+
+/* ===== 표 ===== */
+.hapchung-note .table-wrap{
+  overflow:auto;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(10, 30, 55, 0.12);
+  margin-top: 12px;
+}
+.hapchung-note .mini-table{
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+.hapchung-note .mini-table th,
+.hapchung-note .mini-table td{
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(10, 30, 55, 0.10);
+  text-align:left;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.84);
+}
+.hapchung-note .mini-table thead th{
+  font-weight: 950;
+  background: rgba(10, 30, 55, 0.06);
+  color: rgba(255,255,255,0.90);
+}
+.hapchung-note .mini-table tbody tr:last-child td{ border-bottom: none; }
+
+/* ===== details 접기 ===== */
+.hapchung-note .fold{
+  margin-top: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(10, 30, 55, 0.06);
+  overflow:hidden;
+}
+.hapchung-note .fold > summary{
+  cursor:pointer;
+  list-style:none;
+  padding: 12px 14px;
+  font-weight: 950;
+  color: rgba(255,255,255,0.90);
+}
+.hapchung-note .fold > summary::-webkit-details-marker{ display:none; }
+.hapchung-note .fold[open] > summary{
+  border-bottom: 1px solid rgba(10, 30, 55, 0.12);
+  background: rgba(10, 30, 55, 0.04);
+}
+.hapchung-note .fold-body{
+  padding: 12px 14px 14px;
+}
+.hapchung-note .prose p{ margin: 0 0 10px; }
+
+/* ===== 요약 박스 ===== */
+.hapchung-note .summary{
+  margin-top: 14px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  background: rgba(10, 30, 55, 0.08);
+  border: 1px solid var(--stroke);
+  font-weight: 900;
+  line-height: 1.75;
+  color: rgba(255,255,255,0.88);
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 980px){
+  .hapchung-note .two-col{ grid-template-columns: 1fr; }
+  .hapchung-note .three-col{ grid-template-columns: 1fr; }
+  .hapchung-note .grid-2{ grid-template-columns: 1fr; }
+  .hapchung-note .guide-grid{ grid-template-columns: 1fr; }
+  .hapchung-note .t-arrow{ display:none; }
+}
+@media (max-width: 520px){
+  .hapchung-note .card{ padding: 16px 14px; border-radius: 14px; }
+  .hapchung-note .note-title{ font-size: 20px; }
+}
