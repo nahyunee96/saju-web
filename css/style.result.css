@@ -633,3 +633,9 @@ body.ganzhi_white .lucky_box .lucky .ganji .sin_sal {
   color: #fff !important;
 }
 
+body.ganzhi_white .lucky_box .lucky .ganji .ten_sin,
+body.ganzhi_white .grid_box_1 li p.label,
+body.ganzhi_white .ganji p.label {
+  color: #fff !important;
+}
+
