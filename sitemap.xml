@@ -4,19 +4,55 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
-
-
-<url>
-  <loc>https://myowoon96.com/</loc>
-  <lastmod>2026-01-14T04:09:44+00:00</lastmod>
-  <priority>1.00</priority>
-</url>
-<url>
-  <loc>https://myowoon96.com/blog/myounlyeok</loc>
-  <lastmod>2026-01-14T04:09:44+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-
-
+  <url>
+    <loc>https://myowoon96.com/</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/about</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/myounlyeok</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/sajunote</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/sajunote/YinYang</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/sajunote/FiveElements</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/sajunote/Cheongan</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/sajunote/Jiji</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/sajunote/Sipsin</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/sajunote/TonggeunAndTuchul</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/sajunote/HyeongChungHoiHap</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/sajunote/8geuljaMean</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/privacy</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/terms</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/c_note</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/blog/nh_head_inner</loc>
+  </url>
+  <url>
+    <loc>https://myowoon96.com/contact</loc>
+  </url>
 </urlset>

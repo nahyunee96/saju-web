@@ -421,12 +421,14 @@
   justify-content: space-between;
   align-items: center;
   gap: 32px;
+  
 }
 
 .today_meongsik_wrapper .today_saju {
   position: relative;
   flex-shrink: 0;
   width: min(375px, 100%);
+  margin: auto;
 }
 
 .today_meongsik_wrapper .woonkuk {
