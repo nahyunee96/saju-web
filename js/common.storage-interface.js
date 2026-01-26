@@ -1806,7 +1806,43 @@
     updateOriginalSetMapping(daySplit, hourSplit);
     updateColorClasses();
 
-    const daewoonData = getDaewoonData(gender, originalDate, correctedDate);
+    function alignDaewoonStartYear(daewoonData, targetStartYear, birthYear) {
+      if (!daewoonData || !daewoonData.list || !daewoonData.list.length) return daewoonData;
+      if (typeof targetStartYear !== "number" || Number.isNaN(targetStartYear)) return daewoonData;
+      const birthYearNum = typeof birthYear === "number" ? birthYear : birthYear?.getFullYear?.();
+      if (typeof birthYearNum !== "number" || Number.isNaN(birthYearNum)) return daewoonData;
+
+      const firstAge = (daewoonData.list[1]?.age ?? daewoonData.baseYears);
+      if (typeof firstAge !== "number" || Number.isNaN(firstAge)) return daewoonData;
+
+      const currentStartYear = birthYearNum + Math.floor(firstAge);
+      const deltaYears = targetStartYear - currentStartYear;
+      if (!deltaYears) return daewoonData;
+
+      return {
+        ...daewoonData,
+        list: daewoonData.list.map((item, idx) => (
+          idx === 0 ? item : { ...item, age: item.age + deltaYears }
+        ))
+      };
+    }
+
+    const baseDaewoonData = getDaewoonData(gender, originalDate, correctedDate);
+    const myowoonAlignResult = getMyounPillars(
+      { year, month, day, hour, minute, gender, correctedDate },
+      refDate,
+      selectTimeValue,
+      hourPillar
+    );
+    const myounStartYear = (myowoonAlignResult?.woljuFirstChangeDate instanceof Date)
+      ? myowoonAlignResult.woljuFirstChangeDate.getFullYear()
+      : null;
+    globalState.myounWoljuStartYear = myounStartYear;
+    const daewoonData = alignDaewoonStartYear(
+      baseDaewoonData,
+      myounStartYear,
+      correctedDate.getFullYear()
+    );
 
     function updateCurrentDaewoon(refDate, offset = 0) {
 
@@ -1887,7 +1923,7 @@
         setText("DwW" + idx, getTwelveUnseong(baseDayStem, finalBranch) || "-");
         setText("Ds" + idx, getTwelveShinsalDynamic(dayPillar, yearPillar, finalBranch) || "-");
         
-        const isDecimalBase = daewoonData.isBoundaryCase && daewoonData.baseDecimal % 1 !== 0;
+        const isDecimalBase = daewoonData.baseDecimal % 1 !== 0;
         const displayedDaewoonNum = (i === 1 && isDecimalBase)
           ? daewoonData.baseDecimal.toFixed(3)
           : Math.floor(item.age);
@@ -2067,7 +2103,13 @@
                                   + yearsOffset
                                   + monthsOffset / 12;
         
-        const startYear = Math.floor(sewoonStartDecimal);
+        let startYear = Math.floor(sewoonStartDecimal);
+
+        if (typeof globalState.myounWoljuStartYear === "number") {
+          const baseIndex = Math.max(0, daewoonIndex - 1);
+          startYear = globalState.myounWoljuStartYear + baseIndex * 10;
+          globalState.sewoonStartYear = startYear;
+        }
 
         function getSewoonStartYear(selectedLon) {
             if (selectedLon >= 127 && selectedLon <= 135) {
@@ -2077,7 +2119,9 @@
           }
         }
         
-        globalState.sewoonStartYear = getSewoonStartYear(selectedLon);
+        if (typeof globalState.sewoonStartYear !== "number") {
+          globalState.sewoonStartYear = getSewoonStartYear(selectedLon);
+        }
     
         const years = Array.from({ length: 10 }, (_, j) => startYear + j);
         const lastYear = years[years.length - 1];
@@ -2626,7 +2670,12 @@
           }
         }
         
-        globalState.sewoonStartYear = getSewoonStartYear(selectedLon);
+        if (typeof globalState.myounWoljuStartYear === "number") {
+          const baseIndex = Math.max(0, daewoonIndex - 1);
+          globalState.sewoonStartYear = globalState.myounWoljuStartYear + baseIndex * 10;
+        } else {
+          globalState.sewoonStartYear = getSewoonStartYear(selectedLon);
+        }
         
         // 세운(운) 리스트 생성
         const sewoonList = [];
@@ -2917,13 +2966,9 @@
       return branches[getHourBranchIndex2(date)];
     }
 
-    const GANZHI_60 = Array.from({ length: 60 }, (_, i) =>
-      Cheongan[i % 10] + Jiji[i % 12]
-    );
-
     function getGanZhiByIndex(idx) {
       const i = ((idx % 60) + 60) % 60;
-      return GANZHI_60[i];
+      return Cheongan[i % 10] + Jiji[i % 12];
     }
 
 

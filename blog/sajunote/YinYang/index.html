@@ -20,13 +20,7 @@
       <h2>음양(陰陽)</h2>
 
       <!-- ✅ 출처/저작권 고지 (상단) -->
-      <blockquote>
-        <p>
-          <ins>출처 :</ins><b>“현묘”</b> 5기 수업반 강의<br />
-          본 내용은 5기 수업반 수강생으로서 강의 내용을 정리한 것이므로, <b>무단 공유 및 복제를 금합니다.</b>
-        </p>
-        <p>※ 강의 내용을 바탕으로 재구성 하였습니다.</p>
-      </blockquote>
+      <div id="note-source"></div>
 
       <section class="container sub__ note yinYang-note">
         <header class="note-head">
@@ -174,14 +168,20 @@
 
       </section>
 
-      <ul class="link_move">
-        <li><a href="#" class="is-disabled" aria-disabled="true" tabindex="-1">이전글</a></li>
-        <li><a href="./clinicalPractice/">다음글</a></li>
-      </ul>
+      <ul
+        class="link_move"
+        data-link-move="true"
+        data-prev-text="이전글(없음)"
+        data-prev-href="#"
+        data-prev-disabled="true"
+        data-next-text="다음글(음양의 재해석 및 임상)"
+        data-next-href="./clinicalPractice/"
+      ></ul>
     </div>
   </main>
 
   <footer class="footer" id="footer"></footer>
   <script src="/js/nav.notice.js"></script>
+  <script src="/js/link.move.js"></script>
 </body>
 </html>
