@@ -29,6 +29,9 @@
       list.innerHTML = "";
       list.appendChild(buildLink(prevText, prevHref, prevDisabled));
       list.appendChild(buildLink(nextText, nextHref, nextDisabled));
+      const listLink = buildLink("목록으로", "/blog/sajunote", false);
+      listLink.classList.add("link_move__center");
+      list.appendChild(listLink);
     });
   });
 })();

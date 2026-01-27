@@ -666,6 +666,11 @@ tbody tr:last-child td{ border-bottom:0; }
   padding: 0;
 }
 
+.link_move li.link_move__center{
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
 .link_move a{
   display: flex;
   align-items: center;
@@ -693,15 +698,25 @@ tbody tr:last-child td{ border-bottom:0; }
   box-shadow: none;
 }
 
+.link_move li.link_move__center a{
+  min-width: 200px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
 .link_move li:first-child a::before{
   content: "←";
   opacity: 0.7;
 }
 
-.link_move li:last-child a::after{
+.link_move li:nth-child(2) a::after{
   content: "→";
   opacity: 0.7;
 }
+
+/* .link_move li.link_move__center a::after {
+  content: none;
+} */
 
 /* hover */
 @media (hover:hover) and (pointer:fine){
