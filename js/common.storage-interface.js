@@ -1904,6 +1904,20 @@
     updateCurrentDaewoon(refDate);
     updateMonthlyWoonByToday(refDate);
 
+    function getDisplayDaewoonAge(daewoonItem, listIndex) {
+      if (!daewoonItem) return "-";
+      // listIndex is 0-based (same as daewoonList index)
+      const isDecimalBase = daewoonData.baseDecimal % 1 !== 0;
+      const displayOffset = daewoonData.baseDecimal >= 1 ? 1 : 0;
+      if (listIndex === 1 && isDecimalBase) {
+        const base = daewoonData.baseDecimal;
+        const v = base - displayOffset;
+        return Math.max(0, v).toFixed(3);
+      }
+      const ageInt = Math.floor(daewoonItem.age);
+      return Math.max(0, ageInt - displayOffset);
+    }
+
     function updateAllDaewoonItems(daewoonList) {
       for (let i = 0; i < daewoonList.length; i++) {
         const item = daewoonList[i];
@@ -1920,10 +1934,7 @@
         setText("DwW" + idx, getTwelveUnseong(baseDayStem, finalBranch) || "-");
         setText("Ds" + idx, getTwelveShinsalDynamic(dayPillar, yearPillar, finalBranch) || "-");
         
-        const isDecimalBase = daewoonData.baseDecimal % 1 !== 0;
-        const displayedDaewoonNum = (i === 1 && isDecimalBase)
-          ? daewoonData.baseDecimal.toFixed(3)
-          : Math.floor(item.age);
+        const displayedDaewoonNum = getDisplayDaewoonAge(item, i);
         setText("Da" + idx, displayedDaewoonNum);
       }
     }
@@ -2069,7 +2080,8 @@
     function updateDaewoonDetails(index) {
       if (daewoonData && daewoonData.list[index - 1]) {
         const data = daewoonData.list[index - 1];
-        setText("daewoonDetail", `${data.age}세 (${data.stem}${data.branch})`);
+        const displayAge = getDisplayDaewoonAge(data, index - 1);
+        setText("daewoonDetail", `${displayAge}세 (${data.stem}${data.branch})`);
       }
     }
 
