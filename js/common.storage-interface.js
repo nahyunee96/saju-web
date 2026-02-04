@@ -840,8 +840,9 @@
         if (r2) r2.checked = true;
 
         const monthTypeSel = document.getElementById("monthType");
-        monthTypeSel.value = item.monthType;
-        monthTypeSel.dispatchEvent(new Event("change"));
+        if (monthTypeSel) {
+          monthTypeSel.value = item.monthType;
+        }
 
         const bjTimeTextEl = document.getElementById("bjTimeText");
         const summerTimeBtn = document.getElementById('summerTimeCorrBtn');
@@ -935,13 +936,18 @@
         }
     
         updateSaveBtn();
-        if (e.isTrusted && !window.__calcBusy && !window.__openDetailProgram) {
+        const shouldCalc = e.isTrusted && !window.__calcBusy && !window.__openDetailProgram;
+        if (shouldCalc) {
+          window.__calcFromDetail = true;
+          window.__deferMyowoon = true;
+          window.__skipWoonChangeOnce = true;
           calculateBtn.click();
+        } else {
+          document.getElementById("woonChangeBtn").click();
         }
         // 프로그램으로 상세열기 다음 회차부터는 계산 금지 해제
         window.__openDetailProgram = false;
         document.getElementById("woonVer1Change").click();
-        document.getElementById("woonChangeBtn").click();
         const sewoonBox = document.querySelector(".lucky.sewoon");
         if (sewoonBox) { sewoonBox.style.display = "grid"; }
         const wolwoonBox = document.querySelector(".lucky.wolwoon");
@@ -1474,6 +1480,14 @@
   const setBtnCtrl = document.getElementById('setBtn'); 
 
   document.getElementById("calcBtn").addEventListener("click", function (event) {
+    if (window.__calcBusy) return;
+    window.__calcBusy = true;
+    const fromDetail = !!window.__calcFromDetail;
+    window.__calcFromDetail = false;
+    if (!fromDetail) {
+      window.__deferMyowoon = false;
+    }
+    try {
     event.preventDefault();
 
     backBtn.style.display = '';
@@ -1671,11 +1685,6 @@
         hourPillar  = getHourGanZhi(correctedDate, dayPillar);
         hourSplit = splitPillar(hourPillar);
         updateFunc(refDate);
-        updateOriginalSetMapping(daySplit, hourSplit);
-        myowoonResult = getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
-        setTimeout(() => {
-          updateMyowoonSection(myowoonResult);
-        }, 0);
         updateExplanDetail(myowoonResult, hourPillar);
       } else {
         summerTimeBtn.classList.add('active');
@@ -1687,11 +1696,6 @@
         hourPillar  = getHourGanZhi(correctedDate, dayPillar);
         hourSplit = splitPillar(hourPillar);
         updateFunc(refDate);
-        updateOriginalSetMapping(daySplit, hourSplit);
-        myowoonResult = getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
-        setTimeout(() => {
-          updateMyowoonSection(myowoonResult);
-        }, 0);
         updateExplanDetail(myowoonResult, hourPillar);
       }
       isSummerOn = !isSummerOn;
@@ -1908,14 +1912,25 @@
       if (!daewoonItem) return "-";
       // listIndex is 0-based (same as daewoonList index)
       const isDecimalBase = daewoonData.baseDecimal % 1 !== 0;
-      const displayOffset = daewoonData.baseDecimal >= 1 ? 1 : 0;
-      if (listIndex === 1 && isDecimalBase) {
-        const base = daewoonData.baseDecimal;
-        const v = base - displayOffset;
-        return Math.max(0, v).toFixed(3);
+      const base = daewoonData.baseDecimal;
+      const baseFloor = Math.floor(base);
+      const firstAge = Math.floor(daewoonData.list?.[1]?.age ?? baseFloor);
+      const secondAge = Math.floor(daewoonData.list?.[2]?.age ?? (firstAge + 10));
+      let displayOffset = Math.max(0, firstAge - baseFloor);
+      // 0.xxx 시작 케이스에서 경계(첫 구간 이후가 10 단위)라면 offset을 적용하지 않음
+      if (base < 1 && (secondAge - firstAge) === 9) {
+        displayOffset = 0;
       }
-      const ageInt = Math.floor(daewoonItem.age);
-      return Math.max(0, ageInt - displayOffset);
+
+      if (listIndex === 0) return 0;
+      if (listIndex === 1 && isDecimalBase) {
+        return base < 1 ? base.toFixed(3) : baseFloor;
+      }
+      if (base < 1) {
+        // 0.xxx 시작은 이후 10년 단위로 표기
+        return (listIndex - 1) * 10;
+      }
+      return Math.max(0, Math.floor(daewoonItem.age) - displayOffset);
     }
 
     function updateAllDaewoonItems(daewoonList) {
@@ -2039,6 +2054,8 @@
     updateCurrentSewoon(refDate);
 
     document.querySelectorAll("#daewoonList li").forEach(function (li) {
+      if (li.dataset.daewoonBasicAttached) return;
+      li.dataset.daewoonBasicAttached = "1";
       li.addEventListener("click", function (event) {
         event.stopPropagation();
         document.querySelectorAll("#daewoonList li").forEach(item => item.classList.remove("active"));
@@ -2062,6 +2079,8 @@
     });
 
     document.querySelectorAll("#sewoonList li").forEach(function (li) {
+      if (li.dataset.sewoonBasicAttached) return;
+      li.dataset.sewoonBasicAttached = "1";
       li.addEventListener("click", function (event) {
         event.stopPropagation();
         const index = this.getAttribute("data-index2");
@@ -2598,6 +2617,8 @@
     updateMonthlyFortuneCalendar(currentTerm.name, currentSolarYear);
 
     document.querySelectorAll("[id^='daewoon_']").forEach(function (daewoonLi) {
+      if (daewoonLi.dataset.daewoonDetailAttached) return;
+      daewoonLi.dataset.daewoonDetailAttached = "1";
       daewoonLi.addEventListener("click", function (event) {
         event.stopPropagation();
         document.getElementById('iljuCalender').style.display = 'none';
@@ -2686,6 +2707,8 @@
     });
   
     document.querySelectorAll("[id^='Sewoon_']").forEach(function (sewoonLi) {
+      if (sewoonLi.dataset.sewoonDetailAttached) return;
+      sewoonLi.dataset.sewoonDetailAttached = "1";
       sewoonLi.addEventListener("click", function () {
         const wolwoonBox = document.querySelector(".lucky.wolwoon");
         if (wolwoonBox) { wolwoonBox.style.display = "none"; }
@@ -3707,6 +3730,11 @@ const yeonjuCurrentPillar = yPillars[currIdx];
             if (hourSplit.ji !== "자" && hourSplit.ji !== "축") {
             }
           }
+          if (window.__deferMyowoon || !myowoonResult) {
+            myowoonResult = getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
+            window.__deferMyowoon = false;
+            updateExplanDetail(myowoonResult, hourPillar);
+          }
           updateMyowoonSection(myowoonResult);
           newBtn.classList.add("active");
           newBtn.innerText = "원래 화면으로 가기";
@@ -3976,6 +4004,7 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     }
 
     function updateExplanDetail(myowoonResult, hourPillar) {
+      if (!myowoonResult) return;
   
       function direction() {
         if (myowoonResult.dirMode === "순행") {
@@ -4211,6 +4240,40 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       const monthStr = firstWoljuDate
         ? formatDiffDetailed(displayCorrectedDate, firstWoljuDate)
         : '';
+      const woljuDiffStr = firstWoljuDate
+        ? formatDiffDaysHours(displayCorrectedDate, firstWoljuDate)
+        : '';
+      // 월주 전환 시점은 첫 변화 시점을 기준으로 10년 단위 정렬
+      const woljuFirst = myowoonResult?.woljuFirstChangeDate
+        ? new Date(myowoonResult.woljuFirstChangeDate)
+        : null;
+      const refBase = (refDate instanceof Date && !isNaN(refDate.getTime()))
+        ? refDate
+        : new Date();
+      const addYearsKeep = (dt, years) => {
+        const d = new Date(dt);
+        d.setFullYear(d.getFullYear() + years);
+        return d;
+      };
+      let woljuLastDisplay = myowoonResult?.woljuLastChangeDate || null;
+      let woljuNextDisplay = myowoonResult?.woljuLastChangeDateStart || null;
+      if (woljuFirst) {
+        const baseYear = woljuFirst.getFullYear();
+        const cycleYears = 10;
+        let k = Math.floor((refBase.getFullYear() - baseYear) / cycleYears);
+        let lastYear = baseYear + k * cycleYears;
+        let last = new Date(woljuFirst);
+        last.setFullYear(lastYear);
+        if (last > refBase) {
+          last = addYearsKeep(last, -cycleYears);
+        }
+        if (last < woljuFirst) {
+          last = new Date(woljuFirst);
+        }
+        const next = addYearsKeep(last, cycleYears);
+        woljuLastDisplay = last;
+        woljuNextDisplay = next;
+      }
 
       let html = "";
 
@@ -4301,19 +4364,19 @@ const yeonjuCurrentPillar = yPillars[currIdx];
           원국 월주 간지: <b>${monthPillar}</b><br>
           보정 후 처음 간지 바뀌는 시간: <b>${formatByTimeKnown(myowoonResult.woljuFirstChangeDate)}</b><br>
           보정 후 오늘까지 마지막으로 바뀐 시간: <b>
-          ${ myowoonResult.woljuLastChangeDate == null
+          ${ woljuLastDisplay == null
             ? `변경없음` 
-            : `${formatByTimeKnown(myowoonResult.woljuLastChangeDate)}` }
+            : `${formatByTimeKnown(woljuLastDisplay)}` }
           </b><br>
-          다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(myowoonResult.woljuLastChangeDateStart)}</b><br>
+          다음 간지 바뀌는 날짜 : <b>${formatByTimeKnown(woljuNextDisplay)}</b><br>
           
           최종 업데이트 이벤트 간지: <b>${myowoonResult.woljuCurrentPillar}</b><br>
           방향: <b>${myowoonResult.dirMode}</b><br><br>
           묘운 월주의 경우, 순행은 생일 기준으로,<br> 다음 절기로, 역행은 전 절기를 보고 구하게 됩니다.<br>
           이 명식은 <b>${myowoonResult.dirMode}</b>이므로, ${direction()} 절기의 까지의 기간을 산출합니다.<br>
           보정시에서 ${direction()} 절기의 기간까지 산출했을 때, <br>
-          <b>${getWoljuTimeDifference(correctedDate, selectedLon, myowoonResult.dirMode)}</b> 나오게 되며, <br>
-          ${getWoljuTimeDifference(correctedDate, selectedLon, myowoonResult.dirMode)} / 한달을 → <b>${monthStr}</b> / 10년으로 치환하여 구하게 됩니다.<br>
+          <b>${woljuDiffStr || 'N/A'}</b> 나오게 되며, <br>
+          ${woljuDiffStr || 'N/A'} / 한달을 → <b>${monthStr}</b> / 10년으로 치환하여 구하게 됩니다.<br>
           위에서 구한 년도가 몇년이냐에 따라 대운수가 정해지게 됩니다. <br>
           그 뒤에는 그 뒤의 다음(순행) 혹은 이전(역행) 절기의<br> 날짜와 시간을 보고 시간을 구하게 되는데,<br>
           순행은 절기가 지난 바로 다음절기, 역행은 절기가 지나기 바로 전절기를 보게 됩니다.<br>
@@ -4396,9 +4459,10 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       updateMonthlyWoonByToday(refDate);
       updateHourWoon(refDate);
       updateDayWoon(refDate);
-      
-      myowoonResult = getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
-      updateMyowoonSection(myowoonResult);
+      if (!window.__deferMyowoon) {
+        myowoonResult = getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
+        updateMyowoonSection(myowoonResult);
+      }
     }
 
     function updateFunc(refDate) {
@@ -4429,8 +4493,10 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       
       updateHourWoon(refDate);
       updateDayWoon(refDate);
-      myowoonResult = getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
-      updateMyowoonSection(myowoonResult);
+      if (!window.__deferMyowoon) {
+        myowoonResult = getMyounPillars(myData, refDate, selectTimeValue, hourPillar);
+        updateMyowoonSection(myowoonResult);
+      }
     }
 
     updateFuncVr = updateFunc;
@@ -5149,11 +5215,16 @@ const yeonjuCurrentPillar = yPillars[currIdx];
       }, 100)
     }
 
-    setTimeout(()=>{
-      woonChangeBtn.click();
-    }, 100);
-
-    window.__calcBusy = false;
+    if (window.__skipWoonChangeOnce) {
+      window.__skipWoonChangeOnce = false;
+    } else {
+      setTimeout(()=>{
+        woonChangeBtn.click();
+      }, 100);
+    }
+    } finally {
+      window.__calcBusy = false;
+    }
     
   });
 
@@ -5340,14 +5411,16 @@ const yeonjuCurrentPillar = yPillars[currIdx];
     }
 
     const monthTypeSel = document.getElementById("monthType");
-    if (!isTimeUnknown) {
+    if (!isTimeUnknown && monthTypeSel) {
       monthTypeSel.value = selected.monthType;
-      //monthTypeSel.dispatchEvent(new Event("change"));
-      monthTypeSel.addEventListener("change", () => {
-        fixedCorrectedDate = null;           
-        const newData = makeNewData();  
-        drawResult(newData);            
-      });
+      if (!monthTypeSel.dataset.changeHandlerAttached) {
+        monthTypeSel.dataset.changeHandlerAttached = "1";
+        monthTypeSel.addEventListener("change", () => {
+          fixedCorrectedDate = null;           
+          const newData = makeNewData();  
+          drawResult(newData);            
+        });
+      }
     }
     ensureGroupOption(selected.group);
     document.getElementById("inputMeGroup").value = selected.group || "미선택";
