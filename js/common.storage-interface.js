@@ -1846,10 +1846,7 @@
 
     function updateCurrentDaewoon(refDate, offset = 0) {
 
-      const ipChunThisYear = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
-      const effectiveYear  = (refDate > ipChunThisYear)
-                            ? refDate.getFullYear()
-                            : refDate.getFullYear() - 1;
+      const effectiveYear = refDate.getFullYear();
 
       const birthYear = correctedDate.getFullYear();
       let idx = 0;
@@ -1938,10 +1935,7 @@
     const todayObj = toKoreanTime(new Date());
 
     let currentDaewoonIndex = 0;
-    const ipChunThisYear = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
-    const effectiveYear  = (refDate > ipChunThisYear)
-                            ? refDate.getFullYear()
-                            : refDate.getFullYear() - 1;
+    const effectiveYear = refDate.getFullYear();
     if (daewoonData?.list) {
       for (let i = 0; i < daewoonData.list.length; i++) {
         const startAge  = Math.floor(daewoonData.list[i].age);
@@ -1958,9 +1952,7 @@
     });
 
     function updateCurrentSewoon(refDate) {
-      const ipChun = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
-      //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
-      const effectiveYear = (refDate > ipChun) ? refDate.getFullYear() : refDate.getFullYear() - 1;
+      const effectiveYear = refDate.getFullYear();
       const sewoonIndex = ((effectiveYear - 4) % 60 + 60) % 60;
       const sewoonGanZhi = sexagenaryCycle[sewoonIndex];
       const sewoonSplit = splitPillar(sewoonGanZhi);
@@ -2040,8 +2032,17 @@
         event.stopPropagation();
         document.querySelectorAll("#daewoonList li").forEach(item => item.classList.remove("active"));
         this.classList.add("active");
-        const index = this.getAttribute("data-index");
+        const index = parseInt(this.getAttribute("data-index"), 10) || 1;
         updateDaewoonDetails(index);
+        daewoonIndex = index;
+        updateSewoonItem(refDate);
+        populateSewoonYearAttributes();
+        const displayYear = toKoreanTime(new Date()).getFullYear();
+        document.querySelectorAll("#sewoonList li").forEach(li => {
+          const dyearElem = li.querySelector(".dyear");
+          const currentYear = Number(dyearElem?.innerText);
+          li.classList.toggle("active", currentYear === displayYear);
+        });
         
         requestAnimationFrame(()=>{
           updateEumYangClasses();
@@ -2085,74 +2086,18 @@
     let daewoonIndex = activeDaewoonLi ? parseInt(activeDaewoonLi.getAttribute("data-index"), 10) : 1;
 
     function updateSewoonItem(refDate) {
-      const ipChun      = findSolarTermDate(refDate.getFullYear(), 315, selectedLon);
-      const displayYear = refDate > ipChun
-                        ? refDate.getFullYear()
-                        : refDate.getFullYear() - 1;
-    
-      let loopCount = 0;
-      while (loopCount < daewoonData.list.length) {
-        // 1) 소수점 연도로 변환
-        const decimalBirthYear = getDecimalBirthYear(correctedDate);
-        const idx          = daewoonIndex - 1;
-        const sewoonBaseIndex = daewoonIndex === 1 ? 2 : daewoonIndex;
-        const daewoonItem  = daewoonData.list[sewoonBaseIndex - 1] || daewoonData.list[idx];
-        const yearsOffset  = daewoonItem.age;        
-        const monthsOffset = daewoonData.baseMonths;
-        const sewoonStartDecimal = decimalBirthYear
-                                  + yearsOffset
-                                  + monthsOffset / 12;
-        
-        let startYear = Math.floor(sewoonStartDecimal);
+      const idx = daewoonIndex - 1;
+      const sewoonBaseIndex = daewoonIndex === 1 ? 2 : daewoonIndex;
+      const daewoonItem = daewoonData.list[sewoonBaseIndex - 1] || daewoonData.list[idx];
+      
+      let startYear = correctedDate.getFullYear() + Math.floor(daewoonItem?.age ?? 0);
 
-        if (typeof globalState.myounWoljuStartYear === "number") {
-          const baseIndex = Math.max(0, daewoonIndex - 1);
-          startYear = globalState.myounWoljuStartYear + baseIndex * 10;
-          globalState.sewoonStartYear = startYear;
-        }
-
-        function getSewoonStartYear(selectedLon) {
-            if (selectedLon >= 127 && selectedLon <= 135) {
-            return startYear;
-          } else {
-            return startYear - 1;
-          }
-        }
-        
-        if (typeof globalState.sewoonStartYear !== "number") {
-          globalState.sewoonStartYear = getSewoonStartYear(selectedLon);
-        }
-    
-        const years = Array.from({ length: 10 }, (_, j) => startYear + j);
-        const lastYear = years[years.length - 1];
-        if (years.includes(displayYear)) {
-          if (displayYear === lastYear) {
-            updateCurrentDaewoon(refDate, -1);
-          }
-          break;  
-        }
- 
-        
-        if (daewoonIndex > 1) {
-          
-          daewoonIndex--;
-          // daewoonList 상의 active 표시도 옮겨줍니다.
-          document
-            .querySelectorAll("#daewoonList li")
-            .forEach(li => li.classList.remove("active"));
-          const selLi = document.querySelector(
-            `#daewoonList li[data-index="${daewoonIndex}"]`
-          );
-          selLi && selLi.classList.add("active");
-
-          updateCurrentDaewoon(refDate, -1);
-    
-          loopCount++;
-          continue;  
-        }
-        
-        break;
+      if (typeof globalState.myounWoljuStartYear === "number") {
+        const baseIndex = Math.max(0, daewoonIndex - 2);
+        startYear = globalState.myounWoljuStartYear + baseIndex * 10;
       }
+
+      globalState.sewoonStartYear = startYear;
     
       const sewoonList = [];
       for (let j = 0; j < 10; j++) {
@@ -2204,9 +2149,7 @@
 
     populateSewoonYearAttributes();
 
-    const ipChun = findSolarTermDate(todayObj.getFullYear(), 315, selectedLon);
-    //const ipChun = findSolarTermDate(birthDate.getFullYear(), 315);
-    const displayYear = (todayObj < ipChun) ? todayObj.getFullYear() - 1 : todayObj.getFullYear();
+    const displayYear = todayObj.getFullYear();
     const sewoonLis = document.querySelectorAll("#sewoonList li");
     sewoonLis.forEach(li => {
       const dyearElem = li.querySelector(".dyear");
@@ -2417,6 +2360,7 @@
     
     
 
+    const ipChun = findSolarTermDate(todayObj.getFullYear(), 315, selectedLon);
     const currentSolarYear = (todayObj < ipChun) ? todayObj.getFullYear() - 1 : todayObj.getFullYear();
     let boundariesArr = getSolarTermBoundaries(currentSolarYear, selectedLon);
     let currentTerm = boundariesArr.find((term, idx) => {
@@ -2653,29 +2597,19 @@
         const monthlyContainer = document.getElementById("walwoonArea");
         if (monthlyContainer) { monthlyContainer.style.display = "none"; }
         const daewoonIndex = parseInt(this.getAttribute("data-index"), 10);
-        const decimalBirthYear = getDecimalBirthYear(correctedDate);
         const selectedDaewoon = daewoonData.list[daewoonIndex - 1];
         if (!selectedDaewoon) return;
 
         const sewoonBaseIndex = daewoonIndex === 1 ? 2 : daewoonIndex;
         const sewoonBaseDaewoon = daewoonData.list[sewoonBaseIndex - 1] || selectedDaewoon;
-        const daewoonNum = sewoonBaseDaewoon.age; 
-        const sewoonStartYearDecimal = Math.floor(decimalBirthYear + daewoonNum);
+        let startYear = correctedDate.getFullYear() + Math.floor(sewoonBaseDaewoon?.age ?? 0);
 
-        function getSewoonStartYear(selectedLon) {
-            if (selectedLon >= 127 && selectedLon <= 135) {
-            return sewoonStartYearDecimal + 1;
-          } else {
-            return sewoonStartYearDecimal - 1;
-          }
-        }
-        
         if (typeof globalState.myounWoljuStartYear === "number") {
-          const baseIndex = Math.max(0, daewoonIndex - 1);
-          globalState.sewoonStartYear = globalState.myounWoljuStartYear + baseIndex * 10;
-        } else {
-          globalState.sewoonStartYear = getSewoonStartYear(selectedLon);
+          const baseIndex = Math.max(0, daewoonIndex - 2);
+          startYear = globalState.myounWoljuStartYear + baseIndex * 10;
         }
+
+        globalState.sewoonStartYear = startYear;
         
         // 세운(운) 리스트 생성
         const sewoonList = [];
