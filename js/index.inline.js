@@ -1,4 +1,4 @@
-﻿(() => {
+﻿﻿(() => {
   function pushAdsSafe() {
     try {
       (adsbygoogle = window.adsbygoogle || []).push({});
@@ -156,6 +156,35 @@
           body.classList.remove('ganzhi_white');
         }
       });
+    }
+
+    const noticeModal = document.getElementById('noticeModal');
+    if (noticeModal) {
+      const closeTodayBtn = document.getElementById('noticeCloseToday');
+      const closeForeverBtn = document.getElementById('noticeCloseForever');
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      const hideDate = localStorage.getItem('noticeHideDate');
+      const hideForever = localStorage.getItem('noticeHideForever');
+
+      // '더 이상 보지 않기'가 아니고, '오늘 하루 보지 않기' 날짜가 오늘이 아니면 표시
+      if (hideForever !== 'true' && hideDate !== todayStr) {
+        noticeModal.style.display = 'flex';
+      }
+
+      if (closeTodayBtn) {
+        closeTodayBtn.addEventListener('click', () => {
+          localStorage.setItem('noticeHideDate', todayStr);
+          noticeModal.style.display = 'none';
+        });
+      }
+
+      if (closeForeverBtn) {
+        closeForeverBtn.addEventListener('click', () => {
+          localStorage.setItem('noticeHideForever', 'true');
+          noticeModal.style.display = 'none';
+        });
+      }
     }
 
     pushAllAds();

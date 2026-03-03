@@ -45,8 +45,92 @@
     <link rel="stylesheet" href="./css/style.responsive.css" />
 
     <script src="./js/index.head.js"></script>
+    <style>
+      .notice-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(5px);
+        color: #fff;
+      }
+      .notice-modal-content {
+        background: var(--panel);
+        border: 1px solid var(--line-2);
+        border-radius: var(--radius);
+        padding: 24px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: var(--shadow);
+        color: var(--text);
+      }
+      .notice-modal-content h4 {
+        margin: 0 0 12px;
+        font-size: var(--fs-2);
+        color: var(--brand);
+      }
+      .notice-modal-content p {
+        margin: 0 0 20px;
+        line-height: var(--lh);
+        color: var(--muted);
+      }
+      .notice-modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      .notice-modal-actions button {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, .08);
+        color: var(--text);
+        padding: 9px 14px;
+        border-radius: var(--radius-sm);
+        font-size: var(--fs-4);
+        cursor: pointer;
+        transition: background .12s ease;
+      }
+      .notice-modal-actions button:hover {
+        background: rgba(255, 255, 255, .12);
+      }
+      #noticeCloseForever {
+        background: var(--brand);
+        border-color: var(--brand);
+        color: #fff;
+        font-weight: 700;
+      }
+      #noticeCloseForever:hover {
+        filter: brightness(1.1);
+        background: var(--brand);
+      }
+
+      @media (max-width: 768px) {
+        .notice-modal {
+          font-size: 14px;
+        }
+
+        .notice-modal-actions button {
+          font-size: 13px;
+      }
+    </style>
   </head>
   <body id="app">
+    <!-- 공지사항 모달 -->
+    <div id="noticeModal" class="notice-modal" style="display: none;">
+      <div class="notice-modal-content">
+        <h4>[공지사항]</h4>
+        <p>3월 10일 이후로 사이트 리뉴얼이 시작됩니다. 명식은 그대로 이관될 예정이며, 로그인 서비스가 들어갑니다. (로그인 서비스가 들어가면 웹-모바일, 다른 브라우저 등 연동해서 사용하실 수 있습니다.)</p>
+        <div class="notice-modal-actions">
+          <button id="noticeCloseToday">오늘 하루 보지 않기</button>
+          <button id="noticeCloseForever">더 이상 보지 않기</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 지도 모달 -->
     <div id="mapModal">
       <div id="mapContainer">
@@ -747,4 +831,3 @@
     </div>
   </body>
 </html>
-

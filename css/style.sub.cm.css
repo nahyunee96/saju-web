@@ -2627,3 +2627,73 @@ tbody tr:last-child td{ border-bottom:0; }
   .hapchung-note .card{ padding: 16px 14px; border-radius: 14px; }
   .hapchung-note .note-title{ font-size: 20px; }
 }
+
+/* ===== 공지사항 모달 ===== */
+.notice-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+}
+
+.notice-modal-content {
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+.notice-modal-content h4 {
+  margin: 0 0 12px;
+  font-size: var(--fs-2);
+  color: var(--brand);
+}
+
+.notice-modal-content p {
+  margin: 0 0 20px;
+  line-height: var(--lh);
+  color: var(--muted);
+}
+
+.notice-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.notice-modal-actions button {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .08);
+  color: var(--text);
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-4);
+  cursor: pointer;
+  transition: background .12s ease;
+}
+
+.notice-modal-actions button:hover {
+  background: rgba(255, 255, 255, .12);
+}
+
+#noticeCloseForever {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--bg-0);
+  font-weight: 700;
+}
+
+#noticeCloseForever:hover {
+  filter: brightness(1.1);
+  background: var(--brand);
+}
