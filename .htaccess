@@ -1,0 +1,4 @@
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^myowoon96\.com$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.myowoon96\.com$
+RewriteRule ^(.*)$ https://hwarim.me/$1 [R=301,L]
